@@ -1,6 +1,6 @@
 # todo make a non-hollow(with static files copy) Dockerfile
 
-FROM httpd:2-alpine
+FROM httpd:2
 
 
 
@@ -10,6 +10,7 @@ VOLUME /usr/local/apache2/htdocs/static/
 
 
 COPY conf/* /usr/local/apache2/conf/
+#COPY conf /etc/apache2/conf.d/
 
 
 

@@ -59,6 +59,10 @@ If gtrace shows up on `process_multifile_request`, do a redo followed by a skip 
 ## python
 various parts use various levels of logging severity, eg.: `logging.getLogger().info(msg)`. We don't yet have a method to control current severity (when spawning django server, or when running a worker from the command line).
 
+# apache
+adjust `LogLevel` in httpd.conf, for example `trace6`
+
+
 ## network
 
  watch http trafic from and to endpoint:

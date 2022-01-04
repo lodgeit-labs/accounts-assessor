@@ -78,9 +78,20 @@ def run(port_postfix, public_url, parallel_build, rm_stack, **choices):
 	# caddy is just gonna listen on 80 and 443 always.
 	generate_caddy_config(public_host)
 
+	if choices['use_host_network']:
+		frontend = 'localhost'
+	else:
+		frontend = 'frontend'
 	open('apache/conf/dynamic.conf','w').write(
 f"""
 ServerName {public_host}
+
+ProxyPassReverse "/clients" "http://{frontend}:7788/clients"
+ProxyPass "/clients" "http://{frontend}:7788/clients"  connectiontimeout=160 timeout=160 retry=10 acquire=3000 Keepalive=Off
+
+ProxyPassReverse "/backend" "http://{frontend}:7788/backend"
+ProxyPass "/backend" "http://{frontend}:7788/backend"  connectiontimeout=160 timeout=160 retry=10 acquire=3000 Keepalive=Off
+
 """
 	)
  
