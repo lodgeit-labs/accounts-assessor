@@ -15,8 +15,6 @@ import threading
 
 
 class ExcThread(threading.Thread):
-	def excRun(self):
-		pass
 
 	def run(self):
 		self.exc = None
@@ -30,6 +28,8 @@ class ExcThread(threading.Thread):
 		if self.exc:
 			if self.task:
 				task = ' (' + str(self.task) + ')'
+			else:
+				task = ''
 			msg = f"Thread '{self.getName()}'{task} threw an exception: {self.exc[1]}"
 			new_exc = Exception(msg)
 			raise new_exc.with_traceback(self.exc[2])
@@ -51,7 +51,7 @@ ss = shlex.split
 def co(cmd):
 	return subprocess.check_output(cmd, text=True, universal_newlines=True)
 def cc(cmd):
-	return subprocess.check_call(cmd, text=True, universal_newlines=True)
+	return subprocess.check_call(cmd, text=True, universal_newlines=True, bufsize=1)
 
 def ccss(cmd):
 	return cc(ss(cmd))
@@ -61,18 +61,22 @@ threads = []
 
 
 def task(cmd):
-	if _parallel:
-		thread = ExcThread(target = ccss, args = (cmd,))
-		thread.task = cmd
-		threads.append(thread)
-		thread.start()
-	else:
-		ccss(cmd)
+	thread = ExcThread(target = ccss, args = ('stdbuf -oL -eL ' + cmd,))
+	thread.task = cmd
+	threads.append(thread)
+	thread.start()
+	if not _parallel:
+		thread.join()
+	return thread
 
 
 def realpath(x):
 	return co(['realpath', x])[:-1]
 
+
+def chdir(x):
+	print(f'cd {x}')
+	os.chdir(x)
 
 
 @click.command(help="""build the docker images.""")
@@ -92,17 +96,33 @@ def run(port_postfix, mode, parallel):
 
 	cc('../docker_scripts/lib/git_info.fish')
 
-	print()
-	print("flower...")
-	task(f'docker build -t  "koo5/flower{port_postfix}"             -f "../docker_scripts/flower/Dockerfile" . ')
-	
+	# print()
+	# print("flower...")
+	# task(f'docker build -t  "koo5/flower{port_postfix}"             -f "../docker_scripts/flower/Dockerfile" . ')
+	#
+
+	chdir('../docker_scripts/')
+
 	print()
 	print("apache...")
-	task(f'docker build -t  "koo5/apache{port_postfix}"             -f "../docker_scripts/apache/Dockerfile" . ')
+	chdir('apache')
+	task(f'docker build -t  "koo5/apache{port_postfix}"             -f "Dockerfile" . ')
+	chdir('..')
 
 	print()
 	print("agraph...")
-	task(f'docker build -t  "koo5/agraph{port_postfix}"             -f "../docker_scripts/agraph/Dockerfile" . ')
+	chdir('agraph')
+	task(f'docker build -t  "koo5/agraph{port_postfix}"             -f "Dockerfile" . ')
+	chdir('..')
+
+	print()
+	print("ubuntu...")
+	chdir('ubuntu')
+	task(f'docker build -t  "koo5/ubuntu"             -f "Dockerfile" . ').join()
+	chdir('..')
+
+
+	chdir('../sources/')
 
 	print()
 	print("internal-workers-hlw...")

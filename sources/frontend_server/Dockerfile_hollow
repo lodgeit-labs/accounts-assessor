@@ -1,10 +1,12 @@
-FROM ubuntu:20.04
-RUN apt-get update && apt-get install -y git python3.9 python3-pip \
+FROM koo5/ubuntu
+
+RUN apt-get install -qqy git python3.9 python3-pip \
  && rm -rf /var/lib/apt/lists/*
+
 RUN mkdir /app
 WORKDIR /app
 COPY frontend_server/requirements_minimal.txt .
-RUN pip3 install --no-cache-dir -r requirements_minimal.txt
+RUN python3.9 -m pip install --no-cache-dir -r requirements_minimal.txt
 EXPOSE 7788
 RUN mkdir -p /app/server_root
 

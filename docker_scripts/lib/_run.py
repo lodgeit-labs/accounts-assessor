@@ -78,7 +78,7 @@ def run(port_postfix, public_url, parallel_build, rm_stack, **choices):
 	# caddy is just gonna listen on 80 and 443 always.
 	generate_caddy_config(public_host)
 
-	open('../sources/apache/conf/dynamic.conf','w').write(
+	open('apache/conf/dynamic.conf','w').write(
 f"""
 ServerName {public_host}
 """
@@ -153,7 +153,7 @@ def generate_caddy_config(public_host):
 	}}
 	'''
 	
-	with open('../sources/caddy/Caddyfile', 'w') as f:
+	with open('caddy/Caddyfile', 'w') as f:
 		f.write(cfg)    
 
 

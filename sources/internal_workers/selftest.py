@@ -111,9 +111,11 @@ def do_testcase(testcase, json):
 
 
 
-def run_test(testcase):
-	logging.getLogger().info(f'{testcase.target_server_url}')
-
+def run_test(test):
+	logging.getLogger().info(f'{test.target_server_url}')
+	if test.type='json_endpoint_test':
+		res = requests.post(url=test.target_server_url + test.api_uri, json=test.post_data)
+		prtin(res.json())
 
 
 
