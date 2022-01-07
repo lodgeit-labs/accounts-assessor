@@ -32,10 +32,10 @@ def call_prolog_calculator(celery_app, final_result_tmp_directory_name, final_re
 	})
 
 	if celery_app:
-		task = celery_app.signature('invoke_rpc.call_prolog').apply_async(kwargs=kwargs)
-		response_tmp_directory_name, _result_json = task.get(timeout=timeout_seconds)
+		task = celery_app.signature('invoke_rpc.call_prolog_calculator2').apply_async(kwargs=kwargs)
+		return task.get(timeout=timeout_seconds)['response_tmp_directory_name']
 	else:
-		from invoke_rpc import call_prolog
-		response_tmp_directory_name, _result_json = call_prolog(**kwargs)
-	return response_tmp_directory_name
+		from invoke_rpc import call_prolog_calculator2
+		return call_prolog_calculator2(**kwargs)['response_tmp_directory_name']
+
 

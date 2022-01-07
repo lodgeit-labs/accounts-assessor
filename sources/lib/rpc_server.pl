@@ -55,7 +55,7 @@ process_request_rpc_cmdline1(Dict) :-
 
 process_request_rpc_cmdline2(Dict) :-
 	%profile(
-	process_request_rpc_cmdline3(Dict.method, Dict),
+	process_request_rpc_cmdline3(Dict.method, Dict.params),
 	%[]),gtrace,
 	flush_output.
 
@@ -68,11 +68,11 @@ process_request_rpc_cmdline3("testcase_permutations", Params) :-
 			include(ground, T, T2),
 			dict_pairs(Params, _, Params_pairs),
 			append(Params_pairs, T2, T3),
-			maplist(pair_to_json, T3, Testcase),
+			maplist(pair_to_json, T3, Testcase)
 		),
 		Testcases
 	),
-	json_write(current_output, Testcases).
+	json_write(current_output, response{status:ok, result: Testcases}).
 
 process_request_rpc_cmdline3("calculator", Dict) :-
 	!,
@@ -84,7 +84,7 @@ process_request_rpc_cmdline3("chat", Dict) :-
 	json_write(current_output, Response).
 
 process_request_rpc_cmdline3(_,_) :-
-	json_write(current_output, err{error:m{message:unknown_method}}).
+	json_write(current_output, response{status:error, message:unknown_method}).
 
 
 

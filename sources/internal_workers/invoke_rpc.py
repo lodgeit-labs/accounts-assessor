@@ -6,16 +6,51 @@ from fs_utils import command_nice, flatten_lists
 
 
 
+def call_prolog_calculator2(kwargs):
+	msg = kwargs['msg']
+	# this is where prolog will put reports:
+	result_tmp_directory_name, result_tmp_path = create_tmp()
+	msg['params']['result_tmp_directory_name'] = result_tmp_directory_name
 
-# from rq import get_current_job
-# job = get_current_job()
+	# symlink from "final result"(aka "task_handle") directory to actual result directory:
+	final_result_tmp_directory_path = None
+	if 'final_result_tmp_directory_path' in msg['params']:
+		final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
+		print("final_result_tmp_directory_path: " + final_result_tmp_directory_path)
+		if final_result_tmp_directory_path != None:
+			ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/' + result_tmp_directory_name)
+		# symlink tmp/last_result to tmp/xxxxx:
+		last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
+		if os.path.exists(last_result_symlink_path):
+			subprocess.call(['/bin/rm', last_result_symlink_path])
+		ln(
+			result_tmp_directory_name,
+			last_result_symlink_path)
 
+	# write call info txt:
+	with open(os.path.join(result_tmp_path, 'rpc_call_info.txt'), 'w') as info:
+		info.write('request:\n')
+		info.write(str(msg))
+		info.write('\n')
 
+	# copy repo status txt to result dir
+	shutil.copyfile(
+		os.path.abspath(git('sources/static/git_info.txt')),
+		os.path.join(result_tmp_path, 'git_info.txt'))
 
+	msg['params'].update(
+		uri_params(result_tmp_directory_name)
+	)
 
-def call_prolog2(msg):
-	return call_prolog(msg)[1]
+	result = call_prolog(**kwargs)
+	if result['status'] != 'error':
+		print('postprocess_doc...')
+		print('todo...')
+		#celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
+		print('postprocess_doc..')
+		ln('../' + result_tmp_directory_name, final_result_tmp_directory_path + '/completed')
 
+	return result
 
 
 
@@ -41,76 +76,15 @@ def call_prolog(
 	dont_gtrace = os.getenv('DONT_GTRACE', config.get('DONT_GTRACE', False))
 	die_on_error = os.getenv('DIE_ON_ERROR', config.get('DIE_ON_ERROR', False))
 
-
-
 	logging.getLogger().info('msg:')
 	logging.getLogger().info(msg)
 	sys.stdout.flush()
 	sys.stderr.flush()
 
-
-
-	# this is where prolog will put reports:
-	result_tmp_directory_name, result_tmp_path = create_tmp()
-	msg['params']['result_tmp_directory_name'] = result_tmp_directory_name
-
-
-	# symlink from "final result"(aka "task_handle") directory to actual result directory:
-	final_result_tmp_directory_path = None
-	if 'final_result_tmp_directory_path' in msg['params']:
-		final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
-		print("final_result_tmp_directory_path: " + final_result_tmp_directory_path)
-		if final_result_tmp_directory_path != None:
-			ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/' + result_tmp_directory_name)
-
-
-
-		# symlink tmp/last_result to tmp/xxxxx:
-		last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
-		if os.path.exists(last_result_symlink_path):
-			subprocess.call(['/bin/rm', last_result_symlink_path])
-		ln(
-			result_tmp_directory_name,
-			last_result_symlink_path)
-
-
-
-	# write call info txt:
-	with open(os.path.join(result_tmp_path, 'rpc_call_info.txt'), 'w') as info:
-		info.write('request:\n')
-		info.write(str(msg))
-		info.write('\n')
-
-
-
 	#logging.getLogger().warn(os.getcwd())
 	#logging.getLogger().warn(os.path.abspath(git('sources/static/git_info.txt')))
 	#logging.getLogger().warn(git('sources/static/git_info.txt'))
 	#logging.getLogger().warn(os.path.join(result_tmp_path))
-
-
-
-	# copy repo status txt to result dir
-	shutil.copyfile(
-		os.path.abspath(git('sources/static/git_info.txt')),
-		os.path.join(result_tmp_path, 'git_info.txt'))
-
-
-
-
-	msg['params'].update(
-		uri_params(result_tmp_directory_name)
-	)
-
-
-
-	# set working directory. Should not matter for the prolog app, since everything in the prolog app uses (or should use) lib/search_paths.pl,
-	# and dev_runner uses tmp_file_stream.
-	#
-
-
-
-
 
 	# construct the command line:
 	if debug_loading:
@@ -135,8 +109,6 @@ def call_prolog(
 		halt_goal = ''
 
 
-
-
 	input = json.dumps(msg)
 	cmd0 = [
 		git("sources/public_lib/lodgeit_solvers/tools/dev_runner/dev_runner.pl"),
@@ -149,8 +121,6 @@ def call_prolog(
 	cmd1 = dev_runner_options
 
 
-
-
 	# pipe the command or pass as an argument?
 	if pipe_rpc_json_to_swipl_stdin:
 		goal = ',utils:print_debugging_checklist,lib:process_request_rpc_cmdline'
@@ -159,48 +129,32 @@ def call_prolog(
 
 
 
-
 	cmd2 = [['-g', debug_goal + prolog_flags + goal + halt_goal]]
 	cmd = cmd0 + cmd0b + cmd1 + cmd2
-
-
-
 
 
 	cmd = flatten_lists([#'/usr/bin/time',
 	#					'-v',
 	#					'--f', "user time :%U secs, max mem: %M kb",
 						cmd])
-	logging.getLogger().warn('invoke_rpc: running:')
+	logging.getLogger().warn('invoke_rpc: cmd:')
 	logging.getLogger().warn(shlex.join(cmd))
 
 
-
-
-
-	#print('# pipe_rpc_json_to_swipl_stdin=',pipe_rpc_json_to_swipl_stdin)
-	try:
-		if pipe_rpc_json_to_swipl_stdin:
-			p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)#, shell=True)
-			#logging.getLogger().debug(('invoke_rpc: piping to swipl:'))
-			#logging.getLogger().debug((input))
-			print('invoke_rpc: piping to swipl:')
-			print(input)
-			sys.stdout.flush()
-			(stdout_data, stderr_data) = p.communicate(input = input)# + '\n\n')
-		else:
-			p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
-			(stdout_data, stderr_data) = p.communicate()
-	except FileNotFoundError as e:
-		print(
-			"invoke_rpc: if system PATH is messed up, maybe you're running the server from venv, and activating the venv a second time, from run_common0.sh, messes it up")
-		raise
-
-
+	if pipe_rpc_json_to_swipl_stdin:
+		p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)#, shell=True)
+		print('invoke_rpc: piping to swipl:')
+		print(input)
+		sys.stdout.flush()
+		(stdout_data, stderr_data) = p.communicate(input = input)# + '\n\n')
+	else:
+		print('invoke_rpc: invoking swipl...')
+		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
+		(stdout_data, stderr_data) = p.communicate()
 
 
 	if stdout_data in [b'', '']:
-		print('invoke_rpc: got no stdout from swipl.')
+		return {'status':'error', 'message': 'invoke_rpc: got no stdout from swipl.'}
 	else:
 		print()
 		print("invoke_rpc: prolog stdout:")
@@ -209,23 +163,11 @@ def call_prolog(
 		print()
 		try:
 			rrr = json.loads(stdout_data)
-			if msg['method'] == "calculator":
-				print('postprocess_doc...')
-				print('todo...')
-				#celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
-				print('postprocess_doc..')
-			if final_result_tmp_directory_path != None:
-				ln('../' + result_tmp_directory_name, final_result_tmp_directory_path + '/completed')
-			return msg['params']['result_tmp_directory_name'], rrr
+			return rrr
 		except json.decoder.JSONDecodeError as e:
 			print('invoke_rpc:', e)
 			print()
-
-
-
-	# kbye
-	return msg['params']['result_tmp_directory_name'], {'status':'error'}
-
+			return {'status':'error', 'message': f'invoke_rpc: {e}'}
 
 
 

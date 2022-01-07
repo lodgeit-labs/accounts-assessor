@@ -40,7 +40,6 @@ services:
     image: koo5/frontend${PP}:latest
     environment:
       DJANGO_ARGS: "${DJANGO_ARGS}"
-      SECRET__REDIS_HOST: 'redis'
       DJANGO_SETTINGS_MODULE: "frontend_server.settings_prod"
 
     volumes:
@@ -60,6 +59,7 @@ services:
       restart_policy:
         condition: any
     secrets:
+      - SECRET__REDIS_HOST
       - DJANGO_SECRET_KEY
       - AGRAPH_SECRET_HOST
       - AGRAPH_SECRET_PORT
@@ -109,6 +109,7 @@ services:
       restart_policy:
         condition: any
     secrets:
+      - SECRET__REDIS_HOST
       - AGRAPH_SECRET_HOST
       - AGRAPH_SECRET_PORT
       - AGRAPH_SUPER_USER

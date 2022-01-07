@@ -71,6 +71,10 @@ def ccd(cmd, env):
 @click.option('-om', '--omit_service', type=str, default='',
 	help=" ")
 
+@click.option('-sd', '--secrets_dir', type=str, default='../secrets/',
+	help=" ")
+
+
 def run(port_postfix, public_url, parallel_build, rm_stack, **choices):
 	public_host = urlparse(public_url).hostname
 	compose = choices['compose']
@@ -182,7 +186,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure, compose, omit_service):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure, compose, omit_service, secrets_dir):
 
 	res = deepcopy(src)
 	services = res['services']
@@ -200,12 +204,12 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 
 	if not 'secrets' in res:
 		res['secrets'] = {}
-	print(res['secrets'])
-	for fn,path in files_in_dir('../secrets/'):
+	#print(res['secrets'])
+	for fn,path in files_in_dir(secrets_dir):
 		if fn not in res['secrets']:
-			print (path)
+			#print (path)
 			res['secrets'][fn] = {'file':(path)}
-	print(res['secrets'])
+	#print(res['secrets'])
 
 	if use_host_network:
 		del res['networks']['frontend']

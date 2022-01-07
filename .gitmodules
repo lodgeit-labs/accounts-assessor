@@ -7,3 +7,6 @@
 [submodule "sources/wait-for-it"]
 	path = sources/wait-for-it
 	url = https://github.com/vishnubob/wait-for-it.git
+[submodule "sources/common/rq"]
+	path = sources/common/rq
+	url = git@github.com:koo5/rq.git

@@ -105,11 +105,6 @@ WORKDIR /app
 
 
 
-COPY requirements.txt .
-RUN python3.9 -m pip install --no-cache-dir -r requirements.txt 
-
-
-
 
 ARG uid=1000
 ARG gid=1000
@@ -130,6 +125,12 @@ VOLUME /app/sources/
 VOLUME /app/tests/
 WORKDIR /app/sources/internal_workers
 VOLUME /root/.config/swi-prolog/xpce/
+
+
+COPY common/rq /app/sources/common/rq
+COPY requirements.txt .
+RUN python3.9 -m pip install --no-cache-dir -r requirements.txt 
+
 
 
 

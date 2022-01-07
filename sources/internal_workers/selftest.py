@@ -32,13 +32,16 @@ def start_selftest_session(target_server_url):
 	session = generateUniqueUri(a, 'session')
 	a.addTriple(session, RDF.TYPE, selftest.Session)
 	a.addTriple(session, selftest.target_server_url, target_server_url)
-	job = q.enqueue('invoke_rpc.call_prolog2', msg={"method": "testcase_permutations", "params": {'target_server_url':target_server_url}}, on_success=after_generate_testcase_permutations, meta={'session':str(session)})
+	job = q.enqueue('invoke_rpc.call_prolog', msg={"method": "testcase_permutations", "params": {'target_server_url':target_server_url}}, on_success=after_generate_testcase_permutations, meta={'session':str(session)})
 	return session, job
 
 
 
-def after_generate_testcase_permutations(job, connection, permutations: list[dict], *args, **kwargs):
-	q.enqueue(add_testcase_permutations, job.meta['session'], permutations, on_success=after_add_testcase_permutations, meta=job.meta)
+def after_generate_testcase_permutations(job, connection, permutations: dict, *args, **kwargs):
+	if permutations['status'] == 'ok':
+		q.enqueue(add_testcase_permutations, job.meta['session'], permutations['result'], on_success=after_add_testcase_permutations, meta=job.meta)
+	else:
+		raise Exception(permutations)
 
 
 
@@ -56,20 +59,19 @@ def add_testcase_permutations(session, permutations):
 	#logging.getLogger().warn(permutations)
 	for p0 in permutations:
 
-		p = Dotdict(ordered_json_to_dict(p0))
-		logging.getLogger().info((p0))
+		p = ordered_json_to_dict(p0)
+		#logging.getLogger().info((p0))
 		testcase = generateUniqueUri(a, 'testcase')
 
 		#tr()
 		if 'priority' not in p:
-			p.priority = 0
+			p['priority'] = 0
 
 		a.addTriple(session, selftest.has_testcase, testcase)
-		a.addTriple(testcase, selftest.priority, p.priority)
+		a.addTriple(testcase, selftest.priority, p['priority'])
 		import time
 		p['ts'] = time.ctime()
-		dd = p._dict
-		jj = json.dumps(dd, indent=4)
+		jj = json.dumps(p, indent=4)
 		a.addTriple(testcase, selftest.json, jj)
 
 
@@ -105,8 +107,10 @@ def run_outstanding_testcases(session):
 def do_testcase(testcase, json):
 	testcase = URI(testcase)
 	logging.getLogger().info(f'do_testcase: {testcase}')
-	json = Dotdict(json)
-	result = run_test(json)
+	try:
+		result = run_test(Dotdict(json))
+	except e:
+		print(e)
 	#q.enqueue(run_outstanding_testcases, session)
 
 
@@ -129,7 +133,7 @@ def ordered_json_to_dict(p0):
 	for i in p0:
 		k,v = list(i.items())[0]
 		a[k] = v
-	return Dotdict(a)
+	return a
 
 
 #
@@ -208,3 +212,8 @@ def ordered_json_to_dict(p0):
 # 			return run_outstanding_testcases(str(bindings.getValue('session')))
 
 
+
+
+
+# from rq import get_current_job
+# job = get_current_job()

@@ -1,17 +1,18 @@
 # this file contains requirements of all sub-projects, as well as some developer conveniences.
 
 wheel
-#ipython
 click==8.*
 untangle
 deepdiff
 defusedxml
 xmlschema~=1.5
+
 django~=3.2
 django-modern-rpc
-celery[redis]~=5.1
+django-cors-headers
+
+#celery[redis]~=5.1
 git+https://github.com/Arelle/Arelle
-#-e https://github.com/Arelle/Arelle
 xmldiff
 agraph-python
 simplejson
@@ -21,7 +22,6 @@ iso8601
 rdflib
 pyyed
 git+https://github.com/koo5/memory_profiler
-django-cors-headers
 
 argh
 PyYAML
@@ -30,4 +30,4 @@ watchdog
 #pydevd-pycharm==213.5744.248
 
 requests
-rq
+-e /app/sources/common/rq/
