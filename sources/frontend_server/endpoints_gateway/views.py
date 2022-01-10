@@ -16,14 +16,6 @@ import datetime
 
 
 
-
-from rq import Queue
-from redis import Redis
-redis_conn = Redis(os.environ.get('SECRET__REDIS_HOST', 'localhost'))
-q = Queue('clients', connection=redis_conn)
-
-
-
 import selftest
 
 
@@ -169,21 +161,12 @@ def json_prolog_rpc_call(request, msg):
 def rpc(request):
 	if request.method != 'POST':
 		return
-	#logging.getLogger().warn(('rpc', request,))
-	#sys.stderr.flush()
 	target_server_url = 'http://localhost:80'
-	#target_server_url = None
 	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
-	task, rq_job = selftest.start_selftest_session(target_server_url)
-	p = rq_job.get_position()
-	if p is None:
-		p = 'unknown (RQ_ASYNC=0?)'
-	return JsonResponse({'@id':str(task), 'job_position': p})
+	task = selftest.start_selftest_session(target_server_url)
+	return JsonResponse({'@id':str(task)})
 
 
-
-
-#import IPython; IPython.embed()
 
 # todo https://www.honeycomb.io/microservices/
 

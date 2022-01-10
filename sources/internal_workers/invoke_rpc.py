@@ -6,6 +6,10 @@ from fs_utils import command_nice, flatten_lists
 
 
 
+import remoulade
+
+
+
 def call_prolog_calculator2(kwargs):
 	msg = kwargs['msg']
 	# this is where prolog will put reports:
@@ -54,6 +58,7 @@ def call_prolog_calculator2(kwargs):
 
 
 
+@remoulade.actor
 def call_prolog(
 		msg,
 		dev_runner_options=[],
@@ -169,6 +174,9 @@ def call_prolog(
 			print()
 			return {'status':'error', 'message': f'invoke_rpc: {e}'}
 
+
+
+remoulade.declare_actors([call_prolog])
 
 
 

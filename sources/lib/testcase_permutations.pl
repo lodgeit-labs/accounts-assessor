@@ -24,15 +24,15 @@
 
 testcase([
 	type=json_endpoint_test,
-	api_uri='/sbe',
-	post_data=_{current_state:[]},
+	api_uri='/clients/chat',
+	post_data=j{current_state:[],type:sbe},
 	result_text='{"result": {"question": "Are you a Sole trader, Partnership, Company or Trust?", "state": [{"question_id": 0, "response": -1}]}}'
 	]).
 
 testcase([
 	type=json_endpoint_test,
-	api_uri='/residency',
-	post_data=_{current_state:[]},
+	api_uri='/clients/chat',
+	post_data=j{current_state:[],type:residency},
 	result_text='{"result": {"question": "Do you live in Australia?", "state": [{"question_id": 1, "response": -1}]}}'
 	]).
 

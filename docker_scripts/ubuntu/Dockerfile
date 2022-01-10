@@ -29,3 +29,22 @@ ENV LC_ALL $LOC
 RUN sed -i -e 's/# $LOC UTF-8/$LOC UTF-8/' /etc/locale.gen
 RUN dpkg-reconfigure --frontend=noninteractive locales  && update-locale LANG=$LOC
 RUN unattended-upgrade
+
+
+RUN mkdir /app
+RUN apt-get install -qqy git python3.9 python3.9-dev python3-pip libcurl4-gnutls-dev libssl-dev libgnutls28-dev
+
+
+ARG uid=1000
+ARG gid=1000
+RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
+
+
+
+ENV PYTHONUNBUFFERED true
+ENV PYTHONDONTWRITEBYTECODE 1
+
+
+
+
+

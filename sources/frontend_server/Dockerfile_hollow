@@ -1,29 +1,18 @@
 FROM koo5/ubuntu
 
-RUN apt-get install -qqy git python3.9 python3-pip \
- && rm -rf /var/lib/apt/lists/*
-
-RUN mkdir /app
-WORKDIR /app
+WORKDIR /app/sources/common
+COPY common/libs /app/sources/common/libs
 COPY frontend_server/requirements_minimal.txt .
 RUN python3.9 -m pip install --no-cache-dir -r requirements_minimal.txt
+
+WORKDIR /app
+
+
 EXPOSE 7788
 RUN mkdir -p /app/server_root
-
-
 VOLUME /app/server_root
 VOLUME /app/sources/
-
-
-ARG uid=1000
-ARG gid=1000
-RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
 USER myuser
-
-
 WORKDIR /app/sources/frontend_server
-ENV PYTHONUNBUFFERED true
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV CELERY_QUEUE_NAME=q7788
 ENTRYPOINT ["./start.sh"]
 CMD ["0.0.0.0:7788"]

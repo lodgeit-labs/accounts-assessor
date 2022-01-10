@@ -3,9 +3,17 @@ import typing
 
 
 import logging
+
 l = logging.getLogger()
 l.setLevel(logging.DEBUG)
 l.addHandler(logging.StreamHandler())
+
+
+
+import remoulade
+from remoulade.brokers.rabbitmq import RabbitmqBroker
+rabbitmq_broker = RabbitmqBroker(url="amqp://localhost")
+remoulade.set_broker(rabbitmq_broker)
 
 
 
@@ -15,14 +23,7 @@ from agraph import agc, RDF, generateUniqueUri
 from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 from franz.openrdf.model.value import URI
 from dotdict import Dotdict
-
-
-
-from rq import Queue
-from redis import Redis
-redis_conn = Redis(os.environ.get('SECRET__REDIS_HOST', 'localhost'))
-from rq_myjob import MyJob
-q = Queue('selftest', job_class=MyJob, connection=redis_conn, default_timeout=-1, is_async=os.environ.get('RQ_ASYNC',True))
+from invoke_rpc import call_prolog
 
 
 
@@ -32,22 +33,21 @@ def start_selftest_session(target_server_url):
 	session = generateUniqueUri(a, 'session')
 	a.addTriple(session, RDF.TYPE, selftest.Session)
 	a.addTriple(session, selftest.target_server_url, target_server_url)
-	job = q.enqueue('invoke_rpc.call_prolog', msg={"method": "testcase_permutations", "params": {'target_server_url':target_server_url}}, on_success=after_generate_testcase_permutations, meta={'session':str(session)})
-	return session, job
 
+	start_selftest_session2.send(str(session), target_server_url)
 
+	return session
 
-def after_generate_testcase_permutations(job, connection, permutations: dict, *args, **kwargs):
-	if permutations['status'] == 'ok':
-		q.enqueue(add_testcase_permutations, job.meta['session'], permutations['result'], on_success=after_add_testcase_permutations, meta=job.meta)
+@remoulade.actor
+def start_selftest_session2(session, target_server_url):
+	msg = {"method": "testcase_permutations", "params": {'target_server_url':target_server_url}}
+	res = call_prolog(msg)
+	if res['status'] == 'ok':
+		add_testcase_permutations(session, res['result'])
 	else:
-		raise Exception(permutations)
+		raise Exception(res)
+	run_outstanding_testcases(session)
 
-
-
-def after_add_testcase_permutations(job, connection, _, *args, **kwargs):
-	session = job.meta['session']
-	q.enqueue(run_outstanding_testcases, session)
 
 
 
@@ -75,7 +75,7 @@ def add_testcase_permutations(session, permutations):
 		a.addTriple(testcase, selftest.json, jj)
 
 
-
+@remoulade.actor
 def run_outstanding_testcases(session):
 	"""continue a particular testing session by running the next testcase and recursing"""
 	session = URI(session)
@@ -100,18 +100,15 @@ def run_outstanding_testcases(session):
 			txt = bindings.getValue('json').getValue()
 			logging.getLogger().info(f'enqueue(do_testcase: {txt}')
 			jsn = json.loads(txt)
-			q.enqueue(do_testcase, str(tc), jsn)
+			do_testcase.send(str(tc), jsn)
 
 
 
+@remoulade.actor
 def do_testcase(testcase, json):
 	testcase = URI(testcase)
 	logging.getLogger().info(f'do_testcase: {testcase}')
-	try:
-		result = run_test(Dotdict(json))
-	except e:
-		print(e)
-	#q.enqueue(run_outstanding_testcases, session)
+	result = run_test(Dotdict(json))
 
 
 
@@ -217,3 +214,11 @@ def ordered_json_to_dict(p0):
 
 # from rq import get_current_job
 # job = get_current_job()
+
+
+
+
+
+
+
+remoulade.declare_actors([start_selftest_session2, run_outstanding_testcases, do_testcase])

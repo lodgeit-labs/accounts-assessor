@@ -2,10 +2,10 @@ wheel
 django~=3.2.5
 django-ipware
 django-modern-rpc
-celery[redis]~=5.1
 django-cors-headers
 agraph-python==101.0.7
 requests
 iso8601
 
-rq
+#-e ../common/libs/remoulade/[rabbitmq]
+remoulade[rabbitmq]

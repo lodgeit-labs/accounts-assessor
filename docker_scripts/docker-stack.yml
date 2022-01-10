@@ -67,21 +67,21 @@ services:
       - AGRAPH_SUPER_PASSWORD
       
 
-#  rabbitmq:
-#    image: rabbitmq:3.9
-#    networks:
-#      - backend
-#    hostnet_ports:
-#      - 5672
-#    deploy:
-#      replicas: 1
-#      update_config:
-#        parallelism: 2
-#        delay: 10s
-#      restart_policy:
-#        condition: any
-#    volumes:
-#      - "/etc/localtime:/etc/localtime:ro"
+  rabbitmq:
+    image: rabbitmq:latest
+    networks:
+      - backend
+    hostnet_ports:
+      - 5672
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: any
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
 
 
   workers:
