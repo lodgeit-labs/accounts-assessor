@@ -8,4 +8,5 @@ requests
 iso8601
 
 #-e ../common/libs/remoulade/[rabbitmq]
-remoulade[rabbitmq]
+remoulade[rabbitmq,redis]
+

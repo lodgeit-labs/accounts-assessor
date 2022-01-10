@@ -6,7 +6,7 @@ from fs_utils import command_nice, flatten_lists
 
 
 
-import remoulade
+from tasking import remoulade
 
 
 

@@ -16,7 +16,9 @@ import datetime
 
 
 
+import invoke_rpc
 import selftest
+from tasking import remoulade
 
 
 
@@ -152,15 +154,12 @@ def chat(request):
 def json_prolog_rpc_call(request, msg):
 	msg["client"] = get_client_ip(request)
 	logging.getLogger().info(msg)
-	job = q.queue('invoke_rpc.call_prolog', msg=msg)
-	while not job.result:
-		time.sleep(1)
-	return JsonResponse(job.result[1])
+	return JsonResponse(invoke_rpc.call_prolog.send(msg=msg).result.get(block=True,timeout=1000*1000))
 
 
 def rpc(request):
 	if request.method != 'POST':
-		return
+		return JsonResponse({'status':'error', 'message': 'POST'})
 	target_server_url = 'http://localhost:80'
 	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
 	task = selftest.start_selftest_session(target_server_url)

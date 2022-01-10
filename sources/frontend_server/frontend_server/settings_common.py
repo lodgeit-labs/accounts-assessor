@@ -10,10 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import os
+import os, sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.normpath(os.path.join(BASE_DIR, '../common')))
+import robust_nodocker
 
 
 # Quick-start development settings - unsuitable for production
@@ -22,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 
 
-with open('/run/secrets/DJANGO_SECRET_KEY', 'r') as s:
+with open(os.environ['SECRETS_DIR'] + 'DJANGO_SECRET_KEY', 'r') as s:
     SECRET_KEY = s.read()
 
 # SECURITY WARNING: don't run with debug turned on in production!

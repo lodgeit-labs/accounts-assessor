@@ -76,7 +76,7 @@ process_request_rpc_cmdline3("testcase_permutations", Params) :-
 
 process_request_rpc_cmdline3("calculator", Dict) :-
 	!,
-	!process_request_rpc_calculator(Dict.params).
+	!process_request_rpc_calculator(Dict).
 
 process_request_rpc_cmdline3("chat", Dict) :-
 	!,
@@ -90,12 +90,12 @@ process_request_rpc_cmdline3(_,_) :-
 
 
 do_chat(Dict, Response) :-
-	Type = Dict.params.get(type),
+	Type = Dict.get(type),
 	do_chat2(Type, Dict, Response).
 
 do_chat2("sbe", Dict, r{result:Result}) :-
-	sbe:sbe_step(Dict.params, Result).
+	sbe:sbe_step(Dict, Result).
 
 do_chat2("residency", Dict, r{result:Result}) :-
-	residency:residency_step(Dict.params, Result).
+	residency:residency_step(Dict, Result).
 

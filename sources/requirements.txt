@@ -31,5 +31,5 @@ watchdog
 
 requests
 #-e /app/sources/common/libs/remoulade/
--e ../common/libs/remoulade/[rabbitmq]
+-e ../common/libs/remoulade/[rabbitmq,redis]
 

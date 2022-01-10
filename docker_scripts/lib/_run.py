@@ -68,12 +68,11 @@ def ccd(cmd, env):
 @click.option('-co', '--compose', type=bool, default=False,
 	help="use docker-compose instead of stack/swarm. Implies use_host_network. ")
 
-@click.option('-om', '--omit_service', type=str, default='',
+@click.option('-om', '--omit_service', 'omit_services', type=str, default=[], multiple=True,
 	help=" ")
 
 @click.option('-sd', '--secrets_dir', type=str, default='../secrets/',
 	help=" ")
-
 
 def run(port_postfix, public_url, parallel_build, rm_stack, **choices):
 	public_host = urlparse(public_url).hostname
@@ -186,7 +185,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure, compose, omit_service, secrets_dir):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure, compose, omit_services, secrets_dir):
 
 	res = deepcopy(src)
 	services = res['services']
@@ -252,12 +251,13 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 		if 'workers' in services:
 			services['workers']['environment']['DISPLAY'] = "${DISPLAY}"
 
-	for k,v in services.items():
-		if omit_service in v.get('depends_on',[]):
-			v['depends_on'].remove(omit_service)
-
-	if omit_service in services:
+	for omit_service in omit_services:
 		del services[omit_service]
+
+		for k,v in services.items():
+			if omit_service in v.get('depends_on',[]):
+				v['depends_on'].remove(omit_service)
+
 
 	return res
 

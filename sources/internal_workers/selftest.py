@@ -3,22 +3,16 @@ import typing
 
 
 import logging
-
 l = logging.getLogger()
 l.setLevel(logging.DEBUG)
-l.addHandler(logging.StreamHandler())
+#l.addHandler(logging.StreamHandler())
 
-
-
-import remoulade
-from remoulade.brokers.rabbitmq import RabbitmqBroker
-rabbitmq_broker = RabbitmqBroker(url="amqp://localhost")
-remoulade.set_broker(rabbitmq_broker)
 
 
 
 import json, subprocess, os, sys, shutil, shlex, requests
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
+from tasking import remoulade
 from agraph import agc, RDF, generateUniqueUri
 from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 from franz.openrdf.model.value import URI
@@ -33,10 +27,9 @@ def start_selftest_session(target_server_url):
 	session = generateUniqueUri(a, 'session')
 	a.addTriple(session, RDF.TYPE, selftest.Session)
 	a.addTriple(session, selftest.target_server_url, target_server_url)
-
 	start_selftest_session2.send(str(session), target_server_url)
-
 	return session
+
 
 @remoulade.actor
 def start_selftest_session2(session, target_server_url):
@@ -117,8 +110,6 @@ def run_test(test):
 	if test.type=='json_endpoint_test':
 		res = requests.post(url=test.target_server_url + test.api_uri, json=test.post_data)
 		print(res.json())
-
-
 
 
 
