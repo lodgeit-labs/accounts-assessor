@@ -185,6 +185,18 @@ services:
     #shm_size: "1G" # not supported in swarm
     #finishme: use low-memory configuration
 
+  superbowl:
+    image: ghcr.io/wiremind/super-bowl:master
+    networks:
+      - backend
+    hostnet_ports:
+      - 5555
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    
+
 
 #  flower:
 #    image: koo5/flower${PP}:latest

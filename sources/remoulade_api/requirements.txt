@@ -1,0 +1,8 @@
+psycopg2
+remoulade[rabbitmq,redis,postgres]
+Flask
+flask_apispec
+apispec
+
+
+

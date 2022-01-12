@@ -124,6 +124,11 @@ def run(port_postfix, mode, parallel):
 
 	chdir('../sources/')
 
+	# print()
+	# print("remoulade-api...")
+	# task(f'docker build -t  "koo5/remoulade-api{port_postfix}"             -f "remoulade_api/Dockerfile" . ')
+	# chdir('..')
+
 	print()
 	print("internal-workers-hlw...")
 	task(f'docker build -t  "koo5/workers-hlw{port_postfix}"   -f "internal_workers/Dockerfile_hollow" . ')
