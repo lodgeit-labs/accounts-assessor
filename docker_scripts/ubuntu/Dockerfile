@@ -15,7 +15,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 
 
-RUN apt-get update && echo ""
+RUN apt-get update
 RUN apt-get install -qqy ca-certificates apt-utils tzdata time locales language-pack-en unattended-upgrades tzdata time apt-utils dialog 2>&1 | \
     grep -v "^debconf: delaying package configuration.*"
     

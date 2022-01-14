@@ -116,6 +116,14 @@ def run(port_postfix, mode, parallel):
 	chdir('..')
 
 	print()
+	print("super-bowl...")
+	chdir('../sources/super-bowl/')
+	task(f'docker build -t  "koo5/super-bowl"             -f "container/Dockerfile" . ')
+	chdir('../../docker_scripts/')
+
+
+
+	print()
 	print("ubuntu...")
 	chdir('ubuntu')
 	task(f'docker build -t  "koo5/ubuntu"             -f "Dockerfile" . ').join()

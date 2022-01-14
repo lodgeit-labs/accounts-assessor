@@ -1,8 +1,18 @@
-psycopg2
-remoulade[rabbitmq,redis,postgres]
-Flask
-flask_apispec
+#remoulade[rabbitmq,redis,postgres]
+
+
+
+flask-apispec
 apispec
+pytz
 
 
+
+# these are copied from remoulade setup.py to avoid reinstalling these dependencies on every edit of remoulade code, they should normally be commented out
+psycopg2==2.9.1
+flask>=1.1,<2
+amqpstorm>=2.6,<3
+redis>=3.5.0,<4.0
+marshmallow>=3
+sqlalchemy>=1.4.22,<2
 
