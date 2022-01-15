@@ -213,11 +213,18 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	if use_host_network:
 		del res['networks']['frontend']
 		del res['networks']['backend']
-		for k,v in services.items():
+
+	for k,v in services.items():
+		if 'environment' not in v:
+			v['environment'] = {}
+
+		if use_host_network:
 			if compose:
 				v['network_mode'] = 'host'
 			else:
 				v['networks'] = ['hostnet']
+			if 'RABBITMQ_URL' in v['environment']:
+				v['environment']['RABBITMQ_URL']='localhost:5672'
 
 	if compose:
 		del res['networks']
@@ -239,11 +246,14 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 			#		del v['restart_policy']['delay']
 
 	if mount_host_sources_dir:
-		for x in ['workers','services','frontend' ]:
+		for x in ['workers','services','frontend', 'remoulade-api']:
 			if x in services:
-				services[x]['volumes'].append('../sources:/app/sources')
-				assert services[x]['image'] == f'koo5/{x}${{PP}}:latest', services[x]['image']
-				services[x]['image'] = f'koo5/{x}-hlw{port_postfix}:latest'
+				service = services[x]
+				if 'volumes' not in service:
+					service['volumes'] = []
+				service['volumes'].append('../sources:/app/sources')
+				assert service['image'] == f'koo5/{x}${{PP}}:latest', service['image']
+				service['image'] = f'koo5/{x}-hlw{port_postfix}:latest'
 
 		services['workers']['volumes'].append('../sources/swipl/xpce:/home/myuser/.config/swi-prolog/xpce')
 

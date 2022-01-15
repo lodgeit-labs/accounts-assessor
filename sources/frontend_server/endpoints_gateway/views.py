@@ -156,15 +156,14 @@ def json_prolog_rpc_call(request, msg):
 	logging.getLogger().info(msg)
 	return JsonResponse(invoke_rpc.call_prolog.send(msg=msg).result.get(block=True,timeout=1000*1000))
 
-
-def rpc(request):
+from django.http.request import HttpRequest
+def rpc(request:  HttpRequest):
 	if request.method != 'POST':
-		return JsonResponse({'status':'error', 'message': 'POST'})
-	target_server_url = 'http://localhost:80'
-	logging.getLogger().info(f'start_selftest_session {target_server_url=}')
-	task = selftest.start_selftest_session(target_server_url)
-	return JsonResponse({'@id':str(task)})
-
+		return JsonResponse({'error': 'POST required.'})
+	jsn = json.loads(request.body)
+	if jsn['method'] == 'selftest':
+		task = selftest.start_selftest_session(jsn['target_server_url'])
+		return JsonResponse({'@id':str(task)})
 
 
 # todo https://www.honeycomb.io/microservices/

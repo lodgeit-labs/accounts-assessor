@@ -121,6 +121,12 @@ def run(port_postfix, mode, parallel):
 	task(f'docker build -t  "koo5/super-bowl"             -f "container/Dockerfile" . ')
 	chdir('../../docker_scripts/')
 
+	print()
+	print("remoulade-api...")
+	chdir('../sources/')
+	task(f'docker build -t  "koo5/remoulade-api-hlw{port_postfix}"             -f "remoulade_api/Dockerfile" . ')
+	chdir('../docker_scripts/')
+
 
 
 	print()
