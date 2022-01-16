@@ -42,6 +42,7 @@ services:
       DJANGO_ARGS: "${DJANGO_ARGS}"
       DJANGO_SETTINGS_MODULE: "frontend_server.settings_prod"
       RABBITMQ_URL: "rabbitmq:5672"
+      SECRETS_DIR: /run/secrets/
 
     volumes:
       - tmp:/app/server_root/tmp
@@ -54,6 +55,8 @@ services:
       - redis
       - services
       - workers
+      - rabbitmq
+      - postgres
     deploy:
       placement:
         constraints: [node.role == manager]

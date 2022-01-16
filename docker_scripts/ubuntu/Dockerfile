@@ -1,7 +1,6 @@
 FROM ubuntu:20.04
 
 
-
 #RUN cat /etc/apt/sources.list
 #RUN sed -i -e '/security/!s/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list
 #RUN cat /etc/apt/sources.list

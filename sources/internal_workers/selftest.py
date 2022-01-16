@@ -106,11 +106,15 @@ def do_testcase(testcase, json):
 
 
 def run_test(test):
-	logging.getLogger().info(f'{test.target_server_url}')
 	if test.type=='json_endpoint_test':
+		logging.getLogger().info(f'requests.post(url={test.target_server_url + test.api_uri}, json={test.post_data})....')
 		res = requests.post(url=test.target_server_url + test.api_uri, json=test.post_data)
-		print(res.json())
-
+		#res.ok
+		try:
+			jsn = res.json()
+			logging.getLogger().info(f'response:{jsn}')
+		except:
+			logging.getLogger().info('test failed')
 
 
 
