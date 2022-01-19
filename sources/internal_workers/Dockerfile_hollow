@@ -73,11 +73,17 @@ RUN ./init_prolog.sh
 
 
 
-WORKDIR /app/sources/common
-COPY common/libs /app/sources/common/libs
+RUN apt-get install -yqq libpq-dev
+
+
+
+
+WORKDIR /app/sources/internal_workers
 COPY requirements.txt .
+COPY common/libs /app/sources/common/libs
 RUN python3.9 -m pip install --no-cache-dir -r requirements.txt
 
+#RUN python3.9 -m pip install --no-cache-dir -e ../common/libs/remoulade/[rabbitmq,redis,postgres]
 
 
 
@@ -96,5 +102,5 @@ USER myuser
 ENV CELERY_QUEUE_NAME=q7788
 ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
 ENTRYPOINT ["./start.sh"]
-CMD ["-n", "worker7788", "--loglevel=INFO"]
+#CMD ["-n", "worker7788", "--loglevel=INFO"]
 

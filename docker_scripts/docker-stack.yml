@@ -75,7 +75,7 @@ services:
     image: koo5/workers${PP}:latest
     environment:
       SECRET__INTERNAL_SERVICES_SERVER_URL: "http://services:17788"
-      SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
+#      SECRET__CELERY_BROKER_URL: "amqp://guest:guest@rabbitmq:5672//"
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
       RABBITMQ_URL: "rabbitmq:5672"
     volumes:

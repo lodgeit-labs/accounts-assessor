@@ -1,5 +1,5 @@
 **/node_modules/
-.idea/
+**/.idea/
 *.sln.iml
 **/__pycache__/
 **/*.pyc
@@ -14,3 +14,4 @@ cache/*
 #secret*.json
 **/emacs_server.0
 public_lib/lodgeit_solvers/research
+venv

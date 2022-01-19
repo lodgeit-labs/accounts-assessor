@@ -4,4 +4,4 @@
 set DIR (dirname (readlink -m (status --current-filename)))
 cd "$DIR"/../../sources/
 
-../docker_scripts/lib/_build.py $argv
+../docker_scripts/lib/_run.py build $argv
