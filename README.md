@@ -13,7 +13,7 @@ We use it at http://www.nobleaccounting.com.au, along with a proprietary (but fr
 
 
 ## investment calculator
-The most complex endpoint is the investment calculator: it validates and processes financial data of a single entity for a given period:
+The most complex endpoint is the investment calculator: it validates and processes financial data of a financial entity for a given period:
 * bank statements
 * raw general ledger input
 * change in investment unit values
