@@ -1,6 +1,6 @@
 # Accounts Assessor - introduction
 
-This repository hosts a practical research into leveraging logic programming to solve accounting problems. The core logic runs in SWI-Prolog, and is aided by a python webserver. Several services are available:
+This repository hosts practical research into leveraging logic programming to solve accounting problems. The core logic runs in SWI-Prolog, and is aided by a python webserver. Several services are available:
 
 * investment calculator
 * hirepurchase agreement
@@ -22,7 +22,7 @@ The most complex endpoint is the investment calculator: it validates and process
 
 ![screenshot](sources/static/docs/readme/ic-sheets.png?raw=true)
 
-It automates some of the usual accounting procedures, like tax calculations, and it generates balance sheets, trial balances, investment report and other types of reports. 
+It automates some of the usual accounting procedures, like tax calculations, and it generates balance sheets, trial balances, investment report and other types of reports.
 
 ![screenshot](sources/static/docs/readme/ic-result.png?raw=true)
 
@@ -61,11 +61,11 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 
 ## running the server with docker
 
-1) clone the repo, 
+1) clone the repo,
 2) `git submodule update --init --recursive`
 3) `cd docker_scripts`
 3) `./first_run.sh`
-4) `./run.sh  --enable_public_insecure true`  
+4) `./deploy.sh run`  
 
 ## usage
 
@@ -108,7 +108,7 @@ a celery worker that:
 lets users upload request files and triggers internal_workers. Django provides a development http server which serves static/tmp files, but for production, this has to be augmented with:
 
 ### apache
-serves static files and proxies requests to frontend_server 
+serves static files and proxies requests to frontend_server
 
 
 `
@@ -169,3 +169,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+
+—
+This document (README.md) was auto-generated from an annotated version. Additional triples were embedded.

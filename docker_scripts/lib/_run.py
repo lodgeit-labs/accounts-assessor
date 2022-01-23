@@ -59,7 +59,7 @@ def cli():
 @click.option('-nr', '--django_noreload', 			type=bool, 	default=False, 
 	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
 
-@click.option('-pu', '--public_url', 				type=str, 	required=True,
+@click.option('-pu', '--public_url', 				type=str, 	default="http://localhost",
 	help="The public-facing url, including scheme and, optionally, port. Used in django to construct URLs, and hostname is used in Caddy and apache.")
 
 @click.option('-pg', '--enable_public_gateway', type=bool, default=True,
@@ -74,7 +74,7 @@ def cli():
 @click.option('-rm', '--rm_stack', type=bool, default=True,
 	help="rm the stack and deploy it afresh.")
 
-@click.option('-co', '--compose', type=bool, default=False,
+@click.option('-co', '--compose', type=bool, default=True,
 	help="use docker-compose instead of stack/swarm. Implies use_host_network. ")
 
 @click.option('-om', '--omit_service', 'omit_services', type=str, default=[], multiple=True,
