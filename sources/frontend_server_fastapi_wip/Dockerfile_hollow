@@ -25,4 +25,4 @@ USER myuser
 
 WORKDIR /app/sources/frontend_server_fastapi_wip/
 
-CMD ["uvicorn", "app.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "7788"]
+CMD ["start.sh"]
