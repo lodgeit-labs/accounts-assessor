@@ -1,5 +1,7 @@
 FROM koo5/ubuntu
 
+RUN apt-get install -yqq libpq-dev
+
 WORKDIR /app/sources/common
 COPY common/libs /app/sources/common/libs
 COPY requirements.txt .

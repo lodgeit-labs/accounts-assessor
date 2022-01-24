@@ -145,13 +145,17 @@ ProxyPass "/backend" "http://{frontend}:7788/backend"  connectiontimeout=160 tim
 				break
 			time.sleep(1)
 			#print('.')
+	shell('pwd')
 	shell('./lib/git_info.fish')
 	e = env={"PP": pp, 'DJANGO_ARGS':django_args, 'DISPLAY':os.environ['DISPLAY']}
 	if compose:
 		cmd = '/usr/local/bin/docker-compose -f ' + stack_fn + ' -p robust  --compatibility '
 		import atexit
 		atexit.register(lambda: ccd(ss(cmd + ' down  -t 999999 '), env=e))
-		ccd(ss(cmd + ' up'), env=e)
+		try:
+			ccd(ss(cmd + ' up'), env=e)
+		except subprocess.CalledProcessError:
+			exit(1)
 		# --remove-orphans
 
 	else:
@@ -394,14 +398,12 @@ def build2(port_postfix, mode, parallel, no_cache):
 	global _parallel
 	_parallel=parallel
 
-	cc('../docker_scripts/lib/git_info.fish')
+	cc('./lib/git_info.fish')
 
 	# print()
 	# print("flower...")
 	# task(f'docker build -t  "koo5/flower{port_postfix}"             -f "../docker_scripts/flower/Dockerfile" . ')
 	#
-
-	chdir('../docker_scripts/')
 
 	print()
 	print("apache...")
@@ -432,7 +434,7 @@ def build2(port_postfix, mode, parallel, no_cache):
 
 	print()
 	print("remoulade-api...")
-	task(f'docker build -t  "koo5/remoulade-api-hlw{port_postfix}"    -f "remoulade_api/Dockerfile" . ')
+	task(f'docker build -t  "koo5/remoulade-api-hlw{port_postfix}"    -f "../docker_scripts/remoulade_api/Dockerfile_hollow" . ')
 
 	print()
 	print("internal-workers-hlw...")
@@ -444,8 +446,7 @@ def build2(port_postfix, mode, parallel, no_cache):
 
 	print()
 	print("frontend-server-hollow...")
-	task(f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "frontend_server/Dockerfile_hollow" . ')
-
+	task(f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "frontend_server_fastapi_wip/Dockerfile_hollow" . ')
 
 	for thread in threads:
 		thread.join()
@@ -472,6 +473,7 @@ def build2(port_postfix, mode, parallel, no_cache):
 		thread.join()
 	print("ok!")
 
+	chdir('../docker_scripts/')
 
 
 

@@ -4,7 +4,7 @@ services:
 
 
   caddy:
-    image: caddy:2.3-alpine
+    image: caddy:2-alpine
     networks:
       - frontend
     ports:
@@ -43,7 +43,6 @@ services:
       DJANGO_SETTINGS_MODULE: "frontend_server.settings_prod"
       RABBITMQ_URL: "rabbitmq:5672"
       SECRETS_DIR: /run/secrets/
-
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -102,7 +101,6 @@ services:
       - AGRAPH_SECRET_PORT
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
-
 
   services:
     image: koo5/services${PP}:latest

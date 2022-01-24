@@ -18,7 +18,7 @@ RUN     apt-get install -qqy \
         libyaml-dev \
         libtcmalloc-minimal4
 
-RUN rm -rf /var/lib/apt/lists/*
+#RUN rm -rf /var/lib/apt/lists/*
 
 RUN uname -a
 RUN gcc -v 2>&1
@@ -87,7 +87,7 @@ RUN python3.9 -m pip install --no-cache-dir -r requirements.txt
 
 
 
-WORKDIR /app/sources/internal_workers
+WORKDIR /app/sources/internal_workers/
 RUN mkdir -p /app/server_root/tmp
 RUN mkdir -p /app/server_root/control
 RUN chown myuser:myuser /app/server_root/tmp
@@ -101,6 +101,6 @@ RUN chown myuser:myuser /app/server_root/
 USER myuser
 ENV CELERY_QUEUE_NAME=q7788
 ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
-ENTRYPOINT ["./start.sh"]
+ENTRYPOINT ["/app/sources/internal_workers/start.sh"]
 #CMD ["-n", "worker7788", "--loglevel=INFO"]
 
