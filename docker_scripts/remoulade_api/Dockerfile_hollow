@@ -1,0 +1,22 @@
+FROM koo5/ubuntu
+
+RUN apt-get install -yqq libpq-dev
+WORKDIR /app/sources
+
+COPY common common
+COPY remoulade_api remoulade_api
+COPY wait-for-it wait-for-it
+
+RUN python3 -m pip install --no-cache-dir -r /app/sources/remoulade_api/requirements.txt
+RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
+
+ENV FLASK_APP=main
+ENV FLASK_ENV=development
+ENV FLASK_DEBUG=1
+ENV PYTHONUNBUFFERED=1
+
+# i think we should do it the other way around. Everything's copied at build, but later /app/sources can be made a volume
+VOLUME /app/sources/ 
+
+ENTRYPOINT ["/app/sources/remoulade_api/start.sh"]
+
