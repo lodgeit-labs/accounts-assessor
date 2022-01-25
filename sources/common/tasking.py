@@ -21,7 +21,7 @@ rabbitmq_broker.add_middleware(Results(backend=result_backend, store_results=Tru
 rabbitmq_broker.add_middleware(MessageState(PostgresBackend(), state_ttl=result_time_limit_ms))
 remoulade.set_broker(rabbitmq_broker)
 
+print('"tasking" loaded')
 
 
-
-print('ccccccccccccc')
+print()

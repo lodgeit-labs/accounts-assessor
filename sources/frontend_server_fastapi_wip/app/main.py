@@ -13,8 +13,9 @@ from pydantic import BaseModel
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
-#sys.path.append(os.path.normpath('/app/sources/common/'))
-print('ok!!!!!')
+##sys.path.append(os.path.normpath('/app/sources/common/'))
+import robust_nodocker
+
 
 
 from agraph import agc
@@ -78,7 +79,7 @@ async def read_root():
 async def post(body: ChatRequest, request: Request):
 	return json_prolog_rpc_call(request, {
 		"method": "chat",
-		"params": body,
+		"params": body.dict(),
 	})
 
 
