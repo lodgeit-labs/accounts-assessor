@@ -1,10 +1,5 @@
 import sys, os
 
-
-# if running standalone:
-#sys.path.append('../internal_workers')
-
-# if running under mod_wsgi
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
 
@@ -44,11 +39,11 @@ def sparql_proxy(request):
 	if request.method == 'POST':
 		return JsonResponse({"x":agc().executeGraphQuery(request.body)})
 
-@csrf_exempt
-def rdf_templates(request):
-	import time
-	time.sleep(2)
-	return HttpResponse(open(os.path.abspath('../static/RdfTemplates.n3'), 'r').read(), content_type="text/rdf+n3")
+# @csrf_exempt
+# def rdf_templates(request):
+# 	import time
+# 	time.sleep(2)
+# 	return HttpResponse(open(os.path.abspath('../static/RdfTemplates.n3'), 'r').read(), content_type="text/rdf+n3")
 
 @csrf_exempt
 def upload(request):

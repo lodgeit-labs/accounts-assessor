@@ -30,6 +30,6 @@ watchdog
 #pydevd-pycharm==213.5744.248
 
 requests
--e ../common/libs/remoulade/[rabbitmq,redis,postgres]
+#-e ../common/libs/remoulade/[rabbitmq,redis,postgres]
 
 

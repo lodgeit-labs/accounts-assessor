@@ -1,9 +1,52 @@
+import os, sys
+import urllib.parse
+import json
+import datetime
+
+
+
 from typing import Optional
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 
-import os
-from glob import glob
+
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
+#sys.path.append(os.path.normpath('/app/sources/common/'))
+print('ok!!!!!')
+
+
+from agraph import agc
+import invoke_rpc
+import selftest
+from tasking import remoulade
+from fs_utils import directory_files
+from tmp_dir_path import create_tmp
+import call_prolog_calculator
+import logging
+
+
+
+
+
+class ChatRequest(BaseModel):
+	type: str
+	current_state: List[Any]
+
+
+
+def tmp_file_url(server_url, tmp_dir_name, fn):
+	return server_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
+
+
+# @csrf_exempt
+# def sparql_proxy(request):
+# 	if request.method == 'POST':
+# 		return JsonResponse({"x":agc().executeGraphQuery(request.body)})
+
+
+
 
 
 def ee(context_manager):
@@ -31,10 +74,12 @@ async def read_root():
 	return {"Hello": "World"}
 
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: Optional[str] = None):
-	return {"item_id": item_id, "q": q}
-
+@app.post("/clients/chat")
+async def post(request: ChatRequest):
+	return json_prolog_rpc_call(request, {
+		"method": "chat",
+		"params": request,
+	})
 
 
 

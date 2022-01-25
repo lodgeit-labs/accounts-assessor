@@ -4,14 +4,14 @@ RUN apt-get install -qqy libpq-dev
 
 WORKDIR /app/
 
-COPY frontend_server/requirements_minimal.txt /app/sources/frontend_server_fastapi_wip/requirements.txt
+COPY frontend_server_fastapi_wip/requirements.txt /app/sources/frontend_server_fastapi_wip/requirements.txt
 RUN python3.9 -m pip install --upgrade --no-cache-dir -r /app/sources/frontend_server_fastapi_wip/requirements.txt
 
 COPY common/ /app/sources/common/
 RUN python3.9 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
 
 
-ENV PYTHONPATH=/app/sources/common/libs/remoulade/
+#ENV PYTHONPATH=/app/sources/common/libs/remoulade/
 
 
 
@@ -25,4 +25,4 @@ USER myuser
 
 WORKDIR /app/sources/frontend_server_fastapi_wip/
 
-CMD ["start.sh"]
+CMD ["./start.sh"]

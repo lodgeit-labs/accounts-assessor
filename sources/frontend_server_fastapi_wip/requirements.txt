@@ -1,4 +1,11 @@
+pyyaml
+watchdog
 fastapi
+python-multipart
+agraph-python==101.0.7
+
 uvicorn
 #hypercorn
 #daphne
+
+

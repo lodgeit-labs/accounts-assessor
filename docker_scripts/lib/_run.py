@@ -80,6 +80,9 @@ def cli():
 @click.option('-om', '--omit_service', 'omit_services', type=str, default=[], multiple=True,
 	help=" ")
 
+@click.option('-in', '--include_service', 'include_services', type=str, default=[], multiple=True,
+	help=" ")
+
 @click.option('-sd', '--secrets_dir', type=str, default='../secrets/',
 	help=" ")
 
@@ -205,7 +208,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure, compose, omit_services, secrets_dir):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure, compose, omit_services, include_services, secrets_dir):
 
 	res = deepcopy(src)
 	services = res['services']
@@ -282,14 +285,22 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 			services['workers']['environment']['DISPLAY'] = "${DISPLAY}"
 
 	for omit_service in omit_services:
-		del services[omit_service]
+		delete_service(services, omit_service)
 
-		for k,v in services.items():
-			if omit_service in v.get('depends_on',[]):
-				v['depends_on'].remove(omit_service)
+	if len(include_services) != 0:
+		for k,v in list(services.items()):
+			if k not in include_services:
+				delete_service(services, k)
+
 
 
 	return res
+
+def delete_service(services, omit_service):
+	del services[omit_service]
+	for k,v in services.items():
+		if omit_service in v.get('depends_on',[]):
+			v['depends_on'].remove(omit_service)
 
 
 def files_in_dir(dir):
