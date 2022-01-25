@@ -35,6 +35,10 @@ class ChatRequest(BaseModel):
 	type: str
 	current_state: list[Any]
 
+class RpcCommand(BaseModel):
+	method: str
+	params: Any
+
 
 
 def tmp_file_url(server_url, tmp_dir_name, fn):
@@ -86,6 +90,23 @@ async def post(body: ChatRequest, request: Request):
 def json_prolog_rpc_call(request, msg):
 	msg["client"] = request.client.host
 	return invoke_rpc.call_prolog.send(msg=msg).result.get(block=True, timeout=1000 * 1000)
+
+
+@app.post("/backend/rpc")
+async def rpc(cmd: RpcCommand, request: Request):
+	if cmd.method == 'selftest':
+		task = selftest.start_selftest_session(cmd.params['target_server_url'])
+		return {'@id':str(task)}
+
+
+
+
+
+
+
+
+
+
 
 
 
