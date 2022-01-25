@@ -12,20 +12,10 @@ _term() {
   echo "Caught SIGTERM signal!" 
   kill -TERM "$child" 2>/dev/null
 }
-
 trap _term SIGTERM
-
-echo "Doing some initial work...";
-
-
-
 flask run -h "0.0.0.0" --no-debugger &
 #--no-reload
-
-
-
 child=$! 
 wait "$child"
-
 echo "end"
 

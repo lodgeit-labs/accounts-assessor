@@ -5,8 +5,8 @@ import datetime
 
 
 
-from typing import Optional
-from fastapi import FastAPI
+from typing import Optional, Any
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 
 
@@ -32,7 +32,7 @@ import logging
 
 class ChatRequest(BaseModel):
 	type: str
-	current_state: List[Any]
+	current_state: list[Any]
 
 
 
@@ -75,13 +75,16 @@ async def read_root():
 
 
 @app.post("/clients/chat")
-async def post(request: ChatRequest):
+async def post(body: ChatRequest, request: Request):
 	return json_prolog_rpc_call(request, {
 		"method": "chat",
-		"params": request,
+		"params": body,
 	})
 
 
+def json_prolog_rpc_call(request, msg):
+	msg["client"] = request.client.host
+	return invoke_rpc.call_prolog.send(msg=msg).result.get(block=True, timeout=1000 * 1000)
 
 
 
