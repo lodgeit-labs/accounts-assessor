@@ -3,7 +3,7 @@ FROM koo5/ubuntu
 RUN apt-get install -yqq libpq-dev
 WORKDIR /app/sources
 
-COPY common common
+COPY common/libs/remoulade common/libs/remoulade
 COPY remoulade_api remoulade_api
 COPY wait-for-it wait-for-it
 

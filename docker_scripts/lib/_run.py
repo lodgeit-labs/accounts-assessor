@@ -457,7 +457,7 @@ def build2(port_postfix, mode, parallel, no_cache):
 
 	print()
 	print("frontend-server-hollow...")
-	task(f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "frontend_server_fastapi_wip/Dockerfile_hollow" . ')
+	task(f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "../docker_scripts/frontend/Dockerfile_hollow" . ')
 
 	for thread in threads:
 		thread.join()
