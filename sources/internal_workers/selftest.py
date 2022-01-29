@@ -18,13 +18,43 @@ from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 from franz.openrdf.model.value import URI
 from dotdict import Dotdict
 from invoke_rpc import call_prolog
+from pydantic import BaseModel
+from typing import *
+
+
+
+
+class JsonEndpointTestData(BaseModel):
+	api_uri: Optional[str]
+	post_data: Optional[dict]
+	result_text: Optional[Any]
+
+class CalculatorTestData(BaseModel):
+	testcase: Optional[str]
+	mode: Optional[str]
+	die_on_error: Optional[bool]
+
+class TestCase(BaseModel):
+	type: str
+	data: Union[JsonEndpointTestData, CalculatorTestData]
+
+
+
+
+
+
+
+a = agc()
+selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
+
+
+
+
 
 
 
 def start_selftest_session(target_server_url):
-	a: RepositoryConnection = agc()
-	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
-	session = generateUniqueUri(a, 'session')
+	session = generateUniqueUri('session')
 	a.addTriple(session, RDF.TYPE, selftest.Session)
 	a.addTriple(session, selftest.target_server_url, target_server_url)
 	start_selftest_session2.send(str(session), target_server_url)
@@ -47,14 +77,12 @@ def start_selftest_session2(session, target_server_url):
 def add_testcase_permutations(session, permutations):
 	session = URI(session)
 
-	a = agc()
-	selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
 	#logging.getLogger().warn(permutations)
 	for p0 in permutations:
 
 		p = ordered_json_to_dict(p0)
 		#logging.getLogger().info((p0))
-		testcase = generateUniqueUri(a, 'testcase')
+		testcase = generateUniqueUri('testcase')
 
 		#tr()
 		if 'priority' not in p:
@@ -72,7 +100,6 @@ def add_testcase_permutations(session, permutations):
 def run_outstanding_testcases(session):
 	"""continue a particular testing session by running the next testcase and recursing"""
 	session = URI(session)
-	a = agc()
 	#FILTER ( !EXISTS {?testcase selftest:done true})
 	query = a.prepareTupleQuery(query="""
 	SELECT DISTINCT ?testcase ?json WHERE {
@@ -98,30 +125,28 @@ def run_outstanding_testcases(session):
 
 
 @remoulade.actor
-def do_testcase(testcase, json):
-	testcase = URI(testcase)
-	logging.getLogger().info(f'do_testcase: {testcase}')
-	result = run_test(Dotdict(json))
-
-
-
-def run_test(test):
+def do_testcase(testcase_uri, testcase_json):
+	testcase_uri = URI(testcase_uri)
+	logging.getLogger().info(f'do_testcase: {testcase_uri}')
+	test = Dotdict(testcase_json)
 	if test.type=='json_endpoint_test':
 		logging.getLogger().info(f'requests.post(url={test.target_server_url + test.api_uri}, json={test.post_data})....')
-		res = requests.post(url=test.target_server_url + test.api_uri, json=test.post_data)
-		#res.ok
 		try:
-			jsn = res.json()
-			logging.getLogger().info(f'response:{jsn}')
-		except:
-			logging.getLogger().info('test failed')
+			res: requests.Response = requests.post(url=test.target_server_url + test.api_uri, json=test.post_data, timeout=123)
+			jsn = JsonEndpointTestData(**res.json())
+		except Exception as e:
+			logging.getLogger().info(e)
+			a.addTriple(testcase_uri, selftest.has_failure, str(e))
+			return
+		json.loads(jsn.result_text)
+		# todo json result comparison!
 
+		a.addTriple(testcase_uri, selftest.has_success, true)
 
 
 
 def ordered_json_to_dict(p0):
 	a = {}
-	#logging.getLogger().info(p0)
 	for i in p0:
 		k,v = list(i.items())[0]
 		a[k] = v
