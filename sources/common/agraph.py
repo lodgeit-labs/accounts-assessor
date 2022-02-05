@@ -3,7 +3,7 @@ import json, os, logging
 from franz.openrdf.model.value import BNode
 from franz.openrdf.vocabulary.rdf import RDF
 from franz.openrdf.model.value import URI
-
+from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 
 
 #def env_or(json, key):
@@ -40,7 +40,7 @@ _agc = None
 
 def agc() -> RepositoryConnection:
 	global _agc
-	if _ags is not None:
+	if _agc is not None:
 		return _agc
 
 	AGRAPH_SECRET_HOST = secret('AGRAPH_SECRET_HOST')

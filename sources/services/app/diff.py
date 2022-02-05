@@ -90,12 +90,11 @@ def xmldiff(a_dom,b_dom):
 
 
 
-def index(request):
-	""" fixme: limit these to some directories / hosts """
-	params = request.GET
-	return JsonResponse(do_diff(params['a'], params['b'], json.loads(params['options'])), json_dumps_params={'default':str,'indent':4})
+def diff(file_a: str, file_b:str, options: dict):
+	return do_diff(file_a, file_b, options)
 
 def do_diff(a_fn, b_fn, options={}):
+	""" fixme: limit these to some directories / hosts """
 	a = load(a_fn)
 	b = load(b_fn)
 

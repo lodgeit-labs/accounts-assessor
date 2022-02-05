@@ -1,0 +1,20 @@
+FROM koo5/ubuntu
+
+WORKDIR /app/sources/services
+
+COPY services/requirements.txt .
+RUN python3.9 -m pip install --upgrade --no-cache-dir -r requirements.txt
+
+COPY common/ /app/sources/common/
+
+
+EXPOSE 7788
+RUN mkdir -p /app/server_root
+VOLUME /app/server_root
+VOLUME /app/sources/
+USER myuser
+
+
+WORKDIR /app/sources/services/
+
+CMD ["./start.sh"]

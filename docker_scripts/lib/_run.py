@@ -453,7 +453,11 @@ def build2(port_postfix, mode, parallel, no_cache):
 
 	print()
 	print("internal-services-hollow...")
-	task(f'docker build -t  "koo5/services-hlw{port_postfix}"  -f "internal_services/Dockerfile_hollow" . ')
+	task(f'docker build -t  "koo5/internal-services-hlw{port_postfix}"  -f "internal_services/Dockerfile_hollow" . ')
+
+	print()
+	print("services-hollow...")
+	task(f'docker build -t  "koo5/services-hlw{port_postfix}"  -f "../docker_scripts/services/Dockerfile_hollow" . ')
 
 	print()
 	print("frontend-server-hollow...")
