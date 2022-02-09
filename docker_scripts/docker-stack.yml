@@ -107,6 +107,7 @@ services:
     image: koo5/services${PP}:latest
     environment:
       DJANGO_ARGS: "${DJANGO_ARGS}"
+      RABBITMQ_URL: "rabbitmq:5672"
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"

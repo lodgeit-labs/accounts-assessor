@@ -4,7 +4,6 @@ set DIR (dirname (readlink -m (status --current-filename)))
 cd "$DIR"
 
 sudo apt install python3 python3-pip docker fish apache2-utils
-docker swarm init
 
 # for building and running containers
 python3 -m pip install --user -U click pyyaml 
@@ -16,5 +15,11 @@ cd ..
 cp -r secrets_example secrets
 cp -r sources/config_example sources/config
 
-#cd sources/apache/conf/
-#htpasswd -b -c htpasswd jack insecure
+python3 setup.py install --user 
+
+_ROBUST_COMPLETE=source_fish robust > ~/.config/fish/completions/robust-complete.fish
+
+
+# optionally:
+#docker swarm init
+
