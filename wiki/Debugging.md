@@ -1,3 +1,24 @@
+# monitoring
+
+## portainer
+http://localhost:9000
+
+* for debugging docker/containers
+* not part of the stack, but recommended to spin up separately
+
+
+## RabbitMQ console
+http://localhost:15672
+* monitor all messagess and queues
+
+## superbowl
+http://localhost:1238/
+* monitor remoulade tasks
+
+
+
+..
+
 # general
 * https://swi-prolog.discourse.group/t/bug-hunting-toolbox/710
 * https://swi-prolog.discourse.group/t/trace-on-error/1333/2

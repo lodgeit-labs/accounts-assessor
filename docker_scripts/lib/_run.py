@@ -463,10 +463,16 @@ def build2(port_postfix, mode, parallel, no_cache):
 	print("frontend-server-hollow...")
 	task(f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "../docker_scripts/frontend/Dockerfile_hollow" . ')
 
-	for thread in threads:
-		thread.join()
-	print("ok...")
+	print("ok?")
 
+	try:
+		for thread: ExcThread in threads:
+			thread.join()
+		print("ok...")
+	except:
+		print('xxxxxx')
+		time.sleep(10)
+		raise
 
 	if mode == "full":
 		print()

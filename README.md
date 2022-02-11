@@ -1,6 +1,26 @@
+[](mrkev2query: "
+the “Accounts Assessor” below corresponds to:
+products:accounts_assessor kb:project_name ?x.
+?x rdf:value ?y.
+")
+
 # Accounts Assessor - introduction
 
+[](mrkev2entity: "
+the “This repository” below corresponds to:
+codebases:labs_accounts_assessor
+")
+
 This repository hosts practical research into leveraging logic programming to solve accounting problems. The core logic runs in SWI-Prolog, and is aided by a python webserver. Several services are available:
+
+[](mrkev2extra: "
+products:accounts_assessor kb:has_service kb:investment_calculator
+")
+
+[](mrkev2query: "
+the “investment calculator” below corresponds to:
+investment calculator kb:investment_calculator rdfs:label ?x.
+")
 
 * investment calculator
 * hirepurchase agreement
@@ -65,7 +85,7 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 2) `git submodule update --init --recursive`
 3) `cd docker_scripts`
 3) `./first_run.sh`
-4) `./deploy.sh run`  
+4) `./develop.sh`  
 
 ## usage
 
@@ -100,7 +120,7 @@ there are 4 components:
 various helper functions that prolog invokes over http/rpc
 
 ### internal_workers
-a remoulade worker that:
+a celery worker that:
 * wraps prolog and spawns prolog on request
 * talks to the triplestore
 
@@ -156,11 +176,11 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-	<td align="center"><a href="https://github.com/sto0pkid"><img src="https://avatars2.githubusercontent.com/u/9160425?v=4" width="100px;" alt=""/><br /><sub><b>stoopkid</b></sub></a><br /><a href="#infra-sto0pkid" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=sto0pkid" title="Tests">⚠️</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=sto0pkid" title="Code">💻</a></td>
-	<td align="center"><a href="https://github.com/Schwitter"><img src="https://avatars3.githubusercontent.com/u/8089563?v=4" width="100px;" alt=""/><br /><sub><b>Schwitter</b></sub></a><br /><a href="#infra-Schwitter" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=Schwitter" title="Tests">⚠️</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=Schwitter" title="Code">💻</a></td>
-	<td align="center"><a href="https://github.com/salamt2"><img src="https://avatars0.githubusercontent.com/u/2647629?v=4" width="100px;" alt=""/><br /><sub><b>salamt2</b></sub></a><br /><a href="#infra-salamt2" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=salamt2" title="Tests">⚠️</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=salamt2" title="Code">💻</a></td>
-	<td align="center"><a href="http://github.com/murisi"><img src="https://avatars0.githubusercontent.com/u/6886764?v=4" width="100px;" alt=""/><br /><sub><b>Murisi Tarusenga</b></sub></a><br /><a href="#infra-murisi" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=murisi" title="Tests">⚠️</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=murisi" title="Code">💻</a></td>
-	<td align="center"><a href="https://github.com/koo5"><img src="https://avatars1.githubusercontent.com/u/114276?v=4" width="100px;" alt=""/><br /><sub><b>koo5</b></sub></a><br /><a href="#infra-koo5" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=koo5" title="Tests">⚠️</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=koo5" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/sto0pkid"><img src="https://avatars2.githubusercontent.com/u/9160425?v=4" width="100px;" alt=""/><br /><sub><b>stoopkid</b></sub></a><br /><a href="#infra-sto0pkid" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=sto0pkid" title="Tests">⚠️</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=sto0pkid" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Schwitter"><img src="https://avatars3.githubusercontent.com/u/8089563?v=4" width="100px;" alt=""/><br /><sub><b>Schwitter</b></sub></a><br /><a href="#infra-Schwitter" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=Schwitter" title="Tests">⚠️</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=Schwitter" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/salamt2"><img src="https://avatars0.githubusercontent.com/u/2647629?v=4" width="100px;" alt=""/><br /><sub><b>salamt2</b></sub></a><br /><a href="#infra-salamt2" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=salamt2" title="Tests">⚠️</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=salamt2" title="Code">💻</a></td>
+    <td align="center"><a href="http://github.com/murisi"><img src="https://avatars0.githubusercontent.com/u/6886764?v=4" width="100px;" alt=""/><br /><sub><b>Murisi Tarusenga</b></sub></a><br /><a href="#infra-murisi" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=murisi" title="Tests">⚠️</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=murisi" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/koo5"><img src="https://avatars1.githubusercontent.com/u/114276?v=4" width="100px;" alt=""/><br /><sub><b>koo5</b></sub></a><br /><a href="#infra-koo5" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=koo5" title="Tests">⚠️</a> <a href="https://github.com/lodgeit-labs/accounts-assessor/commits?author=koo5" title="Code">💻</a></td>
   </tr>
 </table>
 
@@ -171,37 +191,10 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 
-—
-This document (README.md) was auto-generated from an annotated version. Additional triples were embedded.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+[](mrkev2extra: "
+products:robust has_codebase codebases:labs_accounts_assessor.
+products:robust kb:has_codebase codebases:LodgeITSmart.
+")
 
 
 
