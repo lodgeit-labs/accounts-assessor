@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -x
 /app/sources/wait-for-it/wait-for-it.sh $RABBITMQ_URL -t 300
-cd /app/sources/common/libs/remoulade/remoulade/api/
+#cd /app/sources/common/libs/remoulade/remoulade/api/
 echo "begin"
 
 

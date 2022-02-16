@@ -220,6 +220,7 @@ services:
       restart_policy:
         condition: any
 
+
   remoulade-api:
     image: koo5/remoulade-api${PP}:latest
     networks:
@@ -228,10 +229,25 @@ services:
       - 5000
     environment:
       RABBITMQ_URL: "rabbitmq:5672"
+      SECRETS_DIR: /run/secrets/
     deploy:
       replicas: 1
       restart_policy:
         condition: any
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+    depends_on:
+      - redis
+      - services
+      - rabbitmq
+      - postgres
+    secrets:
+      - SECRET__REDIS_HOST
+      - AGRAPH_SECRET_HOST
+      - AGRAPH_SECRET_PORT
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
+
 
 
 #  flower:

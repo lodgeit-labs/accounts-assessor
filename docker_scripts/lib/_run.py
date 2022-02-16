@@ -464,15 +464,7 @@ def build2(port_postfix, mode, parallel, no_cache):
 	task(f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "../docker_scripts/frontend/Dockerfile_hollow" . ')
 
 	print("ok?")
-
-	try:
-		for thread: ExcThread in threads:
-			thread.join()
-		print("ok...")
-	except:
-		print('xxxxxx')
-		time.sleep(10)
-		raise
+	join()
 
 	if mode == "full":
 		print()
@@ -490,13 +482,22 @@ def build2(port_postfix, mode, parallel, no_cache):
 		task(f'docker build -t  "koo5/frontend{port_postfix}"    -f "frontend_server/Dockerfile" . ')
 
 
-	for thread in threads:
-		thread.join()
+	join()
 	print("ok!")
 
 	chdir('../docker_scripts/')
 
 
+def join():
+	try:
+		for thread: ExcThread in threads:
+			thread.join()
+		print("ok...")
+	except:
+		time.sleep(10)
+		print('Failed!')
+		time.sleep(10)
+		raise
 
 
 

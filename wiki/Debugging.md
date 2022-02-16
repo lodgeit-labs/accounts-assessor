@@ -15,6 +15,8 @@ http://localhost:15672
 http://localhost:1238/
 * monitor remoulade tasks
 
+## http://0.0.0.0:10035/#
+* agraph
 
 
 ..

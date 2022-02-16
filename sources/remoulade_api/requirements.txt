@@ -1,11 +1,6 @@
-#remoulade[rabbitmq,redis,postgres]
-
-
-
 flask-apispec
 apispec
 pytz
-
 
 
 # these are copied from remoulade setup.py to avoid reinstalling these dependencies on every edit of remoulade code, they should normally be commented out
@@ -15,4 +10,15 @@ amqpstorm>=2.6,<3
 redis>=3.5.0,<4.0
 marshmallow>=3
 sqlalchemy>=1.4.22,<2
+
+
+agraph-python
+simplejson
+pycurl
+requests
+iso8601
+rdflib
+pydantic
+argh
+PyYAML
 

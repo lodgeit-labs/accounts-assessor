@@ -11,7 +11,8 @@ django~=3.2
 django-modern-rpc
 django-cors-headers
 
-#celery[redis]~=5.1
+
+
 git+https://github.com/Arelle/Arelle
 xmldiff
 agraph-python
@@ -22,15 +23,13 @@ iso8601
 rdflib
 pyyed
 git+https://github.com/koo5/memory_profiler
-
+pydantic
 argh
 PyYAML
 watchdog
 
 #pydevd-pycharm==213.5744.248
-
-requests
 #-e ../common/libs/remoulade/[rabbitmq,redis,postgres]
+#celery[redis]~=5.1
 
 
-pydantic

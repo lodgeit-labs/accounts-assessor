@@ -11,17 +11,22 @@ from remoulade.results.backends import RedisBackend
 from remoulade.state.backends import PostgresBackend
 from remoulade.results import Results
 from remoulade.state.middleware import MessageState
+from remoulade.cancel import Cancel
+from remoulade.cancel.backends import RedisBackend as CancelBackend
+from remoulade.middleware import CurrentMessage
+
 
 
 result_backend = RedisBackend()
 result_time_limit_ms = 31 * 24 * 60 * 60 * 1000
 
-rabbitmq_broker = RabbitmqBroker(url="amqp://localhost?timeout=15")
-rabbitmq_broker.add_middleware(Results(backend=result_backend, store_results=True, result_ttl=result_time_limit_ms))
-rabbitmq_broker.add_middleware(MessageState(PostgresBackend(), state_ttl=result_time_limit_ms))
-remoulade.set_broker(rabbitmq_broker)
+broker = RabbitmqBroker(url="amqp://localhost?timeout=15")
+broker.add_middleware(Results(backend=result_backend, store_results=True, result_ttl=result_time_limit_ms))
+broker.add_middleware(MessageState(PostgresBackend(), state_ttl=result_time_limit_ms))
+broker.add_middleware(Cancel(backend=CancelBackend()))
+broker.add_middleware(CurrentMessage())
+
+remoulade.set_broker(broker)
 
 print('"tasking" loaded')
-
-
 print()
