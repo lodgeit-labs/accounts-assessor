@@ -30,7 +30,7 @@ from typing import *
 class JsonEndpointTestData(BaseModel):
 	api_uri: Optional[str]
 	post_data: Optional[dict]
-	result_text: Optional[Any]
+	result_text: Optional[str]
 
 class CalculatorTestData(BaseModel):
 	testcase: Optional[str]
@@ -116,8 +116,8 @@ def run_outstanding_testcases(session):
 	""")
 	query.setBinding('session', session)
 	with query.evaluate() as result:
-		result = list(result)
-		logging.getLogger().info(result)
+		#result = list(result)
+		#logging.getLogger().info(result)
 		for bindings in result:
 			tc = bindings.getValue('testcase')
 			txt = bindings.getValue('json').getValue()
@@ -141,6 +141,8 @@ def do_testcase(testcase_uri, testcase_json):
 			logging.getLogger().info(e)
 			a.addTriple(testcase_uri, selftest.has_failure, str(e))
 			return
+		logging.getLogger().info(jsn)
+		logging.getLogger().info(jsn.result_text)
 		json.loads(jsn.result_text)
 		# todo json result comparison!
 
