@@ -342,13 +342,35 @@ class ExcThread(threading.Thread):
 			#	task = ' (' + str(self.task) + ')'
 			msg = f"{self.getName()}{task} threw an exception: {self.exc[1]}"
 			print(msg)
-			exit(1)
+			#exit(1)
 			new_exc = Exception(msg)
 			raise new_exc.with_traceback(self.exc[2])
 
 
+def join_all():
+	join(threads)
+
+def join(t):
+	errors = []
+	for thread: ExcThread in t:
+		join_one(thread, errors)
+	if len(errors):
+		for thread: ExcThread in threads:
+			if thread not in t:
+				join_one(thread, errors)
+		for error in errors:
+			print(error)
+		time.sleep(10)
+		exit(1)
 
 
+def join_one(thread, errors):
+	try:
+		thread.join()
+		print("ok...")
+	except Exception as e:
+		errors.append(e)
+		print('Failed!')
 
 
 
@@ -437,7 +459,7 @@ def build2(port_postfix, mode, parallel, no_cache):
 	print()
 	print("ubuntu...")
 	chdir('ubuntu')
-	task(f'docker build -t  "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ').join()
+	join([task(f'docker build -t  "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')])
 	chdir('..')
 
 
@@ -464,7 +486,7 @@ def build2(port_postfix, mode, parallel, no_cache):
 	task(f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "../docker_scripts/frontend/Dockerfile_hollow" . ')
 
 	print("ok?")
-	join()
+	join_all()
 
 	if mode == "full":
 		print()
@@ -482,23 +504,10 @@ def build2(port_postfix, mode, parallel, no_cache):
 		task(f'docker build -t  "koo5/frontend{port_postfix}"    -f "frontend_server/Dockerfile" . ')
 
 
-	join()
+	join_all()
 	print("ok!")
 
 	chdir('../docker_scripts/')
-
-
-def join():
-	try:
-		for thread: ExcThread in threads:
-			thread.join()
-		print("ok...")
-	except:
-		time.sleep(10)
-		print('Failed!')
-		time.sleep(10)
-		raise
-
 
 
 
