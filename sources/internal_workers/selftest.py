@@ -14,7 +14,7 @@ import json, subprocess, os, sys, shutil, shlex, requests
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from tasking import remoulade
 
-
+from requests.adapters import HTTPAdapter
 
 
 from agraph import agc, RDF, generateUniqueUri
@@ -115,15 +115,12 @@ def run_outstanding_testcases(session):
 	#LIMIT 1
 	""")
 	query.setBinding('session', session)
-	with query.evaluate() as result:
-		#result = list(result)
-		#logging.getLogger().info(result)
-		for bindings in result:
-			tc = bindings.getValue('testcase')
-			txt = bindings.getValue('json').getValue()
-			logging.getLogger().info(f'enqueue(do_testcase: {txt}')
-			jsn = json.loads(txt)
-			do_testcase.send(str(tc), jsn)
+	for bindings in query.evaluate():
+		tc = bindings.getValue('testcase')
+		txt = bindings.getValue('json').getValue()
+		logging.getLogger().info(f'enqueue(do_testcase: {txt}')
+		jsn = json.loads(txt)
+		do_testcase.send(str(tc), jsn)
 
 
 
@@ -135,7 +132,7 @@ def do_testcase(testcase_uri, testcase_json):
 	if test.type=='json_endpoint_test':
 		logging.getLogger().info(f'requests.post(url={test.target_server_url + test.api_uri}, json={test.post_data})....')
 		try:
-			res: requests.Response = requests.post(url=test.target_server_url + test.api_uri, json=test.post_data, timeout=123)
+			res: requests.Response = post(url=test.target_server_url + test.api_uri, json=test.post_data, timeout=123)
 			jsn = JsonEndpointTestData(**res.json())
 		except Exception as e:
 			logging.getLogger().info(e)
@@ -148,6 +145,13 @@ def do_testcase(testcase_uri, testcase_json):
 
 		a.addTriple(testcase_uri, selftest.has_success, true)
 
+
+def post(url, json, timeout) -> requests.Response:
+	s = requests.Session()
+	a = HTTPAdapter(xxxtotal=20, backoff_factor=1,  allowed_methods=frozenset(['GET', 'POST']), status_forcelist=[ 500, 502, 503, 504, 521])
+	s.mount('http://', a)
+	s.mount('https://', a)
+	return s.post(url, json, timeout)
 
 
 def ordered_json_to_dict(p0):

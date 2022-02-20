@@ -352,10 +352,10 @@ def join_all():
 
 def join(t):
 	errors = []
-	for thread: ExcThread in t:
+	for thread in t:
 		join_one(thread, errors)
 	if len(errors):
-		for thread: ExcThread in threads:
+		for thread in threads:
 			if thread not in t:
 				join_one(thread, errors)
 		for error in errors:
