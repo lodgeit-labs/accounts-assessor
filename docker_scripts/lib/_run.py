@@ -376,18 +376,22 @@ def join_one(thread, errors):
 
 def co(cmd):
 	return subprocess.check_output(cmd, text=True, universal_newlines=True)
-def cc(cmd):
-	return subprocess.check_call(cmd, text=True, universal_newlines=True, bufsize=1)
+def cc(cmd, **kwargs):
+	return subprocess.check_call(cmd, text=True, universal_newlines=True, bufsize=1, **kwargs)
 
-def ccss(cmd):
-	return cc(ss(cmd))
+def ccss(cmd, **kwargs):
+	return cc(ss(cmd), **kwargs)
 
 
 threads = []
 
 
-def task(cmd):
-	thread = ExcThread(target = ccss, args = ('stdbuf -oL -eL ' + cmd,))
+def task(dir, cmd):
+	print('cd ' + shlex.quote(dir))
+	print(shlex.quote(cmd))
+	print(' ...')
+	cmd = 'stdbuf -oL -eL ' + cmd
+	thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir})
 	thread.task = cmd
 	threads.append(thread)
 	thread.start()
@@ -400,9 +404,9 @@ def realpath(x):
 	return co(['realpath', x])[:-1]
 
 
-def chdir(x):
-	print(f'cd {x}')
-	os.chdir(x)
+# def chdir(x):
+# 	print(f'cd {x}')
+# 	os.chdir(x)
 
 
 @cli.command(help="""build the docker images.""")
@@ -438,76 +442,25 @@ def build2(port_postfix, mode, parallel, no_cache):
 	# task(f'docker build -t  "koo5/flower{port_postfix}"             -f "../docker_scripts/flower/Dockerfile" . ')
 	#
 
-	print()
-	print("apache...")
-	chdir('apache')
-	task(f'docker build -t  "koo5/apache{port_postfix}"             -f "Dockerfile" . ')
-	chdir('..')
-
-	print()
-	print("agraph...")
-	chdir('agraph')
-	task(f'docker build -t  "koo5/agraph{port_postfix}"             -f "Dockerfile" . ')
-	chdir('..')
-
-	print()
-	print("super-bowl...")
-	chdir('../sources/super-bowl/')
-	task(f'docker build -t  "koo5/super-bowl"             -f "container/Dockerfile" . ')
-	chdir('../../docker_scripts/')
-
-	print()
-	print("ubuntu...")
-	chdir('ubuntu')
-	join([task(f'docker build -t  "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')])
-	chdir('..')
-
-
-	chdir('../sources/')
-
-	print()
-	print("remoulade-api...")
-	task(f'docker build -t  "koo5/remoulade-api-hlw{port_postfix}"    -f "../docker_scripts/remoulade_api/Dockerfile_hollow" . ')
-
-	print()
-	print("internal-workers-hlw...")
-	task(f'docker build -t  "koo5/workers-hlw{port_postfix}"   -f "internal_workers/Dockerfile_hollow" . ')
-
-	print()
-	print("internal-services-hollow...")
-	task(f'docker build -t  "koo5/internal-services-hlw{port_postfix}"  -f "internal_services/Dockerfile_hollow" . ')
-
-	print()
-	print("services-hollow...")
-	task(f'docker build -t  "koo5/services-hlw{port_postfix}"  -f "../docker_scripts/services/Dockerfile_hollow" . ')
-
-	print()
-	print("frontend-server-hollow...")
-	task(f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "../docker_scripts/frontend/Dockerfile_hollow" . ')
-
+	task('apache', f'docker build -t  "koo5/apache{port_postfix}"             -f "Dockerfile" . ')
+	task('agraph', f'docker build -t  "koo5/agraph{port_postfix}"             -f "Dockerfile" . ')
+	task('../sources/super-bowl/', f'docker build -t  "koo5/super-bowl"             -f "container/Dockerfile" . ')
+	join([task('ubuntu', f'docker build -t  "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')])
+	task('../sources/', f'docker build -t  "koo5/remoulade-api-hlw{port_postfix}"    -f "../docker_scripts/remoulade_api/Dockerfile_hollow" . ')
+	task('../sources/', f'docker build -t  "koo5/workers-hlw{port_postfix}"   -f "internal_workers/Dockerfile_hollow" . ')
+	task('../sources/', f'docker build -t  "koo5/internal-services-hlw{port_postfix}"  -f "internal_services/Dockerfile_hollow" . ')
+	task('../sources/', f'docker build -t  "koo5/services-hlw{port_postfix}"  -f "../docker_scripts/services/Dockerfile_hollow" . ')
+	task('../sources/', f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "../docker_scripts/frontend/Dockerfile_hollow" . ')
 	print("ok?")
 	join_all()
 
 	if mode == "full":
-		print()
-		print("internal-workers...")
-		task(f'docker build -t  "koo5/workers{port_postfix}"   -f "internal_workers/Dockerfile" . ')
-
-	if mode == "full":
-		print()
-		print("internal-services...")
-		task(f'docker build -t  "koo5/services{port_postfix}"  -f "internal_services/Dockerfile" . ')
-
-	if mode == "full":
-		print()
-		print("frontend-server...")
-		task(f'docker build -t  "koo5/frontend{port_postfix}"    -f "frontend_server/Dockerfile" . ')
-
+		task('../sources/', f'docker build -t  "koo5/workers{port_postfix}"   -f "internal_workers/Dockerfile" . ')
+		task('../sources/', f'docker build -t  "koo5/services{port_postfix}"  -f "services/Dockerfile" . ')
+		task('../sources/', f'docker build -t  "koo5/frontend{port_postfix}"    -f "frontend/Dockerfile" . ')
 
 	join_all()
 	print("ok!")
-
-	chdir('../docker_scripts/')
 
 
 

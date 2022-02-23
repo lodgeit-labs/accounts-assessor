@@ -1,22 +1,12 @@
 import typing
-
-
-
 import logging
 l = logging.getLogger()
 l.setLevel(logging.DEBUG)
 #l.addHandler(logging.StreamHandler())
-
-
-
-
 import json, subprocess, os, sys, shutil, shlex, requests
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from tasking import remoulade
-
 from requests.adapters import HTTPAdapter
-
-
 from agraph import agc, RDF, generateUniqueUri
 from franz.openrdf.model.value import URI
 from dotdict import Dotdict
@@ -26,39 +16,48 @@ from typing import *
 
 
 
+class TestData(BaseModel):
+	target_server_url: str
+	type: str
 
-class JsonEndpointTestData(BaseModel):
-	api_uri: Optional[str]
-	post_data: Optional[dict]
-	result_text: Optional[str]
+class JsonEndpointTestData(TestData):
+	api_uri: str
+	post_data: dict
+	result_text: str
 
-class CalculatorTestData(BaseModel):
-	testcase: Optional[str]
+class CalculatorTestData(TestData):
+	testcase: str
 	mode: Optional[str]
 	die_on_error: Optional[bool]
 
-class TestCase(BaseModel):
-	type: str
-	data: Union[JsonEndpointTestData, CalculatorTestData]
 
 
-
-
+testcases_query1 = """
+	SELECT DISTINCT ?testcase ?json WHERE 
+	{
+		%s selftest:has_testcase ?testcase . 
+		FILTER NOT EXISTS {?testcase selftest:done true} .
+		?testcase selftest:priority ?priority .
+		?testcase selftest:index ?index .
+		?testcase selftest:json ?json .        
+	}
+	ORDER BY ASC (?index)
+	ORDER BY DESC (?priority)	
+	#LIMIT 5
+	"""
 
 
 
 a = agc()
 selftest = a.namespace('https://rdf.lodgeit.net.au/v1/selftest#')
-
-
-
-
+kb = a.namespace('https://rdf.lodgeit.net.au/v1/kb#')
 
 
 
 def start_selftest_session(target_server_url):
 	session = generateUniqueUri('session')
 	a.addTriple(session, RDF.TYPE, selftest.Session)
+	a.addTriple(session, kb.ts, time())
 	a.addTriple(session, selftest.target_server_url, target_server_url)
 	start_selftest_session2.send(str(session), target_server_url)
 	return session
@@ -75,12 +74,11 @@ def start_selftest_session2(session, target_server_url):
 	run_outstanding_testcases(session)
 
 
-
-
 def add_testcase_permutations(session, permutations):
 	session = URI(session)
 
 	#logging.getLogger().warn(permutations)
+	index = 0
 	for p0 in permutations:
 
 		p = ordered_json_to_dict(p0)
@@ -90,9 +88,12 @@ def add_testcase_permutations(session, permutations):
 		#tr()
 		if 'priority' not in p:
 			p['priority'] = 0
+		p['index'] = index
+		index += 1
 
 		a.addTriple(session, selftest.has_testcase, testcase)
 		a.addTriple(testcase, selftest.priority, p['priority'])
+		a.addTriple(testcase, selftest.index, p['index'])
 		import time
 		p['ts'] = time.ctime()
 		jj = json.dumps(p, indent=4)
@@ -104,16 +105,7 @@ def run_outstanding_testcases(session):
 	"""continue a particular testing session by running the next testcase and recursing"""
 	session = URI(session)
 	#FILTER ( !EXISTS {?testcase selftest:done true})
-	query = a.prepareTupleQuery(query="""
-	SELECT DISTINCT ?testcase ?json WHERE {
-		?session selftest:has_testcase ?testcase . 
-		FILTER NOT EXISTS {?testcase selftest:done true}
-		?testcase selftest:priority ?priority .
-		?testcase selftest:json ?json .        
-	}
-	ORDER BY DESC (?priority)	
-	#LIMIT 1
-	""")
+	query = a.prepareTupleQuery(query=(testcases_query1 % '?session'))
 	query.setBinding('session', session)
 	for bindings in query.evaluate():
 		tc = bindings.getValue('testcase')
@@ -124,26 +116,43 @@ def run_outstanding_testcases(session):
 
 
 
+def last_session():
+	a = a.prepareTupleQuery(query="""
+	SELECT DISTINCT ?session WHERE {
+		?session kb:ts ?ts .
+	}
+	ORDER BY DESC (?ts)	
+	LIMIT 1
+	""").
+	for bindings in query.evaluate():
+		return bindings.getValue('session')
+
+
+
 @remoulade.actor
 def do_testcase(testcase_uri, testcase_json):
 	testcase_uri = URI(testcase_uri)
 	logging.getLogger().info(f'do_testcase: {testcase_uri}')
-	test = Dotdict(testcase_json)
+	test = TestData(**testcase_json)
 	if test.type=='json_endpoint_test':
+		test = JsonEndpointTestData(**testcase_json)
 		logging.getLogger().info(f'requests.post(url={test.target_server_url + test.api_uri}, json={test.post_data})....')
 		try:
 			res: requests.Response = post(url=test.target_server_url + test.api_uri, json=test.post_data, timeout=123)
-			jsn = JsonEndpointTestData(**res.json())
 		except Exception as e:
 			logging.getLogger().info(e)
 			a.addTriple(testcase_uri, selftest.has_failure, str(e))
 			return
 		logging.getLogger().info(jsn)
 		logging.getLogger().info(jsn.result_text)
-		json.loads(jsn.result_text)
+		expected = json.loads(jsn.result_text)
+		actual = res.json()
 		# todo json result comparison!
+		# if expected == actual
 
 		a.addTriple(testcase_uri, selftest.has_success, true)
+	else:
+		print('not implemented')
 
 
 def post(url, json, timeout) -> requests.Response:
@@ -155,11 +164,14 @@ def post(url, json, timeout) -> requests.Response:
 
 
 def ordered_json_to_dict(p0):
-	a = {}
+	d = {}
 	for i in p0:
 		k,v = list(i.items())[0]
-		a[k] = v
-	return a
+		d[k] = v
+	return d
+
+
+remoulade.declare_actors([start_selftest_session2, run_outstanding_testcases, do_testcase])
 
 
 #
@@ -223,19 +235,13 @@ def ordered_json_to_dict(p0):
 
 
 
-
+#
 # def continue_outstanding_selftest_session():
 # 	"""pick a session"""
-# 	a = agc()
-# 	with a.prepareTupleQuery(query="""
-# 	SELECT DISTINCT ?session WHERE {
-# 		?session rdf:type selftest:Session .
-# 		FILTER NOT EXISTS {?session selftest:closed true}
-# 	}
-# 	""").evaluate() as result:
 # 		result.enableDuplicateFilter()
 # 		for bindings in result:
 # 			return run_outstanding_testcases(str(bindings.getValue('session')))
+
 
 
 
@@ -250,4 +256,3 @@ def ordered_json_to_dict(p0):
 
 
 
-remoulade.declare_actors([start_selftest_session2, run_outstanding_testcases, do_testcase])

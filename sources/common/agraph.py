@@ -54,6 +54,7 @@ def agc() -> RepositoryConnection:
 		a = ag_connect('a', host=AGRAPH_SECRET_HOST, port=AGRAPH_SECRET_PORT, user=AGRAPH_SECRET_USER, password=AGRAPH_SECRET_PASSWORD)
 		a.setDuplicateSuppressionPolicy('spog')
 		a.setNamespace('selftest', 'https://rdf.lodgeit.net.au/v1/selftest#')
+		a.setNamespace('kb', 'https://rdf.lodgeit.net.au/v1/kb#')
 		registerPrefix(a, 'session')
 		registerPrefix(a, 'testcase')
 		_agc = a

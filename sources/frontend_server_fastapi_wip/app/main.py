@@ -95,7 +95,12 @@ async def rpc(cmd: RpcCommand, request: Request):
 	if cmd.method == 'selftest':
 		task = selftest.start_selftest_session(cmd.params['target_server_url'])
 		return {'@id':str(task)}
-
+	if cmd.method == 'selftest_session_query_string1':
+		session = last_session()
+		if session is not None:
+			return selftest.testcases_query1 % session
+		else:
+			return None
 
 
 

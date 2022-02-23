@@ -15,9 +15,9 @@ http://localhost:15672
 http://localhost:1238/
 * monitor remoulade tasks
 
-## http://0.0.0.0:10035/#
-* agraph
-
+## agraph
+http://0.0.0.0:10035/#
+* secrets/AGRAPH_SUPER_USER, secrets/AGRAPH_SUPER_PASSWORD
 
 ..
 
