@@ -116,6 +116,7 @@ def run_outstanding_testcases(session):
 
 
 
+@remoulade.actor
 def last_session():
 	a = a.prepareTupleQuery(query="""
 	SELECT DISTINCT ?session WHERE {
@@ -123,7 +124,7 @@ def last_session():
 	}
 	ORDER BY DESC (?ts)	
 	LIMIT 1
-	""").
+	""")
 	for bindings in query.evaluate():
 		return bindings.getValue('session')
 
@@ -171,7 +172,7 @@ def ordered_json_to_dict(p0):
 	return d
 
 
-remoulade.declare_actors([start_selftest_session2, run_outstanding_testcases, do_testcase])
+remoulade.declare_actors([start_selftest_session2, run_outstanding_testcases, do_testcase, last_session])
 
 
 #
