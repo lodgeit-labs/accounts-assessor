@@ -92,7 +92,7 @@ def json_prolog_rpc_call(request, msg):
 
 @app.post("/backend/rpc")
 async def rpc(cmd: RpcCommand, request: Request):
-	if cmd.method == 'selftest':
+	if cmd.method == 'start_selftest_session':
 		task = selftest.start_selftest_session(cmd.params['target_server_url'])
 		return {'@id':str(task)}
 	if cmd.method == 'selftest_session_query_string1':
@@ -101,6 +101,11 @@ async def rpc(cmd: RpcCommand, request: Request):
 			return selftest.testcases_query1 % session
 		else:
 			return None
+
+
+@app.post("/backend/rpc/start_selftest_session")
+async def rpc(args: dict):
+	return {'@id':str(selftest.start_selftest_session(args['target_server_url']))}
 
 
 

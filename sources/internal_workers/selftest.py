@@ -4,6 +4,7 @@ l = logging.getLogger()
 l.setLevel(logging.DEBUG)
 #l.addHandler(logging.StreamHandler())
 import json, subprocess, os, sys, shutil, shlex, requests
+from time import time
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from tasking import remoulade
 from requests.adapters import HTTPAdapter
@@ -41,8 +42,7 @@ testcases_query1 = """
 		?testcase selftest:index ?index .
 		?testcase selftest:json ?json .        
 	}
-	ORDER BY ASC (?index)
-	ORDER BY DESC (?priority)	
+	ORDER BY ASC (?index) DESC (?priority)	
 	#LIMIT 5
 	"""
 
@@ -118,14 +118,14 @@ def run_outstanding_testcases(session):
 
 @remoulade.actor
 def last_session():
-	a = a.prepareTupleQuery(query="""
+	q = a.prepareTupleQuery(query="""
 	SELECT DISTINCT ?session WHERE {
 		?session kb:ts ?ts .
 	}
 	ORDER BY DESC (?ts)	
 	LIMIT 1
 	""")
-	for bindings in query.evaluate():
+	for bindings in q.evaluate():
 		return bindings.getValue('session')
 
 

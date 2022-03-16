@@ -1,4 +1,5 @@
 import json, os, logging
+from tasking import remoulade
 
 from franz.openrdf.model.value import BNode
 from franz.openrdf.vocabulary.rdf import RDF
@@ -33,8 +34,22 @@ def generateUniqueUri(prefix):
 	return URI(r)
 
 
-def registerPrefix(a, prefix):
+def registerEncodedIdPrefix(a, prefix):
 	a.registerEncodedIdPrefix(prefix, 'https://rdf.lodgeit.net.au/v1/' + prefix + '[a-p]{15}')
+
+
+namespaces = {
+	'selftest': 'https://rdf.lodgeit.net.au/v1/selftest#',
+	'kb': 'https://rdf.lodgeit.net.au/v1/kb#'
+}
+
+@remoulade.actor
+def sql_prefixes_header():
+	r = ''
+	for k,v in namespaces.items():
+		r += ('PREFIX ' + k + ': <' + v + '>\n')
+	print(r)
+	return r
 
 _agc = None
 
@@ -53,12 +68,15 @@ def agc() -> RepositoryConnection:
 		#print(f"""ag_connect('a', host={AGRAPH_SECRET_HOST}, port={AGRAPH_SECRET_PORT}, user={AGRAPH_SECRET_USER},password={AGRAPH_SECRET_PASSWORD})""")
 		a = ag_connect('a', host=AGRAPH_SECRET_HOST, port=AGRAPH_SECRET_PORT, user=AGRAPH_SECRET_USER, password=AGRAPH_SECRET_PASSWORD)
 		a.setDuplicateSuppressionPolicy('spog')
-		a.setNamespace('selftest', 'https://rdf.lodgeit.net.au/v1/selftest#')
-		a.setNamespace('kb', 'https://rdf.lodgeit.net.au/v1/kb#')
-		registerPrefix(a, 'session')
-		registerPrefix(a, 'testcase')
+		for k,v in namespaces.items():
+			a.setNamespace(k,v)
+		registerEncodedIdPrefix(a, 'session')
+		registerEncodedIdPrefix(a, 'testcase')
 		_agc = a
 		return _agc
 	else:
 		print('agraph user and pass must be provided')
 		exit(1)
+
+
+remoulade.declare_actors([sql_prefixes_header])
