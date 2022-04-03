@@ -70,7 +70,7 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 ## usage
 
 #### with Excel and LSU plugin
-[https://github.com/koo5/accounts-assessor-public-wiki/blob/master/excel_usage/README.md]()
+[https://github.com/koo5/accounts-assessor-public-wiki/blob/master/excel\_usage/README.md]()
 
 #### without Excel
 1) Load http://localhost:88/ in your browser
