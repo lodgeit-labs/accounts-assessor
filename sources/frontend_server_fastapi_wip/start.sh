@@ -8,7 +8,7 @@ _term() {
 trap _term SIGTERM
 
 set -xv
-PYTHONPATH=/app/sources/common/libs/remoulade/ watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  -- python3.9 -O `which uvicorn` app.main:app --proxy-headers --host 0.0.0.0 --port 7788 &
+PYTHONPATH=/app/sources/common/libs/remoulade/ watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  -- python3.9 -O `which uvicorn` app.main:app --proxy-headers --host 0.0.0.0 --port 7788 --log-level trace    &
 child=$!
 wait "$child"
 echo "end"

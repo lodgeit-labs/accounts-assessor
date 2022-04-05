@@ -77,7 +77,7 @@ async def read_root():
 	return {"Hello": "World"}
 
 
-@app.post("/clients/chat")
+@app.post("/chat")
 async def post(body: ChatRequest, request: Request):
 	return json_prolog_rpc_call(request, {
 		"method": "chat",
@@ -90,7 +90,7 @@ def json_prolog_rpc_call(request, msg):
 	return invoke_rpc.call_prolog.send(msg=msg).result.get(block=True, timeout=1000 * 1000)
 
 
-@app.post("/backend/rpc")
+@app.post("/rpc")
 async def rpc(cmd: RpcCommand, request: Request):
 	if cmd.method == 'start_selftest_session':
 		task = selftest.start_selftest_session(cmd.params['target_server_url'])
@@ -103,7 +103,7 @@ async def rpc(cmd: RpcCommand, request: Request):
 			return None
 
 
-@app.post("/backend/rpc/start_selftest_session")
+@app.post("/rpc/start_selftest_session")
 async def rpc(args: dict):
 	return {'@id':str(selftest.start_selftest_session(args['target_server_url']))}
 
@@ -130,7 +130,7 @@ def save_uploaded_file(dir, src):
 
 
 
-@app.post("/clients/upload")
+@app.post("/upload")
 async def post(files: list[UploadFile], request: Request, request_format: str, requested_output_format='json_reports_list'):
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
 	request_files_in_tmp = []

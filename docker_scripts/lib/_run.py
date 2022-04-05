@@ -107,15 +107,10 @@ def run(ctx, port_postfix, public_url, parallel_build, rm_stack, **choices):
 	open('apache/conf/dynamic.conf','w').write(
 f"""
 ServerName {public_host}
-
-ProxyPassReverse "/clients" "http://{frontend}:7788/clients"
-ProxyPass "/clients" "http://{frontend}:7788/clients"  connectiontimeout=160 timeout=160 retry=10 acquire=3000 Keepalive=Off
-
-ProxyPassReverse "/backend" "http://{frontend}:7788/backend"
-ProxyPass "/backend" "http://{frontend}:7788/backend"  connectiontimeout=160 timeout=160 retry=10 acquire=3000 Keepalive=Off
-
-"""
-	)
+""" + '\n'.join([f"""
+ProxyPassReverse "/{path}" "http://{frontend}:7788/{path}"
+ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeout=160 retry=10 acquire=3000 Keepalive=Off
+""" for path in 'chat upload rpc'.split()]))
  
 	pp = port_postfix
 
