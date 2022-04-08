@@ -1,7 +1,7 @@
 
 import os
 # what this really controls is how many times it should try to reconnect gracefully before it starts reconnecting in an uncontrolled DOS-style loop
-os.environ['emoulade_restart_max_retries']='99999999'
+os.environ['remoulade_restart_max_retries']='99999999'
 
 
 

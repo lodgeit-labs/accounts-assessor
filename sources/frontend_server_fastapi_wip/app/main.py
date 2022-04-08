@@ -6,8 +6,12 @@ import ntpath
 import shutil
 
 
-from typing import Optional, Any
-from fastapi import FastAPI, Request, File, UploadFile
+from typing import Optional, Any, List
+from fastapi import FastAPI, Request, File, UploadFile, HTTPException
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import PlainTextResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
 from pydantic import BaseModel
 
 
@@ -128,10 +132,9 @@ def save_uploaded_file(dir, src):
 
 
 
-
-
 @app.post("/upload")
-async def post(files: list[UploadFile], request: Request, request_format: str, requested_output_format='json_reports_list'):
+async def hhhhhh(file1: UploadFile, file2: Optional[UploadFile]=None, request_format:str=None, requested_output_format:str='json_reports_list'):
+	raise print('hhhhhhhhhhhhh')
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
 	request_files_in_tmp = []
 	for file in files:
@@ -180,11 +183,9 @@ async def post(files: list[UploadFile], request: Request, request_format: str, r
 
 
 
-
-
-
-
-
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+	return PlainTextResponse(str(exc), status_code=400)
 
 
 
