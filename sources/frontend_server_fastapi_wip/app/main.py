@@ -11,7 +11,7 @@ from fastapi import FastAPI, Request, File, UploadFile, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 
@@ -124,34 +124,38 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 	return server_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
 
 
-def save_uploaded_file(dir, src):
-	dest = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(f.filename)]))
+def save_uploaded_file(tmp_directory_path, src):
+	dest = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(src.filename)]))
 	with open(dest, 'wb+') as dest_fd:
-		shutil.copyfileobj(src, dest_fd)
+		shutil.copyfileobj(src.file, dest_fd)
 	return dest
 
 
 
 @app.post("/upload")
-async def hhhhhh(file1: UploadFile, file2: Optional[UploadFile]=None, request_format:str=None, requested_output_format:str='json_reports_list'):
-	raise print('hhhhhhhhhhhhh')
+async def post(file1: UploadFile, file2: Optional[UploadFile]=None, request_format:str=None, requested_output_format:str='json_reports_list'):
+
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
+	#return PlainTextResponse('aaaaa', status_code=400)
+
 	request_files_in_tmp = []
+	files = [file1]
+	if file2 is not None:
+		files.append(file2)
 	for file in files:
 		request_files_in_tmp.append(save_uploaded_file(request_tmp_directory_path, file))
+
+
 	final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
-	response_tmp_directory_name = None
 	response_tmp_directory_name = call_prolog_calculator.call_prolog_calculator(
-		celery_app = celery_app,
-		prolog_flags=prolog_flags,
 		request_tmp_directory_name=request_tmp_directory_name,
-		server_url=server_url,
+		server_url=os.environ['PUBLIC_URL'],
 		request_files=request_files_in_tmp,
 		# the limit here is that the excel plugin doesn't do any async or such. It will block until either a response is received, or it timeouts.
 		# for json_reports_list, we must choose a timeout that happens faster than client's timeout. If client timeouts, it will have received nothing and can't even open browser or let user load result sheets manually
 		# but if we timeout too soon, we will have no chance to send a full reports list with result sheets, and users will get an unnecessary browser window + will have to load sheets manually.
-		# for xml there is no way to indicate any errors, so just let client do the timeouting.
-		timeout_seconds = 30 if requested_output_format == 'json_reports_list' else 0,
+		# with xml requests, there is no way to indicate any errors, so just try to process it in time, and let the client timeout if it takes too long.
+		timeout_seconds = 3 if requested_output_format == 'json_reports_list' else None,
 		request_format = request_format,
 		final_result_tmp_directory_name = final_result_tmp_directory_name,
 		final_result_tmp_directory_path = final_result_tmp_directory_path
@@ -179,7 +183,8 @@ async def hhhhhh(file1: UploadFile, file2: Optional[UploadFile]=None, request_fo
 			else:
 				raise Exception('unexpected requested_output_format')
 	logging.getLogger().warn('redirect url: %s' % redirect_url)
-	return HttpResponseRedirect(redirect_url)
+	return RedirectResponse(redirect_url)
+
 
 
 
