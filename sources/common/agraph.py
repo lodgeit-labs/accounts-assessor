@@ -11,10 +11,7 @@ from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 	#print(key, '=', os.environ.get(key), ' or ', json.get(key))
 #	return os.environ.get(key) or json.get(key)
 
-def secret(name):
-	fn = os.environ.get('SECRETS_DIR','/run/secrets') + '/' + name
-	with open(fn, 'r') as x:
-		return x.read()
+from config import secret
 
 
 #def bn_from_string(bn_str):

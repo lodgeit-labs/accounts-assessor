@@ -23,6 +23,7 @@ services:
       - frontend
       - backend
     hostnet_ports:
+    # note that hostnet_ports are currently a no-op
       - 80
     deploy:
       replicas: 1
@@ -62,6 +63,7 @@ services:
       restart_policy:
         condition: any
     secrets:
+      - SECRET__REMOULADE_PG_URI
       - SECRET__REDIS_HOST
       - DJANGO_SECRET_KEY
       - AGRAPH_SECRET_HOST
@@ -96,6 +98,7 @@ services:
       restart_policy:
         condition: any
     secrets:
+      - SECRET__REMOULADE_PG_URI
       - SECRET__REDIS_HOST
       - AGRAPH_SECRET_HOST
       - AGRAPH_SECRET_PORT
@@ -242,6 +245,7 @@ services:
       - rabbitmq
       - postgres
     secrets:
+      - SECRET__REMOULADE_PG_URI
       - SECRET__REDIS_HOST
       - AGRAPH_SECRET_HOST
       - AGRAPH_SECRET_PORT

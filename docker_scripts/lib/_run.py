@@ -247,8 +247,6 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	if compose:
 		del res['networks']
 		for k,v in services.items():
-			if 'hostnet_ports' in v:
-				del v['hostnet_ports']
 			v['ports'] = []
 				# for port in v['hostnet_ports']:
 				# 	v['ports'].append(str(port)+':'+str(port))
@@ -262,6 +260,10 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 			#if 'restart_policy' in v:
 			#	if 'delay' in v['restart_policy']:
 			#		del v['restart_policy']['delay']
+
+	for k,v in services.items():
+		if 'hostnet_ports' in v:
+			del v['hostnet_ports']
 
 	if mount_host_sources_dir:
 		for x in ['workers','services','frontend', 'remoulade-api']:
