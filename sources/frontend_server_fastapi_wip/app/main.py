@@ -133,15 +133,13 @@ def save_uploaded_file(tmp_directory_path, src):
 
 
 @app.post("/upload")
-async def post(file1: UploadFile, file2: Optional[UploadFile]=None, request_format:str=None, requested_output_format:str='json_reports_list'):
+async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str=None, requested_output_format:str='json_reports_list'):
 
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
 	#return PlainTextResponse('aaaaa', status_code=400)
 
 	request_files_in_tmp = []
-	files = [file1]
-	if file2 is not None:
-		files.append(file2)
+	files = [x for x in [file1, file2] if x is not None]
 	for file in files:
 		request_files_in_tmp.append(save_uploaded_file(request_tmp_directory_path, file))
 

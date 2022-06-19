@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env fish
 
 set DIR (dirname (readlink -m (status --current-filename)))
 cd "$DIR"
@@ -10,10 +10,6 @@ python3 -m pip install --user -U click pyyaml
 
 # for run_last_request_in_docker
 python3 -m pip install --user -U docker 
-
-cd ..
-cp -r secrets_example secrets
-cp -r sources/config_example sources/config
 
 python3 setup.py install --user 
 
