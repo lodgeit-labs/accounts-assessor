@@ -11,7 +11,9 @@ the “This repository” below corresponds to:
 codebases:labs_accounts_assessor
 ")
 
-This repository hosts practical research into leveraging logic programming to solve accounting problems. The core logic runs in SWI-Prolog, and is aided by a python webserver. Several services are available:
+This repository hosts practical research into leveraging logic programming to solve accounting problems.
+The core logic runs in SWI-Prolog, and is aided by a python webserver.
+Several services are available:
 
 [](mrkev2extra: "
 products:accounts_assessor kb:has_service kb:investment_calculator
@@ -33,7 +35,7 @@ We use it at http://www.nobleaccounting.com.au, along with a proprietary (but fr
 
 
 ## investment calculator
-The most complex endpoint is the investment calculator: it validates and processes financial data of a financial entity for a given period:
+The most complex endpoint is the investment calculator; it validates and processes financial data of a financial entity for a given period:
 * bank statements
 * raw general ledger input
 * change in investment unit values
@@ -61,7 +63,7 @@ It automates some of the usual accounting procedures, like tax calculations, and
 ![screenshot](sources/static/docs/readme/hp-sheet.png?raw=true)
 (todo: UI)
 
-Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest
+Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest.
 
 ## Division 7A Loan calculator
 ![screenshot](sources/static/docs/readme/Div7A-sheet.png?raw=true)

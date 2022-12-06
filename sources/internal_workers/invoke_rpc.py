@@ -1,15 +1,12 @@
 import logging,json, subprocess, os, sys, shutil, shlex
-
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 from tmp_dir_path import git, sources, create_tmp_directory_name, create_tmp, get_tmp_directory_absolute_path, ln
 from fs_utils import command_nice, flatten_lists
-
-
-
 from tasking import remoulade
 
 
 
+@remoulade.actor
 def call_prolog_calculator2(kwargs):
 	msg = kwargs['msg']
 	# this is where prolog will put reports:
@@ -176,9 +173,6 @@ def call_prolog(
 
 
 
-remoulade.declare_actors([call_prolog])
-
-
 
 def uri_params(tmp_directory_name):
 	# comment(RDF_EXPLORER_1_BASE, comment, 'base of uris to show to user in generated html')
@@ -195,18 +189,7 @@ def uri_params(tmp_directory_name):
 
 
 
-# if you want to see current env:
-#import sys
-#print(sys.path)
-#p = subprocess.Popen(['bash', '-c', 'export'], universal_newlines=True)
-#p.communicate()
+
+remoulade.declare_actors([call_prolog, call_prolog_calculator2])
 
 
-
-"""
-some design/requirements/assumptions about the tasks/rpc framework (the python side):
-
-"""
-
-
-			#todo: for browser clients: something like return render(request, 'task_taking_too_long.html', {'final_result_tmp_directory_name': final_result_tmp_directory_name})

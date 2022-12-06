@@ -4,7 +4,7 @@ just working out syntax annd stuff here, unfinished
 
 :- use_module(library(clpfd)).
 
-:- ['../../sources/public_lib/lodgeit_solvers/prolog/pyco2/pyco3.pl'].
+:- ['../../sources/public_lib/lodgeit_solvers/research/pyco2/pyco3.pl'].
 
 
 %:- p3_declare(first = 'rdf:first').

@@ -1,3 +1,5 @@
+here's some thinking about how an actually ledger endpoint code in pyco might look
+
 
 
 

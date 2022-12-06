@@ -134,18 +134,15 @@ def save_uploaded_file(tmp_directory_path, src):
 
 @app.post("/upload")
 async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str=None, requested_output_format:str='json_reports_list'):
-
+	"""
+	'json_reports_list' is a misnomer at this point, these requests process asynchronously, and we only return what is basically a result handle (url).
+	otherwise, we block waiting for prolog to finish, or for client to give up.
+	"""
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
-	#return PlainTextResponse('aaaaa', status_code=400)
-
-	request_files_in_tmp = []
-	files = [x for x in [file1, file2] if x is not None]
-	for file in files:
-		request_files_in_tmp.append(save_uploaded_file(request_tmp_directory_path, file))
-
+	request_files_in_tmp = await save_request_files(file1, file2, request_tmp_directory_path)
 
 	final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
-	response_tmp_directory_name = call_prolog_calculator.call_prolog_calculator(
+	result = call_prolog_calculator.call_prolog_calculator(
 		request_tmp_directory_name=request_tmp_directory_name,
 		server_url=os.environ['PUBLIC_URL'],
 		request_files=request_files_in_tmp,
@@ -153,37 +150,43 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 		# for json_reports_list, we must choose a timeout that happens faster than client's timeout. If client timeouts, it will have received nothing and can't even open browser or let user load result sheets manually
 		# but if we timeout too soon, we will have no chance to send a full reports list with result sheets, and users will get an unnecessary browser window + will have to load sheets manually.
 		# with xml requests, there is no way to indicate any errors, so just try to process it in time, and let the client timeout if it takes too long.
-		timeout_seconds = 3 if requested_output_format == 'json_reports_list' else None,
 		request_format = request_format,
 		final_result_tmp_directory_name = final_result_tmp_directory_name,
 		final_result_tmp_directory_path = final_result_tmp_directory_path
 	)
 
-	logging.getLogger().warn('requested_output_format: %s' % requested_output_format)
-	if requested_output_format == 'xml':
+	logging.getLogger().info('requested_output_format: %s' % requested_output_format)
+
+	if requested_output_format == 'immediate_xml':
+		response_tmp_directory_name = result.get(block=True, timeout=1000 * 1000)
 		reports = json.load(open('/app/server_root/tmp/' + response_tmp_directory_name + '/000000_response.json.json'))
 		redirect_url = find_report_by_key(reports['reports'], 'response')
-	else:
-		if response_tmp_directory_name == None: # timeout happened
-			return JsonResponse(
-			{
-				"alerts": ["timeout."],
-				"reports":
-				[{
-					"title": "task_handle",
-					"key": "task_handle",
-					"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
-				]
-			})
+	elif requested_output_format == 'result_handle':
+		return JsonResponse(
+		{
+			"alerts": ["result will be ready at the following URL."],
+			"reports":
+			[{
+				"title": "task_handle",
+				"key": "task_handle",
+				"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
+			]
+		})
 		else:
-			if requested_output_format == 'json_reports_list':
+
 				redirect_url = '/tmp/'+ response_tmp_directory_name + '/000000_response.json.json'
-			else:
-				raise Exception('unexpected requested_output_format')
+
+		else:
+			raise Exception('unexpected requested_output_format')
 	logging.getLogger().warn('redirect url: %s' % redirect_url)
 	return RedirectResponse(redirect_url)
 
 
+async def save_request_files(file1, file2, request_tmp_directory_path):
+	request_files_in_tmp = list(filter(None, [file1, file2]))
+	for file in request_files_in_tmp:
+		request_files_in_tmp.append(save_uploaded_file(request_tmp_directory_path, file))
+	return request_files_in_tmp
 
 
 @app.exception_handler(RequestValidationError)
