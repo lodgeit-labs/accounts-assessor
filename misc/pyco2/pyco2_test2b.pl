@@ -414,7 +414,7 @@ test(Q) :-
 			%debug(pyco_proof),
 			%debug(pyco_ep),
 			
-			%debug(pyco_run),
+			debug(pyco_run),
 			run(quiet, Q),
 			%run(noisy, Q),
 			
