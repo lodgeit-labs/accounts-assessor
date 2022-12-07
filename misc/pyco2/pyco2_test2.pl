@@ -1,4 +1,4 @@
-:- [pyco2].
+:- ['../../sources/public_lib/lodgeit_solvers/research/pyco2/pyco2.pl'].
 :- use_module(library(clpq)).
 
 

@@ -164,11 +164,7 @@ pyco0_rule(
 		fr(S_transactions, St, S_transactions_tail),
 		preprocess(Verbs, S_transactions_tail, Transactions_rest)
 	]).
-/*
-selection of speed-optimal order of body items: perhaps this is best defined on the level of predicate definitions. Might be even more optimal on the level of rule definitions, but i'm not sure that we can realistically implement that in prolog.
-So let's say preprocess/3 has delay-hint: if Verbs is unbound, shift me back by X seconds. X may be a constant or an expression possibly even calling more pyco preds, taking lengts of lists or whatnot.
-The next pred invoked after preprocess/3 may shift back to, etc, until we get to the end of the body, at which point, we sort the body items by "delay-hint" and commit to the lowest.
-*/
+
 pyco0_rule(
 	'produces 1',
 	[produces(Verb, St, Ts)]
@@ -265,6 +261,103 @@ pyco0_rule(
 		fr(Verbs2, Verb1, nil)
 	]).
 
+/* basic expansion of an s_transaction into two transactions */
+pyco0_rule(
+	'q0',
+	[
+		q0(Sts, Ts)
+	] <=
+	[
+		verb_type(Expense, basic),
+		verb_name(Expense, expense),
+		verb_counteraccount(Expense, expenses),
+		fr(Verbs, Expense, nil),
+		coord(C1,'AUD',10),fr(Vec1,C1,nil),
+		s_transaction(St0,Expense,day0,bank1,Vec1,nil),
+		fr(Sts, St0, nil),
+
+		preprocess(Verbs, Sts, Ts)
+	]).
+
+/* ...two Invest_in s_transactions */
+pyco0_rule(
+	'q1',
+	[
+		q1(Sts, Ts)
+	] <=
+	[
+		default_verbs(Verbs, Invest_in, _),
+		coord(C1,'AUD',-10),fr(Vec1,C1,nil),
+		coord(C2,'GOOG',-10),fr(Vec2,C2,nil),
+		coord(C3,'MSFT',-10),fr(Vec3,C3,nil),
+		s_transaction(St0,Invest_in,0,bank1,Vec1,Vec2),
+		s_transaction(St1,Invest_in,1,bank2,Vec1,Vec3),
+		fr(Sts, St0, Sts1),
+		fr(Sts1, St1, nil),
+		preprocess(Verbs, Sts, Ts)
+	]).
+
+/* inference of one s_transaction from gl transactions */
+pyco0_rule(
+	'q2',
+	[
+		q2(Sts, Ts)
+	] <=
+	[
+		coord(C1,'AUD',-10),fr(Vec1,C1,nil),
+		coord(C2,'AUD',10),fr(Vec2,C2,nil),
+		transaction(T0,0,_,bank0,Vec1),
+		transaction(T1,0,_,expenses,Vec2),
+		fr(Ts, T0, Ts1),
+		fr(Ts1, T1, nil),
+		preprocess(Verbs,Sts,Ts),
+		default_verbs(Verbs, _, _)
+	]).
+
+/* inference of two s_transactions from four gl transactions */
+pyco0_rule(
+	'q3',
+	[
+		q3(Sts, Ts)
+	] <=
+	[%fixme
+		transaction(T0,0,_,bank0,v),
+		transaction(T1,0,_,expenses,vi),
+		transaction(T2,0,_,bank0,v),
+		transaction(T3,0,_,investments,goog),
+		fr(Ts, T0, Ts1),
+		fr(Ts1, T1, Ts2),
+		fr(Ts2, T2, Ts3),
+		fr(Ts3, T3, nil),
+		preprocess(Verbs,Sts,Ts),
+		default_verbs(Verbs, _, _)
+	]).
+
+/* inference of one s_transaction and one gl transaction */
+pyco0_rule(
+	'q4',
+	[
+		q4(Sts, Ts)
+	] <=
+	[
+		fr(Sts, St0, Sts1),
+		fr(Sts1, _St1, nil),
+		coord(C1,'AUD',-10),fr(Vec1,C1,nil),
+		coord(C2,'GOOG',10),fr(Vec2,C2,nil),
+		coord(C3,'AUD',10),fr(Vec3,C3,nil),
+		s_transaction(St0,Invest_in,0,bank0,Vec1,Vec2),
+
+		fr(Ts, T0, Ts1),
+		fr(Ts1, T1, Ts2),
+		fr(Ts2, T2, Ts3),
+		fr(Ts3, _T3, nil),
+		transaction(T0,0,_,bank0,Vec1),
+		transaction(T1,0,_,expenses,Vec3),
+		transaction(T2,0,_,bank0,Vec1),
+
+		preprocess(Verbs,Sts,Ts),
+		default_verbs(Verbs, Invest_in, _)
+	]).
 
 /* inference of many s_transactions */
 pyco0_rule(
@@ -301,8 +394,12 @@ pyco0_rule(
 		transaction(T9,4,_,expenses,Vec4),
 		transaction(T10,4,_,bank0,Vec3),
 		transaction(T11,4,_,expenses,Vec2),
+
+
 		default_verbs(Verbs, _, _),
+		% ^v switch these two around, or really any statements in this rule
 		preprocess(Verbs,Sts,Ts0)
+
 		%writeq(preprocess(Verbs,Sts,Ts0)),
 
 	]).
@@ -316,9 +413,11 @@ test(Q) :-
 			%debug(pyco_prep),
 			%debug(pyco_proof),
 			%debug(pyco_ep),
+			
 			%debug(pyco_run),
-
 			run(quiet, Q),
+			%run(noisy, Q),
+			
 			print_1(Q),
 			nicer_term(Q, NQ),
 			format(user_error,'~nresult: ~q~n', [NQ]),
