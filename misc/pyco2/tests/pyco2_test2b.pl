@@ -395,12 +395,53 @@ pyco0_rule(
 		transaction(T10,4,_,bank0,Vec3),
 		transaction(T11,4,_,expenses,Vec2),
 
+		default_verbs(Verbs, _, _),
+		preprocess(Verbs,Sts,Ts0)
+	]).
+
+
+/* inference of many s_transactions */
+pyco0_rule(
+	'q6',
+	[
+		q6(Sts, Ts0)
+	] <=
+	[
+		fr(Ts0, T0, Ts1),
+		fr(Ts1, T1, Ts2),
+		fr(Ts2, T2, Ts3),
+		fr(Ts3, T3, Ts4),
+		fr(Ts4, T4, Ts5),
+		fr(Ts5, T5, Ts6),
+		fr(Ts6, T6, Ts7),
+		fr(Ts7, T7, Ts8),
+		fr(Ts8, T8, Ts9),
+		fr(Ts9, T9, Ts10),
+		fr(Ts10, T10, Ts11),
+		fr(Ts11, T11, nil),
+		coord(C1,'AUD',-5),fr(Vec1,C1,nil),
+		coord(C2,'AUD',5),fr(Vec2,C2,nil),
+		coord(C3,'AUD',-60),fr(Vec3,C3,nil),
+		coord(C4,'AUD',60),fr(Vec4,C4,nil),
+		transaction(T0,0,_,bank0,Vec1),
+		transaction(T1,0,_,expenses,Vec2),
+		transaction(T2,1,_,bank0,Vec1),
+		transaction(T3,1,_,expenses,Vec2),
+		transaction(T4,2,_,bank0,Vec1),
+		transaction(T5,3,_,expenses,Vec2),
+		transaction(T6,3,_,bank0,Vec1),
+		transaction(T7,2,_,expenses,Vec2),
+		transaction(T8,4,_,bank0,Vec1),
+		transaction(T9,4,_,expenses,Vec4),
+		transaction(T10,4,_,bank0,Vec3),
+		transaction(T11,4,_,expenses,Vec2),
+
+% same as q5 up to here:
 
 		preprocess(Verbs,Sts,Ts0),
+		writef("\n\nhypothesized Verbs:"),
+		writeq(Verbs),
 		default_verbs(Verbs, _, _)
-		% ^v switch these two around, or really any statements in this rule
-
-		%writeq(preprocess(Verbs,Sts,Ts0)),
 
 	]).
 
