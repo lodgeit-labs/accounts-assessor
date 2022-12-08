@@ -396,9 +396,9 @@ pyco0_rule(
 		transaction(T11,4,_,expenses,Vec2),
 
 
-		default_verbs(Verbs, _, _),
+		preprocess(Verbs,Sts,Ts0),
+		default_verbs(Verbs, _, _)
 		% ^v switch these two around, or really any statements in this rule
-		preprocess(Verbs,Sts,Ts0)
 
 		%writeq(preprocess(Verbs,Sts,Ts0)),
 
@@ -411,8 +411,8 @@ test(Q) :-
 		_,
 		(
 			%debug(pyco_prep),
-			%debug(pyco_proof),
-			%debug(pyco_ep),
+			debug(pyco_proof),
+			debug(pyco_ep),
 			
 			debug(pyco_run),
 			run(quiet, Q),
