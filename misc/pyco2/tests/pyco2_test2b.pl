@@ -34,16 +34,6 @@ pyco0_rule(
 	) :-
 		Desc = 'coord exists'.
 
-pyco0_rule(
-	member0,
-	[
-		member(Item, List)
-	]
-	<=
-	[
-		fr(List, Item, _Rest)
-	]).
-
 /*
 pyco0_rule(
 	vec_inverse,
@@ -88,6 +78,15 @@ pyco0_rule(
 	]).
 
 
+pyco0_rule(
+	member0,
+	[
+		member(Item, List)
+	]
+	<=
+	[
+		fr(List, Item, _Rest)
+	]).
 
 pyco0_rule(
 	member1,

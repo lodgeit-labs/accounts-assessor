@@ -1,4 +1,4 @@
-:- ['../../sources/public_lib/lodgeit_solvers/prolog/pyco2/pyco3.pl'].
+:- ['../../sources/public_lib/lodgeit_solvers/research/pyco2/pyco3.pl'].
 :- use_module(library(clpq)).
 
 
@@ -6,6 +6,17 @@
 r(
 	exists-('fr', ['First','Rest'])
 		,n-'"All lists exist" - https://www.w3.org/TeamSubmission/n3/'
+).
+
+r(
+	member(Item, List)
+		,fr(List, Item, _Rest)
+).
+
+r(
+	member(Item, List)
+		,fr(List, _, Rest)
+		,member(Item, Rest)
 ).
 
 
@@ -75,7 +86,7 @@ r(
 ).
 
 /*
-selection of speed-optimal order of body items: perhaps this is best defined on the level of predicate definitions. Might be even more optimal on the level of rule definitions, but i'm not sure that we can realistically implement that in prolog.
+selection of speed-optimal order of body items: perhaps this is best defined at the level of predicate definitions. Might be even more optimal at the level of rule definitions, but i'm not sure that we can realistically implement that in prolog.
 So let's say preprocess/3 has delay-hint: if Verbs is unbound, shift me back by X seconds. X may be a constant or an expression possibly even calling more pyco preds, taking lengts of lists or whatnot.
 The next pred invoked after preprocess/3 may shift back too, etc, until we get to the end of the body, at which point, we sort the body items by "delay-hint" and commit to the lowest.
 
