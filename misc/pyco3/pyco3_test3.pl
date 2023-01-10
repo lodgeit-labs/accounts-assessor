@@ -10,7 +10,7 @@ r(
 
 r(
 	member(Item, List)
-		,fr(List, Item, _Rest)
+		,fr(List, Item, Rest)
 ).
 
 r(
