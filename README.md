@@ -1,6 +1,6 @@
 [](mrkev2query: "
 the “Accounts Assessor” below corresponds to:
-products:accounts_assessor kb:project_name ?x.
+products:robust kb:project_name ?x. 
 ?x rdf:value ?y.
 ")
 
@@ -194,7 +194,7 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 
 
 [](mrkev2extra: "
-products:robust has_codebase codebases:labs_accounts_assessor.
+products:robust kb:has_codebase codebases:labs_accounts_assessor.
 products:robust kb:has_codebase codebases:LodgeITSmart.
 ")
 
