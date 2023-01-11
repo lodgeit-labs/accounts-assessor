@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env python3
 
 import os,subprocess,time,shlex,logging,sys,threading
 
@@ -18,7 +18,7 @@ try:
 	import yaml
 	yaml.FullLoader
 except:
-	print('please install:\npython3.9 -m pip install --user -U click pyyaml')
+	print('please install:\npython3 -m pip install --user -U click pyyaml')
 	exit(1)
 
 

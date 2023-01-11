@@ -4,6 +4,7 @@ setup(
     name='robust',
     version='0.1.0',
     packages=find_packages(include=['lib']),
+    python_requires='>=3.9',
     install_requires=[
         'Click',
         'pyyaml'
