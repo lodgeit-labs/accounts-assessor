@@ -145,7 +145,18 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 			#print('.')
 	shell('pwd')
 	shell('./lib/git_info.fish')
-	e = env={"PP": pp, 'DJANGO_ARGS':django_args, 'DISPLAY':os.environ['DISPLAY']}
+	hn = choices['use_host_network']
+	e = {
+		"PP": pp,
+		'DISPLAY':os.environ['DISPLAY'],
+		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
+		'REDIS_HOST':  'redis://localhost' if hn else 'redis://redis',
+		'AGRAPH_HOST': 'localhost' if hn else 'agraph',
+		'AGRAPH_PORT': 10035,
+		'REMOULADE_PG_URI: 'postgresql://remoulade@localhost:5432/remoulade' if hn else 'postgresql://remoulade@postgres:5432/remoulade',
+		'INTERNAL_SERVICES_SERVER_URL': 'http://localhost:17788' if hn else 'http://internal-services:17788'
+
+	}
 	if compose:
 		cmd = '/usr/local/bin/docker-compose -f ' + stack_fn + ' -p robust  --compatibility '
 		import atexit
@@ -209,9 +220,6 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	services = res['services']
 	services['frontend']['environment']['PUBLIC_URL'] = PUBLIC_URL
 
-	if debug_frontend_server:
-		services['frontend']['environment']['DJANGO_SETTINGS_MODULE'] = "frontend_server.settings_dev"
-
 	if not enable_public_gateway:
 		del services['caddy']
 
@@ -221,12 +229,10 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 
 	if not 'secrets' in res:
 		res['secrets'] = {}
-	#print(res['secrets'])
+
 	for fn,path in files_in_dir(secrets_dir):
 		if fn not in res['secrets']:
-			#print (path)
 			res['secrets'][fn] = {'file':(path)}
-	#print(res['secrets'])
 
 	if use_host_network:
 		del res['networks']['frontend']
@@ -241,8 +247,6 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 				v['network_mode'] = 'host'
 			else:
 				v['networks'] = ['hostnet']
-			if 'RABBITMQ_URL' in v['environment']:
-				v['environment']['RABBITMQ_URL']='localhost:5672'
 
 	if compose:
 		del res['networks']
@@ -401,9 +405,6 @@ def realpath(x):
 	return co(['realpath', x])[:-1]
 
 
-# def chdir(x):
-# 	print(f'cd {x}')
-# 	os.chdir(x)
 
 
 @cli.command(help="""build the docker images.""")
@@ -424,7 +425,7 @@ def build(**kwargs):
 	try:
 		build2(**kwargs)
 	except subprocess.CalledProcessError as e:
-		print('Sorry for the inconvenience!')
+		print('\nSorry for the inconvenience!\n')
 	except Exception as e:
 		print(type(e))
 

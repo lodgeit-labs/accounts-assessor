@@ -20,12 +20,12 @@ from remoulade.middleware import CurrentMessage
 
 
 
-result_backend = RedisBackend(url=secret('SECRET__REDIS_HOST'))
+result_backend = RedisBackend(url=os.environ['REDIS_HOST'])
 result_time_limit_ms = 31 * 24 * 60 * 60 * 1000
 
-broker = RabbitmqBroker(url="amqp://"+os.getenv('RABBITMQ_URL', 'localhost:5672')+"?timeout=15")
+broker = RabbitmqBroker(url="amqp://"+os.environ['RABBITMQ_URL']++"?timeout=15")
 broker.add_middleware(Results(backend=result_backend, store_results=True, result_ttl=result_time_limit_ms))
-broker.add_middleware(MessageState(PostgresBackend(url=secret('SECRET__REMOULADE_PG_URI')), state_ttl=result_time_limit_ms))
+broker.add_middleware(MessageState(PostgresBackend(url=os.environ('REMOULADE_PG_URI')), state_ttl=result_time_limit_ms))
 broker.add_middleware(Cancel(backend=CancelBackend()))
 broker.add_middleware(CurrentMessage())
 
