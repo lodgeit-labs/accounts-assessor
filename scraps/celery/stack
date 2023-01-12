@@ -1,0 +1,17 @@
+
+#  flower:
+#    image: koo5/flower${PP}:latest
+#    networks:
+#      - backend
+#    hostnet_ports:
+#      - 5555
+#    deploy:
+#      replicas: 1
+#      update_config:
+#        parallelism: 2
+#        delay: 10s
+#      restart_policy:
+#        condition: any
+#    volumes:
+#      - "/etc/localtime:/etc/localtime:ro"
+
