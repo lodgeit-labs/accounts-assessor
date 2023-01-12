@@ -40,11 +40,11 @@ services:
     image: koo5/frontend${PP}:latest
     environment:
       SECRETS_DIR: /run/secrets/
-      RABBITMQ_URL
-      REMOULADE_PG_URI
-      REDIS_HOST
-      AGRAPH_HOST
-      AGRAPH_PORT
+      RABBITMQ_URL:
+      REMOULADE_PG_URI:
+      REDIS_HOST:
+      AGRAPH_HOST:
+      AGRAPH_PORT:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -72,12 +72,12 @@ services:
     image: koo5/workers${PP}:latest
     environment:
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
-      INTERNAL_SERVICES_SERVER_URL
-      RABBITMQ_URL
-      REMOULADE_PG_URI
-      REDIS_HOST
-      AGRAPH_HOST
-      AGRAPH_PORT
+      INTERNAL_SERVICES_SERVER_URL:
+      RABBITMQ_URL:
+      REMOULADE_PG_URI:
+      REDIS_HOST:
+      AGRAPH_HOST:
+      AGRAPH_PORT:
     volumes:
       - tmp:/app/server_root/tmp
       - cache:/app/cache
@@ -104,7 +104,7 @@ services:
   services:
     image: koo5/services${PP}:latest
     environment:
-      RABBITMQ_URL
+      RABBITMQ_URL:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -226,11 +226,11 @@ services:
       - 5000
     environment:
       SECRETS_DIR: /run/secrets/
-      REMOULADE_PG_URI
-      RABBITMQ_URL
-      REDIS_HOST
-      AGRAPH_HOST
-      AGRAPH_PORT
+      REMOULADE_PG_URI:
+      RABBITMQ_URL:
+      REDIS_HOST:
+      AGRAPH_HOST:
+      AGRAPH_PORT:
     deploy:
       replicas: 1
       restart_policy:
