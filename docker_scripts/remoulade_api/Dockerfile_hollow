@@ -1,6 +1,6 @@
 FROM koo5/ubuntu
 
-RUN apt-get install -yqq libpq-dev
+RUN apt-get install -y libpq-dev
 WORKDIR /app/sources
 COPY wait-for-it wait-for-it
 

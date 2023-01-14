@@ -15,7 +15,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 
 RUN apt-get update
-RUN apt-get install -qqy ca-certificates apt-utils tzdata time locales language-pack-en unattended-upgrades tzdata time apt-utils dialog 2>&1 | \
+RUN apt-get install -y ca-certificates apt-utils tzdata time locales language-pack-en unattended-upgrades tzdata time apt-utils dialog 2>&1 | \
     grep -v "^debconf: delaying package configuration.*"
     
 
@@ -31,14 +31,13 @@ RUN unattended-upgrade
 
 
 RUN mkdir /app
-RUN apt-get install -qqy git python3.9 python3.9-dev python3-pip libcurl4-gnutls-dev libssl-dev libgnutls28-dev
-
+RUN apt-get install -y git python3 python3-dev python3-pip python3-wheel libcurl4-gnutls-dev libssl-dev libgnutls28-dev
 
 ARG uid=1000
 ARG gid=1000
 RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
 
-
+ENV PATH=$PATH:/home/myuser/.local/bin
 
 ENV PYTHONUNBUFFERED true
 ENV PYTHONDONTWRITEBYTECODE 1

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os,subprocess,time,shlex,logging,sys,threading
+from itertools import count
 
 
 l = logging.getLogger()
@@ -90,7 +91,7 @@ def cli():
 @click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
 
 @click.pass_context
-def run(ctx, port_postfix, public_url, parallel_build, rm_stack, **choices):
+def run(click_ctx, port_postfix, public_url, parallel_build, rm_stack, **choices):
 	no_cache = choices['no_cache']
 	del choices['no_cache']
 
@@ -128,12 +129,10 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
 
-	ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache})
-	#build2(**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache})
-	#shell('./lib/build.sh -pp "'+pp+'" --mode ' + hollow + pb)
+	click_ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache})
 
 	if rm_stack:
-		# wait for robust network to disappear
+		print('wait for old network to disappear..')
 		while True:
 			cmdxxx = "docker network ls | grep robust" + pp
 			p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
@@ -142,7 +141,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 			if p.returncode:
 				break
 			time.sleep(1)
-			#print('.')
+
 	shell('pwd')
 	shell('./lib/git_info.fish')
 	hn = choices['use_host_network']
@@ -152,13 +151,12 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
 		'REDIS_HOST':  'redis://localhost' if hn else 'redis://redis',
 		'AGRAPH_HOST': 'localhost' if hn else 'agraph',
-		'AGRAPH_PORT': 10035,
-		'REMOULADE_PG_URI: 'postgresql://remoulade@localhost:5432/remoulade' if hn else 'postgresql://remoulade@postgres:5432/remoulade',
+		'AGRAPH_PORT': '10035',
+		'REMOULADE_PG_URI': 'postgresql://remoulade@localhost:5432/remoulade' if hn else 'postgresql://remoulade@postgres:5432/remoulade',
 		'INTERNAL_SERVICES_SERVER_URL': 'http://localhost:17788' if hn else 'http://internal-services:17788'
-
 	}
 	if compose:
-		cmd = '/usr/local/bin/docker-compose -f ' + stack_fn + ' -p robust  --compatibility '
+		cmd = 'docker-compose -f ' + stack_fn + ' -p robust  --compatibility '
 		import atexit
 		atexit.register(lambda: ccd(ss(cmd + ' down  -t 999999 '), env=e))
 		try:
@@ -325,8 +323,14 @@ def shell(cmd):
 
 
 
+subtask_counter = count(1).__next__
 
 class ExcThread(threading.Thread):
+	def __init__(self, group=None, target=None, name=None,
+                 args=(), kwargs=None, *, daemon=None):
+		super().__init__(group, target, f"subtask {subtask_counter()}", args, kwargs, daemon=daemon)
+		self.kwargs = kwargs
+		self.args = args
 
 	def run(self):
 		self.exc = None
@@ -353,25 +357,30 @@ def join_all():
 
 def join(t):
 	errors = []
-	for thread in t:
-		join_one(thread, errors)
+	for thread in t[:]:
+		if thread in threads: # only join threads that we have not joined yet
+			join_one(thread, errors)
 	if len(errors):
+		# let's kill all running threads, even those not passed to us here
 		for thread in threads:
 			if thread not in t:
 				join_one(thread, errors)
+		# reiterate all the errors
+		print()
+		print('command failed:')
 		for error in errors:
 			print(error)
-		time.sleep(10)
-		exit(1)
+		sys.exit(1)
 
 
 def join_one(thread, errors):
 	try:
 		thread.join()
-		print("ok...")
+		print(f"{thread.name} done ({thread.kwargs} {thread.args})")
 	except Exception as e:
 		errors.append(e)
-		print('Failed!')
+		print('subtask failed!')
+		print()
 
 
 
@@ -388,6 +397,8 @@ threads = []
 
 
 def task(dir, cmd):
+	print('')
+	print('')
 	print('cd ' + shlex.quote(dir))
 	print(shlex.quote(cmd))
 	print(' ...')
@@ -397,8 +408,10 @@ def task(dir, cmd):
 	threads.append(thread)
 	thread.start()
 	if not _parallel:
-		thread.join()
+		join([thread])
+		threads.remove(thread)
 	return thread
+
 
 
 def realpath(x):
@@ -421,15 +434,7 @@ def realpath(x):
 @click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
 
 
-def build(**kwargs):
-	try:
-		build2(**kwargs)
-	except subprocess.CalledProcessError as e:
-		print('\nSorry for the inconvenience!\n')
-	except Exception as e:
-		print(type(e))
-
-def build2(port_postfix, mode, parallel, no_cache):
+def build(port_postfix, mode, parallel, no_cache):
 	global _parallel
 	_parallel=parallel
 

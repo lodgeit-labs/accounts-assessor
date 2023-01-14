@@ -1,14 +1,14 @@
 FROM koo5/ubuntu
 
-RUN apt-get install -qqy libpq-dev
+RUN apt-get install -y libpq-dev
 
 WORKDIR /app/
 
 COPY frontend_server_fastapi_wip/requirements.txt /app/sources/frontend_server_fastapi_wip/requirements.txt
-RUN python3.9 -m pip install --upgrade --no-cache-dir -r /app/sources/frontend_server_fastapi_wip/requirements.txt
+RUN python3 -m pip install --upgrade --no-cache-dir -r /app/sources/frontend_server_fastapi_wip/requirements.txt
 
 COPY common/ /app/sources/common/
-RUN python3.9 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
+RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
 
 
 #ENV PYTHONPATH=/app/sources/common/libs/remoulade/

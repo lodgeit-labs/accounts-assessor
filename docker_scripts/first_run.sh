@@ -11,7 +11,7 @@ python3 -m pip install --user -U click pyyaml
 # for run_last_request_in_docker
 python3 -m pip install --user -U docker 
 
-python3 setup.py install --user 
+python3 setup.py develop --user 
 
 _ROBUST_COMPLETE=source_fish robust > ~/.config/fish/completions/robust-complete.fish
 
