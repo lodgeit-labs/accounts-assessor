@@ -1,19 +1,13 @@
 FROM koo5/ubuntu
 
-USER myuser
-
-WORKDIR /app/sources/services
-
-COPY services/requirements.txt .
-RUN python3 -m pip install --user --upgrade --no-cache-dir -r requirements.txt
-
 EXPOSE 7788
 RUN mkdir -p /app/server_root
 VOLUME /app/server_root
 VOLUME /app/sources/
 USER myuser
 
-
-WORKDIR /app/sources/services/
+WORKDIR /app/sources/services
+COPY services/requirements.txt .
+RUN python3 -m pip install --user --upgrade --no-cache-dir -r requirements.txt
 
 CMD ["./start.sh"]
