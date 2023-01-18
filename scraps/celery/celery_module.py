@@ -8,9 +8,6 @@ from tmp_dir_path import git
 os.chdir(git("server_root"))
 
 
-import robust_nodocker
-
-
 from celery import Celery
 import celeryconfig
 

@@ -55,25 +55,20 @@ def agc() -> RepositoryConnection:
 	if _agc is not None:
 		return _agc
 
-	AGRAPH_SECRET_HOST = secret('AGRAPH_SECRET_HOST')
-	AGRAPH_SECRET_PORT = secret('AGRAPH_SECRET_PORT')
+	AGRAPH_HOST = os.environ['AGRAPH_HOST']
+	AGRAPH_PORT = os.environ['AGRAPH_PORT']
 	AGRAPH_SECRET_USER = secret('AGRAPH_SUPER_USER')
 	AGRAPH_SECRET_PASSWORD = secret('AGRAPH_SUPER_PASSWORD')
 
-	if AGRAPH_SECRET_USER != None and AGRAPH_SECRET_PASSWORD != None:
-		from franz.openrdf.connect import ag_connect
-		#print(f"""ag_connect('a', host={AGRAPH_SECRET_HOST}, port={AGRAPH_SECRET_PORT}, user={AGRAPH_SECRET_USER},password={AGRAPH_SECRET_PASSWORD})""")
-		a = ag_connect('a', host=AGRAPH_SECRET_HOST, port=AGRAPH_SECRET_PORT, user=AGRAPH_SECRET_USER, password=AGRAPH_SECRET_PASSWORD)
-		a.setDuplicateSuppressionPolicy('spog')
-		for k,v in namespaces.items():
-			a.setNamespace(k,v)
-		registerEncodedIdPrefix(a, 'session')
-		registerEncodedIdPrefix(a, 'testcase')
-		_agc = a
-		return _agc
-	else:
-		print('agraph user and pass must be provided')
-		exit(1)
+	from franz.openrdf.connect import ag_connect
+	a = ag_connect('a', host=AGRAPH_HOST, port=AGRAPH_PORT, user=AGRAPH_SECRET_USER, password=AGRAPH_SECRET_PASSWORD)
+	a.setDuplicateSuppressionPolicy('spog')
+	for k,v in namespaces.items():
+		a.setNamespace(k,v)
+	registerEncodedIdPrefix(a, 'session')
+	registerEncodedIdPrefix(a, 'testcase')
+	_agc = a
+	return _agc
 
 
 remoulade.declare_actors([sql_prefixes_header])

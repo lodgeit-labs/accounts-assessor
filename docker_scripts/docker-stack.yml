@@ -72,7 +72,7 @@ services:
     image: koo5/workers${PP}:latest
     environment:
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
-      INTERNAL_SERVICES_SERVER_URL:
+      SERVICES_URL:
       RABBITMQ_URL:
       REMOULADE_PG_URI:
       REDIS_HOST:

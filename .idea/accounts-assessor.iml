@@ -9,6 +9,8 @@
       <excludeFolder url="file://$MODULE_DIR$/server_root" />
       <excludeFolder url="file://$MODULE_DIR$/sources/static" />
       <excludeFolder url="file://$MODULE_DIR$/sources/public_lib/lodgeit_solvers/research" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/common/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/public_lib/prolog_xbrl" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

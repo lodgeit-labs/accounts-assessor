@@ -19,7 +19,6 @@ from pydantic import BaseModel
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
 ##sys.path.append(os.path.normpath('/app/sources/common/'))
-import robust_nodocker
 
 
 
@@ -161,7 +160,7 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 		response_tmp_directory_name = result.get(block=True, timeout=1000 * 1000)
 		reports = json.load(open('/app/server_root/tmp/' + response_tmp_directory_name + '/000000_response.json.json'))
 		redirect_url = find_report_by_key(reports['reports'], 'response')
-	elif requested_output_format == 'result_handle':
+	elif requested_output_format == 'task_handle':
 		return JsonResponse(
 		{
 			"alerts": ["result will be ready at the following URL."],
@@ -172,14 +171,12 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 				"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
 			]
 		})
-		else:
-
-				redirect_url = '/tmp/'+ response_tmp_directory_name + '/000000_response.json.json'
-
-		else:
-			raise Exception('unexpected requested_output_format')
-	logging.getLogger().warn('redirect url: %s' % redirect_url)
-	return RedirectResponse(redirect_url)
+	# else:
+	# 	redirect_url = '/tmp/'+ response_tmp_directory_name + '/000000_response.json.json'
+	# 	logging.getLogger().warn('redirect url: %s' % redirect_url)
+	# 	return RedirectResponse(redirect_url)
+	else:
+		raise Exception('unexpected requested_output_format')
 
 
 async def save_request_files(file1, file2, request_tmp_directory_path):
