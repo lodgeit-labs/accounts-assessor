@@ -1,0 +1,38 @@
+[
+  {"source":"initial_GL", "transactions": []},
+  {
+    "source": {
+      "account":"NationalAustraliaBank",
+      "date":"2017-07-01",
+      "exchanged":"vector([])",
+      "misc": {"desc2":""},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+      "vector": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+      "verb":"Introduce_Capital"
+    },
+    "transactions": [
+      {
+	"account":"BanksNationalAustraliaBank",
+	"date":"2017-07-01",
+	"description":"Introduce_Capital - incoming money",
+	"running_balance": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"AUD"} ]
+      },
+      {
+	"account":"ShareCapital",
+	"date":"2017-07-01",
+	"description":"Introduce_Capital",
+	"running_balance": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":200, "debit":0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

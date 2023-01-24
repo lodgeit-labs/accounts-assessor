@@ -1,0 +1,289 @@
+{
+  "columns": [
+    {"id":"unit", "options": {}, "title":"Unit"},
+    {"id":"count", "options": {}, "title":"Count"},
+    {"id":"currency", "options": {}, "title":"Investment Currency"},
+    {
+      "id":"purchase",
+      "members": [
+	{"id":"date", "options": {}, "title":"Date"},
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Cost Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Cost Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Cost Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Cost Converted"
+	}
+      ],
+      "title":"Purchase"
+    },
+    {
+      "id":"opening",
+      "members": [
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Market Value Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Market Value Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Market Value Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Market Value Converted"
+	}
+      ],
+      "title":"Opening"
+    },
+    {
+      "id":"sale",
+      "members": [
+	{"id":"date", "options": {}, "title":"Date"},
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Cost Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Cost Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Cost Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Cost Converted"
+	}
+      ],
+      "title":"Sale"
+    },
+    {
+      "id":"closing",
+      "members": [
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Unit Market Value Foreign"
+	},
+	{"id":"conversion", "options": {}, "title":"Conversion"},
+	{
+	  "id":"unit_cost_converted",
+	  "options": {},
+	  "title":"Unit Market Value Converted"
+	},
+	{
+	  "id":"total_cost_foreign",
+	  "options": {},
+	  "title":"Total Market Value Foreign"
+	},
+	{
+	  "id":"total_cost_converted",
+	  "options": {},
+	  "title":"Total Market Value Converted"
+	}
+      ],
+      "title":"Closing"
+    },
+    {
+      "id":"on_hand_at_cost",
+      "members": [
+	{
+	  "id":"unit_cost_foreign",
+	  "options": {},
+	  "title":"Foreign Per Unit"
+	},
+	{"id":"count", "options": {}, "title":"Count"},
+	{"id":"total_foreign", "options": {}, "title":"Foreign Total"},
+	{
+	  "id":"total_converted_at_purchase",
+	  "options": {},
+	  "title":"Converted at Purchase Date Total"
+	},
+	{
+	  "id":"total_converted_at_balance",
+	  "options": {},
+	  "title":"Converted at Balance Date Total"
+	},
+	{
+	  "id":"total_forex_gain",
+	  "options": {},
+	  "title":"Currency Gain/(loss) Total"
+	}
+      ],
+      "title":"On Hand At Cost"
+    },
+    {
+      "id":"gains",
+      "members": [
+	{
+	  "id":"rea",
+	  "members": [
+	    {
+	      "id":"market_foreign",
+	      "options": {},
+	      "title":"Market Gain Foreign"
+	    },
+	    {
+	      "id":"market_converted",
+	      "options": {},
+	      "title":"Market Gain Converted"
+	    },
+	    {"id":"forex", "options": {}, "title":"Forex Gain"}
+	  ],
+	  "title":"Realized"
+	},
+	{
+	  "id":"unr",
+	  "members": [
+	    {
+	      "id":"market_foreign",
+	      "options": {},
+	      "title":"Market Gain Foreign"
+	    },
+	    {
+	      "id":"market_converted",
+	      "options": {},
+	      "title":"Market Gain Converted"
+	    },
+	    {"id":"forex", "options": {}, "title":"Forex Gain"}
+	  ],
+	  "title":"Unrealized"
+	}
+      ],
+      "title":""
+    }
+  ],
+  "rows": [
+    {
+      "closing": {
+	"conversion": {"date":"2019-06-30", "dst":"AUD", "rate":1.4239, "src":"USD"},
+	"total_cost_converted": {"amount":5600000, "unit":"AUD"},
+	"total_cost_foreign": {"amount":3932868.7398, "unit":"USD"},
+	"unit_cost_converted": {"amount":40, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":28.0919, "unit":"USD"}
+      },
+      "count":140000,
+      "currency":"USD",
+      "gains": {
+	"rea": {},
+	"unr": {
+	  "forex": {"amount":545477.0956, "unit":"AUD"},
+	  "market_converted": {"amount":4874902.9411, "unit":"AUD"},
+	  "market_foreign": {"amount":3793108.4198, "unit":"USD"}
+	}
+      },
+      "id":"iri1",
+      "on_hand_at_cost": {
+	"count":140000,
+	"total_converted_at_balance": {"amount":199004.3004, "unit":"AUD"},
+	"total_converted_at_purchase": {"amount":179619.9633, "unit":"AUD"},
+	"total_foreign": {"amount":139760.32, "unit":"USD"},
+	"total_forex_gain": {"amount":19384.3371, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":0.9983, "unit":"USD"}
+      },
+      "opening": {},
+      "purchase": {
+	"conversion": {"date":"2018-07-01", "dst":"AUD", "rate":1.2852, "src":"USD"},
+	"date":"2018-07-01",
+	"total_cost_converted": {"amount":179619.9633, "unit":"AUD"},
+	"total_cost_foreign": {"amount":139760.32, "unit":"USD"},
+	"unit_cost_converted": {"amount":1.283, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":0.9983, "unit":"USD"}
+      },
+      "sale": {},
+      "unit":"SG Issuer_SA_USD_1"
+    },
+    {
+      "closing": {
+	"conversion": {"date":"2019-06-30", "dst":"AUD", "rate":1.4239, "src":"USD"},
+	"total_cost_converted": {"amount":400000, "unit":"AUD"},
+	"total_cost_foreign": {"amount":280919.1957, "unit":"USD"},
+	"unit_cost_converted": {"amount":40, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":28.0919, "unit":"USD"}
+      },
+      "count":10000,
+      "currency":"USD",
+      "gains": {
+	"rea": {},
+	"unr": {
+	  "forex": {"amount":19961.2753, "unit":"AUD"},
+	  "market_converted": {"amount":190965.3734, "unit":"AUD"},
+	  "market_foreign": {"amount":141158.8757, "unit":"USD"}
+	}
+      },
+      "id":"iri2",
+      "on_hand_at_cost": {
+	"count":10000,
+	"total_converted_at_balance": {"amount":199004.3004, "unit":"AUD"},
+	"total_converted_at_purchase": {"amount":189073.3513, "unit":"AUD"},
+	"total_foreign": {"amount":139760.32, "unit":"USD"},
+	"total_forex_gain": {"amount":9930.9491, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":13.976, "unit":"USD"}
+      },
+      "opening": {},
+      "purchase": {
+	"conversion": {"date":"2018-07-02", "dst":"AUD", "rate":1.3528, "src":"USD"},
+	"date":"2018-07-02",
+	"total_cost_converted": {"amount":189073.3513, "unit":"AUD"},
+	"total_cost_foreign": {"amount":139760.32, "unit":"USD"},
+	"unit_cost_converted": {"amount":18.9073, "unit":"AUD"},
+	"unit_cost_foreign": {"amount":13.976, "unit":"USD"}
+      },
+      "sale": {},
+      "unit":"SG Issuer_SA_USD_1"
+    },
+    {
+      "closing": {
+	"total_cost_converted": [ {"amount":6000000, "unit":"AUD"} ],
+	"total_cost_foreign": [ {"amount":4213787.9355, "unit":"USD"} ]
+      },
+      "gains": {
+	"rea": {"forex": [], "market_converted": [], "market_foreign": []},
+	"realized_total": [],
+	"total": [ {"amount":5631306.6854, "unit":"AUD"} ],
+	"unr": {
+	  "forex": [ {"amount":565438.3709, "unit":"AUD"} ],
+	  "market_converted": [ {"amount":5065868.3145, "unit":"AUD"} ],
+	  "market_foreign": [ {"amount":3934267.2955, "unit":"USD"} ]
+	},
+	"unrealized_total": [ {"amount":5631306.6854, "unit":"AUD"} ]
+      },
+      "on_hand_at_cost": {
+	"total_converted_at_balance": [ {"amount":398008.6007, "unit":"AUD"} ],
+	"total_converted_at_purchase": [ {"amount":368693.3146, "unit":"AUD"} ],
+	"total_forex_gain": [ {"amount":29315.2862, "unit":"AUD"} ]
+      },
+      "opening": {"total_cost_converted": [], "total_cost_foreign": []}
+    }
+  ],
+  "title":"investment report from 1-01-01 to 2019-06-30 (AUD)"
+}

@@ -1,0 +1,1663 @@
+<?xml version="1.0"?>
+
+
+ <!-- reports:  {
+  "alerts": [],
+  "reports": [
+    {
+      "id":"response_xml",
+      "key":"xml response",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.101/response.xml"
+      }
+    },
+    {
+      "id":"request_xml",
+      "key":"request_xml",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.101/request.xml"
+      }
+    },
+    {
+      "id":"all",
+      "key":"all files",
+      "val": {"url":"http://koom-KVM:8080/tmp/1574486829.0812657.101/"}
+    }
+  ]
+} --> <response>
+<Report_Date>2060-06-30</Report_Date>
+<unrealized_investment>
+<Name>Google</Name>
+<Count>100</Count>
+<Currency>USD</Currency>
+<Purchase_Date>2015-07-01</Purchase_Date>
+<Report_Date>2060-06-30</Report_Date>
+
+<!--  -->
+<PDPC_Total_Cost>1000.00</PDPC_Total_Cost>
+<PDPC_Total_Cost_Formula>PDPC_Total_Cost = Count*PDPC_Unit_Cost</PDPC_Total_Cost_Formula>
+<PDPC_Total_Cost_Computation>PDPC_Total_Cost = 100*10</PDPC_Total_Cost_Computation>
+
+<!--  -->
+<PDRC_Total_Cost>1428.57</PDRC_Total_Cost>
+<PDRC_Total_Cost_Formula>PDRC_Total_Cost = PDPC_Total_Cost/PD_Rate</PDRC_Total_Cost_Formula>
+<PDRC_Total_Cost_Computation>PDRC_Total_Cost = 1000/0.7</PDRC_Total_Cost_Computation>
+
+<!--  -->
+<RDPC_Total_Value>2000.00</RDPC_Total_Value>
+<RDPC_Total_Value_Formula>RDPC_Total_Value = Count*RDPC_Unit_Value</RDPC_Total_Value_Formula>
+<RDPC_Total_Value_Computation>RDPC_Total_Value = 100*20</RDPC_Total_Value_Computation>
+
+<!--  -->
+<RDPC_Unrealized_Gain>1000.00</RDPC_Unrealized_Gain>
+<RDPC_Unrealized_Gain_Formula>RDPC_Unrealized_Gain = RDPC_Total_Value-PDPC_Total_Cost</RDPC_Unrealized_Gain_Formula>
+<RDPC_Unrealized_Gain_Computation>RDPC_Unrealized_Gain = 2000-1000</RDPC_Unrealized_Gain_Computation>
+
+<!--  -->
+<RDRC_Old_Rate_Total_Value>2857.14</RDRC_Old_Rate_Total_Value>
+<RDRC_Old_Rate_Total_Value_Formula>RDRC_Old_Rate_Total_Value = RDPC_Total_Value/PD_Rate</RDRC_Old_Rate_Total_Value_Formula>
+<RDRC_Old_Rate_Total_Value_Computation>RDRC_Old_Rate_Total_Value = 2000/0.7</RDRC_Old_Rate_Total_Value_Computation>
+
+<!--  -->
+<RDRC_New_Rate_Total_Value>3076.92</RDRC_New_Rate_Total_Value>
+<RDRC_New_Rate_Total_Value_Formula>RDRC_New_Rate_Total_Value = RDPC_Total_Value/RD_Rate</RDRC_New_Rate_Total_Value_Formula>
+<RDRC_New_Rate_Total_Value_Computation>RDRC_New_Rate_Total_Value = 2000/0.65</RDRC_New_Rate_Total_Value_Computation>
+
+<!--  -->
+<RDRC_Unrealized_Total_Gain>1648.35</RDRC_Unrealized_Total_Gain>
+<RDRC_Unrealized_Total_Gain_Formula>RDRC_Unrealized_Total_Gain = RDRC_New_Rate_Total_Value-PDRC_Total_Cost</RDRC_Unrealized_Total_Gain_Formula>
+<RDRC_Unrealized_Total_Gain_Computation>RDRC_Unrealized_Total_Gain = 3076.9230769230767-1428.5714285714287</RDRC_Unrealized_Total_Gain_Computation>
+
+<!--  -->
+<RDRC_Unrealized_Market_Gain>1428.57</RDRC_Unrealized_Market_Gain>
+<RDRC_Unrealized_Market_Gain_Formula>RDRC_Unrealized_Market_Gain = RDRC_Old_Rate_Total_Value-PDRC_Total_Cost</RDRC_Unrealized_Market_Gain_Formula>
+<RDRC_Unrealized_Market_Gain_Computation>RDRC_Unrealized_Market_Gain = 2857.1428571428573-1428.5714285714287</RDRC_Unrealized_Market_Gain_Computation>
+
+<!--  -->
+<RDRC_Unrealized_Currency_Gain>219.78</RDRC_Unrealized_Currency_Gain>
+<RDRC_Unrealized_Currency_Gain_Formula>RDRC_Unrealized_Currency_Gain = RDRC_Unrealized_Total_Gain-RDRC_Unrealized_Market_Gain</RDRC_Unrealized_Currency_Gain_Formula>
+<RDRC_Unrealized_Currency_Gain_Computation>RDRC_Unrealized_Currency_Gain = 1648.351648351648-1428.5714285714287</RDRC_Unrealized_Currency_Gain_Computation>
+</unrealized_investment>
+
+
+<!-- 
+[] -->
+
+<!--Exchange rates extracted:
+[ exchange_rate(date(2015,7,1),report_currency,'USD3',0.7),
+  exchange_rate(date(2060,6,30),report_currency,'USD3',0.65),
+  exchange_rate(date(2015,7,1),'Google2','USD3',10),
+  exchange_rate(date(2060,6,30),'Google2','USD3',20)
+]
+
+Accounts extracted:
+[ account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),
+  account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),
+  account('Assets','NetAssets','Accounts'/'Assets',0),
+  account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),
+  account('AssetsLivestockAtAverageCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtAverageCost',
+	  0),
+  account('AssetsLivestockAtCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtCost',
+	  0),
+  account('BankCharges','Expenses','Accounts'/'BankCharges',0),
+  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),
+  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),
+  account('CashAndCashEquivalents',
+	  'CurrentAssets',
+	  'Accounts' / 'CashAndCashEquivalents',
+	  0),
+  account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),
+  account('CostOfGoodsLivestock',
+	  'Expenses',
+	  'Accounts' / 'CostOfGoodsLivestock',
+	  0),
+  account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),
+  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),
+  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),
+  account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),
+  account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),
+  account('Drawings','Equity','Accounts'/'Drawings',0),
+  account('EarningsFinancialInvestments',
+	  'OtherIncome',
+	  'Accounts' / 'EarningsFinancialInvestments',
+	  0),
+  account('Equity','Accounts','Accounts'/'Equity',0),
+  account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),
+  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),
+  account('FinancialInvestments',
+	  'NoncurrentAssets',
+	  'Accounts' / 'FinancialInvestments',
+	  0),
+  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),
+  account('Gst','CurrentLiabilities','Accounts'/'Gst',0),
+  account('GstPayable','Gst','Accounts'/'GstPayable',0),
+  account('GstReceivable','Gst','Accounts'/'GstReceivable',0),
+  account('HistoricalEarnings',
+	  'RetainedEarnings',
+	  'Accounts' / 'HistoricalEarnings',
+	  0),
+  account('Income','Revenue','Accounts'/'Income',0),
+  account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),
+  account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),
+  account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),
+  account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),
+  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),
+  account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),
+  account('NetAssets','Accounts','Accounts'/'NetAssets',0),
+  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),
+  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),
+  account('NoncurrentLiabilities',
+	  'Liabilities',
+	  'Accounts' / 'NoncurrentLiabilities',
+	  0),
+  account('NoncurrentLoans',
+	  'NoncurrentLiabilities',
+	  'Accounts' / 'NoncurrentLoans',
+	  0),
+  account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),
+  account('OtherGain','Revenue','Accounts'/'OtherGain',0),
+  account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),
+  account('Purchases','Expenses','Accounts'/'Purchases',0),
+  account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),
+  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),
+  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),
+  account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),
+  account('ShareCapital','Equity','Accounts'/'ShareCapital',0)
+]
+
+-->
+
+
+<!--generate system accounts...-->
+<!--...generated system accounts-->
+
+<!--Generated accounts:
+[ account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),
+  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),
+  account('BanksBank','Banks','Banks'/'Bank',1),
+  account('CurrencyMovementBank',
+	  'CurrencyMovement',
+	  'CurrencyMovement' / 'Bank',
+	  0),
+  account('InvestmentIncomeRealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / realized,
+	  0),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealized',
+	  'InvestmentIncomeRealized' / onlyCurrencyMovement,
+	  0),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovementGoogle2',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'Google2',
+	  1),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealized',
+	  'InvestmentIncomeRealized' / withoutCurrencyMovement,
+	  0),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovementGoogle2',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'Google2',
+	  1),
+  account('InvestmentIncomeUnrealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / unrealized,
+	  0),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / onlyCurrencyMovement,
+	  0),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementGoogle2',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Google2',
+	  1),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / withoutCurrencyMovement,
+	  0),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementGoogle2',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Google2',
+	  1),
+  account('FinancialInvestmentsGoogle2',
+	  'FinancialInvestments',
+	  'FinancialInvestments' / 'Google2',
+	  1)
+]
+
+-->
+
+
+
+<!--Transaction_Transformation_Debug:
+s_transaction(date(2015,7,1),
+	      'Invest_In',
+	      [coord('USD3',0,1000)],
+	      'Bank',
+	      vector([coord('Google2',100,0)]))==>
+date(2015,7,1): BanksBank
+  Invest_In - outgoing money
+  CR:U964:coord('USD3',0,1000)
+
+date(2015,7,1): CurrencyMovementBank
+  Invest_In - outgoing money - currency movement adjustment - only current period
+  DR:U964:coord('USD3',1000,0)
+  CR:U965:coord(without_currency_movement_against_since('USD3','USD3',[report_currency],date(2015,7,1)),0,1000)
+
+date(2015,7,1): FinancialInvestmentsGoogle2
+  Invest_In
+  DR:U966:coord('Google2',100,0)
+
+date(2015,7,1): InvestmentIncomeUnrealizedOnlyCurrencyMovementGoogle2
+  comment:?, comment2:Invest_In - single period
+  CR:U966:coord('Google2',0,100)
+  DR:U967:coord(without_currency_movement_against_since('Google2','USD3',[report_currency],date(2015,7,1)),100,0)
+
+date(2015,7,1): InvestmentIncomeUnrealizedWithoutCurrencyMovementGoogle2
+  comment:?, comment2:Invest_In - single period
+  CR:U967:coord(without_currency_movement_against_since('Google2','USD3',[report_currency],date(2015,7,1)),0,100)
+  DR:U968:coord(report_currency,1428.5714285714287,0)
+
+
+====
+done.
+
+-->
+
+
+<!-- 
+[][] -->
+<!--
+[ <basic:NetIncomeLoss contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:NetIncomeLoss>
+,  <basic:Revenue contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:Revenue>
+,   <basic:CurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-109.89</basic:CurrencyMovement>
+,    <basic:CurrencyMovementBank contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-109.89</basic:CurrencyMovementBank>
+,   <basic:InvestmentIncome contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,648.35</basic:InvestmentIncome>
+,    <basic:InvestmentIncomeUnrealized contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,648.35</basic:InvestmentIncomeUnrealized>
+,     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">219.78</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+,     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,428.57</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+]
+-->
+<!--
+[ <basic:NetAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:NetAssets>
+,  <basic:Assets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:Assets>
+,   <basic:CurrentAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-1,538.46</basic:CurrentAssets>
+,    <basic:CashAndCashEquivalents contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-1,538.46</basic:CashAndCashEquivalents>
+,     <basic:Banks contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-1,538.46</basic:Banks>
+,   <basic:NoncurrentAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">3,076.92</basic:NoncurrentAssets>
+,    <basic:FinancialInvestments contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">3,076.92</basic:FinancialInvestments>
+, <basic:Equity contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:Equity>
+,  <basic:RetainedEarnings contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:RetainedEarnings>
+,   <basic:CurrentEarnings contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:CurrentEarnings>
+]
+-->
+<unrealized_investment>
+<Name>Amazon</Name>
+<Count>100</Count>
+<Currency>USD</Currency>
+<Purchase_Date>2000-07-01</Purchase_Date>
+<Report_Date>2060-06-30</Report_Date>
+
+<!--  -->
+<PDPC_Total_Cost>1000.00</PDPC_Total_Cost>
+<PDPC_Total_Cost_Formula>PDPC_Total_Cost = Count*PDPC_Unit_Cost</PDPC_Total_Cost_Formula>
+<PDPC_Total_Cost_Computation>PDPC_Total_Cost = 100*10</PDPC_Total_Cost_Computation>
+
+<!--  -->
+<PDRC_Total_Cost>1428.57</PDRC_Total_Cost>
+<PDRC_Total_Cost_Formula>PDRC_Total_Cost = PDPC_Total_Cost/PD_Rate</PDRC_Total_Cost_Formula>
+<PDRC_Total_Cost_Computation>PDRC_Total_Cost = 1000/0.7</PDRC_Total_Cost_Computation>
+
+<!--  -->
+<RDPC_Total_Value>20000000.00</RDPC_Total_Value>
+<RDPC_Total_Value_Formula>RDPC_Total_Value = Count*RDPC_Unit_Value</RDPC_Total_Value_Formula>
+<RDPC_Total_Value_Computation>RDPC_Total_Value = 100*200000</RDPC_Total_Value_Computation>
+
+<!--  -->
+<RDPC_Unrealized_Gain>19999000.00</RDPC_Unrealized_Gain>
+<RDPC_Unrealized_Gain_Formula>RDPC_Unrealized_Gain = RDPC_Total_Value-PDPC_Total_Cost</RDPC_Unrealized_Gain_Formula>
+<RDPC_Unrealized_Gain_Computation>RDPC_Unrealized_Gain = 20000000-1000</RDPC_Unrealized_Gain_Computation>
+
+<!--  -->
+<RDRC_Old_Rate_Total_Value>28571428.57</RDRC_Old_Rate_Total_Value>
+<RDRC_Old_Rate_Total_Value_Formula>RDRC_Old_Rate_Total_Value = RDPC_Total_Value/PD_Rate</RDRC_Old_Rate_Total_Value_Formula>
+<RDRC_Old_Rate_Total_Value_Computation>RDRC_Old_Rate_Total_Value = 20000000/0.7</RDRC_Old_Rate_Total_Value_Computation>
+
+<!--  -->
+<RDRC_New_Rate_Total_Value>307692.31</RDRC_New_Rate_Total_Value>
+<RDRC_New_Rate_Total_Value_Formula>RDRC_New_Rate_Total_Value = RDPC_Total_Value/RD_Rate</RDRC_New_Rate_Total_Value_Formula>
+<RDRC_New_Rate_Total_Value_Computation>RDRC_New_Rate_Total_Value = 20000000/65</RDRC_New_Rate_Total_Value_Computation>
+
+<!--  -->
+<RDRC_Unrealized_Total_Gain>306263.74</RDRC_Unrealized_Total_Gain>
+<RDRC_Unrealized_Total_Gain_Formula>RDRC_Unrealized_Total_Gain = RDRC_New_Rate_Total_Value-PDRC_Total_Cost</RDRC_Unrealized_Total_Gain_Formula>
+<RDRC_Unrealized_Total_Gain_Computation>RDRC_Unrealized_Total_Gain = 307692.3076923077-1428.5714285714287</RDRC_Unrealized_Total_Gain_Computation>
+
+<!--  -->
+<RDRC_Unrealized_Market_Gain>28570000.00</RDRC_Unrealized_Market_Gain>
+<RDRC_Unrealized_Market_Gain_Formula>RDRC_Unrealized_Market_Gain = RDRC_Old_Rate_Total_Value-PDRC_Total_Cost</RDRC_Unrealized_Market_Gain_Formula>
+<RDRC_Unrealized_Market_Gain_Computation>RDRC_Unrealized_Market_Gain = 28571428.571428575-1428.5714285714287</RDRC_Unrealized_Market_Gain_Computation>
+
+<!--  -->
+<RDRC_Unrealized_Currency_Gain>-28263736.26</RDRC_Unrealized_Currency_Gain>
+<RDRC_Unrealized_Currency_Gain_Formula>RDRC_Unrealized_Currency_Gain = RDRC_Unrealized_Total_Gain-RDRC_Unrealized_Market_Gain</RDRC_Unrealized_Currency_Gain_Formula>
+<RDRC_Unrealized_Currency_Gain_Computation>RDRC_Unrealized_Currency_Gain = 306263.73626373627-28570000.000000004</RDRC_Unrealized_Currency_Gain_Computation>
+</unrealized_investment>
+
+
+<!-- 
+[] -->
+
+<!--Exchange rates extracted:
+[ exchange_rate(date(2000,7,1),report_currency,'USD4',0.7),
+  exchange_rate(date(2060,6,30),report_currency,'USD4',65),
+  exchange_rate(date(2000,7,1),'Amazon2','USD4',10),
+  exchange_rate(date(2060,6,30),'Amazon2','USD4',200000)
+]
+
+Accounts extracted:
+[ account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),
+  account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),
+  account('Assets','NetAssets','Accounts'/'Assets',0),
+  account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),
+  account('AssetsLivestockAtAverageCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtAverageCost',
+	  0),
+  account('AssetsLivestockAtCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtCost',
+	  0),
+  account('BankCharges','Expenses','Accounts'/'BankCharges',0),
+  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),
+  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),
+  account('CashAndCashEquivalents',
+	  'CurrentAssets',
+	  'Accounts' / 'CashAndCashEquivalents',
+	  0),
+  account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),
+  account('CostOfGoodsLivestock',
+	  'Expenses',
+	  'Accounts' / 'CostOfGoodsLivestock',
+	  0),
+  account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),
+  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),
+  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),
+  account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),
+  account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),
+  account('Drawings','Equity','Accounts'/'Drawings',0),
+  account('EarningsFinancialInvestments',
+	  'OtherIncome',
+	  'Accounts' / 'EarningsFinancialInvestments',
+	  0),
+  account('Equity','Accounts','Accounts'/'Equity',0),
+  account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),
+  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),
+  account('FinancialInvestments',
+	  'NoncurrentAssets',
+	  'Accounts' / 'FinancialInvestments',
+	  0),
+  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),
+  account('Gst','CurrentLiabilities','Accounts'/'Gst',0),
+  account('GstPayable','Gst','Accounts'/'GstPayable',0),
+  account('GstReceivable','Gst','Accounts'/'GstReceivable',0),
+  account('HistoricalEarnings',
+	  'RetainedEarnings',
+	  'Accounts' / 'HistoricalEarnings',
+	  0),
+  account('Income','Revenue','Accounts'/'Income',0),
+  account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),
+  account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),
+  account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),
+  account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),
+  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),
+  account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),
+  account('NetAssets','Accounts','Accounts'/'NetAssets',0),
+  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),
+  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),
+  account('NoncurrentLiabilities',
+	  'Liabilities',
+	  'Accounts' / 'NoncurrentLiabilities',
+	  0),
+  account('NoncurrentLoans',
+	  'NoncurrentLiabilities',
+	  'Accounts' / 'NoncurrentLoans',
+	  0),
+  account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),
+  account('OtherGain','Revenue','Accounts'/'OtherGain',0),
+  account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),
+  account('Purchases','Expenses','Accounts'/'Purchases',0),
+  account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),
+  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),
+  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),
+  account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),
+  account('ShareCapital','Equity','Accounts'/'ShareCapital',0)
+]
+
+-->
+
+
+<!--generate system accounts...-->
+<!--...generated system accounts-->
+
+<!--Generated accounts:
+[ account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),
+  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),
+  account('BanksBank','Banks','Banks'/'Bank',1),
+  account('CurrencyMovementBank',
+	  'CurrencyMovement',
+	  'CurrencyMovement' / 'Bank',
+	  0),
+  account('InvestmentIncomeRealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / realized,
+	  0),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealized',
+	  'InvestmentIncomeRealized' / onlyCurrencyMovement,
+	  0),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovementAmazon2',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'Amazon2',
+	  1),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealized',
+	  'InvestmentIncomeRealized' / withoutCurrencyMovement,
+	  0),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovementAmazon2',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'Amazon2',
+	  1),
+  account('InvestmentIncomeUnrealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / unrealized,
+	  0),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / onlyCurrencyMovement,
+	  0),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementAmazon2',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Amazon2',
+	  1),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / withoutCurrencyMovement,
+	  0),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementAmazon2',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Amazon2',
+	  1),
+  account('FinancialInvestmentsAmazon2',
+	  'FinancialInvestments',
+	  'FinancialInvestments' / 'Amazon2',
+	  1)
+]
+
+-->
+
+
+
+<!--Transaction_Transformation_Debug:
+s_transaction(date(2000,7,1),
+	      'Invest_In',
+	      [coord('USD4',0,1000)],
+	      'Bank',
+	      vector([coord('Amazon2',100,0)]))==>
+date(2000,7,1): BanksBank
+  Invest_In - outgoing money
+  CR:U969:coord('USD4',0,1000)
+
+date(2000,7,1): CurrencyMovementBank
+  Invest_In - outgoing money - currency movement adjustment - only current period
+  DR:U969:coord('USD4',1000,0)
+  CR:U970:coord(without_currency_movement_against_since('USD4','USD4',[report_currency],date(2000,7,1)),0,1000)
+
+date(2000,7,1): FinancialInvestmentsAmazon2
+  Invest_In
+  DR:U971:coord('Amazon2',100,0)
+
+date(2000,7,1): InvestmentIncomeUnrealizedOnlyCurrencyMovementAmazon2
+  comment:?, comment2:Invest_In - single period
+  CR:U971:coord('Amazon2',0,100)
+  DR:U972:coord(without_currency_movement_against_since('Amazon2','USD4',[report_currency],date(2000,7,1)),100,0)
+
+date(2000,7,1): InvestmentIncomeUnrealizedWithoutCurrencyMovementAmazon2
+  comment:?, comment2:Invest_In - single period
+  CR:U972:coord(without_currency_movement_against_since('Amazon2','USD4',[report_currency],date(2000,7,1)),0,100)
+  DR:U973:coord(report_currency,1428.5714285714287,0)
+
+
+====
+done.
+
+-->
+
+
+<!-- 
+[][] -->
+<!--
+[ <basic:NetIncomeLoss contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:NetIncomeLoss>
+,  <basic:Revenue contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:Revenue>
+,   <basic:CurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,413.19</basic:CurrencyMovement>
+,    <basic:CurrencyMovementBank contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,413.19</basic:CurrencyMovementBank>
+,   <basic:InvestmentIncome contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">306,263.74</basic:InvestmentIncome>
+,    <basic:InvestmentIncomeUnrealized contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">306,263.74</basic:InvestmentIncomeUnrealized>
+,     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-28,263,736.26</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+,     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">28,570,000.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+]
+-->
+<!--
+[ <basic:NetAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:NetAssets>
+,  <basic:Assets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:Assets>
+,   <basic:CurrentAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-15.38</basic:CurrentAssets>
+,    <basic:CashAndCashEquivalents contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-15.38</basic:CashAndCashEquivalents>
+,     <basic:Banks contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-15.38</basic:Banks>
+,   <basic:NoncurrentAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,692.31</basic:NoncurrentAssets>
+,    <basic:FinancialInvestments contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,692.31</basic:FinancialInvestments>
+, <basic:Equity contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:Equity>
+,  <basic:RetainedEarnings contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:RetainedEarnings>
+,   <basic:CurrentEarnings contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:CurrentEarnings>
+]
+-->
+<realized_investment>
+<Name>Google</Name>
+<Count>100</Count>
+<Currency>USD</Currency>
+<Purchase_Date>2015-07-01</Purchase_Date>
+<Sale_Date>2060-06-30</Sale_Date>
+
+<!--  -->
+<PDPC_Total_Cost>1000.00</PDPC_Total_Cost>
+<PDPC_Total_Cost_Formula>PDPC_Total_Cost = Count*PDPC_Unit_Cost</PDPC_Total_Cost_Formula>
+<PDPC_Total_Cost_Computation>PDPC_Total_Cost = 100*10</PDPC_Total_Cost_Computation>
+
+<!--  -->
+<PDRC_Total_Cost>1428.57</PDRC_Total_Cost>
+<PDRC_Total_Cost_Formula>PDRC_Total_Cost = PDPC_Total_Cost/PD_Rate</PDRC_Total_Cost_Formula>
+<PDRC_Total_Cost_Computation>PDRC_Total_Cost = 1000/0.7</PDRC_Total_Cost_Computation>
+
+<!--  -->
+<SDPC_Total_Value>2000.00</SDPC_Total_Value>
+<SDPC_Total_Value_Formula>SDPC_Total_Value = Count*SDPC_Unit_Price</SDPC_Total_Value_Formula>
+<SDPC_Total_Value_Computation>SDPC_Total_Value = 100*20</SDPC_Total_Value_Computation>
+
+<!--  -->
+<SDPC_Realized_Gain>1000.00</SDPC_Realized_Gain>
+<SDPC_Realized_Gain_Formula>SDPC_Realized_Gain = SDPC_Total_Value-PDPC_Total_Cost</SDPC_Realized_Gain_Formula>
+<SDPC_Realized_Gain_Computation>SDPC_Realized_Gain = 2000-1000</SDPC_Realized_Gain_Computation>
+
+<!--  -->
+<SDRC_Old_Rate_Total_Value>2857.14</SDRC_Old_Rate_Total_Value>
+<SDRC_Old_Rate_Total_Value_Formula>SDRC_Old_Rate_Total_Value = SDPC_Total_Value/PD_Rate</SDRC_Old_Rate_Total_Value_Formula>
+<SDRC_Old_Rate_Total_Value_Computation>SDRC_Old_Rate_Total_Value = 2000/0.7</SDRC_Old_Rate_Total_Value_Computation>
+
+<!--  -->
+<SDRC_New_Rate_Total_Value>3076.92</SDRC_New_Rate_Total_Value>
+<SDRC_New_Rate_Total_Value_Formula>SDRC_New_Rate_Total_Value = SDPC_Total_Value/SD_Rate</SDRC_New_Rate_Total_Value_Formula>
+<SDRC_New_Rate_Total_Value_Computation>SDRC_New_Rate_Total_Value = 2000/0.65</SDRC_New_Rate_Total_Value_Computation>
+
+<!--  -->
+<RC_Realized_Total_Gain>1648.35</RC_Realized_Total_Gain>
+<RC_Realized_Total_Gain_Formula>RC_Realized_Total_Gain = SDRC_New_Rate_Total_Value-PDRC_Total_Cost</RC_Realized_Total_Gain_Formula>
+<RC_Realized_Total_Gain_Computation>RC_Realized_Total_Gain = 3076.9230769230767-1428.5714285714287</RC_Realized_Total_Gain_Computation>
+
+<!--  -->
+<RC_Realized_Market_Gain>1428.57</RC_Realized_Market_Gain>
+<RC_Realized_Market_Gain_Formula>RC_Realized_Market_Gain = SDRC_Old_Rate_Total_Value-PDRC_Total_Cost</RC_Realized_Market_Gain_Formula>
+<RC_Realized_Market_Gain_Computation>RC_Realized_Market_Gain = 2857.1428571428573-1428.5714285714287</RC_Realized_Market_Gain_Computation>
+
+<!--  -->
+<RC_Realized_Currency_Gain>219.78</RC_Realized_Currency_Gain>
+<RC_Realized_Currency_Gain_Formula>RC_Realized_Currency_Gain = RC_Realized_Total_Gain-RC_Realized_Market_Gain</RC_Realized_Currency_Gain_Formula>
+<RC_Realized_Currency_Gain_Computation>RC_Realized_Currency_Gain = 1648.351648351648-1428.5714285714287</RC_Realized_Currency_Gain_Computation>
+</realized_investment>
+
+
+<!-- 
+[] -->
+
+<!--Exchange rates extracted:
+[ exchange_rate(date(2015,7,1),report_currency,'USD5',0.7),
+  exchange_rate(date(2060,6,30),report_currency,'USD5',0.65),
+  exchange_rate(date(2015,7,1),'Google3','USD5',10),
+  exchange_rate(date(2060,6,30),'Google3','USD5',20)
+]
+
+Accounts extracted:
+[ account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),
+  account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),
+  account('Assets','NetAssets','Accounts'/'Assets',0),
+  account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),
+  account('AssetsLivestockAtAverageCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtAverageCost',
+	  0),
+  account('AssetsLivestockAtCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtCost',
+	  0),
+  account('BankCharges','Expenses','Accounts'/'BankCharges',0),
+  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),
+  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),
+  account('CashAndCashEquivalents',
+	  'CurrentAssets',
+	  'Accounts' / 'CashAndCashEquivalents',
+	  0),
+  account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),
+  account('CostOfGoodsLivestock',
+	  'Expenses',
+	  'Accounts' / 'CostOfGoodsLivestock',
+	  0),
+  account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),
+  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),
+  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),
+  account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),
+  account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),
+  account('Drawings','Equity','Accounts'/'Drawings',0),
+  account('EarningsFinancialInvestments',
+	  'OtherIncome',
+	  'Accounts' / 'EarningsFinancialInvestments',
+	  0),
+  account('Equity','Accounts','Accounts'/'Equity',0),
+  account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),
+  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),
+  account('FinancialInvestments',
+	  'NoncurrentAssets',
+	  'Accounts' / 'FinancialInvestments',
+	  0),
+  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),
+  account('Gst','CurrentLiabilities','Accounts'/'Gst',0),
+  account('GstPayable','Gst','Accounts'/'GstPayable',0),
+  account('GstReceivable','Gst','Accounts'/'GstReceivable',0),
+  account('HistoricalEarnings',
+	  'RetainedEarnings',
+	  'Accounts' / 'HistoricalEarnings',
+	  0),
+  account('Income','Revenue','Accounts'/'Income',0),
+  account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),
+  account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),
+  account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),
+  account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),
+  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),
+  account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),
+  account('NetAssets','Accounts','Accounts'/'NetAssets',0),
+  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),
+  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),
+  account('NoncurrentLiabilities',
+	  'Liabilities',
+	  'Accounts' / 'NoncurrentLiabilities',
+	  0),
+  account('NoncurrentLoans',
+	  'NoncurrentLiabilities',
+	  'Accounts' / 'NoncurrentLoans',
+	  0),
+  account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),
+  account('OtherGain','Revenue','Accounts'/'OtherGain',0),
+  account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),
+  account('Purchases','Expenses','Accounts'/'Purchases',0),
+  account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),
+  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),
+  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),
+  account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),
+  account('ShareCapital','Equity','Accounts'/'ShareCapital',0)
+]
+
+-->
+
+
+<!--generate system accounts...-->
+<!--...generated system accounts-->
+
+<!--Generated accounts:
+[ account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),
+  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),
+  account('BanksBank','Banks','Banks'/'Bank',1),
+  account('CurrencyMovementBank',
+	  'CurrencyMovement',
+	  'CurrencyMovement' / 'Bank',
+	  0),
+  account('InvestmentIncomeRealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / realized,
+	  0),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealized',
+	  'InvestmentIncomeRealized' / onlyCurrencyMovement,
+	  0),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovementGoogle3',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'Google3',
+	  1),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealized',
+	  'InvestmentIncomeRealized' / withoutCurrencyMovement,
+	  0),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovementGoogle3',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'Google3',
+	  1),
+  account('InvestmentIncomeUnrealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / unrealized,
+	  0),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / onlyCurrencyMovement,
+	  0),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementGoogle3',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Google3',
+	  1),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / withoutCurrencyMovement,
+	  0),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementGoogle3',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Google3',
+	  1),
+  account('FinancialInvestmentsGoogle3',
+	  'FinancialInvestments',
+	  'FinancialInvestments' / 'Google3',
+	  1)
+]
+
+-->
+
+
+
+<!--Transaction_Transformation_Debug:
+s_transaction(date(2015,7,1),
+	      'Invest_In',
+	      [coord('USD5',0,1000)],
+	      'Bank',
+	      vector([coord('Google3',100,0)]))==>
+date(2015,7,1): BanksBank
+  Invest_In - outgoing money
+  CR:U974:coord('USD5',0,1000)
+
+date(2015,7,1): CurrencyMovementBank
+  Invest_In - outgoing money - currency movement adjustment - only current period
+  DR:U974:coord('USD5',1000,0)
+  CR:U975:coord(without_currency_movement_against_since('USD5','USD5',[report_currency],date(2015,7,1)),0,1000)
+
+date(2015,7,1): FinancialInvestmentsGoogle3
+  Invest_In
+  DR:U976:coord('Google3',100,0)
+
+date(2015,7,1): InvestmentIncomeUnrealizedOnlyCurrencyMovementGoogle3
+  comment:?, comment2:Invest_In - single period
+  CR:U976:coord('Google3',0,100)
+  DR:U977:coord(without_currency_movement_against_since('Google3','USD5',[report_currency],date(2015,7,1)),100,0)
+
+date(2015,7,1): InvestmentIncomeUnrealizedWithoutCurrencyMovementGoogle3
+  comment:?, comment2:Invest_In - single period
+  CR:U977:coord(without_currency_movement_against_since('Google3','USD5',[report_currency],date(2015,7,1)),0,100)
+  DR:U978:coord(report_currency,1428.5714285714287,0)
+
+
+====
+s_transaction(date(2060,6,30),
+	      'Dispose_Of',
+	      [coord('USD5',2000,0)],
+	      'Bank',
+	      vector([coord('Google3',0,100)]))==>
+date(2060,6,30): BanksBank
+  Dispose_Of - incoming money
+  DR:U979:coord('USD5',2000,0)
+
+date(2060,6,30): CurrencyMovementBank
+  Dispose_Of - incoming money - currency movement adjustment - only current period
+  CR:U979:coord('USD5',0,2000)
+  DR:U980:coord(without_currency_movement_against_since('USD5','USD5',[report_currency],date(2060,6,30)),2000,0)
+
+date(2060,6,30): FinancialInvestmentsGoogle3
+  Dispose_Of
+  CR:U981:coord('Google3',0,100)
+
+date(2060,6,30): InvestmentIncomeUnrealizedOnlyCurrencyMovementGoogle3
+  comment:?, comment2:Dispose_Of - single period
+  DR:U981:coord('Google3',100,0)
+  CR:U982:coord(without_currency_movement_against_since('Google3','USD5',[report_currency],date(2015,7,1)),0,100)
+
+date(2060,6,30): InvestmentIncomeUnrealizedWithoutCurrencyMovementGoogle3
+  comment:?, comment2:Dispose_Of - single period
+  DR:U982:coord(without_currency_movement_against_since('Google3','USD5',[report_currency],date(2015,7,1)),100,0)
+  CR:U983:coord(report_currency,0,1428.5714285714287)
+
+date(2060,6,30): InvestmentIncomeRealizedOnlyCurrencyMovementGoogle3
+  comment:?, comment2:Dispose_Of
+  CR:U983:coord(report_currency,0,3076.9230769230767)
+  DR:U984:coord(without_currency_movement_against_since('USD5','USD5',[report_currency],date(2015,7,1)),2000,0)
+
+date(2060,6,30): InvestmentIncomeRealizedWithoutCurrencyMovementGoogle3
+  comment:?, comment2:Dispose_Of
+  CR:U984:coord(without_currency_movement_against_since('USD5','USD5',[report_currency],date(2015,7,1)),0,2000)
+  DR:U983:coord(report_currency,1428.5714285714287,0)
+
+
+====
+done.
+
+-->
+
+
+<!-- 
+[][] -->
+<!--
+[ <basic:NetIncomeLoss contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:NetIncomeLoss>
+,  <basic:Revenue contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:Revenue>
+,   <basic:CurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-109.89</basic:CurrencyMovement>
+,    <basic:CurrencyMovementBank contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-109.89</basic:CurrencyMovementBank>
+,   <basic:InvestmentIncome contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,648.35</basic:InvestmentIncome>
+,    <basic:InvestmentIncomeRealized contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,648.35</basic:InvestmentIncomeRealized>
+,     <basic:InvestmentIncomeRealizedOnlyCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">219.78</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
+,     <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,428.57</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+,    <basic:InvestmentIncomeUnrealized contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">0.00</basic:InvestmentIncomeUnrealized>
+,     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+,     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+]
+-->
+<!--
+[ <basic:NetAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:NetAssets>
+,  <basic:Assets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:Assets>
+,   <basic:CurrentAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:CurrentAssets>
+,    <basic:CashAndCashEquivalents contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:CashAndCashEquivalents>
+,     <basic:Banks contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:Banks>
+,   <basic:NoncurrentAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">0.00</basic:NoncurrentAssets>
+,    <basic:FinancialInvestments contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">0.00</basic:FinancialInvestments>
+, <basic:Equity contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:Equity>
+,  <basic:RetainedEarnings contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:RetainedEarnings>
+,   <basic:CurrentEarnings contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,538.46</basic:CurrentEarnings>
+]
+-->
+<realized_investment>
+<Name>Amazon</Name>
+<Count>100</Count>
+<Currency>USD</Currency>
+<Purchase_Date>2000-07-01</Purchase_Date>
+<Sale_Date>2060-06-30</Sale_Date>
+
+<!--  -->
+<PDPC_Total_Cost>1000.00</PDPC_Total_Cost>
+<PDPC_Total_Cost_Formula>PDPC_Total_Cost = Count*PDPC_Unit_Cost</PDPC_Total_Cost_Formula>
+<PDPC_Total_Cost_Computation>PDPC_Total_Cost = 100*10</PDPC_Total_Cost_Computation>
+
+<!--  -->
+<PDRC_Total_Cost>1428.57</PDRC_Total_Cost>
+<PDRC_Total_Cost_Formula>PDRC_Total_Cost = PDPC_Total_Cost/PD_Rate</PDRC_Total_Cost_Formula>
+<PDRC_Total_Cost_Computation>PDRC_Total_Cost = 1000/0.7</PDRC_Total_Cost_Computation>
+
+<!--  -->
+<SDPC_Total_Value>20000000.00</SDPC_Total_Value>
+<SDPC_Total_Value_Formula>SDPC_Total_Value = Count*SDPC_Unit_Price</SDPC_Total_Value_Formula>
+<SDPC_Total_Value_Computation>SDPC_Total_Value = 100*200000</SDPC_Total_Value_Computation>
+
+<!--  -->
+<SDPC_Realized_Gain>19999000.00</SDPC_Realized_Gain>
+<SDPC_Realized_Gain_Formula>SDPC_Realized_Gain = SDPC_Total_Value-PDPC_Total_Cost</SDPC_Realized_Gain_Formula>
+<SDPC_Realized_Gain_Computation>SDPC_Realized_Gain = 20000000-1000</SDPC_Realized_Gain_Computation>
+
+<!--  -->
+<SDRC_Old_Rate_Total_Value>28571428.57</SDRC_Old_Rate_Total_Value>
+<SDRC_Old_Rate_Total_Value_Formula>SDRC_Old_Rate_Total_Value = SDPC_Total_Value/PD_Rate</SDRC_Old_Rate_Total_Value_Formula>
+<SDRC_Old_Rate_Total_Value_Computation>SDRC_Old_Rate_Total_Value = 20000000/0.7</SDRC_Old_Rate_Total_Value_Computation>
+
+<!--  -->
+<SDRC_New_Rate_Total_Value>307692.31</SDRC_New_Rate_Total_Value>
+<SDRC_New_Rate_Total_Value_Formula>SDRC_New_Rate_Total_Value = SDPC_Total_Value/SD_Rate</SDRC_New_Rate_Total_Value_Formula>
+<SDRC_New_Rate_Total_Value_Computation>SDRC_New_Rate_Total_Value = 20000000/65</SDRC_New_Rate_Total_Value_Computation>
+
+<!--  -->
+<RC_Realized_Total_Gain>306263.74</RC_Realized_Total_Gain>
+<RC_Realized_Total_Gain_Formula>RC_Realized_Total_Gain = SDRC_New_Rate_Total_Value-PDRC_Total_Cost</RC_Realized_Total_Gain_Formula>
+<RC_Realized_Total_Gain_Computation>RC_Realized_Total_Gain = 307692.3076923077-1428.5714285714287</RC_Realized_Total_Gain_Computation>
+
+<!--  -->
+<RC_Realized_Market_Gain>28570000.00</RC_Realized_Market_Gain>
+<RC_Realized_Market_Gain_Formula>RC_Realized_Market_Gain = SDRC_Old_Rate_Total_Value-PDRC_Total_Cost</RC_Realized_Market_Gain_Formula>
+<RC_Realized_Market_Gain_Computation>RC_Realized_Market_Gain = 28571428.571428575-1428.5714285714287</RC_Realized_Market_Gain_Computation>
+
+<!--  -->
+<RC_Realized_Currency_Gain>-28263736.26</RC_Realized_Currency_Gain>
+<RC_Realized_Currency_Gain_Formula>RC_Realized_Currency_Gain = RC_Realized_Total_Gain-RC_Realized_Market_Gain</RC_Realized_Currency_Gain_Formula>
+<RC_Realized_Currency_Gain_Computation>RC_Realized_Currency_Gain = 306263.73626373627-28570000.000000004</RC_Realized_Currency_Gain_Computation>
+</realized_investment>
+
+
+<!-- 
+[] -->
+
+<!--Exchange rates extracted:
+[ exchange_rate(date(2000,7,1),report_currency,'USD6',0.7),
+  exchange_rate(date(2060,6,30),report_currency,'USD6',65),
+  exchange_rate(date(2000,7,1),'Amazon3','USD6',10),
+  exchange_rate(date(2060,6,30),'Amazon3','USD6',200000)
+]
+
+Accounts extracted:
+[ account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),
+  account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),
+  account('Assets','NetAssets','Accounts'/'Assets',0),
+  account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),
+  account('AssetsLivestockAtAverageCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtAverageCost',
+	  0),
+  account('AssetsLivestockAtCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtCost',
+	  0),
+  account('BankCharges','Expenses','Accounts'/'BankCharges',0),
+  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),
+  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),
+  account('CashAndCashEquivalents',
+	  'CurrentAssets',
+	  'Accounts' / 'CashAndCashEquivalents',
+	  0),
+  account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),
+  account('CostOfGoodsLivestock',
+	  'Expenses',
+	  'Accounts' / 'CostOfGoodsLivestock',
+	  0),
+  account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),
+  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),
+  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),
+  account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),
+  account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),
+  account('Drawings','Equity','Accounts'/'Drawings',0),
+  account('EarningsFinancialInvestments',
+	  'OtherIncome',
+	  'Accounts' / 'EarningsFinancialInvestments',
+	  0),
+  account('Equity','Accounts','Accounts'/'Equity',0),
+  account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),
+  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),
+  account('FinancialInvestments',
+	  'NoncurrentAssets',
+	  'Accounts' / 'FinancialInvestments',
+	  0),
+  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),
+  account('Gst','CurrentLiabilities','Accounts'/'Gst',0),
+  account('GstPayable','Gst','Accounts'/'GstPayable',0),
+  account('GstReceivable','Gst','Accounts'/'GstReceivable',0),
+  account('HistoricalEarnings',
+	  'RetainedEarnings',
+	  'Accounts' / 'HistoricalEarnings',
+	  0),
+  account('Income','Revenue','Accounts'/'Income',0),
+  account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),
+  account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),
+  account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),
+  account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),
+  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),
+  account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),
+  account('NetAssets','Accounts','Accounts'/'NetAssets',0),
+  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),
+  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),
+  account('NoncurrentLiabilities',
+	  'Liabilities',
+	  'Accounts' / 'NoncurrentLiabilities',
+	  0),
+  account('NoncurrentLoans',
+	  'NoncurrentLiabilities',
+	  'Accounts' / 'NoncurrentLoans',
+	  0),
+  account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),
+  account('OtherGain','Revenue','Accounts'/'OtherGain',0),
+  account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),
+  account('Purchases','Expenses','Accounts'/'Purchases',0),
+  account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),
+  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),
+  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),
+  account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),
+  account('ShareCapital','Equity','Accounts'/'ShareCapital',0)
+]
+
+-->
+
+
+<!--generate system accounts...-->
+<!--...generated system accounts-->
+
+<!--Generated accounts:
+[ account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),
+  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),
+  account('BanksBank','Banks','Banks'/'Bank',1),
+  account('CurrencyMovementBank',
+	  'CurrencyMovement',
+	  'CurrencyMovement' / 'Bank',
+	  0),
+  account('InvestmentIncomeRealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / realized,
+	  0),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealized',
+	  'InvestmentIncomeRealized' / onlyCurrencyMovement,
+	  0),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovementAmazon3',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'Amazon3',
+	  1),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealized',
+	  'InvestmentIncomeRealized' / withoutCurrencyMovement,
+	  0),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovementAmazon3',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'Amazon3',
+	  1),
+  account('InvestmentIncomeUnrealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / unrealized,
+	  0),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / onlyCurrencyMovement,
+	  0),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementAmazon3',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Amazon3',
+	  1),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / withoutCurrencyMovement,
+	  0),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementAmazon3',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Amazon3',
+	  1),
+  account('FinancialInvestmentsAmazon3',
+	  'FinancialInvestments',
+	  'FinancialInvestments' / 'Amazon3',
+	  1)
+]
+
+-->
+
+
+
+<!--Transaction_Transformation_Debug:
+s_transaction(date(2000,7,1),
+	      'Invest_In',
+	      [coord('USD6',0,1000)],
+	      'Bank',
+	      vector([coord('Amazon3',100,0)]))==>
+date(2000,7,1): BanksBank
+  Invest_In - outgoing money
+  CR:U985:coord('USD6',0,1000)
+
+date(2000,7,1): CurrencyMovementBank
+  Invest_In - outgoing money - currency movement adjustment - only current period
+  DR:U985:coord('USD6',1000,0)
+  CR:U986:coord(without_currency_movement_against_since('USD6','USD6',[report_currency],date(2000,7,1)),0,1000)
+
+date(2000,7,1): FinancialInvestmentsAmazon3
+  Invest_In
+  DR:U987:coord('Amazon3',100,0)
+
+date(2000,7,1): InvestmentIncomeUnrealizedOnlyCurrencyMovementAmazon3
+  comment:?, comment2:Invest_In - single period
+  CR:U987:coord('Amazon3',0,100)
+  DR:U988:coord(without_currency_movement_against_since('Amazon3','USD6',[report_currency],date(2000,7,1)),100,0)
+
+date(2000,7,1): InvestmentIncomeUnrealizedWithoutCurrencyMovementAmazon3
+  comment:?, comment2:Invest_In - single period
+  CR:U988:coord(without_currency_movement_against_since('Amazon3','USD6',[report_currency],date(2000,7,1)),0,100)
+  DR:U989:coord(report_currency,1428.5714285714287,0)
+
+
+====
+s_transaction(date(2060,6,30),
+	      'Dispose_Of',
+	      [coord('USD6',20000000,0)],
+	      'Bank',
+	      vector([coord('Amazon3',0,100)]))==>
+date(2060,6,30): BanksBank
+  Dispose_Of - incoming money
+  DR:U990:coord('USD6',20000000,0)
+
+date(2060,6,30): CurrencyMovementBank
+  Dispose_Of - incoming money - currency movement adjustment - only current period
+  CR:U990:coord('USD6',0,20000000)
+  DR:U991:coord(without_currency_movement_against_since('USD6','USD6',[report_currency],date(2060,6,30)),20000000,0)
+
+date(2060,6,30): FinancialInvestmentsAmazon3
+  Dispose_Of
+  CR:U992:coord('Amazon3',0,100)
+
+date(2060,6,30): InvestmentIncomeUnrealizedOnlyCurrencyMovementAmazon3
+  comment:?, comment2:Dispose_Of - single period
+  DR:U992:coord('Amazon3',100,0)
+  CR:U993:coord(without_currency_movement_against_since('Amazon3','USD6',[report_currency],date(2000,7,1)),0,100)
+
+date(2060,6,30): InvestmentIncomeUnrealizedWithoutCurrencyMovementAmazon3
+  comment:?, comment2:Dispose_Of - single period
+  DR:U993:coord(without_currency_movement_against_since('Amazon3','USD6',[report_currency],date(2000,7,1)),100,0)
+  CR:U994:coord(report_currency,0,1428.5714285714287)
+
+date(2060,6,30): InvestmentIncomeRealizedOnlyCurrencyMovementAmazon3
+  comment:?, comment2:Dispose_Of
+  CR:U994:coord(report_currency,0,307692.3076923077)
+  DR:U995:coord(without_currency_movement_against_since('USD6','USD6',[report_currency],date(2000,7,1)),20000000,0)
+
+date(2060,6,30): InvestmentIncomeRealizedWithoutCurrencyMovementAmazon3
+  comment:?, comment2:Dispose_Of
+  CR:U995:coord(without_currency_movement_against_since('USD6','USD6',[report_currency],date(2000,7,1)),0,20000000)
+  DR:U994:coord(report_currency,1428.5714285714287,0)
+
+
+====
+done.
+
+-->
+
+
+<!-- 
+[][] -->
+<!--
+[ <basic:NetIncomeLoss contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:NetIncomeLoss>
+,  <basic:Revenue contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:Revenue>
+,   <basic:CurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,413.19</basic:CurrencyMovement>
+,    <basic:CurrencyMovementBank contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">1,413.19</basic:CurrencyMovementBank>
+,   <basic:InvestmentIncome contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">306,263.74</basic:InvestmentIncome>
+,    <basic:InvestmentIncomeRealized contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">306,263.74</basic:InvestmentIncomeRealized>
+,     <basic:InvestmentIncomeRealizedOnlyCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-28,263,736.26</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
+,     <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">28,570,000.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+,    <basic:InvestmentIncomeUnrealized contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">0.00</basic:InvestmentIncomeUnrealized>
+,     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+,     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">0.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+]
+-->
+<!--
+[ <basic:NetAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:NetAssets>
+,  <basic:Assets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:Assets>
+,   <basic:CurrentAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:CurrentAssets>
+,    <basic:CashAndCashEquivalents contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:CashAndCashEquivalents>
+,     <basic:Banks contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:Banks>
+,   <basic:NoncurrentAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">0.00</basic:NoncurrentAssets>
+,    <basic:FinancialInvestments contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">0.00</basic:FinancialInvestments>
+, <basic:Equity contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:Equity>
+,  <basic:RetainedEarnings contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:RetainedEarnings>
+,   <basic:CurrentEarnings contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,676.92</basic:CurrentEarnings>
+]
+-->
+<!-- Totals cross-check: -->
+<!-- 
+[] -->
+
+<!--Exchange rates extracted:
+[ exchange_rate(date(2015,7,1),report_currency,'USD3',0.7),
+  exchange_rate(date(2060,6,30),report_currency,'USD3',0.65),
+  exchange_rate(date(2015,7,1),'Google2','USD3',10),
+  exchange_rate(date(2060,6,30),'Google2','USD3',20),
+  exchange_rate(date(2000,7,1),report_currency,'USD4',0.7),
+  exchange_rate(date(2060,6,30),report_currency,'USD4',65),
+  exchange_rate(date(2000,7,1),'Amazon2','USD4',10),
+  exchange_rate(date(2060,6,30),'Amazon2','USD4',200000),
+  exchange_rate(date(2015,7,1),report_currency,'USD5',0.7),
+  exchange_rate(date(2060,6,30),report_currency,'USD5',0.65),
+  exchange_rate(date(2015,7,1),'Google3','USD5',10),
+  exchange_rate(date(2060,6,30),'Google3','USD5',20),
+  exchange_rate(date(2000,7,1),report_currency,'USD6',0.7),
+  exchange_rate(date(2060,6,30),report_currency,'USD6',65),
+  exchange_rate(date(2000,7,1),'Amazon3','USD6',10),
+  exchange_rate(date(2060,6,30),'Amazon3','USD6',200000)
+]
+
+Accounts extracted:
+[ account('AccountingFees','Expenses','Accounts'/'AccountingFees',0),
+  account('Accounts',accountHierarchy,'Accounts'/'Accounts',0),
+  account('Assets','NetAssets','Accounts'/'Assets',0),
+  account('AssetsLivestock','CurrentAssets','Accounts'/'AssetsLivestock',0),
+  account('AssetsLivestockAtAverageCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtAverageCost',
+	  0),
+  account('AssetsLivestockAtCost',
+	  'AssetsLivestock',
+	  'Accounts' / 'AssetsLivestockAtCost',
+	  0),
+  account('BankCharges','Expenses','Accounts'/'BankCharges',0),
+  account('Banks','CashAndCashEquivalents','Accounts'/'Banks',0),
+  account('CapitalIntroduced','Equity','Accounts'/'CapitalIntroduced',0),
+  account('CashAndCashEquivalents',
+	  'CurrentAssets',
+	  'Accounts' / 'CashAndCashEquivalents',
+	  0),
+  account('ClearingAccount','Revenue','Accounts'/'ClearingAccount',0),
+  account('CostOfGoodsLivestock',
+	  'Expenses',
+	  'Accounts' / 'CostOfGoodsLivestock',
+	  0),
+  account('CurrencyMovement','Revenue','Accounts'/'CurrencyMovement',0),
+  account('CurrentAssets','Assets','Accounts'/'CurrentAssets',0),
+  account('CurrentEarnings','RetainedEarnings','Accounts'/'CurrentEarnings',0),
+  account('CurrentLiabilities','Liabilities','Accounts'/'CurrentLiabilities',0),
+  account('CurrentLoans','CurrentLiabilities','Accounts'/'CurrentLoans',0),
+  account('Drawings','Equity','Accounts'/'Drawings',0),
+  account('EarningsFinancialInvestments',
+	  'OtherIncome',
+	  'Accounts' / 'EarningsFinancialInvestments',
+	  0),
+  account('Equity','Accounts','Accounts'/'Equity',0),
+  account('ExchangeGain','OtherIncome','Accounts'/'ExchangeGain',0),
+  account('Expenses','NetIncomeLoss','Accounts'/'Expenses',0),
+  account('FinancialInvestments',
+	  'NoncurrentAssets',
+	  'Accounts' / 'FinancialInvestments',
+	  0),
+  account('ForexLoss','Expenses','Accounts'/'ForexLoss',0),
+  account('Gst','CurrentLiabilities','Accounts'/'Gst',0),
+  account('GstPayable','Gst','Accounts'/'GstPayable',0),
+  account('GstReceivable','Gst','Accounts'/'GstReceivable',0),
+  account('HistoricalEarnings',
+	  'RetainedEarnings',
+	  'Accounts' / 'HistoricalEarnings',
+	  0),
+  account('Income','Revenue','Accounts'/'Income',0),
+  account('InterestEarned','OtherIncome','Accounts'/'InterestEarned',0),
+  account('InterestExpenses','Expenses','Accounts'/'InterestExpenses',0),
+  account('InterestIncome','OtherIncome','Accounts'/'InterestIncome',0),
+  account('InvestmentIncome','Revenue','Accounts'/'InvestmentIncome',0),
+  account('Liabilities','NetAssets','Accounts'/'Liabilities',0),
+  account('LivestockAdjustment','Expenses','Accounts'/'LivestockAdjustment',0),
+  account('NetAssets','Accounts','Accounts'/'NetAssets',0),
+  account('NetIncomeLoss','Accounts','Accounts'/'NetIncomeLoss',0),
+  account('NoncurrentAssets','Assets','Accounts'/'NoncurrentAssets',0),
+  account('NoncurrentLiabilities',
+	  'Liabilities',
+	  'Accounts' / 'NoncurrentLiabilities',
+	  0),
+  account('NoncurrentLoans',
+	  'NoncurrentLiabilities',
+	  'Accounts' / 'NoncurrentLoans',
+	  0),
+  account('OtherExpenses','Expenses','Accounts'/'OtherExpenses',0),
+  account('OtherGain','Revenue','Accounts'/'OtherGain',0),
+  account('OtherIncome','Revenue','Accounts'/'OtherIncome',0),
+  account('Purchases','Expenses','Accounts'/'Purchases',0),
+  account('RationsRevenue','Revenue','Accounts'/'RationsRevenue',0),
+  account('RetainedEarnings','Equity','Accounts'/'RetainedEarnings',0),
+  account('Revenue','NetIncomeLoss','Accounts'/'Revenue',0),
+  account('SalesOfLivestock','Revenue','Accounts'/'SalesOfLivestock',0),
+  account('ShareCapital','Equity','Accounts'/'ShareCapital',0)
+]
+
+-->
+
+
+<!--generate system accounts...-->
+<!--...generated system accounts-->
+
+<!--Generated accounts:
+[ account('Inventory',accountHierarchy,accountHierarchy/'Inventory',0),
+  account('LivestockCount','Inventory','Inventory'/'LivestockCount',0),
+  account('BanksBank','Banks','Banks'/'Bank',1),
+  account('CurrencyMovementBank',
+	  'CurrencyMovement',
+	  'CurrencyMovement' / 'Bank',
+	  0),
+  account('InvestmentIncomeRealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / realized,
+	  0),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealized',
+	  'InvestmentIncomeRealized' / onlyCurrencyMovement,
+	  0),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovementAmazon2',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'Amazon2',
+	  1),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovementAmazon3',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'Amazon3',
+	  1),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovementGoogle2',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'Google2',
+	  1),
+  account('InvestmentIncomeRealizedOnlyCurrencyMovementGoogle3',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeRealizedOnlyCurrencyMovement' / 'Google3',
+	  1),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealized',
+	  'InvestmentIncomeRealized' / withoutCurrencyMovement,
+	  0),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovementAmazon2',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'Amazon2',
+	  1),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovementAmazon3',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'Amazon3',
+	  1),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovementGoogle2',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'Google2',
+	  1),
+  account('InvestmentIncomeRealizedWithoutCurrencyMovementGoogle3',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeRealizedWithoutCurrencyMovement' / 'Google3',
+	  1),
+  account('InvestmentIncomeUnrealized',
+	  'InvestmentIncome',
+	  'InvestmentIncome' / unrealized,
+	  0),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / onlyCurrencyMovement,
+	  0),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementAmazon2',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Amazon2',
+	  1),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementAmazon3',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Amazon3',
+	  1),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementGoogle2',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Google2',
+	  1),
+  account('InvestmentIncomeUnrealizedOnlyCurrencyMovementGoogle3',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement',
+	  'InvestmentIncomeUnrealizedOnlyCurrencyMovement' / 'Google3',
+	  1),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealized',
+	  'InvestmentIncomeUnrealized' / withoutCurrencyMovement,
+	  0),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementAmazon2',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Amazon2',
+	  1),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementAmazon3',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Amazon3',
+	  1),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementGoogle2',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Google2',
+	  1),
+  account('InvestmentIncomeUnrealizedWithoutCurrencyMovementGoogle3',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement',
+	  'InvestmentIncomeUnrealizedWithoutCurrencyMovement' / 'Google3',
+	  1),
+  account('FinancialInvestmentsAmazon2',
+	  'FinancialInvestments',
+	  'FinancialInvestments' / 'Amazon2',
+	  1),
+  account('FinancialInvestmentsAmazon3',
+	  'FinancialInvestments',
+	  'FinancialInvestments' / 'Amazon3',
+	  1),
+  account('FinancialInvestmentsGoogle2',
+	  'FinancialInvestments',
+	  'FinancialInvestments' / 'Google2',
+	  1),
+  account('FinancialInvestmentsGoogle3',
+	  'FinancialInvestments',
+	  'FinancialInvestments' / 'Google3',
+	  1)
+]
+
+-->
+
+
+
+<!--Transaction_Transformation_Debug:
+s_transaction(date(2015,7,1),
+	      'Invest_In',
+	      [coord('USD3',0,1000)],
+	      'Bank',
+	      vector([coord('Google2',100,0)]))==>
+date(2015,7,1): BanksBank
+  Invest_In - outgoing money
+  CR:U996:coord('USD3',0,1000)
+
+date(2015,7,1): CurrencyMovementBank
+  Invest_In - outgoing money - currency movement adjustment - only current period
+  DR:U996:coord('USD3',1000,0)
+  CR:U997:coord(without_currency_movement_against_since('USD3','USD3',[report_currency],date(2015,7,1)),0,1000)
+
+date(2015,7,1): FinancialInvestmentsGoogle2
+  Invest_In
+  DR:U998:coord('Google2',100,0)
+
+date(2015,7,1): InvestmentIncomeUnrealizedOnlyCurrencyMovementGoogle2
+  comment:?, comment2:Invest_In - single period
+  CR:U998:coord('Google2',0,100)
+  DR:U999:coord(without_currency_movement_against_since('Google2','USD3',[report_currency],date(2015,7,1)),100,0)
+
+date(2015,7,1): InvestmentIncomeUnrealizedWithoutCurrencyMovementGoogle2
+  comment:?, comment2:Invest_In - single period
+  CR:U999:coord(without_currency_movement_against_since('Google2','USD3',[report_currency],date(2015,7,1)),0,100)
+  DR:U1000:coord(report_currency,1428.5714285714287,0)
+
+
+====
+s_transaction(date(2000,7,1),
+	      'Invest_In',
+	      [coord('USD4',0,1000)],
+	      'Bank',
+	      vector([coord('Amazon2',100,0)]))==>
+date(2000,7,1): BanksBank
+  Invest_In - outgoing money
+  CR:U1001:coord('USD4',0,1000)
+
+date(2000,7,1): CurrencyMovementBank
+  Invest_In - outgoing money - currency movement adjustment - only current period
+  DR:U1001:coord('USD4',1000,0)
+  CR:U1002:coord(without_currency_movement_against_since('USD4','USD4',[report_currency],date(2000,7,1)),0,1000)
+
+date(2000,7,1): FinancialInvestmentsAmazon2
+  Invest_In
+  DR:U1003:coord('Amazon2',100,0)
+
+date(2000,7,1): InvestmentIncomeUnrealizedOnlyCurrencyMovementAmazon2
+  comment:?, comment2:Invest_In - single period
+  CR:U1003:coord('Amazon2',0,100)
+  DR:U1004:coord(without_currency_movement_against_since('Amazon2','USD4',[report_currency],date(2000,7,1)),100,0)
+
+date(2000,7,1): InvestmentIncomeUnrealizedWithoutCurrencyMovementAmazon2
+  comment:?, comment2:Invest_In - single period
+  CR:U1004:coord(without_currency_movement_against_since('Amazon2','USD4',[report_currency],date(2000,7,1)),0,100)
+  DR:U1005:coord(report_currency,1428.5714285714287,0)
+
+
+====
+s_transaction(date(2015,7,1),
+	      'Invest_In',
+	      [coord('USD5',0,1000)],
+	      'Bank',
+	      vector([coord('Google3',100,0)]))==>
+date(2015,7,1): BanksBank
+  Invest_In - outgoing money
+  CR:U1006:coord('USD5',0,1000)
+
+date(2015,7,1): CurrencyMovementBank
+  Invest_In - outgoing money - currency movement adjustment - only current period
+  DR:U1006:coord('USD5',1000,0)
+  CR:U1007:coord(without_currency_movement_against_since('USD5','USD5',[report_currency],date(2015,7,1)),0,1000)
+
+date(2015,7,1): FinancialInvestmentsGoogle3
+  Invest_In
+  DR:U1008:coord('Google3',100,0)
+
+date(2015,7,1): InvestmentIncomeUnrealizedOnlyCurrencyMovementGoogle3
+  comment:?, comment2:Invest_In - single period
+  CR:U1008:coord('Google3',0,100)
+  DR:U1009:coord(without_currency_movement_against_since('Google3','USD5',[report_currency],date(2015,7,1)),100,0)
+
+date(2015,7,1): InvestmentIncomeUnrealizedWithoutCurrencyMovementGoogle3
+  comment:?, comment2:Invest_In - single period
+  CR:U1009:coord(without_currency_movement_against_since('Google3','USD5',[report_currency],date(2015,7,1)),0,100)
+  DR:U1010:coord(report_currency,1428.5714285714287,0)
+
+
+====
+s_transaction(date(2060,6,30),
+	      'Dispose_Of',
+	      [coord('USD5',2000,0)],
+	      'Bank',
+	      vector([coord('Google3',0,100)]))==>
+date(2060,6,30): BanksBank
+  Dispose_Of - incoming money
+  DR:U1011:coord('USD5',2000,0)
+
+date(2060,6,30): CurrencyMovementBank
+  Dispose_Of - incoming money - currency movement adjustment - only current period
+  CR:U1011:coord('USD5',0,2000)
+  DR:U1012:coord(without_currency_movement_against_since('USD5','USD5',[report_currency],date(2060,6,30)),2000,0)
+
+date(2060,6,30): FinancialInvestmentsGoogle3
+  Dispose_Of
+  CR:U1013:coord('Google3',0,100)
+
+date(2060,6,30): InvestmentIncomeUnrealizedOnlyCurrencyMovementGoogle3
+  comment:?, comment2:Dispose_Of - single period
+  DR:U1013:coord('Google3',100,0)
+  CR:U1014:coord(without_currency_movement_against_since('Google3','USD5',[report_currency],date(2015,7,1)),0,100)
+
+date(2060,6,30): InvestmentIncomeUnrealizedWithoutCurrencyMovementGoogle3
+  comment:?, comment2:Dispose_Of - single period
+  DR:U1014:coord(without_currency_movement_against_since('Google3','USD5',[report_currency],date(2015,7,1)),100,0)
+  CR:U1015:coord(report_currency,0,1428.5714285714287)
+
+date(2060,6,30): InvestmentIncomeRealizedOnlyCurrencyMovementGoogle3
+  comment:?, comment2:Dispose_Of
+  CR:U1015:coord(report_currency,0,3076.9230769230767)
+  DR:U1016:coord(without_currency_movement_against_since('USD5','USD5',[report_currency],date(2015,7,1)),2000,0)
+
+date(2060,6,30): InvestmentIncomeRealizedWithoutCurrencyMovementGoogle3
+  comment:?, comment2:Dispose_Of
+  CR:U1016:coord(without_currency_movement_against_since('USD5','USD5',[report_currency],date(2015,7,1)),0,2000)
+  DR:U1015:coord(report_currency,1428.5714285714287,0)
+
+
+====
+s_transaction(date(2000,7,1),
+	      'Invest_In',
+	      [coord('USD6',0,1000)],
+	      'Bank',
+	      vector([coord('Amazon3',100,0)]))==>
+date(2000,7,1): BanksBank
+  Invest_In - outgoing money
+  CR:U1017:coord('USD6',0,1000)
+
+date(2000,7,1): CurrencyMovementBank
+  Invest_In - outgoing money - currency movement adjustment - only current period
+  DR:U1017:coord('USD6',1000,0)
+  CR:U1018:coord(without_currency_movement_against_since('USD6','USD6',[report_currency],date(2000,7,1)),0,1000)
+
+date(2000,7,1): FinancialInvestmentsAmazon3
+  Invest_In
+  DR:U1019:coord('Amazon3',100,0)
+
+date(2000,7,1): InvestmentIncomeUnrealizedOnlyCurrencyMovementAmazon3
+  comment:?, comment2:Invest_In - single period
+  CR:U1019:coord('Amazon3',0,100)
+  DR:U1020:coord(without_currency_movement_against_since('Amazon3','USD6',[report_currency],date(2000,7,1)),100,0)
+
+date(2000,7,1): InvestmentIncomeUnrealizedWithoutCurrencyMovementAmazon3
+  comment:?, comment2:Invest_In - single period
+  CR:U1020:coord(without_currency_movement_against_since('Amazon3','USD6',[report_currency],date(2000,7,1)),0,100)
+  DR:U1021:coord(report_currency,1428.5714285714287,0)
+
+
+====
+s_transaction(date(2060,6,30),
+	      'Dispose_Of',
+	      [coord('USD6',20000000,0)],
+	      'Bank',
+	      vector([coord('Amazon3',0,100)]))==>
+date(2060,6,30): BanksBank
+  Dispose_Of - incoming money
+  DR:U1022:coord('USD6',20000000,0)
+
+date(2060,6,30): CurrencyMovementBank
+  Dispose_Of - incoming money - currency movement adjustment - only current period
+  CR:U1022:coord('USD6',0,20000000)
+  DR:U1023:coord(without_currency_movement_against_since('USD6','USD6',[report_currency],date(2060,6,30)),20000000,0)
+
+date(2060,6,30): FinancialInvestmentsAmazon3
+  Dispose_Of
+  CR:U1024:coord('Amazon3',0,100)
+
+date(2060,6,30): InvestmentIncomeUnrealizedOnlyCurrencyMovementAmazon3
+  comment:?, comment2:Dispose_Of - single period
+  DR:U1024:coord('Amazon3',100,0)
+  CR:U1025:coord(without_currency_movement_against_since('Amazon3','USD6',[report_currency],date(2000,7,1)),0,100)
+
+date(2060,6,30): InvestmentIncomeUnrealizedWithoutCurrencyMovementAmazon3
+  comment:?, comment2:Dispose_Of - single period
+  DR:U1025:coord(without_currency_movement_against_since('Amazon3','USD6',[report_currency],date(2000,7,1)),100,0)
+  CR:U1026:coord(report_currency,0,1428.5714285714287)
+
+date(2060,6,30): InvestmentIncomeRealizedOnlyCurrencyMovementAmazon3
+  comment:?, comment2:Dispose_Of
+  CR:U1026:coord(report_currency,0,307692.3076923077)
+  DR:U1027:coord(without_currency_movement_against_since('USD6','USD6',[report_currency],date(2000,7,1)),20000000,0)
+
+date(2060,6,30): InvestmentIncomeRealizedWithoutCurrencyMovementAmazon3
+  comment:?, comment2:Dispose_Of
+  CR:U1027:coord(without_currency_movement_against_since('USD6','USD6',[report_currency],date(2000,7,1)),0,20000000)
+  DR:U1026:coord(report_currency,1428.5714285714287,0)
+
+
+====
+done.
+
+-->
+
+
+<!-- 
+[][] -->
+
+
+<!--
+[ <basic:NetIncomeLoss contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">618,430.77</basic:NetIncomeLoss>
+,  <basic:Revenue contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">618,430.77</basic:Revenue>
+,   <basic:CurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">2,606.59</basic:CurrencyMovement>
+,    <basic:CurrencyMovementBank contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">2,606.59</basic:CurrencyMovementBank>
+,   <basic:InvestmentIncome contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">615,824.18</basic:InvestmentIncome>
+,    <basic:InvestmentIncomeRealized contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,912.09</basic:InvestmentIncomeRealized>
+,     <basic:InvestmentIncomeRealizedOnlyCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-28,263,516.48</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
+,     <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">28,571,428.57</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+,    <basic:InvestmentIncomeUnrealized contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,912.09</basic:InvestmentIncomeUnrealized>
+,     <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">-28,263,516.48</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+,     <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">28,571,428.57</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+]
+-->
+<!--
+[ <basic:NetAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">618,430.77</basic:NetAssets>
+,  <basic:Assets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">618,430.77</basic:Assets>
+,   <basic:CurrentAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,661.54</basic:CurrentAssets>
+,    <basic:CashAndCashEquivalents contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,661.54</basic:CashAndCashEquivalents>
+,     <basic:Banks contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">307,661.54</basic:Banks>
+,   <basic:NoncurrentAssets contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">310,769.23</basic:NoncurrentAssets>
+,    <basic:FinancialInvestments contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">310,769.23</basic:FinancialInvestments>
+, <basic:Equity contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">618,430.77</basic:Equity>
+,  <basic:RetainedEarnings contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">618,430.77</basic:RetainedEarnings>
+,   <basic:CurrentEarnings contextRef="date(2060,6,30)" unitRef="U-report_currency" decimals="INF">618,430.77</basic:CurrentEarnings>
+]
+-->
+<Realized_Market_Gain_Total>28571428.57</Realized_Market_Gain_Total>
+<Realized_Currency_Gain_Total>-28263516.48</Realized_Currency_Gain_Total>
+<Realized_Gain_Total>307912.09</Realized_Gain_Total>
+<Unrealized_Market_Gain_Total>-28263516.48</Unrealized_Market_Gain_Total>
+<Unrealized_Currency_Gain_Total>307912.09</Unrealized_Currency_Gain_Total>
+<Unrealized_Gain_Total>-27955604.40</Unrealized_Gain_Total>
+<Gain_Total>-27647692.31</Gain_Total>
+</response>
+
+

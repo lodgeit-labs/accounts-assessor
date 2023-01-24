@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+
+
+ <!-- reports:  {
+  "alerts": [],
+  "reports": [
+    {
+      "id":"livestock_report_Horses_html",
+      "key":"Horses",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.95/livestock_report_Horses.html"
+      }
+    },
+    {
+      "id":"livestock_report_Sheep_html",
+      "key":"Sheep",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.95/livestock_report_Sheep.html"
+      }
+    },
+    {
+      "id":"response_xml",
+      "key":"xml response",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.95/response.xml"
+      }
+    },
+    {
+      "id":"request_xml",
+      "key":"request_xml",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.95/request.xml"
+      }
+    },
+    {
+      "id":"all",
+      "key":"all files",
+      "val": {"url":"http://koom-KVM:8080/tmp/1574486829.0812657.95/"}
+    }
+  ]
+} --> <response>
+<livestocks>
+<livestock>
+<name>Horses</name>
+<currency>AUD</currency>
+<unitsBorn>15</unitsBorn>
+<naturalIncreaseValuePerUnit>54</naturalIncreaseValuePerUnit>
+<unitsSales>6</unitsSales>
+<saleValue>7663</saleValue>
+<unitsRations>10</unitsRations>
+<unitsOpening>25</unitsOpening>
+<openingValue>1233</openingValue>
+<unitsClosing>24</unitsClosing>
+<unitsPurchases>0</unitsPurchases>
+<purchaseValue>0</purchaseValue>
+<unitsDeceased>0</unitsDeceased>
+<Killed_for_rations_value>510.75</Killed_for_rations_value>
+<Stock_on_hand_at_end_of_year_value>1225.8000000000002</Stock_on_hand_at_end_of_year_value>
+<Closing_and_killed_and_sales_minus_losses_count>40</Closing_and_killed_and_sales_minus_losses_count>
+<Closing_and_killed_and_sales_value>9399.55</Closing_and_killed_and_sales_value>
+<Opening_and_purchases_and_increase_count>40</Opening_and_purchases_and_increase_count>
+<Opening_and_purchases_value>1233</Opening_and_purchases_value>
+<Natural_Increase_value>810</Natural_Increase_value>
+<Average_cost>51.075</Average_cost>
+<Revenue>7663</Revenue>
+<Livestock_COGS>-503.5500000000002</Livestock_COGS>
+<Gross_Profit_on_Livestock_Trading>8166.55</Gross_Profit_on_Livestock_Trading>
+<Explanation>Gross_Profit_on_Livestock_Trading = Sales_value-(Stock_on_hand_at_beginning_of_year_value+Purchases_value-Average_cost*(Stock_on_hand_at_beginning_of_year_count+Natural_increase_count+Purchases_count-Killed_for_rations_count-Losses_count-Sales_count)-Killed_for_rations_count*Average_cost)
+Gross_Profit_on_Livestock_Trading = 7663 - (1233 + 0 - 51.075 * (25 + 15 + 0 - 10 - 0 - 6) - 10 * 51.075)
+Average_cost = (Stock_on_hand_at_beginning_of_year_value+Purchases_value+Natural_increase_count*Natural_increase_value_per_head)/(Stock_on_hand_at_beginning_of_year_count+Purchases_count+Natural_increase_count)
+Average_cost = (1233 + 0 + 15 * 54) / (25 + 0 + 15)</Explanation>
+</livestock>
+<livestock>
+<name>Sheep</name>
+<currency>AUD</currency>
+<unitsBorn>425</unitsBorn>
+<naturalIncreaseValuePerUnit>54</naturalIncreaseValuePerUnit>
+<unitsSales>361</unitsSales>
+<saleValue>16543</saleValue>
+<unitsRations>10</unitsRations>
+<unitsOpening>1306</unitsOpening>
+<openingValue>13974</openingValue>
+<unitsClosing>1213</unitsClosing>
+<unitsPurchases>5</unitsPurchases>
+<purchaseValue>1750</purchaseValue>
+<unitsDeceased>152</unitsDeceased>
+<Killed_for_rations_value>222.77649769585253</Killed_for_rations_value>
+<Stock_on_hand_at_end_of_year_value>27022.789170506912</Stock_on_hand_at_end_of_year_value>
+<Closing_and_killed_and_sales_minus_losses_count>1432</Closing_and_killed_and_sales_minus_losses_count>
+<Closing_and_killed_and_sales_value>43788.56566820276</Closing_and_killed_and_sales_value>
+<Opening_and_purchases_and_increase_count>1736</Opening_and_purchases_and_increase_count>
+<Opening_and_purchases_value>15724</Opening_and_purchases_value>
+<Natural_Increase_value>22950</Natural_Increase_value>
+<Average_cost>22.277649769585253</Average_cost>
+<Revenue>16543</Revenue>
+<Livestock_COGS>-11521.565668202766</Livestock_COGS>
+<Gross_Profit_on_Livestock_Trading>28064.565668202766</Gross_Profit_on_Livestock_Trading>
+<Explanation>Gross_Profit_on_Livestock_Trading = Sales_value-(Stock_on_hand_at_beginning_of_year_value+Purchases_value-Average_cost*(Stock_on_hand_at_beginning_of_year_count+Natural_increase_count+Purchases_count-Killed_for_rations_count-Losses_count-Sales_count)-Killed_for_rations_count*Average_cost)
+Gross_Profit_on_Livestock_Trading = 16543 - (13974 + 1750 - 22.277649769585253 * (1306 + 425 + 5 - 10 - 152 - 361) - 10 * 22.277649769585253)
+Average_cost = (Stock_on_hand_at_beginning_of_year_value+Purchases_value+Natural_increase_count*Natural_increase_value_per_head)/(Stock_on_hand_at_beginning_of_year_count+Purchases_count+Natural_increase_count)
+Average_cost = (13974 + 1750 + 425 * 54) / (1306 + 5 + 425)</Explanation>
+</livestock>
+</livestocks>
+</response>
+
+

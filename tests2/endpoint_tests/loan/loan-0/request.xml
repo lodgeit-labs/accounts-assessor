@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
+  <loanDetails>
+    <generator>
+      <date>2020-03-26T00:03:51.5198775Z</date>
+      <source>LodgeiT Smart Utility</source>
+      <author>
+        <firstname/>
+        <lastname/>
+        <company/>
+      </author>
+    </generator>
+    <company>
+      <abn>aaaa</abn>
+      <tfn/>
+      <clientcode/>
+      <anzsic/>
+      <notes/>
+      <directors/>
+    </company>
+    <startDate>2015-07-01</startDate>
+    <endDate>2022-06-30</endDate>
+    <loanAgreement>
+      <field name="Income year of loan creation" value="2014"/>
+      <field name="Full term of loan in years" value="7"/>
+      <field name="Principal amount of loan" value="50000.00"/>
+      <field name="Lodgment day of private company" value="2015-05-15"/>
+      <field name="Income year of computation" value="2015"/>
+    </loanAgreement>
+    <repayments>
+      <repayment date="2014-08-31" value="20000.00"/>
+      <repayment date="2015-05-30" value="8000.00"/>
+    </repayments>
+	
+	
+<!--
+
+Minimum yearly repayment met.
+
+Minimum yearly repayment
+
+$5,365.00
+
+Benchmark interest rate
+
+5.95%
+
+Opening balance:
+
+Date: 30/06/2014
+
+Balance: $50,000.00
+
+Days: 61
+
+Interest: $497.19
+
+Payments
+
+Date: 31/08/2014
+
+Amount: $20,000.00
+
+Balance: $30,000.00
+
+Days: 272
+
+Interest: $1,330.19
+
+Date: 30/05/2015
+
+Amount: $8,000.00
+
+Balance: $22,000.00
+
+Days: 32
+
+Interest: $114.76
+
+Total repayments
+
+$28,000.00
+
+Total interest
+
+$1,942.14
+
+Total principal
+
+$26,057.86
+
+Closing balance
+
+Date: 30/06/2015
+
+Balance: $23,942.14
+
+-->	
+	
+	
+  </loanDetails>
+</reports>

@@ -137,9 +137,11 @@ def do_testcase(testcase_uri, testcase_json):
 	test = TestData(**testcase_json)
 	if test.type=='json_endpoint_test':
 		test = JsonEndpointTestData(**testcase_json)
-		logging.getLogger().info(f'requests.post(url={test.target_server_url + test.api_uri}, json={test.post_data})....')
+		url = test.target_server_url + test.api_uri
+		data = test.post_data
+		logging.getLogger().info(f'requests.post(url={url}, json={data})....')
 		try:
-			res: requests.Response = post(url=test.target_server_url + test.api_uri, json=test.post_data, timeout=123)
+			res: requests.Response = post(url=url, json=data, timeout=123)
 		except Exception as e:
 			logging.getLogger().info(e)
 			a.addTriple(testcase_uri, selftest.has_failure, str(e))
@@ -232,6 +234,7 @@ remoulade.declare_actors([start_selftest_session2, run_outstanding_testcases, do
 # 		'http://xxxself_testxxx is finished.'
 # 	return "ok"
 # 	"""
+
 
 
 
