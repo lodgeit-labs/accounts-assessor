@@ -70,3 +70,9 @@ def flatten_lists(x):
 		return r
 	else:
 		return x
+
+
+#def env_or(json, key):
+	#print(key, '=', os.environ.get(key), ' or ', json.get(key))
+#	return os.environ.get(key) or json.get(key)
+

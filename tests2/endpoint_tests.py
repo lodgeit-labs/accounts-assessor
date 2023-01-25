@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+"""
+
+Given that tasks can be expected to run for days, it doesn't matter that agraph doesn't support transactions, we'll have to do some task brokering in our workers.
+
+
+"""
+
+
+
 import fire
 import glob
 
@@ -13,6 +22,7 @@ class Runner():
         """
 
         print('testing ' + robust_server_url)
+
 
         dirs = glob.glob('endpoint_tests/*/*/')
         dirs.sort()

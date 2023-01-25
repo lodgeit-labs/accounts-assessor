@@ -1,27 +1,19 @@
 import json, os, logging
-from tasking import remoulade
 
 from franz.openrdf.model.value import BNode
 from franz.openrdf.vocabulary.rdf import RDF
 from franz.openrdf.model.value import URI
 from franz.openrdf.repository.repositoryconnection import RepositoryConnection
-
-
-#def env_or(json, key):
-	#print(key, '=', os.environ.get(key), ' or ', json.get(key))
-#	return os.environ.get(key) or json.get(key)
+from franz.openrdf.connect import ag_connect
 
 from config import secret
 
-
-#def bn_from_string(bn_str):
-#	return BNode(bn_str[2:])
 
 registered_prefixes = {}
 
 
 def generateUniqueUri(prefix):
-	"""todo: to ensure uniqueness in event of agraph server crash, the server should be wrapped in a script that ensures that any code that uses agraph unique id generator is stopped before agraph is started back up. see "ID uniqueness in the event of a crash". Alternatively, look into wrapping the generator call + the call to asserting the triple into the db, with a transaction.
+	"""todo: to ensure uniqueness in the event of agraph server crash, the server should be wrapped in a script that ensures that any code that uses agraph unique id generator is stopped before agraph is started back up. see "ID uniqueness in the event of a crash". Alternatively, look into wrapping the generator call + the call to asserting the triple into the db, with a transaction? Transactions do not cover this i think.
 	"""
 	#if prefix not in registered_prefixes:
 	#	registered_prefixes[prefix] =
@@ -40,14 +32,6 @@ namespaces = {
 	'kb': 'https://rdf.lodgeit.net.au/v1/kb#'
 }
 
-@remoulade.actor
-def sql_prefixes_header():
-	r = ''
-	for k,v in namespaces.items():
-		r += ('PREFIX ' + k + ': <' + v + '>\n')
-	print(r)
-	return r
-
 _agc = None
 
 def agc() -> RepositoryConnection:
@@ -55,13 +39,11 @@ def agc() -> RepositoryConnection:
 	if _agc is not None:
 		return _agc
 
-	AGRAPH_HOST = os.environ['AGRAPH_HOST']
-	AGRAPH_PORT = os.environ['AGRAPH_PORT']
 	AGRAPH_SECRET_USER = secret('AGRAPH_SUPER_USER')
 	AGRAPH_SECRET_PASSWORD = secret('AGRAPH_SUPER_PASSWORD')
 
-	from franz.openrdf.connect import ag_connect
-	a = ag_connect('a', host=AGRAPH_HOST, port=AGRAPH_PORT, user=AGRAPH_SECRET_USER, password=AGRAPH_SECRET_PASSWORD)
+
+	a = ag_connect('a', user=AGRAPH_SECRET_USER, password=AGRAPH_SECRET_PASSWORD)
 	a.setDuplicateSuppressionPolicy('spog')
 	for k,v in namespaces.items():
 		a.setNamespace(k,v)
@@ -71,4 +53,3 @@ def agc() -> RepositoryConnection:
 	return _agc
 
 
-remoulade.declare_actors([sql_prefixes_header])
