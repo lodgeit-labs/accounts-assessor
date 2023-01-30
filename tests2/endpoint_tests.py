@@ -5,6 +5,13 @@
 Given that tasks can be expected to run for days, it doesn't matter that agraph doesn't support transactions, we'll have to do some task brokering in our workers.
 
 
+
+task queue issues in general:
+    oom
+        is there a child process that can be killed
+        is the worker killed or is the child process killed
+        are there options to redo failed tasks
+
 """
 
 
