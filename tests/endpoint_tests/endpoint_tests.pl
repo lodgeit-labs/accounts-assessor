@@ -44,7 +44,7 @@ test(testcase, []) :-
 	;	true).
 
 /*
-hardcoded plunit test rules, one for each endpoint, so we can use things like "throws" and test individual endpoints separately
+hardcoded plunit test rules, one for each endpoint, so that we can use things like "throws", and we can test individual endpoints separately
 */
 
 /* chat endpoints. just checking that these two respond, they have more tests in tests/plunit/ */
@@ -110,9 +110,13 @@ output_file(ledger, 'general_ledger_json', json).
 output_file(ledger, 'investment_report_json', json).
 output_file(ledger, 'investment_report_since_beginning_json', json).
 
+
+
+/* and this logic never ended up being really implemented/used. Hopefully in the new testing system.*/
 report_with_key_is_depended_upon_by_report_with_key(Source_Id, Result_Id) :-
 	Source_Id = _{name: Name, format: json},
 	Result_Id = _{name: Name, format: html}.
+
 
 run_testcase(Endpoint_Type, Testcase) :-
 	debug(endpoint_tests, '(run_testcase(~w, ~w)', [Endpoint_Type, Testcase]),
