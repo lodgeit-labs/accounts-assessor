@@ -1,20 +1,26 @@
-from luigi.local_target import LocalTarget
+# from luigi.local_target import LocalTarget
 
-a = LocalTarget('./banana/nanana/na')
-a.makedirs()
-
-
+# a = LocalTarget('./banana/nanana/na')
+# a.makedirs()
 
 
+import datetime
+import luigi
 
 
+class MyTask(luigi.Task):
+	x = luigi.parameter.OptionalPathParameter(default=str(datetime.datetime.utcnow()).replace(' ', '_'))
+	y = luigi.IntParameter(default=45)
+
+	def run(self):
+		print(self.x + self.y)
 
 
 """
 		
 
 
-
+Z
 
 
 
@@ -31,7 +37,7 @@ tasks:
 			
 		dynamic dependencies:
 			for i in endpoint_tests:
-				`test result`
+				`testcase result`(i, session)
 
 	
 				
@@ -48,14 +54,19 @@ tasks:
 
 
 	`testcase result`:
-		dispatch on type of endpoint
+		parameters:
+			session
+		require:
+			query endpoint
+		run:
+			evaluate ledger testcase
 		
 
 	`ledger testcase result`:
 		inputs:
 			expected result: a directory 
 			actual result: a directory
-			
+
 		run:
 
 			test('response_xml', xml).
