@@ -6,19 +6,37 @@
 
 import datetime
 import luigi
+import luigi.contrib.postgres
 
 
-class MyTask(luigi.Task):
-	x = luigi.parameter.OptionalPathParameter(default=str(datetime.datetime.utcnow()).replace(' ', '_'))
-	y = luigi.IntParameter(default=45)
+class AssistantStartup(luigi.Task):
+	"""just a dummy task to pass to an assitant worker. Could be simplified."""
+	ts = luigi.Parameter(default=datetime.datetime.utcnow().isoformat())
 
 	def run(self):
-		print(self.x + self.y)
+		time.sleep(10)
+		self.output().open('w').close()
 
+	def output(self):
+		return luigi.LocalTarget('/tmp/luigi_dummy/%s' % self.ts)
+
+
+class EndpointTestsSummary(luigi.Task):
+	x = luigi.parameter.OptionalPathParameter(default=str(datetime.datetime.utcnow()).replace(' ', '_'))
+
+	def run(self):
+		print(self.x + str(self.y))
+
+	def output(self):
+		return luigi.contrib.postgres.
 
 """
-		
 
+|             update_id (str): An identifier for this data set
+
+		
+		
+| Luigi is designed to work best when each job has one output, so anything you do that requires multiple outputs per job will feel a bit hacky. You can make your job a bit less hacky if all of the outputs go into the same directory. Then your output can be that directory. You don't need to create a file to list the directory contents or override complete in this case.
 
 Z
 
@@ -29,7 +47,7 @@ tasks:
 
 	`endpoint tests results`
 		parameters
-			server_url: str, default is http://localhost:8080
+			robust_server_url: str, default is http://localhost:8080
 			endpoint_tests_dir: Path, default is "./endpoint_tests"
 		
 		dependencies
@@ -144,3 +162,5 @@ notsure / future:
 compare directories: https://dir-content-diff.readthedocs.io/en/latest/
 
 """
+
+
