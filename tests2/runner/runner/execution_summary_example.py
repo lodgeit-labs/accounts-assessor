@@ -29,25 +29,41 @@ import luigi
 
 
 class Bar(luigi.Task):
-    task_namespace = 'examples'
-    num = luigi.IntParameter()
-    ts = luigi.Parameter('_')
+	num = luigi.IntParameter()
+	ts = luigi.Parameter('_')
 
-    def run(self):
-        time.sleep(100)
-        self.output().open('w').close()
+	def run(self):
+		print('sleep 10s..');time.sleep(10)
+		print('sleep 10s..');time.sleep(10)
+		print('sleep 10s..');time.sleep(10)
+		print('sleep 10s..');time.sleep(10)
+		print('sleep 10s..');time.sleep(10)
+		print('sleep 10s..');time.sleep(10)
+		self.output().open('w').close()
 
-    def output(self):
-        return luigi.LocalTarget('/tmp/bar/%s/%d' % (self.ts, self.num))
+	def output(self):
+		return luigi.LocalTarget('/tmp/bar/%s/%3d' % (self.ts, self.num))
 
 
 
 class EntryPoint(luigi.Task):
-    task_namespace = 'examples'
 
-    def run(self):
-        print("Running EntryPoint")
+	def run(self):
+		print("Running EntryPoint")
 
-    def requires(self):
-        for i in range(100):
-            yield Bar(i)
+	def requires(self):
+		for i in range(100):
+			yield Bar(i)
+
+
+class AssistantStartup(luigi.Task):
+	"""just a dummy task to pass to an assitant worker. Could be simplified."""
+	ts = luigi.Parameter(default=datetime.datetime.utcnow().isoformat())
+
+	def run(self):
+		time.sleep(10)
+		self.output().open('w').close()
+
+	def output(self):
+		return luigi.LocalTarget('/tmp/luigi_dummy/%s' % self.ts)
+

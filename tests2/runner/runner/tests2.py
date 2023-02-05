@@ -21,16 +21,16 @@ class AssistantStartup(luigi.Task):
 		return luigi.LocalTarget('/tmp/luigi_dummy/%s' % self.ts)
 
 
+
 class EndpointTestsSummary(luigi.Task):
-	x = luigi.parameter.OptionalPathParameter(default=str(datetime.datetime.utcnow()).replace(' ', '_'))
+	workdir = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_'))
 
 	def run(self):
 		print(self.x + str(self.y))
 
 	def output(self):
-		return luigi.contrib.postgres.
+		return luigi.LocalTarget('/tmp/luigi_dummy/%s' % self.ts)
 
-"""
 
 |             update_id (str): An identifier for this data set
 
