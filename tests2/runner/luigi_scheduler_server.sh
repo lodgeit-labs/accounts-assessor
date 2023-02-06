@@ -1,5 +1,5 @@
 #!/usr/bin/env fish
 
-mkdir -p /tmp/luigid/log/
+mkdir -p /tmp/luigid/
 
-luigid --pidfile /tmp/luigid/pid --logdir /tmp/luigid/log --state-path /tmp/luigid/state
+luigid --pidfile /tmp/luigid/pid --state-path /tmp/luigid/state
