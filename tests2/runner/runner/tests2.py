@@ -53,7 +53,7 @@ tasks:
 		dependencies
 			`list of available endpoint_tests`
 			
-		dynamic dependencies:
+^&		dynamic dependencies:
 			for i in endpoint_tests:
 				`testcase result`(i, session)
 
