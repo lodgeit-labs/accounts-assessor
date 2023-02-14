@@ -10,7 +10,7 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
 
  process_request_ledger :-
 	ct(
-		'this is an Investment Calculator query',
+		"is this an Investment Calculator query?",
 		get_optional_singleton_sheet(ic_ui:report_details_sheet, _)
 	),
  	!ledger_initialization,
@@ -97,7 +97,7 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
  	!once(cf('ensure system accounts exist 0'(Sts3))).
 
 
-'phase: main 2'(S2, S4) :-
+ 'phase: main 2'(S2, S4) :-
  	(	is_not_cutoff
  	->	(
 			!cf(extract_gl_inputs(_, Txs7)),

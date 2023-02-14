@@ -79,6 +79,7 @@
 :- [state].
 :- [system_accounts].
 :- [tables].
+:- [testcase_converter].
 :- [testcase_permutations].
 :- [trading].
 :- [transactions].

@@ -315,8 +315,11 @@ make_alerts_report(Alerts_Html) :-
 	;	(	Request_format = "rdf"
 		->	(	!accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3),
 				!debug(tmp_files, "done:accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
+
+				% load the file into a new graph G
 				!cf(load_request_rdf(Rdf_Tmp_File_Path, G)),
 				!debug(tmp_files, "RDF graph: ~w~n", [G]),
+
 				!cf(doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base)),
 				!check_request_version,
 				%doc_input_to_chr_constraints
@@ -384,7 +387,8 @@ process_xml_request(File_Path, Dom) :-
 /*+   request_xml_to_doc(Dom),*/
 	(process_request_car(File_Path, Dom);
 	(process_request_loan(File_Path, Dom);
-	(process_request_livestock(File_Path, Dom)
+	(process_request_ledger_xml(File_Path, Dom);
+ 	(process_request_livestock(File_Path, Dom);
 	%(process_request_investment:process(File_Path, Dom);
 	))).
 
