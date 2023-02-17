@@ -9,5 +9,5 @@ USER myuser
 WORKDIR /app/sources/services
 COPY services/requirements.txt .
 RUN python3 -m pip install --user --upgrade --no-cache-dir -r requirements.txt
-
+HEALTHCHECK CMD curl http://127.0.0.1:7788/
 CMD ["./start.sh"]

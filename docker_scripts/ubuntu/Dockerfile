@@ -31,7 +31,7 @@ RUN unattended-upgrade
 
 
 RUN mkdir /app
-RUN apt-get install -y git python3 python3-dev python3-pip python3-wheel libcurl4-gnutls-dev libssl-dev libgnutls28-dev
+RUN apt-get install -y git python3 python3-dev python3-pip python3-wheel libcurl4-gnutls-dev libssl-dev libgnutls28-dev curl
 
 ARG uid=1000
 ARG gid=1000

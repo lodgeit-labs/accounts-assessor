@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-import os,subprocess,time,shlex,logging,sys,threading
+import os,subprocess,time,shlex,logging,sys,threading,tempfile
 from itertools import count
-
 
 l = logging.getLogger()
 l.setLevel(logging.DEBUG)
@@ -30,7 +29,7 @@ from urllib.parse import urlparse
 
 
 def ccd(cmd, env):
-	logging.getLogger().info(' '.join([f'{k}={(v).__repr__()} ' for k,v in env.items()]) + shlex.join(cmd))
+	logging.getLogger().info(' '.join([f'{k}={(v).__repr__()} \\\n' for k,v in env.items()]) + shlex.join(cmd))
 	subprocess.check_call(cmd, env=env)
 
 
@@ -84,6 +83,9 @@ def cli():
 @click.option('-in', '--include_service', 'include_services', type=str, default=[], multiple=True,
 	help=" ")
 
+@click.option('-om', '--omit_image', 'omit_images', type=str, default=[], multiple=True,
+	help="skip building image for service")
+
 @click.option('-sd', '--secrets_dir', type=str, default='../secrets/',
 	help=" ")
 
@@ -94,6 +96,8 @@ def cli():
 def run(click_ctx, port_postfix, public_url, parallel_build, rm_stack, **choices):
 	no_cache = choices['no_cache']
 	del choices['no_cache']
+	omit_images = choices['omit_images']
+	del choices['omit_images']
 
 	public_host = urlparse(public_url).hostname
 	compose = choices['compose']
@@ -129,7 +133,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
 
-	click_ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_services':choices['omit_services']})
+	click_ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images})
 
 	if rm_stack:
 		print('wait for old network to disappear..')
@@ -156,14 +160,20 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788'
 	}
 	if compose:
-		cmd = 'docker-compose -f ' + stack_fn + ' -p robust  --compatibility '
+		cmd = 'docker-compose -f ' + stack_fn + ' -p robust --compatibility '
 		import atexit
-		atexit.register(lambda: ccd(ss(cmd + ' down  -t 999999 '), env=e))
+		def shutdown():
+			ccd(ss(cmd + ' down  -t 999999 '), env=e)
+		atexit.register(shutdown)
 		try:
-			ccd(ss(cmd + ' up'), env=e)
+			ccd(ss(cmd + ' up --remove-orphans '), env=e)
 		except subprocess.CalledProcessError:
+			ccd(ss('docker ps'), env={})
+			atexit.unregister(shutdown)
+			while True:
+				import time
+				time.sleep(1000)
 			exit(1)
-		# --remove-orphans
 
 	else:
 		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+pp], env=e)
@@ -298,8 +308,14 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 def delete_service(services, omit_service):
 	del services[omit_service]
 	for k,v in services.items():
-		if omit_service in v.get('depends_on',[]):
-			v['depends_on'].remove(omit_service)
+		d = v.get('depends_on',[])
+		if omit_service in d:
+			if type(d) == list:
+				v['depends_on'].remove(omit_service)
+			else:
+				del v['depends_on'][omit_service]
+
+
 
 
 def files_in_dir(dir):
@@ -394,23 +410,39 @@ def ccss(cmd, **kwargs):
 
 
 threads = []
+files = []
+
+def task(name, dir, cmd):
+	global files
 
 
-def task(dir, cmd):
-	print('')
-	print('')
-	print('cd ' + shlex.quote(dir))
-	print(shlex.quote(cmd))
-	print(' ...')
 	cmd = 'stdbuf -oL -eL ' + cmd
-	thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir})
-	thread.task = cmd
-	threads.append(thread)
-	thread.start()
+	intro = '\n\ncd ' + shlex.quote(dir) + '\n' + shlex.quote(cmd) + '\n...'
 	if not _parallel:
+		sys.stdout.write(intro)
+		thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir})
+		thread.task = cmd
+		threads.append(thread)
+		thread.start()
 		join([thread])
 		threads.remove(thread)
-	return thread
+		return thread
+
+	else:
+
+		stdo = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_out', mode='w+')
+		stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err', mode='w+')
+		files += [stde, stdo]
+		tmux_session.new_window(window_shell='tail -f '+ stdo.name + ' ' + stde.name)
+
+		sys.stdout.write(intro)
+		stdo.write(intro)
+
+		thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir, 'stdout':stdo, 'stderr':stde})
+		thread.task = cmd
+		threads.append(thread)
+		thread.start()
+		return thread
 
 
 
@@ -418,6 +450,7 @@ def realpath(x):
 	return co(['realpath', x])[:-1]
 
 
+tmux_session = None
 
 
 @cli.command(help="""build the docker images.""")
@@ -433,18 +466,25 @@ def realpath(x):
 
 @click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
 
-@click.option('-om', '--omit_service', 'omit_services', type=str, default=[], multiple=True,
+@click.option('-om', '--omit_image', 'omit_images', type=str, default=[], multiple=True,
 	help=" ")
 
-def build(port_postfix, mode, parallel, no_cache, omit_services):
-	global _parallel
+def build(port_postfix, mode, parallel, no_cache, omit_images):
+	global _parallel, tmux_session
 	_parallel=parallel
+
+	if _parallel:
+		import libtmux
+		logging.getLogger('libtmux').setLevel(logging.WARNING)
+		server = libtmux.Server()
+		tmux_session = server.new_session()#window_command=
+		subprocess.call(['mate-terminal', '-e', 'tmux attach ' + tmux_session.name])
 
 	cc('./lib/git_info.fish')
 
 	def svc(service_name, dir, cmd, dockerfile):
-		if service_name not in omit_services:
-			return task(dir, (cmd + ' -f "{dockerfile}" . ').format(
+		if service_name not in omit_images:
+			return task(service_name, dir, (cmd + ' -f "{dockerfile}" . ').format(
 				port_postfix=port_postfix,
 				service_name=service_name,
 				dockerfile=dockerfile
@@ -454,7 +494,7 @@ def build(port_postfix, mode, parallel, no_cache, omit_services):
 	svc('agraph', 		'agraph', 						'docker build -t "koo5/{service_name}{port_postfix}"', 	"Dockerfile")
 	svc('super-bowl', 	'../sources/super-bowl/',		'docker build -t "koo5/{service_name}"',				"container/Dockerfile")
 
-	join([task('ubuntu', 'docker build -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')])
+	join([task('ubuntu', 'ubuntu', 'docker build -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')])
 
 	svc('remoulade-api', 		'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"../docker_scripts/remoulade_api/Dockerfile_hollow")
 	svc('workers', 				'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"workers/Dockerfile_hollow")
@@ -476,6 +516,9 @@ def build(port_postfix, mode, parallel, no_cache, omit_services):
 
 if __name__ == '__main__':
 	cli()
+
+
+
 
 
 
