@@ -55,7 +55,7 @@ def cli():
 	help="tell docker to attach the containers to host network, rather than creating one?")
 
 @click.option('-ms', '--mount_host_sources_dir', 	type=bool, 	default=False, 
-	help="bind-mount sources, instead of copying them into the image? Useful for development.")
+	help="bind-mount source code directories, instead of copying them into images. Useful for development.")
 
 @click.option('-nr', '--django_noreload', 			type=bool, 	default=False, 
 	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
@@ -75,7 +75,7 @@ def cli():
 @click.option('-rm', '--rm_stack', type=bool, default=True,
 	help="rm the stack and deploy it afresh.")
 
-@click.option('-co', '--compose', type=bool, default=True,
+@click.option('-co', '--compose', type=bool, default=False,
 	help="use docker-compose instead of stack/swarm. Implies use_host_network. ")
 
 @click.option('-om', '--omit_service', 'omit_services', type=str, default=[], multiple=True,
@@ -129,7 +129,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
 
-	click_ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache})
+	click_ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_services':choices['omit_services']})
 
 	if rm_stack:
 		print('wait for old network to disappear..')
@@ -203,7 +203,7 @@ def generate_caddy_config(public_host):
 
 
 def generate_stack_file(port_postfix, PUBLIC_URL, choices):
-	with open('docker-stack.yml') as file_in:
+	with open('docker-stack-template.yml') as file_in:
 		src = yaml.load(file_in, Loader=yaml.FullLoader)
 		fn = '../generated_stack_files/docker-stack' + ('__'.join(['']+[k for k,v in choices.items() if v])) + '.yml'
 
@@ -283,8 +283,8 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 		if 'workers' in services:
 			services['workers']['environment']['DISPLAY'] = "${DISPLAY}"
 
-	for omit_service in omit_services:
-		delete_service(services, omit_service)
+	for s in omit_services:
+		delete_service(services, s)
 
 	if len(include_services) != 0:
 		for k,v in list(services.items()):
@@ -423,7 +423,7 @@ def realpath(x):
 @cli.command(help="""build the docker images.""")
 
 @click.option('-pp', '--port_postfix', 				type=str, 	default='',
-	help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
+	help="last two or more digits of the services' public ports. Also identifies the particular docker stack. This way, you can deploy multiple stacks on one machine. Because you'll probably want each stack to consist of different images, build.sh takes PP as first parameter, and suffixes names of all images with it. This could maybe be done better with docker labels? idk..")
 
 @click.option('-m', '--mode', 				type=str, 	default='full',
 	help="hollow or full images? mount host directories containing source code or copy everything into image?")
@@ -433,38 +433,45 @@ def realpath(x):
 
 @click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
 
+@click.option('-om', '--omit_service', 'omit_services', type=str, default=[], multiple=True,
+	help=" ")
 
-def build(port_postfix, mode, parallel, no_cache):
+def build(port_postfix, mode, parallel, no_cache, omit_services):
 	global _parallel
 	_parallel=parallel
 
 	cc('./lib/git_info.fish')
 
-	# print()
-	# print("flower...")
-	# task(f'docker build -t  "koo5/flower{port_postfix}"             -f "../docker_scripts/flower/Dockerfile" . ')
-	#
+	def svc(service_name, dir, cmd, dockerfile):
+		if service_name not in omit_services:
+			return task(dir, (cmd + ' -f "{dockerfile}" . ').format(
+				port_postfix=port_postfix,
+				service_name=service_name,
+				dockerfile=dockerfile
+			))
 
-	task('apache', f'docker build -t  "koo5/apache{port_postfix}"             -f "Dockerfile" . ')
-	task('agraph', f'docker build -t  "koo5/agraph{port_postfix}"             -f "Dockerfile" . ')
-	task('../sources/super-bowl/', f'docker build -t  "koo5/super-bowl"             -f "container/Dockerfile" . ')
-	join([task('ubuntu', f'docker build -t  "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')])
-	task('../sources/', f'docker build -t  "koo5/remoulade-api-hlw{port_postfix}"    -f "../docker_scripts/remoulade_api/Dockerfile_hollow" . ')
-	task('../sources/', f'docker build -t  "koo5/workers-hlw{port_postfix}"   -f "internal_workers/Dockerfile_hollow" . ')
-	task('../sources/', f'docker build -t  "koo5/internal-services-hlw{port_postfix}"  -f "internal_services/Dockerfile_hollow" . ')
-	task('../sources/', f'docker build -t  "koo5/services-hlw{port_postfix}"  -f "../docker_scripts/services/Dockerfile_hollow" . ')
-	task('../sources/', f'docker build -t  "koo5/frontend-hlw{port_postfix}"    -f "../docker_scripts/frontend/Dockerfile_hollow" . ')
+	svc('apache', 		'apache', 						'docker build -t "koo5/{service_name}{port_postfix}"', 	"Dockerfile")
+	svc('agraph', 		'agraph', 						'docker build -t "koo5/{service_name}{port_postfix}"', 	"Dockerfile")
+	svc('super-bowl', 	'../sources/super-bowl/',		'docker build -t "koo5/{service_name}"',				"container/Dockerfile")
+
+	join([task('ubuntu', 'docker build -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')])
+
+	svc('remoulade-api', 		'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"../docker_scripts/remoulade_api/Dockerfile_hollow")
+	svc('workers', 				'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"workers/Dockerfile_hollow")
+	svc('internal-services', 	'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"internal_services/Dockerfile_hollow")
+	svc('services', 			'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"../docker_scripts/services/Dockerfile_hollow")
+	svc('frontend', 			'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"../docker_scripts/frontend/Dockerfile_hollow")
+
 	print("ok?")
 	join_all()
 
-	if mode == "full":
-		task('../sources/', f'docker build -t  "koo5/workers{port_postfix}"   -f "internal_workers/Dockerfile" . ')
-		task('../sources/', f'docker build -t  "koo5/services{port_postfix}"  -f "services/Dockerfile" . ')
-		task('../sources/', f'docker build -t  "koo5/frontend{port_postfix}"    -f "frontend/Dockerfile" . ')
+	if mode == "full": # not hollow
+		svc('workers',	'../sources/', 'docker build -t "koo5/{service_name}{port_postfix}"', "workers/Dockerfile")
+		svc('services',	'../sources/', 'docker build -t "koo5/{service_name}{port_postfix}"', "services/Dockerfile")
+		svc('frontend',	'../sources/', 'docker build -t "koo5/{service_name}{port_postfix}"', "frontend/Dockerfile")
 
 	join_all()
 	print("ok!")
-
 
 
 if __name__ == '__main__':
@@ -472,13 +479,3 @@ if __name__ == '__main__':
 
 
 
-
-
-
-
-
-
-
-
-
-## https://github.com/docker/compose/issues/3012#issuecomment-219543906

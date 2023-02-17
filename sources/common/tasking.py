@@ -34,15 +34,3 @@ remoulade.set_broker(broker)
 print('"tasking" loaded')
 print()
 
-
-
-
-# @remoulade.actor
-# def sql_prefixes_header():
-# 	r = ''
-# 	for k,v in namespaces.items():
-# 		r += ('PREFIX ' + k + ': <' + v + '>\n')
-# 	print(r)
-# 	return r
-remoulade.declare_actors([sql_prefixes_header])
-

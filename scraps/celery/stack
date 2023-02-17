@@ -15,3 +15,11 @@
 #    volumes:
 #      - "/etc/localtime:/etc/localtime:ro"
 
+
+
+
+	# print()
+	# print("flower...")
+	# task(f'docker build -t  "koo5/flower{port_postfix}"             -f "../docker_scripts/flower/Dockerfile" . ')
+	#
+

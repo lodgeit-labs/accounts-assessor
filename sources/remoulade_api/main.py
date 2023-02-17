@@ -4,7 +4,6 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../com
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../internal_workers')))
 import tasking
 from remoulade.api.main import app
-import selftest
 
 
 from logging.config import dictConfig

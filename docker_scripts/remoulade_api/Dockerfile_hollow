@@ -13,15 +13,14 @@ COPY common/libs/remoulade common/libs/remoulade
 RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
 
 COPY remoulade_api remoulade_api
-COPY internal_workers internal_workers
+COPY workers workers
 
 ENV FLASK_APP=main
 ENV FLASK_ENV=development
 ENV FLASK_DEBUG=1
 ENV PYTHONUNBUFFERED=1
 
-# i think we should do it the other way around. Everything's copied at build, but later /app/sources can be made a volume
-VOLUME /app/sources/ 
+VOLUME /app/sources/
 
 WORKDIR /app/sources/remoulade_api
 

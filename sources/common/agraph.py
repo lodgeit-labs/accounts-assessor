@@ -28,7 +28,6 @@ def registerEncodedIdPrefix(a, prefix):
 
 
 namespaces = {
-	'selftest': 'https://rdf.lodgeit.net.au/v1/selftest#',
 	'kb': 'https://rdf.lodgeit.net.au/v1/kb#'
 }
 

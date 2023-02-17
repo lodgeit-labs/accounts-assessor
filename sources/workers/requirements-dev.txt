@@ -1,0 +1,3 @@
+-e ../common/libs/remoulade/[rabbitmq,redis,postgres]
+
+

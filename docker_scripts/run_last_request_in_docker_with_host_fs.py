@@ -101,12 +101,12 @@ def run(port_postfix, server_public_url, debug, request, script):
 	if script == None:
 		script = f""" \
 					cd /app/server_root/; \
-					env PYTHONUNBUFFERED=1 CELERY_QUEUE_NAME=q7788 \
-					../sources/internal_workers/invoke_rpc_cmdline.py \
+					env PYTHONUNBUFFERED=1  \
+					../sources/workers/invoke_rpc_cmdline.py \
 					{DBG1} \
 					--halt true \
 					-s "{server_public_url}" \
-					--prolog_flags "{DBG2},set_prolog_flag(services_server,'http://internal-services:17788')" \
+					--prolog_flags "{DBG2},set_prolog_flag(services_server,'http://services:17788')" \
 					{sq(request)} \
 					2>&1 | tee /app/server_root/tmp/out"""
 
@@ -145,3 +145,6 @@ def run(port_postfix, server_public_url, debug, request, script):
 
 if __name__ == '__main__':
 	run()
+
+
+ #todo instead? https://github.com/docker/compose/issues/3012#issuecomment-219543906

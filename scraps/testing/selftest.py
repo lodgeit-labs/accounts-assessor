@@ -258,5 +258,41 @@ remoulade.declare_actors([start_selftest_session2, run_outstanding_testcases, do
 
 
 
+###---------------
+
+# @app.post("/rpc")
+# async def rpc(cmd: RpcCommand, request: Request):
+# 	if cmd.method == 'start_selftest_session':
+# 		task = selftest.start_selftest_session(cmd.params['target_server_url'])
+# 		return {'@id':str(task)}
+# 	if cmd.method == 'selftest_session_query_string1':
+# 		session = last_session()
+# 		if session is not None:
+# 			return selftest.testcases_query1 % session
+# 		else:
+# 			return None
+
+
+# @app.post("/rpc/start_selftest_session")
+# async def rpc(args: dict):
+# 	return {'@id':str(selftest.start_selftest_session(args['target_server_url']))}
+
+
+	#'selftest': 'https://rdf.lodgeit.net.au/v1/selftest#',
+
+
+
+
+
+
+# @remoulade.actor
+# def sparql? sql_prefixes_header():
+# 	r = ''
+# 	for k,v in namespaces.items():
+# 		r += ('PREFIX ' + k + ': <' + v + '>\n')
+# 	print(r)
+# 	return r
+#remoulade.declare_actors([sql_prefixes_header])
+
 
 

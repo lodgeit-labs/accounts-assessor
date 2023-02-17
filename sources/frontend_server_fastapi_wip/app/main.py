@@ -16,7 +16,7 @@ from pydantic import BaseModel
 
 
 
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
 ##sys.path.append(os.path.normpath('/app/sources/common/'))
 
@@ -24,7 +24,6 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 
 from agraph import agc
 import invoke_rpc
-import selftest
 from tasking import remoulade
 from fs_utils import directory_files
 from tmp_dir_path import create_tmp
@@ -91,24 +90,6 @@ async def post(body: ChatRequest, request: Request):
 def json_prolog_rpc_call(request, msg):
 	msg["client"] = request.client.host
 	return invoke_rpc.call_prolog.send(msg=msg).result.get(block=True, timeout=1000 * 1000)
-
-
-@app.post("/rpc")
-async def rpc(cmd: RpcCommand, request: Request):
-	if cmd.method == 'start_selftest_session':
-		task = selftest.start_selftest_session(cmd.params['target_server_url'])
-		return {'@id':str(task)}
-	if cmd.method == 'selftest_session_query_string1':
-		session = last_session()
-		if session is not None:
-			return selftest.testcases_query1 % session
-		else:
-			return None
-
-
-@app.post("/rpc/start_selftest_session")
-async def rpc(args: dict):
-	return {'@id':str(selftest.start_selftest_session(args['target_server_url']))}
 
 
 

@@ -1,22 +1,19 @@
-from celery_module import app
-
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 import sys, os
 import rdflib
 import rdflib.plugins.serializers.nquads
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 import agraph
+from tasking import remoulade
 
 
-
-
-@app.task
+@remoulade.actor
 def postprocess_doc(tmp_path):
-	return # fixme, need to find the right file
+	# fixme, need to find the right file
 	print('postprocess_doc...')
 	g, nq_fn = generate_doc_nq_from_trig(tmp_path)
 	put_doc_dump_into_triplestore(nq_fn)
-	#generate_yed_file(g, tmp_path)
-	#generate_gl_json(g)
+	generate_yed_file(g, tmp_path)
+	generate_gl_json(g)
 
 def generate_doc_nq_from_trig(tmp_path):
 	trig_fn = tmp_path + '/doc.trig'# or: trig_fn = report_by_key(response, 'doc.trig')
