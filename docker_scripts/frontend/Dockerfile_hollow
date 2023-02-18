@@ -26,3 +26,4 @@ USER myuser
 WORKDIR /app/sources/frontend_server_fastapi_wip/
 
 CMD ["./start.sh"]
+HEALTHCHECK CMD curl http://127.0.0.1:7788

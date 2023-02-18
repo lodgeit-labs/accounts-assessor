@@ -25,4 +25,4 @@ VOLUME /app/sources/
 WORKDIR /app/sources/remoulade_api
 
 ENTRYPOINT ["/app/sources/remoulade_api/start.sh"]
-
+HEALTHCHECK CMD curl http://127.0.0.1:5000/

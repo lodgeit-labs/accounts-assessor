@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.9'
 
 services:
 
@@ -34,6 +34,9 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - tmp:/usr/local/apache2/htdocs/tmp/
       - ./../sources/static/:/usr/local/apache2/htdocs/static/
+    depends_on:
+      frontend:
+        condition: service_healthy
 
 
   frontend:
@@ -53,11 +56,11 @@ services:
     hostnet_ports:
       - 7788
     depends_on:
-      redis:
-        condition: service_healthy
       services:
         condition: service_healthy
       workers:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
@@ -104,6 +107,15 @@ services:
     secrets:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
+    depends_on:
+      services:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
 
 
   services:
@@ -128,6 +140,10 @@ services:
         constraints: [node.role == manager]
       restart_policy:
         condition: any
+    depends_on:
+      agraph:
+        condition: service_healthy
+
 
 
   redis:
@@ -142,6 +158,8 @@ services:
         condition: on-failure
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+
+
 
   agraph:
     image: koo5/agraph${PP}:latest
@@ -192,8 +210,9 @@ services:
     healthcheck:
         test: rabbitmq-diagnostics -q status && rabbitmq-diagnostics -q check_local_alarms
 
+
   postgres:
-    image: bitnami/postgresql:14
+    image: bitnami/postgresql:15.2.0
     networks:
       - backend
     hostnet_ports:
@@ -210,7 +229,7 @@ services:
       restart_policy:
         condition: any
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", '--dbname=remoulade']
+      test: ["CMD-SHELL", "pg_isready --dbname=remoulade --username=remoulade --timeout=100 --port=5432 --host=127.0.0.1"]
       interval: 10s
       timeout: 5s
       retries: 5

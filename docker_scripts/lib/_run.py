@@ -478,7 +478,9 @@ def build(port_postfix, mode, parallel, no_cache, omit_images):
 		logging.getLogger('libtmux').setLevel(logging.WARNING)
 		server = libtmux.Server()
 		tmux_session = server.new_session()#window_command=
-		subprocess.call(['mate-terminal', '-e', 'tmux attach ' + tmux_session.name])
+		vvv = ['mate-terminal', '-e', 'tmux attach-session -t ' + tmux_session.name]
+		print(shlex.join(vvv))
+		subprocess.Popen(vvv)
 
 	cc('./lib/git_info.fish')
 
