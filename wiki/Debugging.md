@@ -111,14 +111,29 @@ swipl -s ../tests/endpoint_tests/endpoint_tests.pl  -g "set_flag(overwrite_respo
 `DETERMINANCY_CHECKER__USE__ENFORCER` env var applies.
 
 
-
-
-## running internal_workers outside docker for debugging
+## running `workers` outside docker for debugging
 run all services except workers, under compose
-`./deploy.sh -ms true -nr false -pg false -d1 true --enable_public_insecure true -pu "http://127.0.0.1:8811/" -pp 11 -hn 1 -pb 1 -rm 1 -co 1 -om workers
-`
+`./develop.sh --omit_service workers`
 
-run workers:
-see sources/internal_workers/nodocker.run
+setup venv
+```
+virtualenv -p /usr/bin/python3.10 venv
+. venv/bin/activate.fish
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
+grab the env vars as printed by develop.sh:
+```
+ RABBITMQ_URL='localhost:5672' \
+ REDIS_HOST='redis://localhost' \
+ AGRAPH_HOST='localhost' \
+ AGRAPH_PORT='10035' \
+ REMOULADE_PG_URI='postgresql://remoulade@localhost:5432/remoulade' \
+ SERVICES_URL='http://localhost:17788' \
+```
+and do what start.sh does:
+```
+remoulade --threads 1 invoke_rpc
+```
 
 

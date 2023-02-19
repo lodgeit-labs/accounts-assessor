@@ -72,7 +72,7 @@ USER myuser
 
 
 
-WORKDIR /app/sources/internal_workers
+WORKDIR /app/sources/workers
 COPY requirements.txt .
 RUN python3 -m pip install --user --no-cache-dir -r requirements.txt
 
@@ -86,7 +86,7 @@ USER myuser
 
 
 
-WORKDIR /app/sources/internal_workers/
+WORKDIR /app/sources/workers/
 RUN mkdir -p /app/server_root/tmp
 RUN mkdir -p /app/server_root/control
 RUN chown myuser:myuser /app/server_root/tmp
@@ -100,5 +100,5 @@ RUN chown myuser:myuser /app/server_root/
 USER myuser
 COPY init_prolog.sh .
 RUN ./init_prolog.sh
-ENTRYPOINT ["/app/sources/internal_workers/start.sh"]
+ENTRYPOINT ["/app/sources/workers/start.sh"]
 

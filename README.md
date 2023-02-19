@@ -116,21 +116,21 @@ https://github.com/lodgeit-labs/accounts-assessor-wiki/
 
 
 ## architecture
-there are 4 components:
+there are 4 main components:
 
-### internal_services
+### services
 various helper functions that prolog invokes over http/rpc
 
-### internal_workers
-a celery worker that:
+### workers
+a remoulade worker that:
 * wraps prolog and spawns prolog on request
 * talks to the triplestore
 
-### frontend_server
-lets users upload request files and triggers internal_workers. Django provides a development http server which serves static/tmp files, but for production, this has to be augmented with:
+### frontend
+lets users upload request files and triggers workers.
 
 ### apache
-serves static files and proxies requests to frontend_server
+serves static files and proxies requests to frontend
 
 
 `
