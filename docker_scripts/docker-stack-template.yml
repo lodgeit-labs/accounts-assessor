@@ -255,7 +255,7 @@ services:
     networks:
       - backend
     hostnet_ports:
-      - 5000
+      - 5005
     environment:
       SECRETS_DIR: /run/secrets/
       REMOULADE_PG_URI:

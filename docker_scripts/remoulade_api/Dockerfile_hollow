@@ -12,8 +12,8 @@ COPY common/libs/remoulade common/libs/remoulade
 
 RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
 
-COPY remoulade_api remoulade_api
-COPY workers workers
+#COPY remoulade_api remoulade_api
+#COPY workers workers
 
 ENV FLASK_APP=main
 ENV FLASK_ENV=development
@@ -25,4 +25,4 @@ VOLUME /app/sources/
 WORKDIR /app/sources/remoulade_api
 
 ENTRYPOINT ["/app/sources/remoulade_api/start.sh"]
-HEALTHCHECK CMD curl http://127.0.0.1:5000/
+HEALTHCHECK CMD curl http://127.0.0.1:5005/actors

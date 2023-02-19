@@ -22,7 +22,7 @@ def run(compose_events_cmd, tmux_session_name: str):
 			s = line.split()
 			container_id = s[4]
 			line_quoted = shlex.quote(line)
-			tmux_session.new_window(window_shell=f'echo {line_quoted}; docker logs -f ' + container_id)
+			tmux_session.new_window(window_name="logs", window_shell=f'echo {line_quoted}; docker logs -f ' + container_id + ' | cat; cat')
 
 
 
