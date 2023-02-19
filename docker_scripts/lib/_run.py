@@ -166,6 +166,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 			ccd(ss(cmd + ' down  -t 999999 '), env=e)
 		atexit.register(shutdown)
 		try:
+			subprocess.Popen(['lib/logtail.py',	cmd, tmux_session.name])
 			ccd(ss(cmd + ' up --remove-orphans '), env=e)
 		except subprocess.CalledProcessError:
 			ccd(ss('docker ps'), env={})

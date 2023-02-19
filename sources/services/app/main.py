@@ -20,3 +20,7 @@ import account_hierarchy
 def arelle_extract(taxonomy_locator: str):
 	return account_hierarchy.ArelleController().run(taxonomy_locator)
 
+
+@app.get("/")
+def index():
+	return "ok"
