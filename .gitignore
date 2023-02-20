@@ -374,3 +374,5 @@ secrets
 accounts-assessor-wiki/
 private_wiki
 log
+.attach_pid*
+

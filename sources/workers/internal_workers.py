@@ -1,4 +1,4 @@
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
+#sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 import sys, os
 import rdflib
 import rdflib.plugins.serializers.nquads
