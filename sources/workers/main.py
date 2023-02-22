@@ -7,4 +7,8 @@ from tasking import remoulade
 def ping():
 	return "pong"
 
+remoulade.declare_actors([ping])
+
+
+print(remoulade.get_broker())
 print(remoulade.get_broker().actors)

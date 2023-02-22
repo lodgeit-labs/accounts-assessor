@@ -18,7 +18,6 @@ from pydantic import BaseModel
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
-##sys.path.append(os.path.normpath('/app/sources/common/'))
 
 
 
@@ -54,20 +53,19 @@ class RpcCommand(BaseModel):
 
 
 
-def ee(context_manager):
-	return ExitStack().enter_context(context_manager)
-
-def secret(key):
-	try:
-		stack = ee(open('/run/secrets/'+key))
-	except FileNotFoundError:
-		pass
-	else:
-		with stack as f:
-			return f.read().rstrip('\n')
-
-
-	return os.environ[key]
+# not sure waht i was getting at here
+# def ee(context_manager):
+# 	return ExitStack().enter_context(context_manager)
+#
+# def secret(key):
+# 	try:
+# 		stack = ee(open('/run/secrets/'+key))
+# 	except FileNotFoundError:
+# 		pass
+# 	else:
+# 		with stack as f:
+# 			return f.read().rstrip('\n')
+# 	return os.environ[key]
 
 
 

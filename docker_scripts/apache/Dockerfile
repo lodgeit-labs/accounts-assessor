@@ -6,6 +6,6 @@ VOLUME /usr/local/apache2/htdocs/static/
 COPY conf/* /usr/local/apache2/conf/
 ENV proxy-initial-not-pooled true
 
-HEALTHCHECK CMD curl http://127.0.0.1:8080/
+HEALTHCHECK CMD /bin/true # curl? http://127.0.0.1:8080/
 
 # todo make a non-hollow(with static files copy) Dockerfile

@@ -390,7 +390,7 @@ process_xml_request(File_Path, Dom) :-
 	(process_request_ledger_xml(File_Path, Dom);
  	(process_request_livestock(File_Path, Dom);
 	%(process_request_investment:process(File_Path, Dom);
-	))).
+	)))).
 
 
 get_requested_output_type(Options2, Output) :-

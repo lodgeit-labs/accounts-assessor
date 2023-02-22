@@ -6,6 +6,7 @@ from tasking import remoulade
 
 
 
+
 @remoulade.actor
 def call_prolog_calculator2(kwargs):
 	msg = kwargs['msg']

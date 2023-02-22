@@ -101,5 +101,4 @@ USER myuser
 COPY init_prolog.sh .
 RUN ./init_prolog.sh
 ENTRYPOINT ["/app/sources/workers/start.sh"]
-HEALTHCHECK CMD true# /app/sources/workers/ping.py
-
+HEALTHCHECK CMD /bin/true # not much to test here
