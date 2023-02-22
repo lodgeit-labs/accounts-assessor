@@ -1,7 +1,3 @@
-# from luigi.local_target import LocalTarget
-
-# a = LocalTarget('./banana/nanana/na')
-# a.makedirs()
 
 
 import datetime
@@ -9,35 +5,35 @@ import luigi
 import luigi.contrib.postgres
 
 
-class AssistantStartup(luigi.Task):
-	"""just a dummy task to pass to an assitant worker. Could be simplified."""
-	ts = luigi.Parameter(default=datetime.datetime.utcnow().isoformat())
-
+class Dummy(luigi.Task):
 	def run(self):
-		time.sleep(10)
-		self.output().open('w').close()
+		pass
+	def complete(self):
+		return False
 
-	def output(self):
-		return luigi.LocalTarget('/tmp/luigi_dummy/%s' % self.ts)
+
+def	casesdir_(workdir):
+	return workdir + '/cases/'
 
 
 
 class EndpointTestsSummary(luigi.Task):
 	workdir = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_'))
 
+	def requires(self):
+		return [Evaluation(p) for p in permutations()]
+
 	def run(self):
-		print(self.x + str(self.y))
+		print('ok')
 
 	def output(self):
-		return luigi.LocalTarget('/tmp/luigi_dummy/%s' % self.ts)
+		casesdir = casesdir_(workdir)
+		return luigi.LocalTarget(casesdir)
 
 
-|             update_id (str): An identifier for this data set
 
 		
 		
-| Luigi is designed to work best when each job has one output, so anything you do that requires multiple outputs per job will feel a bit hacky. You can make your job a bit less hacky if all of the outputs go into the same directory. Then your output can be that directory. You don't need to create a file to list the directory contents or override complete in this case.
-
 Z
 
 
@@ -132,25 +128,21 @@ tasks:
 
 
 
+"""
+
+| Luigi is designed to work best when each job has one output, so anything you do that requires multiple outputs per job will feel a bit hacky. You can make your job a bit less hacky if all of the outputs go into the same directory. Then your output can be that directory. You don't need to create a file to list the directory contents or override complete in this case.
 
 
-
-
-
-			
-			
-			
-			
-
+compare directories: https://dir-content-diff.readthedocs.io/en/latest/
 
 
 
 notsure / future:
 
 	(repeated) input immutability checks:
-		check that files of endpoint tests did not change during the run 
+		check that files of endpoint tests did not change during the run
 		after all tasks are done, or before?
-		in practice, you may often want to tweak a testcase input while a pipeline is running, if you know that you still have time before the testcase is read 
+		in practice, you may often want to tweak a testcase input while a pipeline is running, if you know that you still have time before the testcase is read
 		optional consistency check of robust server:
 			for all test evaluations:
 				robust_server_version is the same
@@ -158,9 +150,12 @@ notsure / future:
 
 
 
-
-compare directories: https://dir-content-diff.readthedocs.io/en/latest/
-
-"""
+ts = luigi.Parameter(default=datetime.datetime.utcnow().isoformat())
 
 
+
+
+# from luigi.local_target import LocalTarget
+
+# a = LocalTarget('./banana/nanana/na')
+# a.makedirs()
