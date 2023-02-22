@@ -387,10 +387,10 @@ process_xml_request(File_Path, Dom) :-
 /*+   request_xml_to_doc(Dom),*/
 	(process_request_car(File_Path, Dom);
 	(process_request_loan(File_Path, Dom);
-	(process_request_ledger_xml(File_Path, Dom);
- 	(process_request_livestock(File_Path, Dom);
+	%(process_request_ledger_xml(File_Path, Dom);
+ 	process_request_livestock(File_Path, Dom)
 	%(process_request_investment:process(File_Path, Dom);
-	)))).
+	)).
 
 
 get_requested_output_type(Options2, Output) :-

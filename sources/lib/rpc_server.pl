@@ -60,7 +60,7 @@ process_request_rpc_cmdline2(Dict) :-
 	flush_output.
 
 
-process_request_rpc_cmdline3("testcase_permutations", Params) :-
+/*process_request_rpc_cmdline3("testcase_permutations", Params) :-
 	findall(Testcase,
 		(
 
@@ -72,7 +72,7 @@ process_request_rpc_cmdline3("testcase_permutations", Params) :-
 		),
 		Testcases
 	),
-	json_write(current_output, response{status:ok, result: Testcases}).
+	json_write(current_output, response{status:ok, result: Testcases}).*/
 
 process_request_rpc_cmdline3("calculator", Dict) :-
 	!,

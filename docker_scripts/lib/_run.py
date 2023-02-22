@@ -220,6 +220,12 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 
 	with open(fn, 'w') as file_out:
 		yaml.dump(tweaked_services(src, port_postfix, PUBLIC_URL, **choices), file_out)
+	link_name = '../generated_stack_files/last.yml'
+	try:
+		os.remove(link_name)
+	except FileNotFoundError:
+		pass
+	os.symlink(src=fn,dst=link_name) # Create a symbolic link pointing to src named dst. !!!!!! like, really.
 	return fn
 
 
