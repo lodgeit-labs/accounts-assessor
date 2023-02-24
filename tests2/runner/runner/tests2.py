@@ -1,8 +1,7 @@
-
-
 import datetime
 import luigi
 import luigi.contrib.postgres
+import pathlib
 
 
 class Dummy(luigi.Task):
@@ -12,16 +11,23 @@ class Dummy(luigi.Task):
 		return False
 
 
-def	casesdir_(workdir):
-	return workdir + '/cases/'
-
+def	test_dir(session, permutation):
+	return session / permutation.dir / ('debug' if permutations.debug else 'nodebug')
 
 
 class EndpointTestsSummary(luigi.Task):
-	workdir = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_'))
+	session = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_'))
+
+
+	def required_evaluations(self):
+		source = pathlib.Path('../endpoint_tests')
+		dirs = sorted(filter(lambda x: x.is_dir(), source.glob('*/*/')))
+
+		for dir in dirs:
+			yield Evaluation({source:test_dir=dir)
 
 	def requires(self):
-		return [Evaluation(p) for p in permutations()]
+		return list(self.required_evaluations())
 
 	def run(self):
 		print('ok')
