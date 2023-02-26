@@ -39,11 +39,15 @@ class Result(luigi.Task):
 		return files
 
 
+	def run_request(self, inputs):
+		o = self.output()
+		o.makedirs()
+		with open(o / 'result.xml', 'w') as r:
+			r.write('rrrr')
 
 
 	def output(self):
 		return luigi.LocalTarget(self.test.path / 'outputs')
-
 
 
 
@@ -57,19 +61,14 @@ class Evaluation(luigi.Task):
 
 
 	def run(self):
+		response = json.load(self.input() / 'response.json')
 		with self.output().open('w') as out:
-			json.load(self.input() /)
-				summary += evaluation
-			json.dumps(summary, out)
+			json.dumps({'ok':true}, out)
 
 
 	def output(self):
 		return luigi.LocalTarget(test.path / 'evaluation.json')
 
-
-
-def	test_path(session, test):
-	return session / test.dir / ('debug' if test.debug else 'nodebug')
 
 
 
@@ -88,20 +87,25 @@ class EndpointTestsSummary(luigi.Task):
 
 		for dir in dirs:
 			for debug in [False, True]:
-				yield Evaluation({
+				test = {
 					suite:suite,
 					dir:dir,
-					path: test_path(self.session, self.test),
 					debug: debug
-				})
+				}
+				test.path = self.test_path(test)
+				yield Evaluation(test)
+
+
+	def	test_path(self, test):
+		return self.session / test.dir / ('debug' if test.debug else 'nodebug')
 
 
 	def run(self):
 		with self.output().open('w') as out:
 			summary = []
 			for evaluation_file in self.input():
-				evaluation = json.load(evaluation)
-				summary += evaluation
+				evaluation = json.load(evaluation_file)
+				summary.append(evaluation)
 			json.dumps(summary, out)
 
 
@@ -111,40 +115,9 @@ class EndpointTestsSummary(luigi.Task):
 
 
 
+"""
 
-
-		
-		dependencies
-			`list of available endpoint_tests`
-			
-^&		dynamic dependencies:
-			for i in endpoint_tests:
-				`testcase result`(i, session)
-
-	
-				
-	
-	
-	`list of available endpoint_tests`
-		parameters fs_path: Path, default is "./endpoint_tests"?
-		
-		run():
-	        dirs = glob.glob(fs_path / '*/*/')
-	        dirs.sort()
-	        return dirs
-	
-
-
-	`testcase result`:
-		parameters:
-			session
-		require:
-			query endpoint
-		run:
-			evaluate ledger testcase
-		
-
-	`ledger testcase result`:
+	`evaluate ledger test result`:
 		inputs:
 			expected result: a directory 
 			actual result: a directory
@@ -163,13 +136,6 @@ class EndpointTestsSummary(luigi.Task):
 			ignore(_, _, 'doc.trig'-_, _) :- !.
 			
 			
-			testcase_working_directory = ..
-			testcase_working_directory / fetched_files
-			testcase_working_directory / results.json
-			the exact way we store results depends on the framework...
-			
-
-
 			Url = loc(absolute_url,Report.url),
 			fetch_report_file_from_url(Url, Returned_Report_Path),
 			tmp_uri_to_saved_response_path(Testcase, Url, Saved_Report_Path),
@@ -189,14 +155,6 @@ class EndpointTestsSummary(luigi.Task):
 
 
 
-
-
-
-
-
-
-
-"""
 
 | Luigi is designed to work best when each job has one output, so anything you do that requires multiple outputs per job will feel a bit hacky. You can make your job a bit less hacky if all of the outputs go into the same directory. Then your output can be that directory. You don't need to create a file to list the directory contents or override complete in this case.
 
@@ -227,3 +185,4 @@ ts = luigi.Parameter(default=datetime.datetime.utcnow().isoformat())
 
 # a = LocalTarget('./banana/nanana/na')
 # a.makedirs()
+"""
