@@ -41,15 +41,23 @@ class Result(luigi.Task):
 
 
 	def run_request(self, inputs):
-		o = self.output()
+		url = self.test['robust_server_url']
 		logging.getLogger('robust').debug('')
-		logging.getLogger('robust').debug('querying ' + self.test['robust_server_url'])
+		logging.getLogger('robust').debug('querying ' + url)
 
-		time.sleep(10)
-		logging.getLogger('robust').debug('...')
-		time.sleep(10)
-		logging.getLogger('robust').debug('...')
 
+		requests.post(
+				robust_server_url	+ '/upload',
+				files={'file1':open(inputs[0])}
+		)
+
+		# time.sleep(10)
+		# logging.getLogger('robust').debug('...')
+		# time.sleep(10)
+		# logging.getLogger('robust').debug('...')
+
+
+		o = self.output()
 		P(o.path).mkdir(parents=True)
 		with open(P(o.path) / 'result.xml', 'w') as r:
 			r.write('rrrr')
