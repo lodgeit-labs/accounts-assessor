@@ -61,6 +61,8 @@ class Result(luigi.Task):
 
 
 class Evaluation(luigi.Task):
+	priority = 100
+
 	test = luigi.parameter.DictParameter()
 
 
