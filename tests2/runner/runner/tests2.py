@@ -1,7 +1,7 @@
 import datetime
 import logging
 import shutil
-
+import time
 import luigi
 import luigi.contrib.postgres
 import pathlib
@@ -42,8 +42,13 @@ class Result(luigi.Task):
 
 	def run_request(self, inputs):
 		o = self.output()
-		print(o)
-		logging.getLogger().debug('banana' + str(o))
+		logging.getLogger('robust').debug('')
+		logging.getLogger('robust').debug('querying ' + self.test['robust_server_url'])
+		time.sleep(10)
+		logging.getLogger('robust').debug('...')
+		time.sleep(10)
+		logging.getLogger('robust').debug('...')
+
 		P(o.path).mkdir(parents=True)
 		with open(P(o.path) / 'result.xml', 'w') as r:
 			r.write('rrrr')
@@ -64,7 +69,7 @@ class Evaluation(luigi.Task):
 
 
 	def run(self):
-		response = json.load(P(self.input().path) / 'response.json')
+		response = json.load(open(P(self.input().path) / 'response.json'))
 		with self.output().open('w') as out:
 			json.dumps({'ok':true}, out)
 
@@ -86,16 +91,21 @@ class EndpointTestsSummary(luigi.Task):
 		return list(self.required_evaluations())
 
 
-	def required_evaluations(self):
+	def robust_testcase_dirs(self):
 		suite = pathlib.Path('../endpoint_tests')
-		dirs = sorted(glob.glob('*/*/', root_dir=suite))
+		dirs0 = [P(x) for x in sorted(glob.glob('**/', root_dir=suite, recursive=True))]
+		dirs1 = filter(lambda x: x.name != 'responses', dirs0)
+		return filter(lambda x: x not in [y.parent for y in dirs1], dirs1)
 
-		for dir in dirs:
+
+	def required_evaluations(self):
+		for dir in self.robust_testcase_dirs():
 			for debug in [False, True]:
 				test = {
 					'suite': str(suite),
 					'dir': str(dir),
-					'debug': debug
+					'debug': debug,
+					'robust_server_url': self.robust_server_url
 				}
 				test['path'] = str(self.test_path(test))
 				yield Evaluation(test)
@@ -111,7 +121,7 @@ class EndpointTestsSummary(luigi.Task):
 			for evaluation_file in self.input():
 				evaluation = json.load(evaluation_file)
 				summary.append(evaluation)
-			json.dumps(summary, out)
+			json.dump(summary, out)
 
 
 	def output(self):
