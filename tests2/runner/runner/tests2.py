@@ -83,26 +83,26 @@ class Evaluation(luigi.Task):
 class EndpointTestsSummary(luigi.Task):
 	session = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
 	#sanitize_filename(tss.replace(' ', '_'))
-
 	robust_server_url = luigi.parameter.OptionalParameter(default='http://localhost:8080')
-
+	suite = luigi.parameter.OptionalPathParameter(default='../endpoint_tests')
 
 	def requires(self):
 		return list(self.required_evaluations())
 
 
 	def robust_testcase_dirs(self):
-		suite = pathlib.Path('../endpoint_tests')
-		dirs0 = [P(x) for x in sorted(glob.glob('**/', root_dir=suite, recursive=True))]
-		dirs1 = filter(lambda x: x.name != 'responses', dirs0)
-		return filter(lambda x: x not in [y.parent for y in dirs1], dirs1)
+
+		dirs0 = [P(x) for x in sorted(glob.glob('**/', root_dir=self.suite, recursive=True))]
+		dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
+		dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
+		return dirs2
 
 
 	def required_evaluations(self):
 		for dir in self.robust_testcase_dirs():
 			for debug in [False, True]:
 				test = {
-					'suite': str(suite),
+					'suite': str(self.suite),
 					'dir': str(dir),
 					'debug': debug,
 					'robust_server_url': self.robust_server_url
