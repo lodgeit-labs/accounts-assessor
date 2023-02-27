@@ -1,4 +1,5 @@
 import datetime
+import logging
 import shutil
 
 import luigi
@@ -6,6 +7,7 @@ import luigi.contrib.postgres
 import pathlib
 import json
 import glob
+from pathlib import Path as P
 
 
 class Dummy(luigi.Task):
@@ -19,7 +21,6 @@ class Dummy(luigi.Task):
 
 
 class Result(luigi.Task):
-	sess = luigi.parameter.PathParameter()
 	test = luigi.parameter.DictParameter()
 
 
@@ -29,25 +30,27 @@ class Result(luigi.Task):
 
 
 	def copy_inputs(self):
-		request_files_dir: pathlib.Path = self.test['path'] / 'inputs'
-		request_files_dir.mkdir()
+		request_files_dir: pathlib.Path = P(self.test['path']) / 'inputs'
+		request_files_dir.mkdir(parents=True)
 		files = []
 		input_file: pathlib.Path
-		for input_file in sorted(filter(lambda x: not x.is_dir(), (test['suite'] / test['dir']).glob('*'))):
-			shutil.copyfile(input_file, request_files_dir)
+		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
+			shutil.copyfile(input_file, request_files_dir / input_file.name)
 			files.append(request_files_dir / input_file.name)
 		return files
 
 
 	def run_request(self, inputs):
 		o = self.output()
-		o.makedirs()
-		with open(o / 'result.xml', 'w') as r:
+		print(o)
+		logging.getLogger().debug('banana' + str(o))
+		P(o.path).mkdir(parents=True)
+		with open(P(o.path) / 'result.xml', 'w') as r:
 			r.write('rrrr')
 
 
 	def output(self):
-		return luigi.LocalTarget(self.test['path'] / 'outputs')
+		return luigi.LocalTarget(P(self.test['path']) / 'outputs')
 
 
 
@@ -61,13 +64,13 @@ class Evaluation(luigi.Task):
 
 
 	def run(self):
-		response = json.load(self.input() / 'response.json')
+		response = json.load(P(self.input().path) / 'response.json')
 		with self.output().open('w') as out:
 			json.dumps({'ok':true}, out)
 
 
 	def output(self):
-		return luigi.LocalTarget(self.test['path'] / 'evaluation.json')
+		return luigi.LocalTarget(P(self.test['path']) / 'evaluation.json')
 
 
 
