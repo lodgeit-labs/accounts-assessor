@@ -1,12 +1,12 @@
+import requests
 import datetime
 import logging
 import shutil
 import time
 import luigi
-import luigi.contrib.postgres
-import pathlib
 import json
 import glob
+import pathlib
 from pathlib import Path as P
 
 
@@ -44,6 +44,7 @@ class Result(luigi.Task):
 		o = self.output()
 		logging.getLogger('robust').debug('')
 		logging.getLogger('robust').debug('querying ' + self.test['robust_server_url'])
+
 		time.sleep(10)
 		logging.getLogger('robust').debug('...')
 		time.sleep(10)
