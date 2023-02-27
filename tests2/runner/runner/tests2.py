@@ -5,7 +5,7 @@ import luigi
 import luigi.contrib.postgres
 import pathlib
 import json
-
+import glob
 
 
 class Dummy(luigi.Task):
@@ -29,11 +29,11 @@ class Result(luigi.Task):
 
 
 	def copy_inputs(self):
-		request_files_dir: pathlib.Path = self.test.path / 'inputs'
+		request_files_dir: pathlib.Path = self.test['path'] / 'inputs'
 		request_files_dir.mkdir()
 		files = []
 		input_file: pathlib.Path
-		for input_file in sorted(filter(lambda x: not x.is_dir(), (test.suite / test.dir).glob('*'))):
+		for input_file in sorted(filter(lambda x: not x.is_dir(), (test['suite'] / test['dir']).glob('*'))):
 			shutil.copyfile(input_file, request_files_dir)
 			files.append(request_files_dir / input_file.name)
 		return files
@@ -47,7 +47,7 @@ class Result(luigi.Task):
 
 
 	def output(self):
-		return luigi.LocalTarget(self.test.path / 'outputs')
+		return luigi.LocalTarget(self.test['path'] / 'outputs')
 
 
 
@@ -67,13 +67,15 @@ class Evaluation(luigi.Task):
 
 
 	def output(self):
-		return luigi.LocalTarget(test.path / 'evaluation.json')
+		return luigi.LocalTarget(self.test['path'] / 'evaluation.json')
 
 
 
 
 class EndpointTestsSummary(luigi.Task):
-	session = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_'))
+	session = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
+	#sanitize_filename(tss.replace(' ', '_'))
+
 	robust_server_url = luigi.parameter.OptionalParameter(default='http://localhost:8080')
 
 
@@ -83,21 +85,21 @@ class EndpointTestsSummary(luigi.Task):
 
 	def required_evaluations(self):
 		suite = pathlib.Path('../endpoint_tests')
-		dirs = sorted(filter(lambda x: x.is_dir(), suite.glob('*/*/')))
+		dirs = sorted(glob.glob('*/*/', root_dir=suite))
 
 		for dir in dirs:
 			for debug in [False, True]:
 				test = {
-					suite:suite,
-					dir:dir,
-					debug: debug
+					'suite': str(suite),
+					'dir': str(dir),
+					'debug': debug
 				}
-				test.path = self.test_path(test)
+				test['path'] = str(self.test_path(test))
 				yield Evaluation(test)
 
 
 	def	test_path(self, test):
-		return self.session / test.dir / ('debug' if test.debug else 'nodebug')
+		return self.session / test['dir'] / ('debug' if test['debug'] else 'nodebug')
 
 
 	def run(self):
@@ -110,7 +112,7 @@ class EndpointTestsSummary(luigi.Task):
 
 
 	def output(self):
-		return luigi.LocalTarget(session / 'summary.json')
+		return luigi.LocalTarget(self.session / 'summary.json')
 
 
 
