@@ -102,21 +102,16 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 	return server_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
 
 
-def save_uploaded_file(tmp_directory_path, src):
-	dest = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(src.filename)]))
-	with open(dest, 'wb+') as dest_fd:
-		shutil.copyfileobj(src.file, dest_fd)
-	return dest
-
-
 
 @app.post("/upload")
-async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str=None, requested_output_format:str='json_reports_list'):
+async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str=None, requested_output_format:str='task_handle'):
 	"""
 	'json_reports_list' is a misnomer at this point, these requests process asynchronously, and we only return what is basically a result handle (url).
 	otherwise, we block waiting for prolog to finish, or for client to give up.
 	"""
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
+
+	logging.getLogger().warn('file1: %s, file2: %s' % (file1, file2))
 	request_files_in_tmp = await save_request_files(file1, file2, request_tmp_directory_path)
 
 	final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
@@ -159,10 +154,19 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 
 
 async def save_request_files(file1, file2, request_tmp_directory_path):
-	request_files_in_tmp = list(filter(None, [file1, file2]))
-	for file in request_files_in_tmp:
+	request_files_in_tmp=[]
+	for file in filter(None, [file1, file2]):
+		logging.getLogger().warn('file: %s' % file)
 		request_files_in_tmp.append(save_uploaded_file(request_tmp_directory_path, file))
 	return request_files_in_tmp
+
+
+def save_uploaded_file(tmp_directory_path, src):
+	logging.getLogger().warn('src: %s' % src)
+	dest = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(src.filename)]))
+	with open(dest, 'wb+') as dest_fd:
+		shutil.copyfileobj(src.file, dest_fd)
+	return dest
 
 
 @app.exception_handler(RequestValidationError)

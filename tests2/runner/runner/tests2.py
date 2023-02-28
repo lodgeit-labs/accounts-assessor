@@ -20,7 +20,7 @@ class Dummy(luigi.Task):
 
 
 
-class Result(luigi.Task):
+class ImmediateComputation(luigi.Task):
 	test = luigi.parameter.DictParameter()
 
 
@@ -47,7 +47,7 @@ class Result(luigi.Task):
 
 
 		requests.post(
-				robust_server_url	+ '/upload',
+				url + '/upload',
 				files={'file1':open(inputs[0])}
 		)
 
@@ -68,6 +68,81 @@ class Result(luigi.Task):
 
 
 
+class AsyncComputationStart(luigi.Task):
+	test = luigi.parameter.DictParameter()
+
+
+	def run(self):
+		inputs = self.copy_inputs()
+		self.run_request(inputs)
+
+
+	def copy_inputs(self):
+		request_files_dir: pathlib.Path = P(self.test['path']) / 'inputs'
+		request_files_dir.mkdir(parents=True)
+		files = []
+		input_file: pathlib.Path
+		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
+			shutil.copyfile(input_file, request_files_dir / input_file.name)
+			files.append(request_files_dir / input_file.name)
+		return files
+
+
+	def run_request(self, inputs):
+		url = self.test['robust_server_url']
+		logging.getLogger('robust').debug('')
+		logging.getLogger('robust').debug('querying ' + url)
+
+		handle = requests.post(
+				url + '/upload',
+				files={'file1':open(inputs[0])}
+		).json()['reports'][0]['val']
+
+		with self.output().open('w') as o:
+			o.write(handle)
+
+
+	def output(self):
+		return luigi.LocalTarget(P(self.test['path']) / 'handle')
+
+
+
+
+class AsyncComputationResult(luigi.Task):
+	test = luigi.parameter.DictParameter()
+
+
+	def requires(self):
+		return AsyncComputationStart(self.test)
+
+
+	def run(self):
+		handle = self.input().read()
+		while True:
+			logging.getLogger('robust').debug('...')
+			time.sleep(15)
+			result = requests.get(handle)
+			if result.ok:
+				reports = result.json()['reports']
+
+				o = self.output()
+				P(o.path).mkdir(parents=True)
+
+				for report_key in ['result.n3']:
+					r = report_by_key(reports, report_key)
+					report_url = r['val']['url']
+					fn = Url(report_url).filename
+					with open(P(o.path) / fn, 'w') as r:
+						r.write(requests.get(report_url).raw())
+
+				return
+
+
+	def output(self):
+		return luigi.LocalTarget(P(self.test['path']) / 'outputs')
+
+
+
 
 class Evaluation(luigi.Task):
 	priority = 100
@@ -76,7 +151,7 @@ class Evaluation(luigi.Task):
 
 
 	def requires(self):
-		return Result(self.test)
+		return ImmediateComputation(self.test)
 
 
 	def run(self):
@@ -94,7 +169,7 @@ class Evaluation(luigi.Task):
 class EndpointTestsSummary(luigi.Task):
 	session = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
 	#sanitize_filename(tss.replace(' ', '_'))
-	robust_server_url = luigi.parameter.OptionalParameter(default='http://localhost:8080')
+	robust_server_url = luigi.parameter.OptionalParameter(default='http://localhost:80')
 	suite = luigi.parameter.OptionalPathParameter(default='../endpoint_tests')
 
 	def requires(self):
