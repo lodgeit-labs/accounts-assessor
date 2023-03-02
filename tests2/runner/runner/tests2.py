@@ -20,52 +20,6 @@ class Dummy(luigi.Task):
 
 
 
-class ImmediateComputation(luigi.Task):
-	test = luigi.parameter.DictParameter()
-
-
-	def run(self):
-		inputs = self.copy_inputs()
-		self.run_request(inputs)
-
-
-	def copy_inputs(self):
-		request_files_dir: pathlib.Path = P(self.test['path']) / 'inputs'
-		request_files_dir.mkdir(parents=True)
-		files = []
-		input_file: pathlib.Path
-		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
-			shutil.copyfile(input_file, request_files_dir / input_file.name)
-			files.append(request_files_dir / input_file.name)
-		return files
-
-
-	def run_request(self, inputs):
-		url = self.test['robust_server_url']
-		logging.getLogger('robust').debug('')
-		logging.getLogger('robust').debug('querying ' + url)
-
-
-		requests.post(
-				url + '/upload',
-				files={'file1':open(inputs[0])}
-		)
-
-		# time.sleep(10)
-		# logging.getLogger('robust').debug('...')
-		# time.sleep(10)
-		# logging.getLogger('robust').debug('...')
-
-
-		o = self.output()
-		P(o.path).mkdir(parents=True)
-		with open(P(o.path) / 'result.xml', 'w') as r:
-			r.write('rrrr')
-
-
-	def output(self):
-		return luigi.LocalTarget(P(self.test['path']) / 'outputs')
-
 
 
 class AsyncComputationStart(luigi.Task):
@@ -96,7 +50,8 @@ class AsyncComputationStart(luigi.Task):
 		handle = requests.post(
 				url + '/upload',
 				files={'file1':open(inputs[0])}
-		).json()['reports'][0]['val']
+		).text
+		#.json()['reports'][0]['val']
 
 		with self.output().open('w') as o:
 			o.write(handle)
@@ -117,7 +72,8 @@ class AsyncComputationResult(luigi.Task):
 
 
 	def run(self):
-		handle = self.input().read()
+		with self.input().open() as input:
+			handle = input.read()
 		while True:
 			logging.getLogger('robust').debug('...')
 			time.sleep(15)
@@ -151,7 +107,7 @@ class Evaluation(luigi.Task):
 
 
 	def requires(self):
-		return ImmediateComputation(self.test)
+		return AsyncComputationResult(self.test)
 
 
 	def run(self):
@@ -181,6 +137,8 @@ class EndpointTestsSummary(luigi.Task):
 		dirs0 = [P(x) for x in sorted(glob.glob('**/', root_dir=self.suite, recursive=True))]
 		dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
 		dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
+		if dirs2 == []:
+			return ['.']
 		return dirs2
 
 

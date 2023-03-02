@@ -9,7 +9,7 @@ import shutil
 from typing import Optional, Any, List
 from fastapi import FastAPI, Request, File, UploadFile, HTTPException
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
@@ -135,7 +135,7 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 		reports = json.load(open('/app/server_root/tmp/' + response_tmp_directory_name + '/000000_response.json.json'))
 		redirect_url = find_report_by_key(reports['reports'], 'response')
 	elif requested_output_format == 'task_handle':
-		return JsonResponse(
+		return JSONResponse(
 		{
 			"alerts": ["result will be ready at the following URL."],
 			"reports":
