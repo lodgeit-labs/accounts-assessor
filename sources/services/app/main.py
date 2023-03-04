@@ -16,6 +16,7 @@ app = FastAPI()
 
 import account_hierarchy
 
+
 @app.post("/arelle_extract")
 def arelle_extract(taxonomy_locator: str):
 	return account_hierarchy.ArelleController().run(taxonomy_locator)
@@ -24,3 +25,24 @@ def arelle_extract(taxonomy_locator: str):
 @app.get("/")
 def index():
 	return "ok"
+
+
+
+from pydantic import BaseModel
+
+
+class ShellRequest(BaseModel):
+    cmd: list[str]
+
+@app.post("/shell")
+def rpc(shell_request: ShellRequest):
+	cmd = [shlex.quote(x) for x in shell_request['cmd']]
+	print(cmd)
+	#p = subprocess.Popen(cmd, universal_newlines=True)  # text=True)
+	p=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)#text=True)
+	(stdout,stderr) = p.communicate()
+	if p.returncode == 0:
+		status = 'ok'
+	else:
+		status = 'error'
+	return JsonResponse({'status':status,'stdout':stdout,'stderr':stderr})

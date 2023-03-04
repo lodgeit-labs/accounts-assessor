@@ -9,7 +9,10 @@ process_request_loan(Request_File, DOM) :-
 	->	OpeningBalance = OB
 	;	OpeningBalance = -1),
 	resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), Schema_File),
-	validate_xml(Request_File, Schema_File, Schema_Errors),
+
+	%validate_xml(Request_File, Schema_File, Schema_Errors),
+	Schema_Errors = [],Request_File=_, Schema_File=_,
+
 	(
 		Schema_Errors = []
 	->

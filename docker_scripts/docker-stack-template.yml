@@ -230,7 +230,7 @@ services:
         condition: any
     healthcheck:
       test: ["CMD-SHELL", "pg_isready --dbname=remoulade --username=remoulade --timeout=100 --port=5432 --host=127.0.0.1"]
-      interval: 10s
+      interval: 15s
       timeout: 5s
       retries: 5
 

@@ -33,7 +33,7 @@ class AsyncComputationStart(luigi.Task):
 
 	def copy_inputs(self):
 		request_files_dir: pathlib.Path = P(self.test['path']) / 'inputs'
-		request_files_dir.mkdir(parents=True)
+		request_files_dir.mkdir(parents=True, exist_ok=True)
 		files = []
 		input_file: pathlib.Path
 		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
@@ -42,15 +42,23 @@ class AsyncComputationStart(luigi.Task):
 		return files
 
 
-	def run_request(self, inputs):
+	def run_request(self, inputs: list[pathlib.Path]):
 		url = self.test['robust_server_url']
 		logging.getLogger('robust').debug('')
 		logging.getLogger('robust').debug('querying ' + url)
 
-		handle = requests.post(
+		request_format = 'xml' if any([str(i).lower().endswith('xml') for i in inputs]) else 'rdf'
+
+		resp = requests.post(
 				url + '/upload',
+				params={'request_format':request_format},
 				files={'file1':open(inputs[0])}
-		).text
+		)
+		if resp.ok:
+			handle = resp.text
+		else:
+			resp.raise_for_status()
+
 		#.json()['reports'][0]['val']
 
 		with self.output().open('w') as o:

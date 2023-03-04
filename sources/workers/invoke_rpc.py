@@ -45,12 +45,12 @@ def call_prolog_calculator2(kwargs):
 	)
 
 	result = call_prolog(**kwargs)
-	if result['status'] != 'error':
-		print('postprocess_doc...')
-		print('todo...')
-		#celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
-		print('postprocess_doc..')
-		ln('../' + result_tmp_directory_name, final_result_tmp_directory_path + '/completed')
+	# if result['status'] != 'error':
+	# 	print('postprocess_doc...')
+	# 	print('todo...')
+	# 	#celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
+	# 	print('postprocess_doc..')
+	ln('../' + result_tmp_directory_name, final_result_tmp_directory_path + '/completed')
 
 	return result
 

@@ -104,7 +104,7 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 
 
 @app.post("/upload")
-async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str=None, requested_output_format:str='task_handle'):
+async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='task_handle'):
 	"""
 	'json_reports_list' is a misnomer at this point, these requests process asynchronously, and we only return what is basically a result handle (url).
 	otherwise, we block waiting for prolog to finish, or for client to give up.
@@ -114,10 +114,11 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 	logging.getLogger().warn('file1: %s, file2: %s' % (file1, file2))
 	request_files_in_tmp = await save_request_files(file1, file2, request_tmp_directory_path)
 
+	server_url=os.environ['PUBLIC_URL']
 	final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
 	result = call_prolog_calculator.call_prolog_calculator(
 		request_tmp_directory_name=request_tmp_directory_name,
-		server_url=os.environ['PUBLIC_URL'],
+		server_url=server_url,
 		request_files=request_files_in_tmp,
 		# the limit here is that the excel plugin doesn't do any async or such. It will block until either a response is received, or it timeouts.
 		# for json_reports_list, we must choose a timeout that happens faster than client's timeout. If client timeouts, it will have received nothing and can't even open browser or let user load result sheets manually
