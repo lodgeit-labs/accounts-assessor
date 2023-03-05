@@ -9,6 +9,8 @@ import glob
 import pathlib
 from pathlib import Path as P
 import sys,os
+from urllib.parse import urlparse
+
 #print(sys.path)
 #print(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
@@ -90,21 +92,20 @@ class AsyncComputationResult(luigi.Task):
 		with self.input().open() as input:
 			handle = input.read()
 		while True:
-			logging.getLogger('robust').debug('...')
-			time.sleep(5)
-			result = requests.get(handle)
+			logging.getLogger('robust').info('...')
+			time.sleep(1)
+			result = requests.get(handle + '/completed/000000_response.json.json')
 			if result.ok:
 				reports = result.json()['reports']
 
 				o = self.output()
 				P(o.path).mkdir(parents=True)
 
-				for report_key in ['result.n3']:
-					r = report_by_key(reports, report_key)
-					report_url = r['val']['url']
-					fn = Url(report_url).filename
-					with open(P(o.path) / fn, 'w') as r:
-						r.write(requests.get(report_url).raw())
+				for report_key in ['alerts_json', 'result']:
+					report_url = find_report_by_key(reports, report_key)
+					fn = pathlib.Path(urlparse(report_url).path).name
+					with open(P(o.path) / fn, 'wb') as result_file:
+						shutil.copyfileobj(requests.get(report_url, stream=True).raw, result_file)
 
 				return
 
@@ -126,9 +127,9 @@ class Evaluation(luigi.Task):
 
 
 	def run(self):
-		response = json.load(open(P(self.input().path) / 'response.json'))
+		response = json.load(open(P(self.input().path) / '000000_alerts_json.json'))
 		with self.output().open('w') as out:
-			json.dumps({'ok':true}, out)
+			json.dump({'test':dict(self.test), 'alerts':response}, out, indent=4, sort_keys=True)
 
 
 	def output(self):
@@ -173,7 +174,7 @@ class Permutations(luigi.Task):
 
 	def run(self):
 		with self.output().open('w') as out:
-			json.dump(list(self.required_evaluations()), out)
+			json.dump(list(self.required_evaluations()), out, indent=4, sort_keys=True)
 	def output(self):
 		return luigi.LocalTarget(self.session / 'permutations.json')
 
@@ -196,10 +197,11 @@ class EndpointTestsSummary(luigi.Task):
 
 		with self.output().open('w') as out:
 			summary = []
-			for evaluation_file in self.input():
-				evaluation = json.load(evaluation_file)
+			for eval in evals:
+				with eval.output().open() as e:
+					evaluation = json.load(e)
 				summary.append(evaluation)
-			json.dump(summary, out)
+			json.dump(summary, out, indent=4, sort_keys=True)
 
 
 	def output(self):
