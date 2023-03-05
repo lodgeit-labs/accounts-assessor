@@ -76,3 +76,9 @@ def flatten_lists(x):
 	#print(key, '=', os.environ.get(key), ' or ', json.get(key))
 #	return os.environ.get(key) or json.get(key)
 
+
+def find_report_by_key(reports, name):
+	for i in reports:
+		if i['key'] == name:
+			return i['val']['url']
+

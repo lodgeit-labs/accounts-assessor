@@ -24,7 +24,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 from agraph import agc
 import invoke_rpc
 from tasking import remoulade
-from fs_utils import directory_files
+from fs_utils import directory_files, find_report_by_key
 from tmp_dir_path import create_tmp
 import call_prolog_calculator
 import logging
@@ -89,12 +89,6 @@ def json_prolog_rpc_call(request, msg):
 	msg["client"] = request.client.host
 	return invoke_rpc.call_prolog.send(msg=msg).result.get(block=True, timeout=1000 * 1000)
 
-
-
-def find_report_by_key(reports, name):
-	for i in reports:
-		if i['key'] == name:
-			return i['val']['url']
 
 
 

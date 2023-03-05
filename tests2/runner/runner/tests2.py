@@ -8,6 +8,15 @@ import json
 import glob
 import pathlib
 from pathlib import Path as P
+import sys,os
+#print(sys.path)
+#print(os.path.dirname(__file__))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
+from fs_utils import directory_files, find_report_by_key
+
+
+
+
 
 
 class Dummy(luigi.Task):
@@ -55,11 +64,9 @@ class AsyncComputationStart(luigi.Task):
 				files={'file1':open(inputs[0])}
 		)
 		if resp.ok:
-			handle = resp.text
+			handle = find_report_by_key(resp.json()['reports'], 'task_handle')
 		else:
 			resp.raise_for_status()
-
-		#.json()['reports'][0]['val']
 
 		with self.output().open('w') as o:
 			o.write(handle)
@@ -84,7 +91,7 @@ class AsyncComputationResult(luigi.Task):
 			handle = input.read()
 		while True:
 			logging.getLogger('robust').debug('...')
-			time.sleep(15)
+			time.sleep(5)
 			result = requests.get(handle)
 			if result.ok:
 				reports = result.json()['reports']
@@ -130,18 +137,14 @@ class Evaluation(luigi.Task):
 
 
 
-class EndpointTestsSummary(luigi.Task):
-	session = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
-	#sanitize_filename(tss.replace(' ', '_'))
+class Permutations(luigi.Task):
+	session = luigi.parameter.PathParameter()
 	robust_server_url = luigi.parameter.OptionalParameter(default='http://localhost:80')
 	suite = luigi.parameter.OptionalPathParameter(default='../endpoint_tests')
-
-	def requires(self):
-		return list(self.required_evaluations())
+	debug = luigi.parameter.OptionalBoolParameter(parsing=luigi.BoolParameter.EXPLICIT_PARSING)
 
 
 	def robust_testcase_dirs(self):
-
 		dirs0 = [P(x) for x in sorted(glob.glob('**/', root_dir=self.suite, recursive=True))]
 		dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
 		dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
@@ -152,22 +155,45 @@ class EndpointTestsSummary(luigi.Task):
 
 	def required_evaluations(self):
 		for dir in self.robust_testcase_dirs():
-			for debug in [False, True]:
-				test = {
+			print(self.debug)
+			for debug in ([False, True] if self.debug is None else [self.debug]):
+				yield {
+					'robust_server_url': self.robust_server_url,
 					'suite': str(self.suite),
 					'dir': str(dir),
 					'debug': debug,
-					'robust_server_url': self.robust_server_url
+					'path':
+						str(
+							self.session /
+							 dir /
+							 ('debug' if debug else 'nodebug')
+						)
 				}
-				test['path'] = str(self.test_path(test))
-				yield Evaluation(test)
-
-
-	def	test_path(self, test):
-		return self.session / test['dir'] / ('debug' if test['debug'] else 'nodebug')
 
 
 	def run(self):
+		with self.output().open('w') as out:
+			json.dump(list(self.required_evaluations()), out)
+	def output(self):
+		return luigi.LocalTarget(self.session / 'permutations.json')
+
+
+
+
+class EndpointTestsSummary(luigi.Task):
+	session = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
+	#sanitize_filename(tss.replace(' ', '_'))
+
+	def requires(self):
+		return Permutations(self.session)
+
+
+	def run(self):
+		with self.input().open() as pf:
+			permutations = json.load(pf)
+		evals = list(Evaluation(t) for t in permutations)
+		yield evals
+
 		with self.output().open('w') as out:
 			summary = []
 			for evaluation_file in self.input():

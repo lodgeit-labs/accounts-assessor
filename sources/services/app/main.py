@@ -37,7 +37,7 @@ class ShellRequest(BaseModel):
 
 @app.post("/shell")
 def shell(shell_request: ShellRequest):
-	cmd = [shlex.quote(x) for x in shell_request['cmd']]
+	cmd = [shlex.quote(x) for x in shell_request.cmd]
 	print(cmd)
 	#p = subprocess.Popen(cmd, universal_newlines=True)  # text=True)
 	p=subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,universal_newlines=True)#text=True)
