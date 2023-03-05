@@ -244,6 +244,7 @@ services:
       - 1238
     environment:
       SUPERBOWL_WEBSERVER_PORT: 1238
+      REMOULADE_BACKEND_LOCATION: http://127.0.0.1:5005
     deploy:
       replicas: 1
       restart_policy:
