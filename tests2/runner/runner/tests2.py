@@ -142,7 +142,7 @@ class Permutations(luigi.Task):
 	session = luigi.parameter.PathParameter()
 	robust_server_url = luigi.parameter.OptionalParameter(default='http://localhost:80')
 	suite = luigi.parameter.OptionalPathParameter(default='../endpoint_tests')
-	debug = luigi.parameter.OptionalBoolParameter(parsing=luigi.BoolParameter.EXPLICIT_PARSING)
+	debug = luigi.parameter.OptionalBoolParameter(default=None, parsing=luigi.BoolParameter.EXPLICIT_PARSING)
 
 
 	def robust_testcase_dirs(self):
@@ -156,7 +156,6 @@ class Permutations(luigi.Task):
 
 	def required_evaluations(self):
 		for dir in self.robust_testcase_dirs():
-			print(self.debug)
 			for debug in ([False, True] if self.debug is None else [self.debug]):
 				yield {
 					'robust_server_url': self.robust_server_url,
