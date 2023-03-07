@@ -3,7 +3,7 @@ import urllib.parse
 import json
 import datetime
 import ntpath
-import shutil
+import shutil, shlex, subprocess
 from typing import Optional, Any
 from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.responses import JSONResponse
