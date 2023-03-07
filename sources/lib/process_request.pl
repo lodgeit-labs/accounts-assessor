@@ -64,9 +64,9 @@
 	((cf(make_zip)->true;true)).
 
 
-flag_default(die_on_error, false).
+ flag_default(die_on_error, false).
 
-process_request(Request_format, Request_data_uri_base, File_Paths) :-
+ process_request(Request_format, Request_data_uri_base, File_Paths) :-
 	(	current_prolog_flag(die_on_error, true)
 	->	(
 			process_multifile_request(Request_format, Request_data_uri_base, File_Paths),
@@ -85,7 +85,7 @@ process_request(Request_format, Request_data_uri_base, File_Paths) :-
 	;	true),
 	!process_request2.
 
-process_request2 :-
+ process_request2 :-
 	!cf(collect_alerts(Alerts3, Alerts_html)),
 	!nicety(make_json_report(Alerts3, alerts_json)),
 	!cf(make_alerts_report(Alerts_html)),
@@ -103,18 +103,18 @@ process_request2 :-
 	ct(done).
 
 
-get_exception_ctx_dump_string(Ctx_str) :-
+ get_exception_ctx_dump_string(Ctx_str) :-
 	(	user:exception_ctx_dump(Ctx_list)
 	->	context_string(Ctx_list,Ctx_str)
 	;	fail).
 
 
-enrich_exception_with_ctx_dump(E, E2) :-
+ enrich_exception_with_ctx_dump(E, E2) :-
 	(	context_string(Ctx_str)
 	->	E2 = with_processing_context(Ctx_str, E)
 	;	E2 = E).
 
-reestablish_doc :-
+ reestablish_doc :-
 	(	user:exception_doc_dump(G,Ng)
 	->	reestablish_doc(G,Ng)
 	;	true).
@@ -123,7 +123,7 @@ reestablish_doc :-
 	reestablish_doc,
 	handle_processing_exception2(E).
 
-handle_processing_exception2(E) :-
+ handle_processing_exception2(E) :-
 	enrich_exception_with_ctx_dump(E, E2),
 	format_exception_into_alert_string(E2, Str, Html),
 	add_alert('error', Str, Alert_uri),
@@ -131,7 +131,7 @@ handle_processing_exception2(E) :-
 	->	doc_add(Alert_uri, l:has_html, Html)
 	;	true).
 
-format_exception_into_alert_string(E, Str, Html) :-
+ format_exception_into_alert_string(E, Str, Html) :-
 	(	E = with_processing_context(C,E1)
 	->	Context_str = C
 	;	(
@@ -177,32 +177,32 @@ format_exception_into_alert_string(E, Str, Html) :-
 	format(string(Str ),'~w~n~n~w~n~n~w~q~n',[Context_str, $>stringize(Msg), Bstr, Stacktrace_str]).
 
 
-make_context_trace_report :-
+ make_context_trace_report :-
 	get_context_trace(Trace0),
 	ct("reverse context_trace", reverse(Trace0,Trace)),
 	ct("maplist(make_context_trace_report2...", maplist(make_context_trace_report2,Trace, Html)),
 	ct("add_report_page_with_body(10, context_trace...", add_report_page_with_body(10, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html)).
 
-make_context_trace_report2((Depth, C),div(["-",Stars,Text])) :-
+ make_context_trace_report2((Depth, C),div(["-",Stars,Text])) :-
 	% or is that supposed to be atom? i forgot again.
 	get_indentation(Depth, '* ', Stars),
 	context_string2('', C, Text).
 
 
-'make task_directory report entry' :-
+ 'make task_directory report entry' :-
 	report_file_path__singleton(loc(file_name, ''), Tmp_Dir_Url, _),
 	add_report_file(-100,'task_directory', 'task_directory', Tmp_Dir_Url).
-'make task_directory report entry 2' :-
+ 'make task_directory report entry 2' :-
 	result_property(l:has_task_handle, H),
 	atomic_list_concat(['../',H],H2),
 	report_file_path__singleton(loc(file_name, H2), Tmp_Dir_Url, _),
 	add_report_file(-100,'task_handle', 'task_handle', Tmp_Dir_Url).
 
 
-make_doc_dump_report :-
+ make_doc_dump_report :-
 	save_doc(final).
 
-json_report_entries(Out) :-
+ json_report_entries(Out) :-
 	findall(
 		report_file(Priority, Title, Key, Url),
 		get_report_file(Priority, Title, Key, Url),
@@ -294,7 +294,7 @@ json_report_entries(Out) :-
 	Alert_html = p([h4([$>atom_string(<$, $>term_string(Key)),': ']),pre([Msg2]),br([]),Html_message,br([]),pre([Ctx_str]),br([]),pre([Bt]),pre([small([Bstr])])]).
 
 
-make_alerts_report(Alerts_Html) :-
+ make_alerts_report(Alerts_Html) :-
 	(	Alerts_Html = []
 	->	Alerts_Html2 = ["no alerts."]
 	;	Alerts_Html2 = Alerts_Html),
@@ -329,8 +329,8 @@ make_alerts_report(Alerts_Html) :-
 		)
 	).
 
-/* only done for requests that include a rdf file */
-check_request_version :-
+/* only done when Request_format = "rdf" */
+ check_request_version :-
 	Expected = "2",
 	!request_data(D),
 	(	doc(D, l:client_version, V)
@@ -358,10 +358,10 @@ check_request_version :-
 		)
 	).
 
-load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
+ load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
 	load_structure(Xml_Tmp_File_Path, Dom, [dialect(xmlns), space(remove), keep_prefix(true)]).
 
-load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
+ load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 
 	rdf_create_bnode(G),
 	rdf_load(Rdf_Tmp_File_Path, [
@@ -372,7 +372,8 @@ load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
 	%findall(_, (rdf(S,P,O),format(user_error, 'raw_rdf:~q~n',(S,P,O))),_),
 	true.
 
-process_rdf_request :-
+
+ process_rdf_request :-
 	debug(requests, "process_rdf_request~n", []),
 	(	%process_request_hirepurchase_new;
 		process_request_depreciation_new;
@@ -383,7 +384,7 @@ process_rdf_request :-
 
 
 
-process_xml_request(File_Path, Dom) :-
+ process_xml_request(File_Path, Dom) :-
 /*+   request_xml_to_doc(Dom),*/
 	(process_request_car(File_Path, Dom);
 	(process_request_loan(File_Path, Dom);
@@ -393,7 +394,7 @@ process_xml_request(File_Path, Dom) :-
 	)).
 
 
-get_requested_output_type(Options2, Output) :-
+ get_requested_output_type(Options2, Output) :-
 	Known_Output_Types = [json_reports_list, xml],
 	(
 		member(requested_output_format=Output, Options2)
@@ -413,20 +414,22 @@ get_requested_output_type(Options2, Output) :-
 		Output = json_reports_list
 	).
 
-print_xml_report(Json_Out, Output_Xml_String) :-
+
+ print_xml_report(Json_Out, Output_Xml_String) :-
 	writeln('<?xml version="1.0"?>'), nl, nl,
 	format('<!-- reports: '),
 	json_write(current_output, Json_Out),
 	format(' -->'),
 	write(Output_Xml_String).
 
+
 /* http uri parameter -> prolog flag */
-maybe_supress_generating_unique_taxonomy_urls(Options2) :-
+ maybe_supress_generating_unique_taxonomy_urls(Options2) :-
 	(	member(relativeurls='1', Options2)
 	->	set_flag(prepare_unique_taxonomy_url, false)
 	;	true).
 
-response_file_name(Request_File_Name, Response_File_Name) :-
+ response_file_name(Request_File_Name, Response_File_Name) :-
 	(	replace_request_with_response(Request_File_Name, Response_File_Name)
 	->	true
 	;	atomic_list_concat(['response-',Request_File_Name], Response_File_Name)).
@@ -444,7 +447,7 @@ process_with_output(Request_File_Name, Request_Dom) :-
 	).
 */
 
-resolve_directory(Path, File_Paths) :-
+ resolve_directory(Path, File_Paths) :-
 	Path = loc(absolute_path, Path_Value),
 	(	exists_directory(Path_Value)
 	->	/* invoked with a directory */
@@ -452,9 +455,6 @@ resolve_directory(Path, File_Paths) :-
 	;	/* invoked with a file */
 		File_Paths = [Path]),
 	(File_Paths = [] -> throw('no files found') ; true).
-
-
-
 
 
 
