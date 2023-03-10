@@ -34,11 +34,10 @@ scheduler = Scheduler(broker, [])
 #scheduler = Scheduler(broker, [ScheduledJob(actor_name="ping", args=(), interval=100)])
 remoulade.set_scheduler(scheduler)
 
-@remoulade.actor
-def ping():
-	return "pong"
-remoulade.declare_actors([ping])
-
+#@remoulade.actor
+#def ping():
+#	return "pong"
+#remoulade.declare_actors([ping])
 #print('scheduler.start...')
 #scheduler.start()
 
