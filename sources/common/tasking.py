@@ -17,7 +17,7 @@ from remoulade.state.middleware import MessageState
 from remoulade.cancel import Cancel
 from remoulade.cancel.backends import RedisBackend as CancelBackend
 from remoulade.middleware import CurrentMessage
-
+from remoulade.scheduler import ScheduledJob, Scheduler
 
 
 result_backend = RedisBackend(url=os.environ['REDIS_HOST'])
@@ -30,6 +30,17 @@ broker.add_middleware(Cancel(backend=CancelBackend()))
 broker.add_middleware(CurrentMessage())
 
 remoulade.set_broker(broker)
+scheduler = Scheduler(broker, [])
+#scheduler = Scheduler(broker, [ScheduledJob(actor_name="ping", args=(), interval=100)])
+remoulade.set_scheduler(scheduler)
+
+@remoulade.actor
+def ping():
+	return "pong"
+remoulade.declare_actors([ping])
+
+scheduler.start()
+
 
 print('"tasking" loaded')
 print()

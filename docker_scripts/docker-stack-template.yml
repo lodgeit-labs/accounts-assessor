@@ -14,6 +14,9 @@ services:
       - ./caddy/Caddyfile_auth:/etc/caddy/Caddyfile_auth
       - caddy_data:/data
       - caddy_config:/config
+    depends_on:
+      apache:
+        condition: service_healthy
 
 
   apache:
@@ -60,12 +63,6 @@ services:
         condition: service_healthy
       workers:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -96,8 +93,10 @@ services:
     networks:
       - backend
     depends_on:
-      - redis
-      - services
+      services:
+        condition: service_healthy
+      remoulade-api:
+        condition: service_healthy
     deploy:
       replicas: 1
       placement:
@@ -115,6 +114,8 @@ services:
       rabbitmq:
         condition: service_healthy
       postgres:
+        condition: service_healthy
+      remoulade-api:
         condition: service_healthy
 
 
@@ -249,6 +250,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+    depends_on:
+      remoulade-api:
+        condition: service_healthy
 
 
   remoulade-api:
@@ -271,10 +275,12 @@ services:
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
     depends_on:
-      - redis
-      - services
-      - rabbitmq
-      - postgres
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     secrets:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
