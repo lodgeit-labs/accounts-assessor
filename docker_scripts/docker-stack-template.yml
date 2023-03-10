@@ -48,6 +48,7 @@ services:
       SECRETS_DIR: /run/secrets/
       RABBITMQ_URL:
       REMOULADE_PG_URI:
+      REMOULADE_API:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
