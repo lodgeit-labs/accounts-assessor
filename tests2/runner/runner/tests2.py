@@ -93,7 +93,7 @@ class AsyncComputationResult(luigi.Task):
 			handle = input.read()
 		while True:
 			logging.getLogger('robust').info('...')
-			time.sleep(1)
+			time.sleep(10)
 			result = requests.get(handle + '/completed/000000_response.json.json')
 			if result.ok:
 				reports = result.json()['reports']
