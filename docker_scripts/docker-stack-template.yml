@@ -81,6 +81,7 @@ services:
       SERVICES_URL:
       RABBITMQ_URL:
       REMOULADE_PG_URI:
+      REMOULADE_API:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
