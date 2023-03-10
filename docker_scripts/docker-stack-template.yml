@@ -63,6 +63,8 @@ services:
         condition: service_healthy
       workers:
         condition: service_healthy
+      remoulade-api:
+        condition: service_healthy
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -213,7 +215,7 @@ services:
 
 
   postgres:
-    image: bitnami/postgresql:15.2.0
+    image: bitnami/postgresql:15.1.0
     networks:
       - backend
     hostnet_ports:

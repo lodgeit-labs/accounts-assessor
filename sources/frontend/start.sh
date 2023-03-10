@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-../wait-for-it/wait-for-it.sh $RABBITMQ_URL -t 300
+../wait-for-it/wait-for-it.sh $RABBITMQ_URL -t 0
+../wait-for-it/wait-for-it.sh remoulade-api:5005 -t 0
 
 _term() {
   echo "Caught SIGTERM signal!"

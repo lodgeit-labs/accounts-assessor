@@ -39,9 +39,9 @@ def ping():
 	return "pong"
 remoulade.declare_actors([ping])
 
-scheduler.start()
+#print('scheduler.start...')
+#scheduler.start()
 
-
-print('"tasking" loaded')
+print('tasking loaded')
 print()
 

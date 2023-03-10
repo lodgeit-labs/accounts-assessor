@@ -77,13 +77,13 @@ def cli():
 @click.option('-co', '--compose', type=bool, default=False,
 	help="use docker-compose instead of stack/swarm. Implies use_host_network. ")
 
-@click.option('-om', '--omit_service', 'omit_services', type=str, default=[], multiple=True,
+@click.option('-os', '--omit_service', 'omit_services', type=str, default=[], multiple=True,
 	help=" ")
 
 @click.option('-in', '--include_service', 'include_services', type=str, default=[], multiple=True,
 	help=" ")
 
-@click.option('-om', '--omit_image', 'omit_images', type=str, default=[], multiple=True,
+@click.option('-oi', '--omit_image', 'omit_images', type=str, default=[], multiple=True,
 	help="skip building image for service")
 
 @click.option('-sd', '--secrets_dir', type=str, default='../secrets/',
