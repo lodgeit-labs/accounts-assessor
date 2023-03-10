@@ -1,0 +1,7 @@
+flask
+
+flask-apispec
+#apispec
+#markupsafe==2.0.1 # https://github.com/aws/aws-sam-cli/issues/3661
+
+
