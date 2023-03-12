@@ -127,31 +127,39 @@ class Evaluation(luigi.Task):
 
 		result = json.load(open(P(self.input().path)))
 
-		reports = result['reports']
-
-		o: luigi.LocalTarget = self.output()['outputs']
-		with o.temporary_path() as self.temp_output_path:
-
-
-				for report_key in ['alerts_json', 'result']:
-					report_url = find_report_by_key(reports, report_key)
-					fn = pathlib.Path(urlparse(report_url).path).name
-					with open(P(o.path) / fn, 'wb') as result_file:
-						shutil.copyfileobj(requests.get(report_url, stream=True).raw, result_file)
-
-				alerts_got = json.load(open(P(self.input().path) / '000000_alerts_json.json'))
-				alerts_expected = json.load(open(P(self.input().path) / '000000_alerts_json.json'))
+		delta = []
+		if type(result) != dict or 'reports' not in result:
+			delta.append("""type(result) != dict or 'reports' not in result""")
+		else:
+			reports = result['reports']
+			o: luigi.LocalTarget = self.output()['outputs']
+			# not sure this can be a directory
+			with o.temporary_path() as tmp:
+				alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
+				alerts_expected = json.load(open(P(self.test['suite']) / 'responses' / 'alerts_json.json'))
 
 
 		with self.output().open('w') as out:
-			json.dump({'test':dict(self.test), 'alerts':response}, out, indent=4, sort_keys=True)
+			json.dump({'test':dict(self.test), 'delta':delta}, out, indent=4, sort_keys=True)
+
+
+
 
 
 	def output(self):
 		return {
+			# this creates some chance for discrepancies to creep in.. "exceptional cases, for example when central locking fails "
 			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json',
 			'outputs':luigi.LocalTarget(P(self.test['path']) / 'outputs')
 
+
+
+def fetch_report(tmp, url):
+	fn = pathlib.Path(urlparse(url).path).name
+	out = P(tmp) / fn
+	with open(out, 'wb') as result_file:
+		shutil.copyfileobj(requests.get(url, stream=True).raw, result_file)
+	return out
 
 
 
