@@ -3,31 +3,40 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../com
 from tmp_dir_path import git, sources, create_tmp_directory_name, create_tmp, get_tmp_directory_absolute_path, ln
 from fs_utils import command_nice, flatten_lists
 from tasking import remoulade
-
+from remoulade.middleware import CurrentMessage
+from pathlib import Path
 
 
 
 @remoulade.actor
 def call_prolog_calculator2(kwargs):
 	msg = kwargs['msg']
+	params = msg['params']
+
 	# this is where prolog will put reports:
 	result_tmp_directory_name, result_tmp_path = create_tmp()
-	msg['params']['result_tmp_directory_name'] = result_tmp_directory_name
+	params['result_tmp_directory_name'] = result_tmp_directory_name
 
-	# symlink from "final result"(aka "task_handle") directory to actual result directory:
-	final_result_tmp_directory_path = None
-	if 'final_result_tmp_directory_path' in msg['params']:
-		final_result_tmp_directory_path = msg['params']['final_result_tmp_directory_path']
-		print("final_result_tmp_directory_path: " + final_result_tmp_directory_path)
-		if final_result_tmp_directory_path != None:
-			ln('../'+result_tmp_directory_name, final_result_tmp_directory_path + '/' + result_tmp_directory_name)
+	if params.get('final_result_tmp_directory_path', None) is None:
+		params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id
+		params['final_result_tmp_directory_path'] = get_tmp_directory_absolute_path(params['final_result_tmp_directory_name'])
+		Path(params['final_result_tmp_directory_path']).mkdir(parents = True, exist_ok = True)
+
+		print("final_result_tmp_directory_path: " + params['final_result_tmp_directory_path'])
+
+		# link the result dir from the final_result(task_handle) dir
+		ln('../'+result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/' + result_tmp_directory_name)
+
 		# symlink tmp/last_result to tmp/xxxxx:
 		last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
-		if os.path.exists(last_result_symlink_path):
-			subprocess.call(['/bin/rm', last_result_symlink_path])
-		ln(
-			result_tmp_directory_name,
-			last_result_symlink_path)
+		try:
+			if os.path.exists(last_result_symlink_path):
+				subprocess.call(['/bin/rm', last_result_symlink_path])
+			ln(
+				result_tmp_directory_name,
+				last_result_symlink_path)
+		except Exception as e:
+			print(e)
 
 	# write call info txt:
 	with open(os.path.join(result_tmp_path, 'rpc_call_info.txt'), 'w') as info:
@@ -45,12 +54,14 @@ def call_prolog_calculator2(kwargs):
 	)
 
 	result = call_prolog(**kwargs)
+
 	# if result['status'] != 'error':
 	# 	print('postprocess_doc...')
 	# 	print('todo...')
 	# 	#celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
 	# 	print('postprocess_doc..')
-	ln('../' + result_tmp_directory_name, final_result_tmp_directory_path + '/completed')
+
+	ln('../' + result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/completed')
 
 	return result
 

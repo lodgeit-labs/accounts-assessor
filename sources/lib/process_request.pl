@@ -12,7 +12,7 @@
 :- ['../depr/src/process_request_depreciation_new'].
 
 
-/* for formatting numbers */ /* not sure if still used */
+/* for formatting numbers */ /* not sure if still has effect anywhere */
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
 
 

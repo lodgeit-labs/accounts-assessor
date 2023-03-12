@@ -93,25 +93,22 @@ class AsyncComputationResult(luigi.Task):
 			handle = input.read()
 		while True:
 			logging.getLogger('robust').info('...')
-			time.sleep(10)
-			result = requests.get(handle + '/completed/000000_response.json.json')
-			if result.ok:
-				reports = result.json()['reports']
+			time.sleep(15)
 
-				o = self.output()
-				P(o.path).mkdir(parents=True)
-
-				for report_key in ['alerts_json', 'result']:
-					report_url = find_report_by_key(reports, report_key)
-					fn = pathlib.Path(urlparse(report_url).path).name
-					with open(P(o.path) / fn, 'wb') as result_file:
-						shutil.copyfileobj(requests.get(report_url, stream=True).raw, result_file)
-
-				return
+			job = requests.get(handle).json()
+			if job['status'] == 'Success': # "Started"
+				result = job['result']
+				with self.output().open('w') as out:
+					json.dump(result, out, indent=4, sort_keys=True)
+				break
+			elif job['status'] in [ "Started"]:
+				pass
+			else:
+				raise Exception('weird status')
 
 
 	def output(self):
-		return luigi.LocalTarget(P(self.test['path']) / 'outputs')
+		return luigi.LocalTarget(P(self.test['path']) / 'result.json')
 
 
 
@@ -127,13 +124,33 @@ class Evaluation(luigi.Task):
 
 
 	def run(self):
-		response = json.load(open(P(self.input().path) / '000000_alerts_json.json'))
+
+		result = json.load(open(P(self.input().path)))
+
+		reports = result['reports']
+
+		o: luigi.LocalTarget = self.output()['outputs']
+		with o.temporary_path() as self.temp_output_path:
+
+
+				for report_key in ['alerts_json', 'result']:
+					report_url = find_report_by_key(reports, report_key)
+					fn = pathlib.Path(urlparse(report_url).path).name
+					with open(P(o.path) / fn, 'wb') as result_file:
+						shutil.copyfileobj(requests.get(report_url, stream=True).raw, result_file)
+
+				alerts_got = json.load(open(P(self.input().path) / '000000_alerts_json.json'))
+				alerts_expected = json.load(open(P(self.input().path) / '000000_alerts_json.json'))
+
+
 		with self.output().open('w') as out:
 			json.dump({'test':dict(self.test), 'alerts':response}, out, indent=4, sort_keys=True)
 
 
 	def output(self):
-		return luigi.LocalTarget(P(self.test['path']) / 'evaluation.json')
+		return {
+			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json',
+			'outputs':luigi.LocalTarget(P(self.test['path']) / 'outputs')
 
 
 

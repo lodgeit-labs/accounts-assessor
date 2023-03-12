@@ -21,7 +21,7 @@ from remoulade.scheduler import ScheduledJob, Scheduler
 
 
 result_backend = RedisBackend(url=os.environ['REDIS_HOST'])
-result_time_limit_ms = 31 * 24 * 60 * 60 * 1000
+result_time_limit_ms = 10 * 12 * 31 * 24 * 60 * 60 * 1000
 
 broker = RabbitmqBroker(url="amqp://"+os.environ['RABBITMQ_URL']+"?timeout=15")
 broker.add_middleware(Results(backend=result_backend, store_results=True, result_ttl=result_time_limit_ms))

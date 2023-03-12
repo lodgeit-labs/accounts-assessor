@@ -1,3 +1,4 @@
+#there used to be a problem with pip when this was rolled into requirements.txt, maybe that's fixed by now?
 -e ../common/libs/remoulade/[rabbitmq,redis,postgres]
 
 

@@ -6,6 +6,10 @@ import invoke_rpc
 
 
 def call_prolog_calculator(final_result_tmp_directory_name, final_result_tmp_directory_path, server_url, request_tmp_directory_name, request_files, request_format=None, **kwargs):
+	"""
+	this is a wrapper to call_prolog_calculator2.
+	this is called synchronously from frontend code or from cli code.
+	"""
 
 	msg = {	"method": "calculator",
 			"params": {

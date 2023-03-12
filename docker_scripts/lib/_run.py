@@ -115,7 +115,7 @@ ServerName {public_host}
 """ + '\n'.join([f"""
 ProxyPassReverse "/{path}" "http://{frontend}:7788/{path}"
 ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeout=160 retry=10 acquire=3000 Keepalive=Off
-""" for path in 'chat upload rpc'.split()]))
+""" for path in 'chat upload api'.split()]))
  
 	pp = port_postfix
 

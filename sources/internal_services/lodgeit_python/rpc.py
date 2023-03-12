@@ -13,7 +13,7 @@ def agraph_sparql(sparql):
 	"""
 	todo.
 
-	curl -X POST  -d '{"jsonrpc":"2.0","id":"curltext","method":"agraph_sparql","params":{"sparql":"clear graphs"}}' -H 'content-type:application/json;' http://localhost:17778/rpc/
+	curl -X POST  -d '{"jsonrpc":"2.0","id":"0","method":"agraph_sparql","params":{"sparql":"clear graphs"}}' -H 'content-type:application/json;' http://localhost:17778/rpc/
 	"""
 	#agc().
 	return str(c)

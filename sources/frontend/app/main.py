@@ -4,7 +4,7 @@ import json
 import datetime
 import ntpath
 import shutil
-
+import requests
 
 from typing import Optional, Any, List
 from fastapi import FastAPI, Request, File, UploadFile, HTTPException
@@ -96,6 +96,13 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 	return server_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
 
 
+@app.get('/api/tasks/{id}')
+async def get_task(id: str):
+	api = os.environ['REMOULADE_API']
+	message = requests.get(api + '/messages/states/' + id).json()
+	message['result'] = requests.get(api + '/messages/result/' + id).json()
+	return JSONResponse(message)
+
 
 @app.post("/upload")
 async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='task_handle'):
@@ -103,47 +110,53 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 	'json_reports_list' is a misnomer at this point, these requests process asynchronously, and we only return what is basically a result handle (url).
 	otherwise, we block waiting for prolog to finish, or for client to give up.
 	"""
+	server_url=os.environ['PUBLIC_URL']
+
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
+	#final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
 
 	logging.getLogger().warn('file1: %s, file2: %s' % (file1, file2))
 	request_files_in_tmp = await save_request_files(file1, file2, request_tmp_directory_path)
 
-	server_url=os.environ['PUBLIC_URL']
-	final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
-	result = call_prolog_calculator.call_prolog_calculator(
+	job = call_prolog_calculator.call_prolog_calculator(
 		request_tmp_directory_name=request_tmp_directory_name,
 		server_url=server_url,
 		request_files=request_files_in_tmp,
-		# the limit here is that the excel plugin doesn't do any async or such. It will block until either a response is received, or it timeouts.
-		# for json_reports_list, we must choose a timeout that happens faster than client's timeout. If client timeouts, it will have received nothing and can't even open browser or let user load result sheets manually
-		# but if we timeout too soon, we will have no chance to send a full reports list with result sheets, and users will get an unnecessary browser window + will have to load sheets manually.
-		# with xml requests, there is no way to indicate any errors, so just try to process it in time, and let the client timeout if it takes too long.
 		request_format = request_format,
-		final_result_tmp_directory_name = final_result_tmp_directory_name,
-		final_result_tmp_directory_path = final_result_tmp_directory_path
+		final_result_tmp_directory_name = None,#final_result_tmp_directory_name,
+		final_result_tmp_directory_path = None,#final_result_tmp_directory_path,
 	)
 
-	logging.getLogger().info('requested_output_format: %s' % requested_output_format)
+	logging.getLogger().info('job.message_id: %s' % job.message_id)
+	final_result_tmp_directory_name = job.message_id
 
-	if requested_output_format == 'immediate_xml':
-		response_tmp_directory_name = result.get(block=True, timeout=1000 * 1000)
-		reports = json.load(open('/app/server_root/tmp/' + response_tmp_directory_name + '/000000_response.json.json'))
-		redirect_url = find_report_by_key(reports['reports'], 'response')
+	# the limit here is that the excel plugin doesn't do any async or such. It will block until either a response is received, or it timeouts.
+	# for json_reports_list, we must choose a timeout that happens faster than client's timeout. If client timeouts, it will have received nothing and can't even open browser or let user load result sheets manually
+	# but if we timeout too soon, we will have no chance to send a full reports list with result sheets, and users will get an unnecessary browser window + will have to load sheets manually.
+	# with xml requests, there is no way to indicate any errors, so just try to process it in time, and let the client timeout if it takes too long.
+	logging.getLogger().info('requested_output_format: %s' % requested_output_format)
+	if requested_output_format in ['immediate_xml', 'immediate_json_reports_list']:
+		reports = job.result.get(block=True, timeout=1000 * 1000)
+		#reports = json.load(open('/app/server_root/tmp/' + response_tmp_directory_name + '/000000_response.json.json'))
+		if requested_output_format == 'immediate_xml':
+			return RedirectResponse(find_report_by_key(reports['reports'], 'response'))
+		else:
+			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory') + '/000000_response.json.json')
 	elif requested_output_format == 'task_handle':
 		return JSONResponse(
 		{
-			"alerts": ["result will be ready at the following URL."],
+			"alerts": ["job scheduled."],
 			"reports":
 			[{
+				"title": "result URL",
+				"key": "result_url",
+				"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}},
+			{
 				"title": "task_handle",
 				"key": "task_handle",
-				"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}}
+				"val":{"url": server_url + '/api/tasks/' + final_result_tmp_directory_name}},
 			]
 		})
-	# else:
-	# 	redirect_url = '/tmp/'+ response_tmp_directory_name + '/000000_response.json.json'
-	# 	logging.getLogger().warn('redirect url: %s' % redirect_url)
-	# 	return RedirectResponse(redirect_url)
 	else:
 		raise Exception('unexpected requested_output_format')
 

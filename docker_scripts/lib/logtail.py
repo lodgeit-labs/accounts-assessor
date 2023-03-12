@@ -23,7 +23,8 @@ def run(compose_events_cmd, tmux_session_name: str):
 			container_id = s[4]
 			line_quoted = shlex.quote(line)
 			tmux_session.new_window(window_name="logs", window_shell=f'echo {line_quoted}; docker logs -f ' + container_id + ' | cat; cat')
-
+		# we kinda might rather want docker-compose -f ../generated_stack_files/last.yml -p robust logs -f <service name>
+		# but as it is, this does pop up a new tmux window when a container is restarted etc, and brings it to the front, and there's always a bit of the old log and then the new. Does it ever happen that the log stops being printed while a container is running?
 
 
 if __name__ == '__main__':

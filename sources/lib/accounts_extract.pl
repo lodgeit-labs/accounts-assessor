@@ -60,7 +60,7 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 	.
 
  arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
-	internal_services_rpc(
+	services_rpc(
 		cmd{'method':'arelle_extract','params':p{'taxonomy_locator':Taxonomy_URL}},
 		Result),
 	absolute_tmp_path(loc(file_name,'account_hierarchy_from_taxonomy.xml'), Fn),
