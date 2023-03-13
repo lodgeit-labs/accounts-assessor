@@ -101,6 +101,8 @@ async def get_task(id: str):
 	api = os.environ['REMOULADE_API']
 	message = requests.get(api + '/messages/states/' + id).json()
 	message['result'] = requests.get(api + '/messages/result/' + id).json()
+	if 'result' in message['result']:
+		message['result']['result'] = json.loads(message['result']['result'])
 	return JSONResponse(message)
 
 

@@ -91,20 +91,21 @@ class AsyncComputationResult(luigi.Task):
 	def run(self):
 		with self.input().open() as input:
 			handle = input.read()
-		while True:
-			logging.getLogger('robust').info('...')
-			time.sleep(15)
+		with self.output().temporary_path() as tmp:
+			while True:
+				logging.getLogger('robust').info('...')
+				time.sleep(15)
 
-			job = requests.get(handle).json()
-			with self.output().open('w') as out:
-				json.dump(job, out, indent=4, sort_keys=True)
+				job = requests.get(handle).json()
+				with open(tmp, 'w') as out:
+					json.dump(job, out, indent=4, sort_keys=True)
 
-			if job['status'] in [ "Failure", 'Success']:
-				break
-			elif job['status'] in [ "Started"]:
-				pass
-			else:
-				raise Exception('weird status')
+				if job['status'] in [ "Failure", 'Success']:
+					break
+				elif job['status'] in [ "Started", "Pending"]:
+					pass
+				else:
+					raise Exception('weird status')
 
 	def output(self):
 		return luigi.LocalTarget(P(self.test['path']) / 'job.json')
