@@ -96,19 +96,18 @@ class AsyncComputationResult(luigi.Task):
 			time.sleep(15)
 
 			job = requests.get(handle).json()
-			if job['status'] == 'Success': # "Started"
-				result = job['result']
-				with self.output().open('w') as out:
-					json.dump(result, out, indent=4, sort_keys=True)
+			with self.output().open('w') as out:
+				json.dump(job, out, indent=4, sort_keys=True)
+
+			if job['status'] in [ "Failure", 'Success']:
 				break
 			elif job['status'] in [ "Started"]:
 				pass
 			else:
 				raise Exception('weird status')
 
-
 	def output(self):
-		return luigi.LocalTarget(P(self.test['path']) / 'result.json')
+		return luigi.LocalTarget(P(self.test['path']) / 'job.json')
 
 
 
@@ -125,32 +124,39 @@ class Evaluation(luigi.Task):
 
 	def run(self):
 
-		result = json.load(open(P(self.input().path)))
+		o: luigi.LocalTarget = self.output()['outputs']
+		P(o.path).mkdir(parents=True, exist_ok=True)
 
+		job = json.load(open(P(self.input().path)))
 		delta = []
-		if type(result) != dict or 'reports' not in result:
-			delta.append("""type(result) != dict or 'reports' not in result""")
+
+		if job['status'] != 'Success':
+			delta.append("""job['status'] != 'Success'""")
 		else:
-			reports = result['reports']
-			o: luigi.LocalTarget = self.output()['outputs']
-			# not sure this can be a directory
-			with o.temporary_path() as tmp:
-				alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
+			result = job['result']
+			if type(result) != dict or 'reports' not in result:
+				delta.append("""type(result) != dict or 'reports' not in result""")
+			else:
+				reports = result['reports']
+
+				with o.temporary_path() as tmp:
+					alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
+
 				alerts_expected = json.load(open(P(self.test['suite']) / 'responses' / 'alerts_json.json'))
 
+				if alerts_expected != alerts_got:
+					delta.append("""alerts_expected != alerts_got""")
 
-		with self.output().open('w') as out:
-			json.dump({'test':dict(self.test), 'delta':delta}, out, indent=4, sort_keys=True)
-
-
-
+		with self.output()['evaluation'].open('w') as out:
+			json.dump({'test':dict(self.test), 'job': job, 'delta':delta}, out, indent=4, sort_keys=True)
 
 
 	def output(self):
 		return {
 			# this creates some chance for discrepancies to creep in.. "exceptional cases, for example when central locking fails "
-			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json',
+			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
 			'outputs':luigi.LocalTarget(P(self.test['path']) / 'outputs')
+		}
 
 
 
@@ -222,7 +228,7 @@ class EndpointTestsSummary(luigi.Task):
 		with self.output().open('w') as out:
 			summary = []
 			for eval in evals:
-				with eval.output().open() as e:
+				with eval.output()['evaluation'].open() as e:
 					evaluation = json.load(e)
 				summary.append(evaluation)
 			json.dump(summary, out, indent=4, sort_keys=True)
