@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+setup.cfg
+frontend.egg-info/PKG-INFO
+frontend.egg-info/SOURCES.txt
+frontend.egg-info/dependency_links.txt
+frontend.egg-info/requires.txt
+frontend.egg-info/top_level.txt
