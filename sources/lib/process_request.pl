@@ -181,7 +181,7 @@
 	get_context_trace(Trace0),
 	ct("reverse context_trace", reverse(Trace0,Trace)),
 	ct("maplist(make_context_trace_report2...", maplist(make_context_trace_report2,Trace, Html)),
-	ct("add_report_page_with_body(10, context_trace...", add_report_page_with_body(11, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html)).
+	ct("add_report_page_with_body(context_trace...", add_report_page_with_body(11, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html)).
 
  make_context_trace_report2((Depth, C),div(["-",Stars,Text])) :-
 	% or is that supposed to be atom? i forgot again.
@@ -299,7 +299,7 @@
 	(	Alerts_Html = []
 	->	Alerts_Html2 = ["no alerts."]
 	;	Alerts_Html2 = Alerts_Html),
-	add_report_page_with_body(9, alerts, $>flatten([h3([alerts, ':']), Alerts_Html2]), loc(file_name,'alerts.html'), alerts_html).
+	add_report_page_with_body(20, alerts, $>flatten([h3([alerts, ':']), Alerts_Html2]), loc(file_name,'alerts.html'), alerts_html).
 
 
 %:- debug(tmp_files).

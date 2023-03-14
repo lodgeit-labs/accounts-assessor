@@ -12,8 +12,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import RedirectResponse
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-
+from fastapi.templating import Jinja2Templates
+templates = Jinja2Templates(directory="templates")
 
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
@@ -96,14 +98,41 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 	return server_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
 
 
+
+@app.get("/view/job/{task_id}", response_class=HTMLResponse)
+async def views_limbo(task_id: str):
+	t = await get_task(task_id)
+	if t is not None:
+		if t['state'] == 'Success':
+			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory'))
+		else:
+			return templates.TemplateResponse("task.html", {"task_id": task_id, "json": json.dumps(t, indent=4, sort_keys=True)})
+
+
+
 @app.get('/api/tasks/{id}')
 async def get_task(id: str):
-	api = os.environ['REMOULADE_API']
-	message = requests.get(api + '/messages/states/' + id).json()
-	message['result'] = requests.get(api + '/messages/result/' + id).json()
-	if 'result' in message['result']:
-		message['result']['result'] = json.loads(message['result']['result'])
+	r = requests.get(os.environ['REMOULADE_API'] + '/messages/states/' + id)
+	message = r.json()
+	if message['actor_name'] not in ["call_prolog_calculator2"]:
+		return None
+	if r.ok:
+		message['result'] = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id).json()
+		if 'result' in message['result']:
+			message['result']['result'] = json.loads(message['result']['result'])
 	return JSONResponse(message)
+#
+#
+# async def _get_task(id: str):
+# 	r = requests.get(os.environ['REMOULADE_API'] + '/messages/states/' + id)
+# 	message = r.json()
+# 	if message['actor_name'] not in ["call_prolog_calculator2"]:
+# 		return None
+# 	if r.ok:
+# 		message['result'] = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id).json()
+# 		if 'result' in message['result']:
+# 			message['result']['result'] = json.loads(message['result']['result'])
+# 	return message
 
 
 @app.post("/upload")
