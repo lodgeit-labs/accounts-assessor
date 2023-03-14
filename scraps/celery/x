@@ -1,0 +1,12 @@
+	#
+	# if celery_app:
+	# 	task = celery_app.signature('invoke_rpc.call_prolog_calculator2').apply_async(kwargs=kwargs)
+	# 	return task.get(timeout=timeout_seconds)['response_tmp_directory_name']
+	# else:
+	# 	from invoke_rpc import call_prolog_calculator2
+	# 	return call_prolog_calculator2(**kwargs)['response_tmp_directory_name']
+
+
+	# task = celery_app.signature('invoke_rpc.call_prolog_calculator2').apply_async(kwargs=kwargs)
+	# return task.get(timeout=timeout_seconds)['response_tmp_directory_name']
+

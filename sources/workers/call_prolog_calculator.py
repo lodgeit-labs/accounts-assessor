@@ -27,19 +27,8 @@ def call_prolog_calculator(final_result_tmp_directory_name, final_result_tmp_dir
 	kwargs.update({
 		'msg': msg,
 	})
-	#
-	# if celery_app:
-	# 	task = celery_app.signature('invoke_rpc.call_prolog_calculator2').apply_async(kwargs=kwargs)
-	# 	return task.get(timeout=timeout_seconds)['response_tmp_directory_name']
-	# else:
-	# 	from invoke_rpc import call_prolog_calculator2
-	# 	return call_prolog_calculator2(**kwargs)['response_tmp_directory_name']
 
-
-	# task = celery_app.signature('invoke_rpc.call_prolog_calculator2').apply_async(kwargs=kwargs)
-	# return task.get(timeout=timeout_seconds)['response_tmp_directory_name']
-
-	return invoke_rpc.call_prolog_calculator2.send(kwargs=kwargs).result
+	return invoke_rpc.call_prolog_calculator2.send(kwargs=kwargs)
 
 
 def update_last_request_symlink(msg):
