@@ -99,14 +99,14 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 
 
 
-@app.get("/view/job/{task_id}", response_class=HTMLResponse)
-async def views_limbo(request: Request, task_id: str):
-	t = await get_task(task_id)
-	if t is not None:
-		if t['status'] == 'Success':
-			return RedirectResponse(find_report_by_key(t['result']['result']['reports'], 'task_directory'))
+@app.get("/view/job/{job_id}", response_class=HTMLResponse)
+async def views_limbo(request: Request, job_id: str):
+	job = await get_task(job_id)
+	if job is not None:
+		if job['status'] == 'Success' and 'reports' in job['result']['result']:
+			return RedirectResponse(find_report_by_key(job['result']['result']['reports'], 'task_directory'))
 		else:
-			return templates.TemplateResponse("job.html", {"request": request, "task_id": task_id, "json": json.dumps(t, indent=4, sort_keys=True)})
+			return templates.TemplateResponse("job.html", {"request": request, "job_id": job_id, "json": json.dumps(job, indent=4, sort_keys=True), "refresh": (job['status'] not in [ 'Success']), 'status': job['status']})
 
 
 
@@ -122,18 +122,6 @@ async def get_task(id: str):
 	if 'result' in message['result']:
 		message['result']['result'] = json.loads(message['result']['result'])
 	return message
-#
-#
-# async def _get_task(id: str):
-# 	r = requests.get(os.environ['REMOULADE_API'] + '/messages/states/' + id)
-# 	message = r.json()
-# 	if message['actor_name'] not in ["call_prolog_calculator2"]:
-# 		return None
-# 	if r.ok:
-# 		message['result'] = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id).json()
-# 		if 'result' in message['result']:
-# 			message['result']['result'] = json.loads(message['result']['result'])
-# 	return message
 
 
 @app.post("/upload")
