@@ -15,7 +15,7 @@ sudo apt install fish
 tmux
 
 # you'll definitely need docker obtained one way or another
-sudo apt install docker.io
+sudo apt install docker.io golang-docker-credential-helpers
 
 # compose is a tad more suitable for development than swarm 
 sudo apt install docker-compose
