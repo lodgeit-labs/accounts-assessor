@@ -24,7 +24,7 @@ def call_prolog_calculator2(kwargs):
 
 		print("final_result_tmp_directory_path: " + params['final_result_tmp_directory_path'])
 
-		# link the result dir from the final_result(task_handle) dir
+		# link the result dir from the final_result(job_handle) dir
 		ln('../'+result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/' + result_tmp_directory_name)
 
 		# symlink tmp/last_result to tmp/xxxxx:

@@ -66,7 +66,7 @@ class AsyncComputationStart(luigi.Task):
 				files={'file1':open(inputs[0])}
 		)
 		if resp.ok:
-			handle = find_report_by_key(resp.json()['reports'], 'task_handle')
+			handle = find_report_by_key(resp.json()['reports'], 'job_api_url')
 		else:
 			resp.raise_for_status()
 

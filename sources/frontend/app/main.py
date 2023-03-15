@@ -100,27 +100,28 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 
 
 @app.get("/view/job/{task_id}", response_class=HTMLResponse)
-async def views_limbo(task_id: str):
+async def views_limbo(request: Request, task_id: str):
 	t = await get_task(task_id)
 	if t is not None:
-		if t['state'] == 'Success':
-			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory'))
+		if t['status'] == 'Success':
+			return RedirectResponse(find_report_by_key(t['result']['result']['reports'], 'task_directory'))
 		else:
-			return templates.TemplateResponse("task.html", {"task_id": task_id, "json": json.dumps(t, indent=4, sort_keys=True)})
+			return templates.TemplateResponse("job.html", {"request": request, "task_id": task_id, "json": json.dumps(t, indent=4, sort_keys=True)})
 
 
 
-@app.get('/api/tasks/{id}')
+@app.get('/api/job/{id}')
 async def get_task(id: str):
 	r = requests.get(os.environ['REMOULADE_API'] + '/messages/states/' + id)
+	if not r.ok:
+		return None
 	message = r.json()
 	if message['actor_name'] not in ["call_prolog_calculator2"]:
 		return None
-	if r.ok:
-		message['result'] = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id).json()
-		if 'result' in message['result']:
-			message['result']['result'] = json.loads(message['result']['result'])
-	return JSONResponse(message)
+	message['result'] = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id).json()
+	if 'result' in message['result']:
+		message['result']['result'] = json.loads(message['result']['result'])
+	return message
 #
 #
 # async def _get_task(id: str):
@@ -136,7 +137,7 @@ async def get_task(id: str):
 
 
 @app.post("/upload")
-async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='task_handle'):
+async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
 	"""
 	'json_reports_list' is a misnomer at this point, these requests process asynchronously, and we only return what is basically a result handle (url).
 	otherwise, we block waiting for prolog to finish, or for client to give up.
@@ -173,7 +174,7 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 			return RedirectResponse(find_report_by_key(reports['reports'], 'response'))
 		else:
 			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory') + '/000000_response.json.json')
-	elif requested_output_format == 'task_handle':
+	elif requested_output_format == 'job_handle':
 		return JSONResponse(
 		{
 			"alerts": ["job scheduled."],
@@ -183,9 +184,13 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 				"key": "result_url",
 				"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}},
 			{
-				"title": "task_handle",
-				"key": "task_handle",
-				"val":{"url": server_url + '/api/tasks/' + final_result_tmp_directory_name}},
+				"title": "job API URL",
+				"key": "job_api_url",
+				"val":{"url": server_url + '/api/job/' + final_result_tmp_directory_name}},
+			{
+				"title": "job view URL",
+				"key": "job_view_url",
+				"val":{"url": server_url + '/view/job/' + final_result_tmp_directory_name}},
 			]
 		})
 	else:

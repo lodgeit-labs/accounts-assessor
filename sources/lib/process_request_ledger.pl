@@ -13,6 +13,7 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
 		"is this an Investment Calculator query?",
 		get_optional_singleton_sheet(ic_ui:report_details_sheet, _)
 	),
+	%progress(),
  	!ledger_initialization,
  	*between(0, 999999, Cutoff_st_count),
  	*valid_ledger_model,
@@ -44,7 +45,7 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
 A valid ledger model has input and output documents, and possibly a bunch of phases, where each phase automates some posting of GL transactions that some business logic requires.
 
 we need to update the vocabulary a bit:
-an ST - "Statement Transaction", originally "bank statement transaction", is now effectively any transaction that only has an implicit primary account and is yet to be "preprocessed". It later gets split into multiple GL transactions.
+an ST - "Statement Transaction", originally "bank statement transaction", is now effectively any transaction that only has an implicit primary account and is yet to be "preprocessed - split into multiple GL transactions.
 */
 
  valid_ledger_model :-

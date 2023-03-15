@@ -33,7 +33,7 @@
 	doc_add(Request_uri, l:has_request_data, Request_data_uri),
 	doc_add(Result_uri, rdf:type, l:'Result'),
 	doc_add(Result_uri, l:has_result_data_uri_base, Result_data_uri_base),
-	doc_add(Result_uri, l:has_task_handle, Dict.final_result_tmp_directory_name),
+	doc_add(Result_uri, l:has_job_handle, Dict.final_result_tmp_directory_name),
 
 	findall(
 		loc(absolute_path, P),
@@ -194,10 +194,10 @@
 	add_report_file(-101,'task_directory', 'task_directory', Tmp_Dir_Url).
 
  'make task_directory report entry 2' :-
-	result_property(l:has_task_handle, H),
+	result_property(l:has_job_handle, H),
 	atomic_list_concat(['../',H],H2),
 	report_file_path__singleton(loc(file_name, H2), Tmp_Dir_Url, _),
-	add_report_file(-100,'task_handle', 'task_handle', Tmp_Dir_Url).
+	add_report_file(-100,'job_handle', 'job_handle', Tmp_Dir_Url).
 
 
  make_doc_dump_report :-

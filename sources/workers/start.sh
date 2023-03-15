@@ -9,7 +9,7 @@ _term() {
   kill -TERM "$child" 2>/dev/null
 }
 trap _term SIGTERM
-PYTHONPATH=/app/sources/common/libs/remoulade/ watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --threads 1 main invoke_rpc &
+PYTHONPATH=/app/sources/common/libs/remoulade/ watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --threads 1 --prefetch-multiplier 1 main invoke_rpc &
 child=$!
 wait "$child"
 echo "end"
