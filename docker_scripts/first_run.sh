@@ -5,10 +5,13 @@ cd "$DIR"
 
 sudo apt install python3 python3-pip docker fish apache2-utils tmux 
 
-# for building and running containers
+# for the building and running UI
 python3 -m pip install --user click pyyaml 
 
-# for run_last_request_in_docker
+# compose is a tad more suitable for development than swarm (note we're not installing some bindings here, we're installing docker-compose itself)
+python3 -m pip install --user docker-compose
+
+# for run_last_request_in_docker (these are bindings)
 python3 -m pip install --user docker 
 
 # for nice building UI
