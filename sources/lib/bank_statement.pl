@@ -12,9 +12,10 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	Outstanding_In,
 	Outstanding_Out
 ) :-
+	cutoff_nondet(/*st(S_Transaction)*/),
 	(
 		(
-			cutoff(st(S_Transaction)),
+			is_cutoff,
 			Outstanding_In = Outstanding_Out,
 			Transactions_Out = [],
 			Processed_S_Transactions = []

@@ -14,6 +14,7 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
 		get_optional_singleton_sheet(ic_ui:report_details_sheet, _)
 	),
  	!ledger_initialization,
+ 	*between(0, 999999, Cutoff_st_count),
  	*valid_ledger_model,
  	ct('process_request_ledger is finished.').
 
