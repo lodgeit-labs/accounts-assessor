@@ -15,8 +15,7 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
 	),
 	%progress(),
  	!ledger_initialization,
- 	*between(0, 999999, Cutoff_st_count),
- 	*valid_ledger_model,
+	*valid_ledger_model,
  	ct('process_request_ledger is finished.').
 
 

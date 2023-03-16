@@ -12,7 +12,7 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	Outstanding_In,
 	Outstanding_Out
 ) :-
-	cutoff_nondet(/*st(S_Transaction)*/),
+	cutoff_nondet/*(st(S_Transaction))*/,
 	(
 		(
 			is_cutoff,
@@ -106,6 +106,10 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	Processed_S_Transactions_Tail,
 	Transactions_Out
 ) :-
+/*
+	read_ic_n_sts_processed(Count),
+	Count = 113,
+*/
 	check_that_s_transaction_account_exists(S_Transaction),
 	s_transaction_type_id(S_Transaction, uri(Action_Verb)),
 	(	doc(Action_Verb, l:has_counteraccount, Exchanged_Account_Ui)
@@ -131,6 +135,24 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	Processed_S_Transactions = [S_Transaction|Processed_S_Transactions_Tail],
 	!check_txsets(Transactions_Result),
 	pop_context.
+
+
+
+/*
+ preprocess_s_transaction3(
+	S_Transaction,
+	Outstanding,
+	Outstanding,
+	Transactions_Out,
+	[S_Transaction|Processed_S_Transactions_Tail],
+	Processed_S_Transactions_Tail,
+	Transactions_Out
+) :-
+
+	read_ic_n_sts_processed(Count),
+	Count \= 113.
+*/
+
 
 
  clean_up_txset(Transactions0, Transactions_Result) :-
