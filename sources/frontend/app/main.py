@@ -106,6 +106,7 @@ async def views_limbo(request: Request, job_id: str):
 		if job['status'] == 'Success' and 'reports' in job['result']['result']:
 			return RedirectResponse(find_report_by_key(job['result']['result']['reports'], 'task_directory'))
 		else:
+			# it turns out that failures are not permanent
 			return templates.TemplateResponse("job.html", {"request": request, "job_id": job_id, "json": json.dumps(job, indent=4, sort_keys=True), "refresh": (job['status'] not in [ 'Success']), 'status': job['status']})
 
 
