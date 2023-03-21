@@ -81,8 +81,15 @@ WORKDIR /app/sources/common
 COPY common/libs /app/sources/common/libs
 RUN chown myuser:myuser /app/
 RUN chown myuser:myuser /home/myuser
+
 USER root
-RUN python3 -m pip install -e libs/remoulade/[rabbitmq,redis,postgres]
+# this has to be made writeable because python wants to write it's eggs in there
+RUN chown -R myuser:myuser /app/sources/common/libs/remoulade/
+USER myuser
+
+USER root
+# you can't run this as non-root, because python insists on writing some random stuff somewhere random around the filesystem. Also, you can't install in develop mode (-e), because python insists on writing random stuff into the sources directory and then expects to find it there (which it wont if the sources directory gets mounted over by a volume for runtime). 2023 people, 2023.
+RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v -v -v --upgrade --ignore-installed --user  libs/remoulade/[rabbitmq,redis,postgres]
 USER myuser
 
 
