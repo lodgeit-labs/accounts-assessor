@@ -92,8 +92,11 @@ def cli():
 #@click.argument('build_args', nargs=-1, type=click.UNPROCESSED)
 @click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
 
+@click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='',
+	help="something like: mate-terminal -e")
+
 @click.pass_context
-def run(click_ctx, port_postfix, public_url, parallel_build, rm_stack, **choices):
+def run(click_ctx, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, **choices):
 	no_cache = choices['no_cache']
 	del choices['no_cache']
 	omit_images = choices['omit_images']
@@ -133,7 +136,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
 
-	click_ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images})
+	click_ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images, 'terminal_cmd': terminal_cmd})
 
 	if rm_stack:
 		print('wait for old network to disappear..')
@@ -477,7 +480,10 @@ tmux_session = None
 @click.option('-om', '--omit_image', 'omit_images', type=str, default=[], multiple=True,
 	help=" ")
 
-def build(port_postfix, mode, parallel, no_cache, omit_images):
+@click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='',
+	help=" ")
+
+def build(port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd):
 	global _parallel, tmux_session
 	_parallel=parallel
 
@@ -486,7 +492,11 @@ def build(port_postfix, mode, parallel, no_cache, omit_images):
 		logging.getLogger('libtmux').setLevel(logging.WARNING)
 		server = libtmux.Server()
 		tmux_session = server.new_session()#window_command=
-		vvv = ['mate-terminal', '-e', 'tmux attach-session -t ' + tmux_session.name]
+		tmuxcmd = 'tmux attach-session -t ' + tmux_session.name
+		if terminal_cmd == '':
+			vvv = shlex.split(tmuxcmd)
+		else:
+			vvv = shlex.split(terminal_cmd) + [tmuxcmd]
 		print(shlex.join(vvv))
 		subprocess.Popen(vvv)
 
