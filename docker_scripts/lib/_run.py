@@ -156,7 +156,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	hn = choices['use_host_network']
 	e = {
 		"PP": pp,
-		'DISPLAY':os.environ['DISPLAY'],
+		'DISPLAY':os.environ.get('DISPLAY', ''),
 		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
 		'REDIS_HOST':  'redis://localhost' if hn else 'redis://redis',
 		'AGRAPH_HOST': 'localhost' if hn else 'agraph',
