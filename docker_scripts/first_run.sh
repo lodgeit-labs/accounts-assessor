@@ -12,7 +12,7 @@ sudo apt install apache2-utils
 sudo apt install fish 
 
 # for nice building UI
-tmux
+sudo apt install tmux
 
 # you'll definitely need docker obtained one way or another
 sudo apt install docker.io golang-docker-credential-helpers
