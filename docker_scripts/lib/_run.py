@@ -92,8 +92,7 @@ def cli():
 #@click.argument('build_args', nargs=-1, type=click.UNPROCESSED)
 @click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
 
-@click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='',
-	help="something like: mate-terminal -e")
+@click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='mate-terminal -e "tmux attach-session -t {session_name}"')
 
 @click.pass_context
 def run(click_ctx, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, **choices):
@@ -446,7 +445,9 @@ def task(name, dir, cmd):
 		stdo = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_out', mode='w+')
 		stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err', mode='w+')
 		files += [stde, stdo]
-		tmux_session.new_window(window_shell='tail -f '+ stdo.name + ' ' + stde.name)
+		tailcmd = 'tail -f '+ stdo.name + ' ' + stde.name
+		tmux_session.new_window(window_shell=tailcmd)
+		subprocess.Popen(shlex.split(tailcmd))
 
 		sys.stdout.write(intro)
 		stdo.write(intro)
@@ -494,13 +495,14 @@ def build(port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd):
 		logging.getLogger('libtmux').setLevel(logging.WARNING)
 		server = libtmux.Server()
 		tmux_session = server.new_session()#window_command=
+
 		tmuxcmd = 'tmux attach-session -t ' + tmux_session.name
-		if terminal_cmd == '':
-			vvv = shlex.split(tmuxcmd)
-		else:
-			vvv = shlex.split(terminal_cmd) + [tmuxcmd]
-		print(shlex.join(vvv))
-		subprocess.Popen(vvv)
+
+		terminal_cmd = terminal_cmd.format(session_name=tmux_session.name)
+		if terminal_cmd != '':
+			vvv = shlex.split(terminal_cmd)
+			print(shlex.join(vvv))
+			subprocess.Popen(vvv)
 
 	cc('./lib/git_info.fish')
 
