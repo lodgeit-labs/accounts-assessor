@@ -136,7 +136,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
 
-	os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull')
+	os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull --ignore-pull-failures --include-deps ') # this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it)
 
 	click_ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images, 'terminal_cmd': terminal_cmd})
 
@@ -513,6 +513,7 @@ def build(port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd):
 			))
 
 	dbptks = 'docker build --pull -t "koo5/{service_name}'
+	dbtks = 'docker build -t "koo5/{service_name}'
 
 	ubuntu = task('ubuntu', 'ubuntu', 'docker build --pull -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
 
@@ -522,19 +523,19 @@ def build(port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd):
 
 	join([ubuntu])
 
-	svc('remoulade-api', 		'../sources/', dbptks+'-hlw{port_postfix}"', 		"../docker_scripts/remoulade_api/Dockerfile_hollow")
-	svc('workers', 				'../sources/', dbptks+'-hlw{port_postfix}"', 		"workers/Dockerfile_hollow")
-	svc('internal-services', 	'../sources/', dbptks+'-hlw{port_postfix}"', 		"internal_services/Dockerfile_hollow")
-	svc('services', 			'../sources/', dbptks+'-hlw{port_postfix}"', 		"../docker_scripts/services/Dockerfile_hollow")
-	svc('frontend', 			'../sources/', dbptks+'-hlw{port_postfix}"', 		"../docker_scripts/frontend/Dockerfile_hollow")
+	svc('remoulade-api', 		'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/remoulade_api/Dockerfile_hollow")
+	svc('workers', 				'../sources/', dbtks+'-hlw{port_postfix}"', 		"workers/Dockerfile_hollow")
+	svc('internal-services', 	'../sources/', dbtks+'-hlw{port_postfix}"', 		"internal_services/Dockerfile_hollow")
+	svc('services', 			'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/services/Dockerfile_hollow")
+	svc('frontend', 			'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/frontend/Dockerfile_hollow")
 
 	print("ok?")
 	join_all()
 
 	if mode == "full": # not hollow
-		svc('workers',	'../sources/', dbptks+'{port_postfix}"', "workers/Dockerfile")
-		svc('services',	'../sources/', dbptks+'{port_postfix}"', "services/Dockerfile")
-		svc('frontend',	'../sources/', dbptks+'{port_postfix}"', "frontend/Dockerfile")
+		svc('workers',	'../sources/', dbtks+'{port_postfix}"', "workers/Dockerfile")
+		svc('services',	'../sources/', dbtks+'{port_postfix}"', "services/Dockerfile")
+		svc('frontend',	'../sources/', dbtks+'{port_postfix}"', "frontend/Dockerfile")
 
 	join_all()
 	print("ok!")
