@@ -136,6 +136,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
 
+	os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull')
+
 	click_ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images, 'terminal_cmd': terminal_cmd})
 
 	if rm_stack:
@@ -510,25 +512,29 @@ def build(port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd):
 				dockerfile=dockerfile
 			))
 
-	svc('apache', 		'apache', 						'docker build -t "koo5/{service_name}{port_postfix}"', 	"Dockerfile")
-	svc('agraph', 		'agraph', 						'docker build -t "koo5/{service_name}{port_postfix}"', 	"Dockerfile")
-	svc('super-bowl', 	'../sources/super-bowl/',		'docker build -t "koo5/{service_name}"',				"container/Dockerfile")
+	dbptks = 'docker build --pull -t "koo5/{service_name}'
 
-	join([task('ubuntu', 'ubuntu', 'docker build -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')])
+	ubuntu = task('ubuntu', 'ubuntu', 'docker build --pull -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
 
-	svc('remoulade-api', 		'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"../docker_scripts/remoulade_api/Dockerfile_hollow")
-	svc('workers', 				'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"workers/Dockerfile_hollow")
-	svc('internal-services', 	'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"internal_services/Dockerfile_hollow")
-	svc('services', 			'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"../docker_scripts/services/Dockerfile_hollow")
-	svc('frontend', 			'../sources/', 'docker build -t "koo5/{service_name}-hlw{port_postfix}"', 		"../docker_scripts/frontend/Dockerfile_hollow")
+	svc('apache', 		'apache', 						dbptks+'{port_postfix}"', 	"Dockerfile")
+	svc('agraph', 		'agraph', 						dbptks+'{port_postfix}"', 	"Dockerfile")
+	svc('super-bowl', 	'../sources/super-bowl/',		dbptks+'"',				"container/Dockerfile")
+
+	join([ubuntu])
+
+	svc('remoulade-api', 		'../sources/', dbptks+'-hlw{port_postfix}"', 		"../docker_scripts/remoulade_api/Dockerfile_hollow")
+	svc('workers', 				'../sources/', dbptks+'-hlw{port_postfix}"', 		"workers/Dockerfile_hollow")
+	svc('internal-services', 	'../sources/', dbptks+'-hlw{port_postfix}"', 		"internal_services/Dockerfile_hollow")
+	svc('services', 			'../sources/', dbptks+'-hlw{port_postfix}"', 		"../docker_scripts/services/Dockerfile_hollow")
+	svc('frontend', 			'../sources/', dbptks+'-hlw{port_postfix}"', 		"../docker_scripts/frontend/Dockerfile_hollow")
 
 	print("ok?")
 	join_all()
 
 	if mode == "full": # not hollow
-		svc('workers',	'../sources/', 'docker build -t "koo5/{service_name}{port_postfix}"', "workers/Dockerfile")
-		svc('services',	'../sources/', 'docker build -t "koo5/{service_name}{port_postfix}"', "services/Dockerfile")
-		svc('frontend',	'../sources/', 'docker build -t "koo5/{service_name}{port_postfix}"', "frontend/Dockerfile")
+		svc('workers',	'../sources/', dbptks+'{port_postfix}"', "workers/Dockerfile")
+		svc('services',	'../sources/', dbptks+'{port_postfix}"', "services/Dockerfile")
+		svc('frontend',	'../sources/', dbptks+'{port_postfix}"', "frontend/Dockerfile")
 
 	join_all()
 	print("ok!")
