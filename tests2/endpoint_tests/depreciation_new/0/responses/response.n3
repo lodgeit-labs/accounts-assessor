@@ -1,0 +1,1375 @@
+@base              <http://dev-node.uksouth.cloudapp.azure.com:7768/tmp/1584310520.516828.4/response.n3> .
+@prefix       rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix livestock: <https://rdf.lodgeit.net.au/v1/livestock#> .
+@prefix         l: <https://rdf.lodgeit.net.au/v1/request#> .
+@prefix      rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix       xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Named toplevel resources (335)
+
+<bn1>
+	rdf:first <bn2> ;
+	rdf:rest rdf:nil .
+
+<bn10>
+	rdf:value rdf:nil .
+
+<bn100>
+	rdf:first <bn105> ;
+	rdf:rest <bn106> .
+
+<bn101>
+	a rdf:value ;
+	rdf:value "car123"^^xsd:string .
+
+<bn102>
+	a rdf:value ;
+	rdf:value "2017-06-01T00:00:00"^^xsd:dateTime .
+
+<bn103>
+	a rdf:value ;
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#transfer_asset_to_pool> .
+
+<bn104>
+	a rdf:value ;
+	rdf:value "general_pool"^^xsd:string .
+
+<bn105>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_asset> <bn107> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_date> <bn108> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type> <bn109> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_pool> <bn110> .
+
+<bn106>
+	rdf:first <bn111> ;
+	rdf:rest <bn112> .
+
+<bn107>
+	a rdf:value ;
+	rdf:value "car456"^^xsd:string .
+
+<bn108>
+	a rdf:value ;
+	rdf:value "2017-08-01T00:00:00"^^xsd:dateTime .
+
+<bn109>
+	a rdf:value ;
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#transfer_asset_to_pool> .
+
+<bn11>
+	rdf:value "5"^^xsd:string .
+
+<bn110>
+	a rdf:value ;
+	rdf:value "general_pool"^^xsd:string .
+
+<bn111>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_asset> <bn113> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_date> <bn114> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type> <bn115> .
+
+<bn112>
+	rdf:first <bn116> ;
+	rdf:rest rdf:nil .
+
+<bn113>
+	a rdf:value ;
+	rdf:value "car123"^^xsd:string .
+
+<bn114>
+	a rdf:value ;
+	rdf:value "2021-06-01T00:00:00"^^xsd:dateTime .
+
+<bn115>
+	a rdf:value ;
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#asset_disposal> .
+
+<bn116>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_asset> <bn117> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_date> <bn118> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type> <bn119> .
+
+<bn117>
+	a rdf:value ;
+	rdf:value "car456"^^xsd:string .
+
+<bn118>
+	a rdf:value ;
+	rdf:value "2020-07-31T00:00:00"^^xsd:dateTime .
+
+<bn119>
+	a rdf:value ;
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#asset_disposal> .
+
+<bn12>
+	rdf:value "30"^^xsd:integer .
+
+<bn120>
+	rdf:first <bn121> ;
+	rdf:rest <bn122> .
+
+<bn121>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_asset> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#cost> <bn123> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#effective_life_years> <bn124> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#id> <bn125> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#start_date> <bn126> .
+
+<bn122>
+	rdf:first <bn127> ;
+	rdf:rest rdf:nil .
+
+<bn123>
+	a rdf:value ;
+	rdf:value "1000"^^xsd:integer .
+
+<bn124>
+	a rdf:value ;
+	rdf:value "5"^^xsd:integer .
+
+<bn125>
+	a rdf:value ;
+	rdf:value "car123"^^xsd:string .
+
+<bn126>
+	a rdf:value ;
+	rdf:value "2017-05-01T00:00:00"^^xsd:dateTime .
+
+<bn127>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_asset> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#cost> <bn128> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#effective_life_years> <bn129> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#id> <bn130> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#start_date> <bn131> .
+
+<bn128>
+	a rdf:value ;
+	rdf:value "2000"^^xsd:integer .
+
+<bn129>
+	a rdf:value ;
+	rdf:value "8"^^xsd:integer .
+
+<bn13>
+	<https://rdf.lodgeit.net.au/v1/excel#col> "A"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#row> "1"^^xsd:string .
+
+<bn130>
+	a rdf:value ;
+	rdf:value "car456"^^xsd:string .
+
+<bn131>
+	a rdf:value ;
+	rdf:value "2015-03-16T00:00:00"^^xsd:dateTime .
+
+<bn132>
+	<https://rdf.lodgeit.net.au/v1/excel#col> "A"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#row> "1"^^xsd:string .
+
+<bn133>
+	rdf:first <bn134> ;
+	rdf:rest <bn135> .
+
+<bn134>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> <https://rdf.lodgeit.net.au/v1/excel#uri> .
+
+<bn135>
+	rdf:first <bn136> ;
+	rdf:rest <bn137> .
+
+<bn136>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_asset_id> .
+
+<bn137>
+	rdf:first <bn138> ;
+	rdf:rest <bn139> .
+
+<bn138>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_pool> .
+
+<bn139>
+	rdf:first <bn140> ;
+	rdf:rest <bn141> .
+
+<bn14>
+	rdf:first <bn15> ;
+	rdf:rest <bn16> .
+
+<bn140>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_from_date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn141>
+	rdf:first <bn142> ;
+	rdf:rest <bn143> .
+
+<bn142>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_to_date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn143>
+	rdf:first <bn144> ;
+	rdf:rest <bn145> .
+
+<bn144>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_written_down_date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn145>
+	rdf:first <bn146> ;
+	rdf:rest <bn147> .
+
+<bn146>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method> .
+
+<bn147>
+	rdf:first <bn148> ;
+	rdf:rest <bn149> .
+
+<bn148>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_termination_value> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn149>
+	rdf:first <bn150> ;
+	rdf:rest <bn151> .
+
+<bn15>
+	<https://rdf.lodgeit.net.au/v1/excel#comment> "ignored for Investment Calculator"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#begin_date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn150>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_termination_date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn151>
+	rdf:first <bn152> ;
+	rdf:rest <bn153> .
+
+<bn152>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_total_depreciation> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn153>
+	rdf:first <bn154> ;
+	rdf:rest <bn155> .
+
+<bn154>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_depreciation_value> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn155>
+	rdf:first <bn156> ;
+	rdf:rest <bn157> .
+
+<bn156>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_written_down_value> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn157>
+	rdf:first <bn158> ;
+	rdf:rest rdf:nil .
+
+<bn158>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_profit_and_loss> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn159>
+	<https://rdf.lodgeit.net.au/v1/excel#col> "A"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#row> "1"^^xsd:string .
+
+<bn16>
+	rdf:first <bn17> ;
+	rdf:rest <bn18> .
+
+<bn160>
+	rdf:first <bn161> ;
+	rdf:rest <bn162> .
+
+<bn161>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> <https://rdf.lodgeit.net.au/v1/excel#uri> .
+
+<bn162>
+	rdf:first <bn163> ;
+	rdf:rest <bn164> .
+
+<bn163>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_asset> .
+
+<bn164>
+	rdf:first <bn165> ;
+	rdf:rest <bn166> .
+
+<bn165>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_pool> .
+
+<bn166>
+	rdf:first <bn167> ;
+	rdf:rest rdf:nil .
+
+<bn167>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn168>
+	<https://rdf.lodgeit.net.au/v1/excel#col> "A"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#row> "1"^^xsd:string .
+
+<bn169>
+	rdf:first <bn170> ;
+	rdf:rest <bn171> .
+
+<bn17>
+	<https://rdf.lodgeit.net.au/v1/excel#comment> "ignored for Investment Calculator"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#end_date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn170>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#id> .
+
+<bn171>
+	rdf:first <bn172> ;
+	rdf:rest <bn173> .
+
+<bn172>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#start_date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn173>
+	rdf:first <bn174> ;
+	rdf:rest <bn175> .
+
+<bn174>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#cost> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn175>
+	rdf:first <bn176> ;
+	rdf:rest rdf:nil .
+
+<bn176>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/depr#effective_life_years> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:integer .
+
+<bn177>
+	rdf:first <bn178> ;
+	rdf:rest <bn179> .
+
+<bn178>
+	<https://rdf.lodgeit.net.au/v1/excel#example_doc> <bn180> ;
+	<https://rdf.lodgeit.net.au/v1/excel#name_prefix> "GL_input"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#optional> "true"^^xsd:boolean ;
+	<https://rdf.lodgeit.net.au/v1/excel#root> <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl> .
+
+<bn179>
+	rdf:first <bn183> ;
+	rdf:rest <bn184> .
+
+<bn18>
+	rdf:first <bn19> ;
+	rdf:rest rdf:nil .
+
+<bn180>
+	<https://rdf.lodgeit.net.au/v1/calcs/ic#default_currency> <bn181> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/ic#items> <bn182> .
+
+<bn181>
+	rdf:value "AUD"^^xsd:string .
+
+<bn182>
+	rdf:value rdf:nil .
+
+<bn183>
+	<https://rdf.lodgeit.net.au/v1/excel#example_doc> <bn185> ;
+	<https://rdf.lodgeit.net.au/v1/excel#optional> "true"^^xsd:boolean ;
+	<https://rdf.lodgeit.net.au/v1/excel#root> <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_taxonomies> .
+
+<bn184>
+	rdf:first <bn186> ;
+	rdf:rest <bn187> .
+
+<bn185>
+	rdf:value rdf:nil .
+
+<bn186>
+	<https://rdf.lodgeit.net.au/v1/excel#example_doc> <bn188> ;
+	<https://rdf.lodgeit.net.au/v1/excel#optional> "true"^^xsd:boolean ;
+	<https://rdf.lodgeit.net.au/v1/excel#root> <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_roles> .
+
+<bn187>
+	rdf:first <bn189> ;
+	rdf:rest <bn190> .
+
+<bn188>
+	rdf:value rdf:nil .
+
+<bn189>
+	<https://rdf.lodgeit.net.au/v1/excel#example_doc> <bn191> ;
+	<https://rdf.lodgeit.net.au/v1/excel#optional> "true"^^xsd:boolean ;
+	<https://rdf.lodgeit.net.au/v1/excel#root> <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#additional_files> .
+
+<bn19>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract> ;
+	<https://rdf.lodgeit.net.au/v1/excel#template> <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_contract> .
+
+<bn190>
+	rdf:first <bn192> ;
+	rdf:rest rdf:nil .
+
+<bn191>
+	rdf:value rdf:nil .
+
+<bn192>
+	<https://rdf.lodgeit.net.au/v1/excel#example_doc> <bn193> ;
+	<https://rdf.lodgeit.net.au/v1/excel#optional> "false"^^xsd:boolean ;
+	<https://rdf.lodgeit.net.au/v1/excel#root> <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#report_details> .
+
+<bn193>
+	<https://rdf.lodgeit.net.au/v1/calcs/ic#cost_or_market> <bn194> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/ic#currency> <bn195> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/ic#from> <bn196> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/ic#to> <bn197> .
+
+<bn194>
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/ic#cost> .
+
+<bn195>
+	rdf:value "AUD"^^xsd:string .
+
+<bn196>
+	rdf:value "2019-07-01T00:00:00"^^xsd:dateTime .
+
+<bn197>
+	rdf:value "2020-01-01T00:00:00"^^xsd:dateTime .
+
+<bn198>
+	<https://rdf.lodgeit.net.au/v1/excel#col> "A"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#row> "1"^^xsd:string .
+
+<bn199>
+	rdf:first <bn200> ;
+	rdf:rest <bn201> .
+
+<bn2>
+	<https://rdf.lodgeit.net.au/v1/excel#example_doc> <bn3> ;
+	<https://rdf.lodgeit.net.au/v1/excel#name_prefix> "HP"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#root> <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_calculator_query> .
+
+<bn20>
+	<https://rdf.lodgeit.net.au/v1/excel#col> "A"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#row> "5"^^xsd:string .
+
+<bn200>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#default_currency> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:string .
+
+<bn201>
+	rdf:first <bn202> ;
+	rdf:rest rdf:nil .
+
+<bn202>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#items> ;
+	<https://rdf.lodgeit.net.au/v1/excel#template> <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl_entries_template> .
+
+<bn203>
+	<https://rdf.lodgeit.net.au/v1/excel#col> "A"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#row> "4"^^xsd:string .
+
+<bn204>
+	rdf:first <bn205> ;
+	rdf:rest <bn206> .
+
+<bn205>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn206>
+	rdf:first <bn207> ;
+	rdf:rest <bn208> .
+
+<bn207>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#account> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:string .
+
+<bn208>
+	rdf:first <bn209> ;
+	rdf:rest <bn210> .
+
+<bn209>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#description> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:string .
+
+<bn21>
+	rdf:first <bn22> ;
+	rdf:rest <bn23> .
+
+<bn210>
+	rdf:first <bn211> ;
+	rdf:rest <bn212> .
+
+<bn211>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#debit> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:string .
+
+<bn212>
+	rdf:first <bn213> ;
+	rdf:rest rdf:nil .
+
+<bn213>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#credit> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:string .
+
+<bn214>
+	rdf:first <bn215> ;
+	rdf:rest rdf:nil .
+
+<bn215>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#url> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:string .
+
+<bn216>
+	rdf:first <bn217> ;
+	rdf:rest <bn218> .
+
+<bn217>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#id> .
+
+<bn218>
+	rdf:first <bn219> ;
+	rdf:rest rdf:nil .
+
+<bn219>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#role> .
+
+<bn22>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#contract_number> .
+
+<bn220>
+	rdf:first <bn221> ;
+	rdf:rest rdf:nil .
+
+<bn221>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#url> .
+
+<bn222>
+	rdf:first <bn223> ;
+	rdf:rest <bn224> .
+
+<bn223>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#from> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn224>
+	rdf:first <bn225> ;
+	rdf:rest <bn226> .
+
+<bn225>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#to> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn226>
+	rdf:first <bn227> ;
+	rdf:rest <bn228> .
+
+<bn227>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#currency> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:string .
+
+<bn228>
+	rdf:first <bn229> ;
+	rdf:rest rdf:nil .
+
+<bn229>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/ic#cost_or_market> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> <https://rdf.lodgeit.net.au/v1/excel#uri> .
+
+<bn23>
+	rdf:first <bn24> ;
+	rdf:rest <bn25> .
+
+<bn230>
+	rdf:first <bn231> ;
+	rdf:rest <bn232> .
+
+<bn231>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type> <bn253> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method> <bn254> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_pool> <bn255> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_to_date> <bn256> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_total_depreciation> <http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4/#bnx3_value> .
+
+<bn232>
+	rdf:first <bn233> ;
+	rdf:rest <bn234> .
+
+<bn233>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_asset_id> <bn288> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_depreciation_value> <http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4/#bnx4_value> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_from_date> <bn289> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type> <bn290> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method> <bn291> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_to_date> <bn292> .
+
+<bn234>
+	rdf:first <bn235> ;
+	rdf:rest <bn236> .
+
+<bn235>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_asset_id> <bn257> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type> <bn258> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method> <bn259> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_written_down_date> <bn260> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_written_down_value> <http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4/#bnx5_value> .
+
+<bn236>
+	rdf:first <bn237> ;
+	rdf:rest rdf:nil .
+
+<bn237>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_asset_id> <bn275> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type> <bn276> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method> <bn277> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_profit_and_loss> <http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4/#bnx6_value> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_termination_date> <bn278> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_termination_value> <bn279> .
+
+<bn238>
+	rdf:first <bn239> ;
+	rdf:rest <bn240> .
+
+<bn239>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_asset> <bn261> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_date> <bn262> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type> <bn263> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_pool> <bn264> .
+
+<bn24>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#currency> .
+
+<bn240>
+	rdf:first <bn241> ;
+	rdf:rest <bn242> .
+
+<bn241>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_asset> <bn265> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_date> <bn266> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type> <bn267> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_pool> <bn268> .
+
+<bn242>
+	rdf:first <bn243> ;
+	rdf:rest <bn244> .
+
+<bn243>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_asset> <bn269> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_date> <bn270> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type> <bn271> .
+
+<bn244>
+	rdf:first <bn245> ;
+	rdf:rest rdf:nil .
+
+<bn245>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_asset> <bn272> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_date> <bn273> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type> <bn274> .
+
+<bn246>
+	rdf:first <bn247> ;
+	rdf:rest <bn248> .
+
+<bn247>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_asset> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#cost> <bn280> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#effective_life_years> <bn281> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#id> <bn282> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#start_date> <bn283> .
+
+<bn248>
+	rdf:first <bn249> ;
+	rdf:rest rdf:nil .
+
+<bn249>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_asset> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#cost> <bn284> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#effective_life_years> <bn285> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#id> <bn286> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#start_date> <bn287> .
+
+<bn25>
+	rdf:first <bn26> ;
+	rdf:rest <bn27> .
+
+<bn250>
+	rdf:value <bn230> ;
+	<https://rdf.lodgeit.net.au/v1/excel#has_sheet_name> "depreciation_queries"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#template> <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_queries> .
+
+<bn251>
+	rdf:value <bn238> ;
+	<https://rdf.lodgeit.net.au/v1/excel#has_sheet_name> "depreciation_events"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#template> <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_events> .
+
+<bn252>
+	rdf:value <bn246> ;
+	<https://rdf.lodgeit.net.au/v1/excel#has_sheet_name> "depreciation_assets"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#template> <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_assets> .
+
+<bn253>
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_pool_from_start> .
+
+<bn254>
+	rdf:value "diminishing_value"^^xsd:string .
+
+<bn255>
+	rdf:value "general_pool"^^xsd:string .
+
+<bn256>
+	rdf:value "2019-02-02T00:00:00"^^xsd:dateTime .
+
+<bn257>
+	rdf:value "car123"^^xsd:string .
+
+<bn258>
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#written_down_value> .
+
+<bn259>
+	rdf:value "diminishing_value"^^xsd:string .
+
+<bn26>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#cash_price> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn260>
+	rdf:value "2017-06-01T00:00:00"^^xsd:dateTime .
+
+<bn261>
+	rdf:value "car123"^^xsd:string .
+
+<bn262>
+	rdf:value "2017-06-01T00:00:00"^^xsd:dateTime .
+
+<bn263>
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#transfer_asset_to_pool> .
+
+<bn264>
+	rdf:value "general_pool"^^xsd:string .
+
+<bn265>
+	rdf:value "car456"^^xsd:string .
+
+<bn266>
+	rdf:value "2017-08-01T00:00:00"^^xsd:dateTime .
+
+<bn267>
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#transfer_asset_to_pool> .
+
+<bn268>
+	rdf:value "general_pool"^^xsd:string .
+
+<bn269>
+	rdf:value "car123"^^xsd:string .
+
+<bn27>
+	rdf:first <bn28> ;
+	rdf:rest <bn29> .
+
+<bn270>
+	rdf:value "2021-06-01T00:00:00"^^xsd:dateTime .
+
+<bn271>
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#asset_disposal> .
+
+<bn272>
+	rdf:value "car456"^^xsd:string .
+
+<bn273>
+	rdf:value "2020-07-31T00:00:00"^^xsd:dateTime .
+
+<bn274>
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#asset_disposal> .
+
+<bn275>
+	rdf:value "car123"^^xsd:string .
+
+<bn276>
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#profit_and_loss> .
+
+<bn277>
+	rdf:value "diminishing_value"^^xsd:string .
+
+<bn278>
+	rdf:value "2019-07-07T00:00:00"^^xsd:dateTime .
+
+<bn279>
+	rdf:value "500"^^xsd:integer .
+
+<bn28>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#interest_rate> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn280>
+	rdf:value "1000"^^xsd:integer .
+
+<bn281>
+	rdf:value "5"^^xsd:integer .
+
+<bn282>
+	rdf:value "car123"^^xsd:string .
+
+<bn283>
+	rdf:value "2017-05-01T00:00:00"^^xsd:dateTime .
+
+<bn284>
+	rdf:value "2000"^^xsd:integer .
+
+<bn285>
+	rdf:value "8"^^xsd:integer .
+
+<bn286>
+	rdf:value "car456"^^xsd:string .
+
+<bn287>
+	rdf:value "2015-03-16T00:00:00"^^xsd:dateTime .
+
+<bn288>
+	rdf:value "car456"^^xsd:string .
+
+<bn289>
+	rdf:value "2017-06-01T00:00:00"^^xsd:dateTime .
+
+<bn29>
+	rdf:first <bn30> ;
+	rdf:rest <bn31> .
+
+<bn290>
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_between_two_dates> .
+
+<bn291>
+	rdf:value "diminishing_value"^^xsd:string .
+
+<bn292>
+	rdf:value "2019-02-02T00:00:00"^^xsd:dateTime .
+
+<bn3>
+	<https://rdf.lodgeit.net.au/v1/calcs/hp#begin_date> <bn4> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract> <bn5> .
+
+<bn30>
+	<https://rdf.lodgeit.net.au/v1/excel#note> "dunno what type here"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#interest_period> .
+
+<bn31>
+	rdf:first <bn32> ;
+	rdf:rest <bn33> .
+
+<bn32>
+	<https://rdf.lodgeit.net.au/v1/excel#note> "dunno what type here"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#repayment_period> .
+
+<bn33>
+	rdf:first <bn34> ;
+	rdf:rest <bn35> .
+
+<bn34>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#number_of_installments> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:integer .
+
+<bn35>
+	rdf:first <bn36> ;
+	rdf:rest <bn37> .
+
+<bn36>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#repayment_amount> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn37>
+	rdf:first <bn38> ;
+	rdf:rest <bn39> .
+
+<bn38>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#total_payments> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:integer .
+
+<bn39>
+	rdf:first <bn40> ;
+	rdf:rest <bn41> .
+
+<bn4>
+	rdf:value "2019-10-10T00:00:00"^^xsd:dateTime .
+
+<bn40>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#total_interest> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn41>
+	rdf:first <bn42> ;
+	rdf:rest <bn43> .
+
+<bn42>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#repayment_balance> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn43>
+	rdf:first <bn44> ;
+	rdf:rest <bn45> .
+
+<bn44>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> <https://rdf.lodgeit.net.au/v1/excel#uri> .
+
+<bn45>
+	rdf:first <bn46> ;
+	rdf:rest rdf:nil .
+
+<bn46>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#hp_installments> ;
+	<https://rdf.lodgeit.net.au/v1/excel#template> <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_installments> .
+
+<bn47>
+	<https://rdf.lodgeit.net.au/v1/excel#col> "E"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#row> "20"^^xsd:string .
+
+<bn48>
+	rdf:first <bn49> ;
+	rdf:rest <bn50> .
+
+<bn49>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#installment_number> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:integer .
+
+<bn5>
+	a <https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/hp#cash_price> <bn6> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/hp#contract_number> <bn7> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/hp#currency> <bn8> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type> <bn9> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/hp#hp_installments> <bn10> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/hp#interest_rate> <bn11> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/hp#number_of_installments> <bn12> .
+
+<bn50>
+	rdf:first <bn51> ;
+	rdf:rest <bn52> .
+
+<bn51>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#opening_date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn52>
+	rdf:first <bn53> ;
+	rdf:rest <bn54> .
+
+<bn53>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#opening_balance> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn54>
+	rdf:first <bn55> ;
+	rdf:rest <bn56> .
+
+<bn55>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#interest_amount> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn56>
+	rdf:first <bn57> ;
+	rdf:rest <bn58> .
+
+<bn57>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#installment_amount> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn58>
+	rdf:first <bn59> ;
+	rdf:rest <bn60> .
+
+<bn59>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#closing_date> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:dateTime .
+
+<bn6>
+	rdf:value "321321.27"^^xsd:string .
+
+<bn60>
+	rdf:first <bn61> ;
+	rdf:rest <bn62> .
+
+<bn61>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#closing_balance> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn62>
+	rdf:first <bn63> ;
+	rdf:rest <bn64> .
+
+<bn63>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#total_repayments_through_period> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn64>
+	rdf:first <bn65> ;
+	rdf:rest rdf:nil .
+
+<bn65>
+	<https://rdf.lodgeit.net.au/v1/excel#property> <https://rdf.lodgeit.net.au/v1/calcs/hp#total_interest_payments_through_period> ;
+	<https://rdf.lodgeit.net.au/v1/excel#type> xsd:decimal .
+
+<bn66>
+	rdf:first <bn67> ;
+	rdf:rest <bn68> .
+
+<bn67>
+	<https://rdf.lodgeit.net.au/v1/excel#example_doc> <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_queries> ;
+	<https://rdf.lodgeit.net.au/v1/excel#name_prefix> "depreciation_queries"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#root> <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_queries> .
+
+<bn68>
+	rdf:first <bn69> ;
+	rdf:rest <bn70> .
+
+<bn69>
+	<https://rdf.lodgeit.net.au/v1/excel#example_doc> <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_events> ;
+	<https://rdf.lodgeit.net.au/v1/excel#name_prefix> "depreciation_events"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#root> <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_events> .
+
+<bn7>
+	rdf:value "xxxx"^^xsd:string .
+
+<bn70>
+	rdf:first <bn71> ;
+	rdf:rest rdf:nil .
+
+<bn71>
+	<https://rdf.lodgeit.net.au/v1/excel#example_doc> <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_assets> ;
+	<https://rdf.lodgeit.net.au/v1/excel#name_prefix> "depreciation_assets"^^xsd:string ;
+	<https://rdf.lodgeit.net.au/v1/excel#root> <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_assets> .
+
+<bn72>
+	rdf:first <bn73> ;
+	rdf:rest <bn74> .
+
+<bn73>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type> <bn75> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method> <bn76> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_pool> <bn77> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_to_date> <bn78> .
+
+<bn74>
+	rdf:first <bn79> ;
+	rdf:rest <bn80> .
+
+<bn75>
+	a rdf:value ;
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_pool_from_start> .
+
+<bn76>
+	a rdf:value ;
+	rdf:value "diminishing_value"^^xsd:string .
+
+<bn77>
+	a rdf:value ;
+	rdf:value "general_pool"^^xsd:string .
+
+<bn78>
+	a rdf:value ;
+	rdf:value "2019-02-02T00:00:00"^^xsd:dateTime .
+
+<bn79>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_asset_id> <bn81> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_from_date> <bn82> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type> <bn83> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method> <bn84> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_to_date> <bn85> .
+
+<bn8>
+	rdf:value "AUD"^^xsd:string .
+
+<bn80>
+	rdf:first <bn86> ;
+	rdf:rest <bn87> .
+
+<bn81>
+	a rdf:value ;
+	rdf:value "car456"^^xsd:string .
+
+<bn82>
+	a rdf:value ;
+	rdf:value "2017-06-01T00:00:00"^^xsd:dateTime .
+
+<bn83>
+	a rdf:value ;
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_between_two_dates> .
+
+<bn84>
+	a rdf:value ;
+	rdf:value "diminishing_value"^^xsd:string .
+
+<bn85>
+	a rdf:value ;
+	rdf:value "2019-02-02T00:00:00"^^xsd:dateTime .
+
+<bn86>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_asset_id> <bn88> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type> <bn89> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method> <bn90> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_written_down_date> <bn91> .
+
+<bn87>
+	rdf:first <bn92> ;
+	rdf:rest rdf:nil .
+
+<bn88>
+	a rdf:value ;
+	rdf:value "car123"^^xsd:string .
+
+<bn89>
+	a rdf:value ;
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#written_down_value> .
+
+<bn9>
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type_advance> .
+
+<bn90>
+	a rdf:value ;
+	rdf:value "diminishing_value"^^xsd:string .
+
+<bn91>
+	a rdf:value ;
+	rdf:value "2017-06-01T00:00:00"^^xsd:dateTime .
+
+<bn92>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_asset_id> <bn93> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type> <bn94> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_method> <bn95> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_termination_date> <bn96> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_termination_value> <bn97> .
+
+<bn93>
+	a rdf:value ;
+	rdf:value "car123"^^xsd:string .
+
+<bn94>
+	a rdf:value ;
+	rdf:value <https://rdf.lodgeit.net.au/v1/calcs/depr#profit_and_loss> .
+
+<bn95>
+	a rdf:value ;
+	rdf:value "diminishing_value"^^xsd:string .
+
+<bn96>
+	a rdf:value ;
+	rdf:value "2019-07-07T00:00:00"^^xsd:dateTime .
+
+<bn97>
+	a rdf:value ;
+	rdf:value "500"^^xsd:integer .
+
+<bn98>
+	rdf:first <bn99> ;
+	rdf:rest <bn100> .
+
+<bn99>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_asset> <bn101> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_date> <bn102> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type> <bn103> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_pool> <bn104> .
+
+<http://dev-node.uksouth.cloudapp.azure.com/rdf/requests/1584318876.1752856.1>
+	a l:Request ;
+	l:has_request_data <http://dev-node.uksouth.cloudapp.azure.com/rdf/requests/1584318876.1752856.1/request_data/request> ;
+	l:has_request_data_uri_base <http://dev-node.uksouth.cloudapp.azure.com/rdf/requests/1584318876.1752856.1/request_data/> ;
+	l:has_result <http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4> .
+
+<http://dev-node.uksouth.cloudapp.azure.com/rdf/requests/1584318876.1752856.1/request_data/request>
+	<https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_assets> <bn252> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_events> <bn251> ;
+	<https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_queries> <bn250> .
+
+<http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4>
+	a l:Result ;
+	l:has_result_data_uri_base <http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4/> ;
+	l:rdf_explorer_base "http://dev-node.uksouth.cloudapp.azure.com:10036/#/repositories/a/node/"^^xsd:string .
+
+<http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4/#bnx3_value>
+	rdf:value "0"^^xsd:integer .
+
+<http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4/#bnx4_value>
+	rdf:value "369.87259903836457"^^xsd:string .
+
+<http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4/#bnx5_value>
+	rdf:value "966.027397260274"^^xsd:string .
+
+<http://dev-node.uksouth.cloudapp.azure.com/rdf/results/1584310520.516828.4/#bnx6_value>
+	rdf:value "-63.28767123287662"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr#asset_disposal>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_between_two_dates>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_has_type>
+	rdfs:range <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_pool_from_start>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_has_type>
+	rdfs:range <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr#profit_and_loss>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr#this>
+	rdfs:comment "depreciation"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr#transfer_asset_to_pool>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr#written_down_value>
+	a <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_assets>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#multi> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_asset> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn169> ;
+	<https://rdf.lodgeit.net.au/v1/excel#position> <bn168> ;
+	<https://rdf.lodgeit.net.au/v1/excel#title> "depreciation_assets"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_calculator_sheets>
+	<https://rdf.lodgeit.net.au/v1/excel#is_multi> "false"^^xsd:boolean ;
+	<https://rdf.lodgeit.net.au/v1/excel#sheets> <bn66> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_events>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#multi> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_event> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn160> ;
+	<https://rdf.lodgeit.net.au/v1/excel#position> <bn159> ;
+	<https://rdf.lodgeit.net.au/v1/excel#title> "depreciation_events"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_assets>
+	rdf:value <bn120> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_events>
+	rdf:value <bn98> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_example_queries>
+	rdf:value <bn72> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/depr/ui#depreciation_queries>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#multi> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/depr#depreciation_query> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn133> ;
+	<https://rdf.lodgeit.net.au/v1/excel#position> <bn132> ;
+	<https://rdf.lodgeit.net.au/v1/excel#title> "depreciation_queries"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_has_payment_type>
+	rdfs:range <https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type_advance>
+	a <https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract_payment_type> ;
+	rdfs:label "advance"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/hp#this>
+	rdfs:comment "hirepurchase"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hirepurchase_calculator_sheets>
+	<https://rdf.lodgeit.net.au/v1/excel#is_multi> "true"^^xsd:boolean ;
+	<https://rdf.lodgeit.net.au/v1/excel#sheets> <bn1> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_calculator_query>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#single> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/hp#hp_calculator_query> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn14> ;
+	<https://rdf.lodgeit.net.au/v1/excel#position> <bn13> ;
+	<https://rdf.lodgeit.net.au/v1/excel#title> "Standalone Calculator Query Parameters"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_contract>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#single> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/hp#hp_contract> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn21> ;
+	<https://rdf.lodgeit.net.au/v1/excel#position> <bn20> ;
+	<https://rdf.lodgeit.net.au/v1/excel#title> "Hirepurchase Contract"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/hp/ui#hp_installments>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#multi> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/hp#hp_installment> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn48> ;
+	<https://rdf.lodgeit.net.au/v1/excel#position> <bn47> ;
+	<https://rdf.lodgeit.net.au/v1/excel#title> "Installments"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic#cost>
+	a <https://rdf.lodgeit.net.au/v1/calcs/ic#cost_or_market_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic#cost_or_market>
+	rdfs:range <https://rdf.lodgeit.net.au/v1/calcs/ic#cost_or_market_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic#market>
+	a <https://rdf.lodgeit.net.au/v1/calcs/ic#cost_or_market_type> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic#this>
+	rdfs:comment "investment calculator"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_roles>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#multi> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/ic#account_role> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn216> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic/ui#account_taxonomies>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#multi> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/ic#account_taxonomy> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn214> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic/ui#additional_files>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#multi> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/ic#additional_file> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn220> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#single> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/ic#gl> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn199> ;
+	<https://rdf.lodgeit.net.au/v1/excel#position> <bn198> ;
+	<https://rdf.lodgeit.net.au/v1/excel#title> "GL input"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic/ui#gl_entries_template>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#multi> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/ic#gl_entry> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn204> ;
+	<https://rdf.lodgeit.net.au/v1/excel#position> <bn203> ;
+	<https://rdf.lodgeit.net.au/v1/excel#title> "entries"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic/ui#investment_calculator_sheets>
+	<https://rdf.lodgeit.net.au/v1/excel#is_multi> "false"^^xsd:boolean ;
+	<https://rdf.lodgeit.net.au/v1/excel#sheets> <bn177> .
+
+<https://rdf.lodgeit.net.au/v1/calcs/ic/ui#report_details>
+	<https://rdf.lodgeit.net.au/v1/excel#cardinality> <https://rdf.lodgeit.net.au/v1/excel#single> ;
+	<https://rdf.lodgeit.net.au/v1/excel#class> <https://rdf.lodgeit.net.au/v1/calcs/ic#report_details> ;
+	<https://rdf.lodgeit.net.au/v1/excel#fields> <bn222> .
+
+<https://rdf.lodgeit.net.au/v1/excel#is_multi>
+	rdfs:comment "are multiple instances allowed in one workbook?"^^xsd:string .
+
+<https://rdf.lodgeit.net.au/v1/excel#this>
+	rdfs:comment "excel: generic excel schema-directed ui stuff"^^xsd:string .

@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!-- There must be exactly one loandetails element in a reports element. -->
+	<loanDetails>
+		<generator>
+			<date>2017-03-25T05:53:43.887542Z</date>
+			<source>ACCRIP</source>
+			<author>
+				<firstname>waqas</firstname>
+				<lastname>awan</lastname>
+				<company>Uhudsoft</company>
+			</author>
+		</generator>
+		<company>
+			<abn>12345678900</abn>
+			<tfn />
+			<clientcode />
+			<anzsic />
+			<notes />
+			<directors />
+		</company>
+		<title>Load Sheet</title>
+		<period>1 July, 2016 to 30 June, 2023</period>
+		<startDate>2016-07-01</startDate>
+		<endDate>2023-06-30</endDate>
+		<loanAgreement>
+			<field name="Income year of loan creation" value="2014" />
+			<field name="Full term of loan in years" value="7" />
+			<field name="Principal amount of loan" value="50000" />
+			<field name="Lodgment day of private company" value="2014-08-01" />
+			<field name="Income year of computation" value="2015" />
+		</loanAgreement>
+		<repayments>
+			<!--
+			in this case, the repayment was made after the lodgement day, and minimum yearly repayment ($8,941.00) was not met.
+			-->
+			<repayment date="2014-09-01" value="8000" />
+		</repayments>
+
+<!--
+
+Minimum yearly repayment not met.
+
+Minimum yearly repayment
+
+$8,941.00
+
+Benchmark interest rate
+
+5.95%
+
+Opening balance:
+
+Date: 30/06/2014
+
+Balance: $50,000.00
+
+Days: 62
+
+Interest: $505.34
+
+Payments
+
+Date: 01/09/2014
+
+Amount: $8,000.00
+
+Balance: $42,000.00
+
+Days: 303
+
+Interest: $2,074.51
+
+Total repayments
+
+$8,000.00
+
+Total interest
+
+$2,579.85
+
+Total principal
+
+$5,420.15
+
+Closing balance
+
+Date: 30/06/2015
+
+Balance: $44,579.85
+	
+ -->
+
+		
+	</loanDetails>
+</reports>

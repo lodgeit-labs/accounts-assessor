@@ -8,42 +8,33 @@ process_request_loan(Request_File, DOM) :-
 	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Opening balance of computation', @value=OB), _E6)
 	->	OpeningBalance = OB
 	;	OpeningBalance = -1),
-	resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), Schema_File),
-	validate_xml(Request_File, Schema_File, Schema_Errors),
-	(
-		Schema_Errors = []
-	->
-		(
-			% need to handle empty repayments/repayment, needs to be tested
-			findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
-			atom_number(ComputationYear, NIncomeYear),
-			convert_xpath_results(
-				CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
-				NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
-			loan_agr_summary(loan_agreement(
-				% loan_agr_contract_number:
-				0,
-				% loan_agr_principal_amount:
-				NPrincipalAmount,
-				% loan_agr_lodgement_day:
-				NLodgementDate,
-				% loan_agr_begin_day:
-				NCreationIncomeYear,
-				% loan_agr_term (length in years):
-				NTerm,
-				% loan_agr_computation_year
-				NComputationYear,
-				NOpeningBalance,
-				% loan_agr_repayments (list):
-				NLoanRepayments),
-				% output:
-				Summary),
-			display_xml_loan_response(NIncomeYear, Summary)
-		)
-	;
-		maplist(add_alert(error), Schema_Errors)
-	).
 
+	validate_xml2(Request_File, 'bases/Reports.xsd'),
+	% need to handle empty repayments/repayment, needs to be tested
+	findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
+	atom_number(ComputationYear, NIncomeYear),
+	convert_xpath_results(
+		CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
+		NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
+	loan_agr_summary(loan_agreement(
+		% loan_agr_contract_number:
+		0,
+		% loan_agr_principal_amount:
+		NPrincipalAmount,
+		% loan_agr_lodgement_day:
+		NLodgementDate,
+		% loan_agr_begin_day:
+		NCreationIncomeYear,
+		% loan_agr_term (length in years):
+		NTerm,
+		% loan_agr_computation_year
+		NComputationYear,
+		NOpeningBalance,
+		% loan_agr_repayments (list):
+		NLoanRepayments),
+		% output:
+		Summary),
+	display_xml_loan_response(NIncomeYear, Summary).
    
 % -------------------------------------------------------------------
 % display_xml_loan_response/3

@@ -1,0 +1,11 @@
+jinja2
+pyyaml
+fastapi
+python-multipart
+agraph-python==101.0.7
+uvicorn
+pydantic
+requests
+
+[dev]
+watchdog

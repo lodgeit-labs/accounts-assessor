@@ -7,3 +7,10 @@
 [submodule "sources/wait-for-it"]
 	path = sources/wait-for-it
 	url = https://github.com/vishnubob/wait-for-it.git
+[submodule "sources/common/remoulade"]
+	path = sources/common/libs/remoulade
+	url = https://github.com/wiremind/remoulade
+[submodule "sources/super-bowl"]
+	path = sources/super-bowl
+	url = https://github.com/koo5/super-bowl
+

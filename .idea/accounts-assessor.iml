@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/docker_scripts" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/scraps" />
+      <excludeFolder url="file://$MODULE_DIR$/tests" />
+      <excludeFolder url="file://$MODULE_DIR$/generated_stack_files" />
+      <excludeFolder url="file://$MODULE_DIR$/server_root" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/static" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/public_lib/lodgeit_solvers/research" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/common/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/public_lib/prolog_xbrl" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/workers/venv" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="PackageRequirementsSettings">
+    <option name="requirementsPath" value="requirements.in" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="format" value="GOOGLE" />
+    <option name="myDocStringFormat" value="Google" />
+  </component>
+  <component name="TemplatesService">
+    <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />
+    <option name="TEMPLATE_FOLDERS">
+      <list>
+        <option value="$MODULE_DIR$/sources/internal_services/message/templates" />
+      </list>
+    </option>
+  </component>
+  <component name="TestRunnerService">
+    <option name="PROJECT_TEST_RUNNER" value="py.test" />
+  </component>
+</module>

@@ -1,6 +1,6 @@
 import time, shutil, ntpath, os
 import sys, subprocess
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../triplestore_access')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 import agraph
 from atomic_integer import AtomicInteger
 server_started_time = time.time()
@@ -36,11 +36,11 @@ def create_tmp_directory_name():
 
 def get_tmp_directory_absolute_path(name):
 	""" append the unique name to tmp/ path """
-	return os.path.abspath(os.path.join(git('server_root/tmp'), name))
+	return os.path.normpath(os.path.abspath(os.path.join(git('server_root/tmp'), name)))
 
 def create_tmp():
 	name = create_tmp_directory_name()
-	full_path = os.path.normpath(get_tmp_directory_absolute_path(name))
+	full_path = get_tmp_directory_absolute_path(name)
 	os.mkdir(full_path)
 	return name,full_path
 

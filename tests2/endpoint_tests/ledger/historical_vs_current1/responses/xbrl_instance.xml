@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xbrli:xbrl
+    xmlns:xbrli="http://www.xbrl.org/2003/instance"
+    xmlns:link="http://www.xbrl.org/2003/linkbase"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:iso4217="http://www.xbrl.org/2003/iso4217"
+    xmlns:basic="http://www.xbrlsite.com/basic"
+    xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
+    xsi:schemaLocation="http://www.xbrlsite.com/basic taxonomy/basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">
+  <link:schemaRef
+      xlink:type="simple"
+      xlink:href="taxonomy/basic.xsd"
+      xlink:title="Taxonomy schema"/>
+  <link:linkbaseRef
+      xlink:type="simple"
+      xlink:href="taxonomy/basic-formulas.xml"
+      xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase"/>
+  <link:linkBaseRef
+      xlink:type="simple"
+      xlink:href="taxonomy/basic-formulas-cross-checks.xml"
+      xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase"/>
+  <xbrli:unit id="U-AUD">
+    <xbrli:measure>iso4217:AUD</xbrli:measure>
+  </xbrli:unit>
+  <xbrli:context id="I-2018">
+    <xbrli:period>
+      <xbrli:instant>2018-12-30</xbrli:instant>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+    </xbrli:entity>
+  </xbrli:context>
+  <xbrli:context id="D-2018">
+    <xbrli:period>
+      <xbrli:startDate>2018-01-01</xbrli:startDate>
+      <xbrli:endDate>2018-12-30</xbrli:endDate>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+    </xbrli:entity>
+  </xbrli:context>
+  <xbrli:context id="I-2018-CHF_Bank">
+    <xbrli:period>
+      <xbrli:instant>2018-12-30</xbrli:instant>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+    </xbrli:entity>
+    <xbrli:scenario>
+      <xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
+	<basic:BankAccount_Instant>
+	  <name>BanksCHF_Bank</name>
+	  <value>10000</value>
+	</basic:BankAccount_Instant>
+      </xbrldi:typedMember>
+    </xbrli:scenario>
+  </xbrli:context>
+  <xbrli:context id="D-2018-CHF_Bank">
+    <xbrli:period>
+      <xbrli:startDate>2018-01-01</xbrli:startDate>
+      <xbrli:endDate>2018-12-30</xbrli:endDate>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+      <xbrli:segment>
+	<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Duration">
+	  <basic:BankAccount_Duration>CHF_Bank</basic:BankAccount_Duration>
+	</xbrldi:typedMember>
+      </xbrli:segment>
+    </xbrli:entity>
+  </xbrli:context>
+  <basic:Banks contextRef="I-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">6.00</basic:Banks>
+  <basic:CurrencyMovement contextRef="D-2018-CHF_Bank" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
+  <basic:NetAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:NetAssets>
+  <basic:Assets contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:Assets>
+  <basic:CurrentAssets contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:CurrentAssets>
+  <basic:CashAndCashEquivalents contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:CashAndCashEquivalents>
+  <basic:Banks contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:Banks>
+  <basic:Equity contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:Equity>
+  <basic:RetainedEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">6.00</basic:RetainedEarnings>
+  <basic:CurrentEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrentEarnings>
+  <basic:HistoricalEarnings contextRef="I-2018" unitRef="U-AUD" decimals="INF">4.00</basic:HistoricalEarnings>
+  <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:NetIncomeLoss>
+  <basic:Revenue contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:Revenue>
+  <basic:CurrencyMovement contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovement>
+  <basic:CurrencyMovementCHF_Bank contextRef="D-2018" unitRef="U-AUD" decimals="INF">2.00</basic:CurrencyMovementCHF_Bank>
+  <basic:Trial_Balance contextRef="I-2018" unitRef="U-AUD" decimals="INF">0.00</basic:Trial_Balance>
+</xbrli:xbrl>

@@ -7,4 +7,4 @@ cd "$DIR"
 set PP $argv[1]
 
 docker service logs -f robust"$PP"_agraph  &
-./follow_logs.sh
+./follow_logs_noagraph.sh $argv

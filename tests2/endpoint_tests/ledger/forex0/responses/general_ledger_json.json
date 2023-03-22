@@ -1,0 +1,125 @@
+[
+  {"source":"initial_GL", "transactions": []},
+  {
+    "source": {
+      "account":"NationalAustraliaBank",
+      "date":"2016-01-01",
+      "exchanged":"vector([])",
+      "misc": {"desc2":""},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":5, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":2, "unit":"AUD"} ],
+      "vector": [ {"credit":0, "debit":1, "unit":"USD"} ],
+      "verb":"Introduce_Capital"
+    },
+    "transactions": [
+      {
+	"account":"BanksNationalAustraliaBank",
+	"date":"2016-01-01",
+	"description":"Introduce_Capital - incoming money",
+	"running_balance": [ {"credit":0, "debit":1, "unit":"USD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":1, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":5, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":2, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementNationalAustraliaBank",
+	"date":"2016-01-01",
+	"description":"Introduce_Capital - incoming money - currency movement adjustment - only current period",
+	"running_balance": [
+	   {"credit":1, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":1,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2016,1,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":1, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":1,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2016,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":3, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"ShareCapital",
+	"date":"2016-01-01",
+	"description":"Introduce_Capital",
+	"running_balance": [ {"credit":2, "debit":0, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":2, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":2, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":2, "debit":0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"NationalAustraliaBank",
+      "date":"2017-01-01",
+      "exchanged":"vector([])",
+      "misc": {"desc2":""},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":5, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":3, "unit":"AUD"} ],
+      "vector": [ {"credit":0, "debit":1, "unit":"USD"} ],
+      "verb":"Introduce_Capital"
+    },
+    "transactions": [
+      {
+	"account":"BanksNationalAustraliaBank",
+	"date":"2017-01-01",
+	"description":"Introduce_Capital - incoming money",
+	"running_balance": [ {"credit":0, "debit":2, "unit":"USD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":1, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":5, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":3, "unit":"AUD"} ]
+      },
+      {
+	"account":"CurrencyMovementNationalAustraliaBank",
+	"date":"2017-01-01",
+	"description":"Introduce_Capital - incoming money - currency movement adjustment - only current period",
+	"running_balance": [
+	   {"credit":2, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":1,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2016,1,1))"
+},
+	   {
+  "credit":0,
+  "debit":1,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2017,1,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":1, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":1,
+  "unit":"without_currency_movement_against_since('USD','USD',['AUD'],date(2017,1,1))"
+}
+	],
+	"vector_converted_at_balance_date": [ {"credit":2, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": []
+      },
+      {
+	"account":"ShareCapital",
+	"date":"2017-01-01",
+	"description":"Introduce_Capital",
+	"running_balance": [ {"credit":5, "debit":0, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":3, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":3, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":3, "debit":0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

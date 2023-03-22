@@ -1,0 +1,97 @@
+we were hand-checking stuff here i think.
+
+<?xml version="1.0"?>
+<request>
+    <Natural_increase>1</Natural_increase>
+    <Natural_increase_value_per_head_AUD>2</Natural_increase_value_per_head_AUD>
+    <Gross_Sales>3</Gross_Sales>
+    <Gross_Sales_AUD>4</Gross_Sales_AUD>
+    <Killed_for_rations>5</Killed_for_rations>
+    <Stock_on_hand_at_beginning_of_year>6</Stock_on_hand_at_beginning_of_year>
+    <Stock_on_hand_at_end_of_year>7</Stock_on_hand_at_end_of_year>
+    <Purchases_count>8</Purchases_count>
+    <Purchases_at_cost_AUD>9</Purchases_at_cost_AUD>
+    <Opening_and_purchases_AUD>10</Opening_and_purchases_AUD>
+    <Losses_by_death>11</Losses_by_death>
+</request>
+
+
+<?xml version="1.0"?>
+<response>
+<Killed_for_rations_AUD>
+4.0
+</Killed_for_rations_AUD>
+<Stock_on_hand_at_end_of_year_AUD>
+5.6000000000000005
+</Stock_on_hand_at_end_of_year_AUD>
+<Losses_and_closing_and_killed_and_sales_count>
+4
+</Losses_and_closing_and_killed_and_sales_count>
+<Losses_and_closing_and_killed_and_sales_AUD>
+13.600000000000001
+</Losses_and_closing_and_killed_and_sales_AUD>
+<Opening_and_purchases_and_increase_count>
+15
+</Opening_and_purchases_and_increase_count>
+<Natural_Increase_AUD>
+2
+</Natural_Increase_AUD>
+<Opening_and_purchases_and_increase_AUD>
+12
+</Opening_and_purchases_and_increase_AUD>
+<Opening_and_purchases_and_increase_AUD2>
+13.8
+</Opening_and_purchases_and_increase_AUD2>
+<Average_cost>
+0.8
+</Average_cost>
+<Revenue>
+8.0
+</Revenue>
+<Livestock_COGS>
+6.3999999999999995
+</Livestock_COGS>
+<Gross_Profit_on_Livestock_Trading>
+1.6000000000000005
+</Gross_Profit_on_Livestock_Trading>
+</response>
+
+Natural_Increase_AUD is Natural_increase * Natural_increase_value_per_head_AUD,
+	-- 2 is 1 * 2
+
+Opening_and_purchases_and_increase_AUD is Opening_and_purchases_AUD + Natural_Increase_AUD,
+	-- 12 is 10 + 2
+
+Opening_and_purchases_and_increase_count is Stock_on_hand_at_beginning_of_year + Purchases_count + Natural_increase,
+	-- 15 is 6 + 8 + 1
+
+Average_cost is Opening_and_purchases_and_increase_AUD / Opening_and_purchases_and_increase_count,
+	-- 0.8 is 12/15
+
+Killed_for_rations_AUD is Killed_for_rations * Average_cost,
+	-- 4.0 is 5 * 0.8
+	
+Stock_on_hand_at_beginning_of_year_AUD is Average_cost * Stock_on_hand_at_beginning_of_year,
+	-- not printed..
+
+Stock_on_hand_at_end_of_year_AUD is Average_cost * Stock_on_hand_at_end_of_year,
+	-- 5.6 is 0.8 * 7
+
+Losses_and_closing_and_killed_and_sales_count is Gross_Sales + Killed_for_rations + Stock_on_hand_at_end_of_year - Losses_by_death,
+	-- 4 is 3 + 5 + 7 - 11
+
+Losses_and_closing_and_killed_and_sales_AUD is Gross_sales_AUD + Killed_for_rations_AUD + Stock_on_hand_at_end_of_year_AUD,
+	-- 13.6 is 4 + 4.0 + 5.6
+
+Opening_and_purchases_and_increase_AUD2 is Stock_on_hand_at_beginning_of_year_AUD + Purchases_at_cost_AUD,
+	-- 13.8 is ... + 9
+	-- Stock_on_hand_at_beginning_of_year_AUD is 4.8 = 0.8 * 6
+
+Revenue is Gross_sales_AUD + Killed_for_rations_AUD,
+	-- 8.0 is 4 + 4.0
+
+Livestock_COGS is Opening_and_purchases_and_increase_AUD - Stock_on_hand_at_end_of_year_AUD,
+	-- 6.4 is 12 - 5.6
+
+Gross_Profit_on_Livestock_Trading is Revenue - Livestock_COGS.
+	-- 1.6 is 8.0 - 6.4

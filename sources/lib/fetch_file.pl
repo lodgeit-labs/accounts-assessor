@@ -11,9 +11,9 @@ fetch_file_from_url(loc(absolute_url,Url), loc(absolute_path, Path)) :-
 
 
 /*,'method':"agraph_sparql","params":{"sparql":"clear graphs"}}'*/
-internal_services_rpc(Cmd, Result) :-
+services_rpc(Cmd, Result) :-
 	'='(Url, $>atomics_to_string([$>services_server, '/rpc/'])),
-	merge_dicts(cmd{'jsonrpc':"2.0",'id':"curltext"}, Cmd, Cmd2),
+	merge_dicts(cmd{'jsonrpc':"2.0",'id':"0"}, Cmd, Cmd2),
 	json_post(Url, Cmd2, Response),
 	(	get_dict(result, Response, Result)
 	->	true

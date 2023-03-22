@@ -1,0 +1,314 @@
+version: '3.9'
+
+services:
+
+  caddy:
+    image: caddy:2-alpine
+    networks:
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/Caddyfile_auth:/etc/caddy/Caddyfile_auth
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      apache:
+        condition: service_healthy
+
+
+  apache:
+    image: koo5/apache${PP}:latest
+    networks:
+      - frontend
+      - backend
+    hostnet_ports:
+    # note that hostnet_ports are currently a no-op
+      - 80
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    volumes:
+      #- ./../sources/apache/conf/ /usr/local/apache2/conf/
+      #- ./../sources/apache/conf/httpd.conf /usr/local/apache2/conf/httpd.conf
+      - "/etc/localtime:/etc/localtime:ro"
+      - tmp:/usr/local/apache2/htdocs/tmp/
+      - ./../sources/static/:/usr/local/apache2/htdocs/static/
+    depends_on:
+      frontend:
+        condition: service_healthy
+
+
+  frontend:
+    image: koo5/frontend${PP}:latest
+    environment:
+      SECRETS_DIR: /run/secrets/
+      RABBITMQ_URL:
+      REMOULADE_PG_URI:
+      REMOULADE_API:
+      REDIS_HOST:
+      AGRAPH_HOST:
+      AGRAPH_PORT:
+    #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by coping the dev one
+    #  REQUIREMENTS_FILE: requirements.txt
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+    hostnet_ports:
+      - 7788
+    depends_on:
+      services:
+        condition: service_healthy
+      remoulade-api:
+        condition: service_healthy
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+    secrets:
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
+
+
+  workers:
+    image: koo5/workers${PP}:latest
+    environment:
+      DETERMINANCY_CHECKER__USE__ENFORCER: "true"
+      SERVICES_URL:
+      RABBITMQ_URL:
+      REMOULADE_PG_URI:
+      REMOULADE_API:
+      REDIS_HOST:
+      AGRAPH_HOST:
+      AGRAPH_PORT:
+    volumes:
+      - tmp:/app/server_root/tmp
+      - cache:/app/cache
+      - ./../tests:/app/tests
+      - "/etc/localtime:/etc/localtime:ro"
+      # for gtrace:
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    networks:
+      - backend
+    depends_on:
+      services:
+        condition: service_healthy
+      remoulade-api:
+        condition: service_healthy
+      frontend: # workers don't have a good way to healthcheck. So instead of sequencing other containers after workers, we sequence workers after everything else. Theres a small risk of a deadlock if we run frontend with no parallelism (only makes sense for debugging) and somebody comes along and makes a request just before the healthcheck is about to make a request. And users running synchronous requests could experience timeouts when the stack is starting up.
+        condition: service_healthy
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+    secrets:
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
+    depends_on:
+      services:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      remoulade-api:
+        condition: service_healthy
+
+
+  services:
+    image: koo5/services${PP}:latest
+    environment:
+      RABBITMQ_URL:
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+    hostnet_ports:
+      - 17788
+    depends_on:
+      - redis
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+    depends_on:
+      agraph:
+        condition: service_healthy
+
+
+
+  redis:
+    image: redis:6-alpine
+    networks:
+      - backend
+    hostnet_ports:
+      - 6379
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+
+
+
+  agraph:
+    image: koo5/agraph${PP}:latest
+    networks:
+    - backend
+    - frontend
+    hostnet_ports:
+      - 10035
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        # https://docs.docker.com/compose/compose-file/compose-file-v3/
+        condition: any
+        delay: "240s"
+    secrets:
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
+    environment:
+      AGRAPH_SUPER_PASSWORD_FILE: /run/secrets/AGRAPH_SUPER_PASSWORD
+      AGRAPH_SUPER_USER_FILE: /run/secrets/AGRAPH_SUPER_USER
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "agdata:/agraph/data"
+      - "agconfig:/agraph/etc"
+      - type: tmpfs
+        target: /dev/shm
+        tmpfs:
+           size: 2096000000
+    #shm_size: "1G" # not supported in swarm
+    #finishme: use low-memory configuration
+
+
+  rabbitmq:
+    image: rabbitmq:management
+    networks:
+      - backend
+    hostnet_ports:
+      - 5672
+    deploy:
+      restart_policy:
+        condition: any
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+        test: rabbitmq-diagnostics -q status && rabbitmq-diagnostics -q check_local_alarms
+
+
+  postgres:
+    image: bitnami/postgresql:15.1.0
+    networks:
+      - backend
+    hostnet_ports:
+      - 5432
+    volumes:
+      - 'postgresql_data:/bitnami/postgresql'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - POSTGRESQL_POSTGRES_PASSWORD=""
+      - POSTGRESQL_DATABASE=remoulade
+      - POSTGRESQL_USERNAME=remoulade
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --dbname=remoulade --username=remoulade --timeout=100 --port=5432 --host=127.0.0.1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+
+
+  superbowl:
+    image: koo5/super-bowl:latest
+    networks:
+      - backend
+    hostnet_ports:
+      - 1238
+    environment:
+      SUPERBOWL_WEBSERVER_PORT: 1238
+      REMOULADE_BACKEND_LOCATION: http://127.0.0.1:5005
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    depends_on:
+      remoulade-api:
+        condition: service_healthy
+
+
+  remoulade-api:
+    image: koo5/remoulade-api${PP}:latest
+    networks:
+      - backend
+    hostnet_ports:
+      - 5005
+    environment:
+      SECRETS_DIR: /run/secrets/
+      REMOULADE_PG_URI:
+      RABBITMQ_URL:
+      REDIS_HOST:
+      AGRAPH_HOST:
+      AGRAPH_PORT:
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    secrets:
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
+
+
+networks:
+  frontend:
+    attachable: true
+  backend:
+    #driver: overlay
+    attachable: true
+  hostnet:
+    external: true
+    name: host
+
+volumes:
+  tmp:
+  cache:
+  agdata:
+  agconfig:
+  rabbitmq:
+  caddy_data:
+  caddy_config:
+  postgresql_data:
+

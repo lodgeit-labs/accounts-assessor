@@ -13,12 +13,12 @@ hp_doc_to_chr_basic :-
 
 	debug(hp_doc_to_chr_basic, "retrieving doc facts:...~n", []),
 	?get_optional_singleton_sheet_data(hp_ui:hp_calculator_query_sheet, HP_Calculator_Query),
-	%docm(HP_Calculator_Query,rdf:type,hp:hp_calculator_query),
+	%*doc(HP_Calculator_Query,rdf:type,hp:hp_calculator_query),
 	doc_get_attribute(HP_Calculator_Query,hp:begin_date, HP_Begin_Date),
 	debug(hp_doc_to_chr_basic, "retrieved doc date: ~w~n", [HP_Begin_Date]),
 
-	docm(HP_Calculator_Query,hp:hp_contract, HP_Contract),
-	docm(HP_Contract, rdf:type, hp:hp_contract),
+	*doc(HP_Calculator_Query,hp:hp_contract, HP_Contract),
+	*doc(HP_Contract, rdf:type, hp:hp_contract),
 	doc_get_attribute(HP_Contract, hp:cash_price, HP_Cash_Price),
 	doc_get_attribute(HP_Contract, hp:contract_number, HP_Contract_Number),
 	doc_get_attribute(HP_Contract, hp:currency, HP_Currency),
@@ -209,7 +209,7 @@ chr_date_to_doc_facts(CHR_Date, Doc_Date) :-
 doc_add_safe(S1,P1,O1) :-
 	maplist(chr_term_to_doc_term, [S1,P1,O1], [S2,P2,O2]),
 	(
-		\+docm(S2,P2,O2)
+		\+*doc(S2,P2,O2)
 	->	maplist(chr_var_to_doc_bnode, [S2,P2,O2], [S,P,O]),
 		doc_add(S,P,O)
 	;	doc(S2,P2,O2)
@@ -218,7 +218,7 @@ doc_add_safe(S1,P1,O1) :-
 doc_add_value_safe(S1,P1,O1) :-
 	maplist(chr_term_to_doc_term, [S1,P1,O1], [S,P,O]),
 	(
-		\+docm(S,P,_)
+		\+*doc(S,P,_)
 	->	doc_new_uri(URI),
 		doc_add_safe(S,P,URI),
 		doc_add_safe(URI, rdf:value, O)
@@ -338,7 +338,7 @@ dump_doc(Label) :-
 	findall(
 		_,
 		(
-			docm(S,P,O),
+			*doc(S,P,O),
 			maplist(rat_to_float, [S,P,O], [S1,P1,O1]),
 			format(user_error, "~w ~w ~w~n", [S1,P1,O1])
 		),

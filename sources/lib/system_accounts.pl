@@ -6,7 +6,7 @@
 		!cf('ensure system accounts exist'(S_Transactions)),
 		!cf(check_accounts_parent),
 		!cf(check_accounts_roles),
-		!cf(propagate_accounts_side),
+		!cf(propagate_accounts_normal_side),
 		!cf(write_accounts_json_report))
 	).
 
@@ -41,7 +41,7 @@ asset GL accounts corresponding to bank accounts
  ensure_bank_gl_accounts_exist :-
  	/* fixme: extract_german_bank_csv0 is ignored */
 	bank_account_names(Bank_Account_Names),
-	maplist(ensure_bank_gl_account_exists, Bank_Account_Names, Bank_Gl_Account),
+	maplist(ensure_bank_gl_account_exists,Bank_Account_Names, Bank_Gl_Account),
 	maplist(ensure_currency_movement_account_exists, Bank_Gl_Account).
 
  ensure_bank_gl_account_exists(Name, Account) :-
@@ -70,7 +70,7 @@ asset GL accounts corresponding to bank accounts
 
  subcategorize_by_bank3(A) :-
 	bank_account_names(Bank_Account_Names),
-	maplist(subcategorize_by_bank6(A), Bank_Account_Names).
+	maplist(subcategorize_by_bank6(A),Bank_Account_Names).
 
  subcategorize_by_bank6(A, Bank_Account_Name) :-
 	account_name(A, Name),

@@ -1,9 +1,5 @@
 {
-	"DONT_GTRACE" : true,
-    "DIE_ON_ERROR" : false,
-	"notes":
-		{
-			"DEBUG" : true,
-			"...":"..."
-		}	
+	"DONT_GTRACE" : false,
+	"DIE_ON_ERROR" : true,
+	"DEBUG" : true
 }

@@ -1,0 +1,6 @@
+[
+  "SYSTEM_WARNING: trial balance at date(2018,3,2) is [coord(Cow,10)]\n",
+  "SYSTEM_WARNING: trial balance at date(2018,6,30) is [coord(Cow,10)]\n",
+  "SYSTEM_WARNING: trial balance at date(2018,3,2) is [coord(Cow,-6)]\n",
+  "SYSTEM_WARNING: trial balance at date(2018,6,30) is [coord(Cow,-6)]\n"
+]

@@ -1,3 +1,26 @@
+# monitoring
+
+## portainer
+http://localhost:9000
+
+* for debugging docker/containers
+* not part of the stack, but recommended to spin up separately
+
+
+## RabbitMQ console
+http://localhost:15672
+* monitor all messagess and queues
+
+## superbowl
+http://localhost:1238/
+* monitor remoulade tasks
+
+## agraph
+http://0.0.0.0:10035/#
+* secrets/AGRAPH_SUPER_USER, secrets/AGRAPH_SUPER_PASSWORD
+
+..
+
 # general
 * https://swi-prolog.discourse.group/t/bug-hunting-toolbox/710
 * https://swi-prolog.discourse.group/t/trace-on-error/1333/2
@@ -59,8 +82,14 @@ If gtrace shows up on `process_multifile_request`, do a redo followed by a skip 
 ## python
 various parts use various levels of logging severity, eg.: `logging.getLogger().info(msg)`. We don't yet have a method to control current severity (when spawning django server, or when running a worker from the command line).
 
-## network
+## apache
+adjust `LogLevel` in httpd.conf, for example `trace6`
 
+## fastapi / pydantic
+* ```sudo tcpdump -i lo  -A -s 0 'tcp port 7788'```
+* `debug.py`
+
+## network
  watch http trafic from and to endpoint:
 ```sudo tcpdump -A -s 0 'tcp port 7778 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)'```
 
@@ -80,3 +109,31 @@ swipl -s ../tests/endpoint_tests/endpoint_tests.pl  -g "set_flag(overwrite_respo
 
 ## determinancy_checker
 `DETERMINANCY_CHECKER__USE__ENFORCER` env var applies.
+
+
+## running `workers` outside docker for debugging
+run all services except workers, under compose
+`./develop.sh --omit_service workers`
+
+setup venv
+```
+virtualenv -p /usr/bin/python3.10 venv
+. venv/bin/activate.fish
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
+grab the env vars as printed by develop.sh:
+```
+ RABBITMQ_URL='localhost:5672' \
+ REDIS_HOST='redis://localhost' \
+ AGRAPH_HOST='localhost' \
+ AGRAPH_PORT='10035' \
+ REMOULADE_PG_URI='postgresql://remoulade@localhost:5432/remoulade' \
+ SERVICES_URL='http://localhost:17788' \
+```
+and do what start.sh does:
+```
+remoulade --threads 1 invoke_rpc
+```
+
+

@@ -1,0 +1,12 @@
+wheel
+django~=3.2.5
+django-ipware
+django-modern-rpc
+django-cors-headers
+agraph-python==101.0.7
+requests
+iso8601
+
+#-e ../common/libs/remoulade/[rabbitmq]
+#remoulade[rabbitmq,redis,postgres]
+

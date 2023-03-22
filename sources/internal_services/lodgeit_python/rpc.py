@@ -5,48 +5,32 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 import fractions
 
-from arelle import account_hierarchy
 
-@rpc_method
-def arelle_extract(taxonomy_locator):
-	return account_hierarchy.ArelleController().run(taxonomy_locator)
-
-
-
-"""
-
-curl -X POST  -d '{"jsonrpc":"2.0","id":"curltext","method":"agraph_sparql","params":{"sparql":"clear graphs"}}' -H 'content-type:application/json;' http://localhost:17778/rpc/
-
-"""
-"""
-koom@koom-KVM ~/agr/lib> ./agraph-control --config ./agraph.cfg start
-
-AllegroGraph Server Edition 6.6.0, built on August 02, 2019 12:40:40 GMT-0700
-Copyright (c) 2005-2019 Franz Inc.  All Rights Reserved.
-AllegroGraph contains patented and patent-pending technologies.
-
-current-time    : Tuesday, February 18, 2020 12:06:55 PM 
-
-Daemonizing...
-Server started normally: Running with free license of 5,000,000 triples; no-expiration.
-Access AGWebView at http://127.0.0.1:10035
-"""
 
 
 @rpc_method
 def agraph_sparql(sparql):
+	"""
+	todo.
+
+	curl -X POST  -d '{"jsonrpc":"2.0","id":"0","method":"agraph_sparql","params":{"sparql":"clear graphs"}}' -H 'content-type:application/json;' http://localhost:17778/rpc/
+	"""
 	#agc().
 	return str(c)
 
+\
 @rpc_method
-def agraph_addFile(sparql):
+def agraph_addFile():
 	#https://franz.com/agraph/support/documentation/current/python/_gen/franz.openrdf.repository.html#franz.openrdf.repository.repositoryconnection.RepositoryConnection.addFile
 # addFile(filePath, base=None, format=None, context=None, serverSide=False, content_encoding=None, attributes=None, json_ld_store_source=None, json_ld_context=None, allow_external_references=None, external_reference_timeout=None)
 	agc().addFile()
 
-@rpc_method
-def gb_number_to_rational(s):
-	return fractions.Fraction(filter_out_apostrophes(s))
+
+# @rpc_method
+# def gb_number_to_rational(s):
+# 	return fractions.Fraction(filter_out_apostrophes(s))
+
+
 
 @rpc_method
 def filter_out_apostrophes(s):
@@ -55,6 +39,7 @@ def filter_out_apostrophes(s):
 		if i != "'":
 			s2 = s2 + i
 	return s2
+
 
 class MyJSONDecoder(JSONDecoder):
 	@staticmethod

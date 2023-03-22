@@ -1,19 +1,20 @@
-FROM ubuntu:18.04
-RUN apt-get update && apt-get install -y git python3 python3-pip \
- && rm -rf /var/lib/apt/lists/*
-RUN groupadd -r user && useradd -r -g user user
-RUN mkdir /app
-WORKDIR /app
+FROM koo5/ubuntu
+
+RUN apt-get install -y libpq-dev
+
+WORKDIR /app/sources/common
+COPY common/libs /app/sources/common/libs
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN python3 -m pip install --no-cache-dir -r requirements.txt
+
+WORKDIR /app
+
+
 EXPOSE 17788
 RUN mkdir -p /app/server_root
-RUN chown user:user /app/server_root
 VOLUME /app/server_root
-#USER user
 VOLUME /app/sources/
-
+USER myuser
 WORKDIR /app/sources/internal_services
-ENV PYTHONUNBUFFERED true
 ENTRYPOINT ["./start.sh"]
 CMD ["0.0.0.0:17788"]

@@ -1,0 +1,25 @@
+FROM koo5/ubuntu
+
+RUN apt-get install -qqy libpq-dev
+
+WORKDIR /app/
+
+COPY common/ /app/sources/common/
+
+COPY frontend_server/requirements_minimal.txt /app/sources/frontend_server/
+RUN python3.9 -m pip install --no-cache-dir -r /app/sources/frontend_server/requirements_minimal.txt
+RUN python3.9 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
+ENV PYTHONPATH=/app/sources/common/libs/remoulade/
+
+
+WORKDIR /app
+
+
+EXPOSE 7788
+RUN mkdir -p /app/server_root
+VOLUME /app/server_root
+VOLUME /app/sources/
+USER myuser
+WORKDIR /app/sources/frontend_server
+ENTRYPOINT ["./start.sh"]
+CMD ["0.0.0.0:7788"]

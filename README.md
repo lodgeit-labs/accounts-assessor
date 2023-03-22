@@ -1,6 +1,28 @@
+[](mrkev2query: "
+the “Accounts Assessor” below corresponds to:
+products:robust kb:project_name ?x. 
+?x rdf:value ?y.
+")
+
 # Accounts Assessor - introduction
 
-This repository hosts a practical research into leveraging logic programming to solve accounting problems. The core logic runs in SWI-Prolog, and is aided by a python webserver. Several services are available:
+[](mrkev2entity: "
+the “This repository” below corresponds to:
+codebases:labs_accounts_assessor
+")
+
+This repository hosts practical research into leveraging logic programming to solve accounting problems.
+The core logic runs in SWI-Prolog, and is aided by a python webserver.
+Several services are available:
+
+[](mrkev2extra: "
+products:accounts_assessor kb:has_service kb:investment_calculator
+")
+
+[](mrkev2query: "
+the “investment calculator” below corresponds to:
+investment calculator kb:investment_calculator rdfs:label ?x.
+")
 
 * investment calculator
 * hirepurchase agreement
@@ -13,7 +35,7 @@ We use it at http://www.nobleaccounting.com.au, along with a proprietary (but fr
 
 
 ## investment calculator
-The most complex endpoint is the investment calculator: it validates and processes financial data of a single entity for a given period:
+The most complex endpoint is the investment calculator; it validates and processes financial data of a financial entity for a given period:
 * bank statements
 * raw general ledger input
 * change in investment unit values
@@ -22,7 +44,7 @@ The most complex endpoint is the investment calculator: it validates and process
 
 ![screenshot](sources/static/docs/readme/ic-sheets.png?raw=true)
 
-It automates some of the usual accounting procedures, like tax calculations, and it generates balance sheets, trial balances, investment report and other types of reports. 
+It automates some of the usual accounting procedures, like tax calculations, and it generates balance sheets, trial balances, investment report and other types of reports.
 
 ![screenshot](sources/static/docs/readme/ic-result.png?raw=true)
 
@@ -41,7 +63,7 @@ It automates some of the usual accounting procedures, like tax calculations, and
 ![screenshot](sources/static/docs/readme/hp-sheet.png?raw=true)
 (todo: UI)
 
-Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest
+Given a hire purchase arrangement, it can track the balance of a hire purchase account through time, the total payment and the total interest.
 
 ## Division 7A Loan calculator
 ![screenshot](sources/static/docs/readme/Div7A-sheet.png?raw=true)
@@ -61,11 +83,11 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 
 ## running the server with docker
 
-1) clone the repo, 
+1) clone the repo,
 2) `git submodule update --init --recursive`
 3) `cd docker_scripts`
 3) `./first_run.sh`
-4) `./run.sh  --enable_public_insecure true`  
+4) `./develop.sh`  
 
 ## usage
 
@@ -94,21 +116,21 @@ https://github.com/lodgeit-labs/accounts-assessor-wiki/
 
 
 ## architecture
-there are 4 components:
+there are 4 main components:
 
-### internal_services
+### services
 various helper functions that prolog invokes over http/rpc
 
-### internal_workers
-a celery worker that:
+### workers
+a remoulade worker that:
 * wraps prolog and spawns prolog on request
 * talks to the triplestore
 
-### frontend_server
-lets users upload request files and triggers internal_workers. Django provides a development http server which serves static/tmp files, but for production, this has to be augmented with:
+### frontend
+lets users upload request files and triggers workers.
 
 ### apache
-serves static files and proxies requests to frontend_server 
+serves static files and proxies requests to frontend
 
 
 `
@@ -169,3 +191,13 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+
+[](mrkev2extra: "
+products:robust kb:has_codebase codebases:labs_accounts_assessor.
+products:robust kb:has_codebase codebases:LodgeITSmart.
+")
+
+
+
+

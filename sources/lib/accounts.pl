@@ -1,5 +1,5 @@
 /*
-wiki/specifying_account_hierarchies
+see also wiki/specifying_account_hierarchies.md
 */
 
 
@@ -44,7 +44,7 @@ wiki/specifying_account_hierarchies
 	doc(Uri, accounts:role, X, accounts),
 	assertion(X = rl(_)).
  account_detail_level(Uri, X) :-
-	/* 0 for normal xbrl facts, 1 for points in xbrl dimensions */
+	/* level is 0 for accounts that correspond to xbrl facts, 1 for accounts that correspond to just points in a xbrl dimension */
 	doc(Uri, accounts:detail_level, X, accounts).
  account_normal_side(Uri, X) :-
 	doc(Uri, accounts:normal_side, X, accounts).
@@ -54,15 +54,8 @@ wiki/specifying_account_hierarchies
 	!vector_of_coords_vs_vector_of_values(Side, Coords, Values).
 
 
-
-/*
- acc(Role, Account) :-
-	(	Role = name(Name)
-	->	account_by_ui(Name, Account)
-	;	abrlt(Role, Account).
-*/
  abrlt(Role, Account) :-
-
+	/* "account by role, throw */
 	!(	is_valid_role(Role)
 	->	true
 	;
@@ -88,7 +81,7 @@ find account by a user-entered name
 
  all_accounts(Accounts) :-
 	result_accounts(As),
-	findall(A, docm(As, l:has_account, A), Accounts).
+	findall(A, *doc(As, l:has_account, A), Accounts).
 
  account_exists(Account) :-
 	all_accounts(Accounts),
@@ -131,8 +124,8 @@ find account by a user-entered name
 	account_parent(_Child_Account, Account),
 	!.
 
-/* throws an exception if no account is found */
  account_by_role_throw(Role, Account) :-
+	/* throws an exception if no account is found */
 	assertion(Role = rl(_)),
 	findall(Account, account_role(Account, Role), Accounts),
 	(	Accounts \= []
@@ -159,11 +152,11 @@ find account by a user-entered name
 	account_descendants(Account,Descendants).
 
 
-/*
-check that each account has a parent. Together with checking that each generated transaction has a valid account,
-this should ensure that all transactions get reflected in the account tree somewhere
-*/
  check_account_parent(Account) :-
+	/*
+	check that each account has a parent. Together with checking that each generated transaction has a valid account,
+	this should ensure that all transactions get reflected in the account tree somewhere
+	*/
 	(	account_parent(Account, Parent)
 	->	(	account_name(Parent,_)
 		->	true
@@ -182,8 +175,10 @@ this should ensure that all transactions get reflected in the account tree somew
 	maplist(check_account_parent,Accounts).
 
 
-/* just writes file, doesn't create report entry here */
+
  write_accounts_json_report :-
+	/* write accounts json and symlink 'accounts.json' to it. This is useful so that the viewer can always load the last "state" of accounts, if processing fails at some point */
+	/* just writes file, doesn't create report entry here */
 	!maplist(account_to_dict, $>all_accounts, Dicts),
 	grab_and_inc_current_num(accounts_json_phase, Phase),
 	make_symlinked_json_report(
@@ -192,26 +187,6 @@ this should ensure that all transactions get reflected in the account tree somew
 		'accounts.json'
 	).
 
- make_same_named_symlinked_json_report(Json, Name) :-
-	make_symlinked_json_report(Json, Name, Name).
-
- make_symlinked_json_report(Json, Base, Symlink_name) :-
-	!make_json_report(Json,	Base, Final_fn),
-	% get the symlink path
-	report_file_path__singleton(
-		loc(file_name, Symlink_name),
-		_,
-		loc(absolute_path, Link)
-	),
-	% make the symlink
-	!shell4(
-		[
-			'ln', '-s', '-n', '-f',
-			Final_fn,
-			Link
-		],
-		0
-	).
 
 
  account_to_dict(Uri, Dict) :-
@@ -320,18 +295,19 @@ this should ensure that all transactions get reflected in the account tree somew
 ┏━┓┏━┓┏━┓┏━┓┏━┓┏━╸┏━┓╺┳╸┏━╸   ┏━┓┏━╸┏━╸┏━┓╻ ╻┏┓╻╺┳╸┏━┓   ┏━┓╻╺┳┓┏━╸
 ┣━┛┣┳┛┃ ┃┣━┛┣━┫┃╺┓┣━┫ ┃ ┣╸    ┣━┫┃  ┃  ┃ ┃┃ ┃┃┗┫ ┃ ┗━┓   ┗━┓┃ ┃┃┣╸
 ╹  ╹┗╸┗━┛╹  ╹ ╹┗━┛╹ ╹ ╹ ┗━╸╺━╸╹ ╹┗━╸┗━╸┗━┛┗━┛╹ ╹ ╹ ┗━┛╺━╸┗━┛╹╺┻┛┗━╸
+"normal side" is debit or credit. An account has normal side specified (in accounts xml), or the side of it's parent. Top-level accounts must have normal side specified.
 */
 
- propagate_accounts_side :-
+ propagate_accounts_normal_side :-
 	get_root_account(Root),
 	account_direct_children(Root, Sub_roots),
-	maplist(propagate_accounts_side2(_),Sub_roots).
+	maplist(propagate_accounts_normal_side2(_),Sub_roots).
 
- propagate_accounts_side2(Parent_side, Account) :-
+ propagate_accounts_normal_side2(Parent_side, Account) :-
 	ensure_account_has_normal_side(Parent_side, Account),
 	account_normal_side(Account, Side),
 	account_direct_children(Account, Children),
-	maplist(propagate_accounts_side2(Side), Children).
+	maplist(propagate_accounts_normal_side2(Side), Children).
 
  ensure_account_has_normal_side(_, Account) :-
 	account_normal_side(Account, _),!.

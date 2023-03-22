@@ -4,4 +4,4 @@
 set DIR (dirname (readlink -m (status --current-filename)))
 cd "$DIR"
 
-./_run.py $argv
+./lib/_run.py $argv

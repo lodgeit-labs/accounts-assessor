@@ -1,0 +1,453 @@
+[
+  {"source":"initial_GL", "transactions": []},
+  {
+    "source": {
+      "account":"WellsFargo",
+      "date":"2017-07-01",
+      "exchanged":"vector([coord('SG_Issuer_SA',10)])",
+      "misc": {"desc2":""},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":100, "debit":0, "unit":"USD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":100, "debit":0, "unit":"USD"} ],
+      "vector": [ {"credit":100, "debit":0, "unit":"USD"} ],
+      "verb":"Invest_In"
+    },
+    "transactions": [
+      {
+	"account":"BanksWellsFargo",
+	"date":"2017-07-01",
+	"description":"Invest_In - outgoing money",
+	"running_balance": [ {"credit":100, "debit":0, "unit":"USD"} ],
+	"type":"instant",
+	"vector": [ {"credit":100, "debit":0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":100, "debit":0, "unit":"USD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":100, "debit":0, "unit":"USD"} ]
+      },
+      {
+	"account":"CurrencyMovementWellsFargo",
+	"date":"2017-07-01",
+	"description":"Invest_In - outgoing money - currency movement adjustment - only current period",
+	"running_balance": [
+	   {"credit":0, "debit":100, "unit":"USD"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":0, "debit":100, "unit":"USD"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_balance_date": [
+	   {"credit":0, "debit":100, "unit":"USD"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_transaction_date": [
+	   {"credit":0, "debit":100, "unit":"USD"},
+	   {
+  "credit":100,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	]
+      },
+      {
+	"account":"FinancialInvestmentsSG_Issuer_SA",
+	"date":"2017-07-01",
+	"description":"Invest_In",
+	"running_balance": [ {"credit":0, "debit":10, "unit":"SG_Issuer_SA"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":10, "unit":"SG_Issuer_SA"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":10, "unit":"SG_Issuer_SA"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":10, "unit":"SG_Issuer_SA"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA",
+	"date":"2017-07-01",
+	"description":"comment:, comment2:Invest_In - single period",
+	"running_balance": [
+	   {"credit":10, "debit":0, "unit":"SG_Issuer_SA"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {"credit":10, "debit":0, "unit":"SG_Issuer_SA"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_balance_date": [
+	   {"credit":10, "debit":0, "unit":"SG_Issuer_SA"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_transaction_date": [
+	   {"credit":10, "debit":0, "unit":"SG_Issuer_SA"},
+	   {
+  "credit":0,
+  "debit":10,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA",
+	"date":"2017-07-01",
+	"description":"comment:, comment2:Invest_In - single period",
+	"running_balance": [
+	   {"credit":0, "debit":100, "unit":"USD"},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+},
+	   {"credit":0, "debit":100, "unit":"USD"}
+	],
+	"vector_converted_at_balance_date": [
+	   {"credit":0, "debit":100, "unit":"USD"},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_transaction_date": [
+	   {"credit":0, "debit":100, "unit":"USD"},
+	   {
+  "credit":10,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"WellsFargo",
+      "date":"2017-07-01",
+      "exchanged":"vector([])",
+      "misc": {"desc2":""},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"USD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"USD"} ],
+      "vector": [ {"credit":0, "debit":200, "unit":"USD"} ],
+      "verb":"Introduce_Capital"
+    },
+    "transactions": [
+      {
+	"account":"BanksWellsFargo",
+	"date":"2017-07-01",
+	"description":"Introduce_Capital - incoming money",
+	"running_balance": [ {"credit":0, "debit":100, "unit":"USD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":200, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"USD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"USD"} ]
+      },
+      {
+	"account":"CurrencyMovementWellsFargo",
+	"date":"2017-07-01",
+	"description":"Introduce_Capital - incoming money - currency movement adjustment - only current period",
+	"running_balance": [
+	   {"credit":100, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_balance_date": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_transaction_date": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	]
+      },
+      {
+	"account":"ShareCapital",
+	"date":"2017-07-01",
+	"description":"Introduce_Capital",
+	"running_balance": [ {"credit":200, "debit":0, "unit":"USD"} ],
+	"type":"instant",
+	"vector": [ {"credit":200, "debit":0, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"USD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":200, "debit":0, "unit":"USD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"WellsFargo",
+      "date":"2018-06-30",
+      "exchanged":"vector([coord('SG_Issuer_SA',-5)])",
+      "misc": {"desc2":""},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"USD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"USD"} ],
+      "vector": [ {"credit":0, "debit":200, "unit":"USD"} ],
+      "verb":"Dispose_Of"
+    },
+    "transactions": [
+      {
+	"account":"BanksWellsFargo",
+	"date":"2018-06-30",
+	"description":"Dispose_Of - incoming money",
+	"running_balance": [ {"credit":0, "debit":300, "unit":"USD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":200, "unit":"USD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"USD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"USD"} ]
+      },
+      {
+	"account":"CurrencyMovementWellsFargo",
+	"date":"2018-06-30",
+	"description":"Dispose_Of - incoming money - currency movement adjustment - only current period",
+	"running_balance": [
+	   {"credit":300, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":100,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,6,30))"
+}
+	],
+	"type":"tracking",
+	"vector": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,6,30))"
+}
+	],
+	"vector_converted_at_balance_date": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,6,30))"
+}
+	],
+	"vector_converted_at_transaction_date": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2018,6,30))"
+}
+	]
+      },
+      {
+	"account":"FinancialInvestmentsSG_Issuer_SA",
+	"date":"2018-06-30",
+	"description":"Dispose_Of",
+	"running_balance": [ {"credit":0, "debit":5, "unit":"SG_Issuer_SA"} ],
+	"type":"instant",
+	"vector": [ {"credit":5, "debit":0, "unit":"SG_Issuer_SA"} ],
+	"vector_converted_at_balance_date": [ {"credit":5, "debit":0, "unit":"SG_Issuer_SA"} ],
+	"vector_converted_at_transaction_date": [ {"credit":5, "debit":0, "unit":"SG_Issuer_SA"} ]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedOnlyCurrencyMovementSG_Issuer_SA",
+	"date":"2018-06-30",
+	"description":"comment:, comment2:Dispose_Of - single period",
+	"running_balance": [
+	   {"credit":5, "debit":0, "unit":"SG_Issuer_SA"},
+	   {
+  "credit":0,
+  "debit":5,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {"credit":0, "debit":5, "unit":"SG_Issuer_SA"},
+	   {
+  "credit":5,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_balance_date": [
+	   {"credit":0, "debit":5, "unit":"SG_Issuer_SA"},
+	   {
+  "credit":5,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_transaction_date": [
+	   {"credit":0, "debit":5, "unit":"SG_Issuer_SA"},
+	   {
+  "credit":5,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeUnrealizedWithoutCurrencyMovementSG_Issuer_SA",
+	"date":"2018-06-30",
+	"description":"comment:, comment2:Dispose_Of - single period",
+	"running_balance": [
+	   {"credit":0, "debit":50, "unit":"USD"},
+	   {
+  "credit":5,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":0,
+  "debit":5,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+},
+	   {"credit":50, "debit":0, "unit":"USD"}
+	],
+	"vector_converted_at_balance_date": [
+	   {"credit":50, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":5,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_transaction_date": [
+	   {"credit":50, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":5,
+  "unit":"without_currency_movement_against_since('SG_Issuer_SA','USD',[],date(2017,7,1))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeRealizedOnlyCurrencyMovementSG_Issuer_SA",
+	"date":"2018-06-30",
+	"description":"comment:, comment2:Dispose_Of",
+	"running_balance": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_balance_date": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_transaction_date": [
+	   {"credit":200, "debit":0, "unit":"USD"},
+	   {
+  "credit":0,
+  "debit":200,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	]
+      },
+      {
+	"account":"InvestmentIncomeRealizedWithoutCurrencyMovementSG_Issuer_SA",
+	"date":"2018-06-30",
+	"description":"comment:, comment2:Dispose_Of",
+	"running_balance": [
+	   {"credit":0, "debit":50, "unit":"USD"},
+	   {
+  "credit":200,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"type":"?",
+	"vector": [
+	   {
+  "credit":200,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+},
+	   {"credit":0, "debit":50, "unit":"USD"}
+	],
+	"vector_converted_at_balance_date": [
+	   {"credit":0, "debit":50, "unit":"USD"},
+	   {
+  "credit":200,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	],
+	"vector_converted_at_transaction_date": [
+	   {"credit":0, "debit":50, "unit":"USD"},
+	   {
+  "credit":200,
+  "debit":0,
+  "unit":"without_currency_movement_against_since('USD','USD',[],date(2017,7,1))"
+}
+	]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]

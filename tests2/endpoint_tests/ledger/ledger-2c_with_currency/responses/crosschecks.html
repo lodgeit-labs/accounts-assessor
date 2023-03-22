@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link type="text/css" rel="stylesheet" href="../../static/report_stylesheet.css">
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+</head>
+<body>
+
+<p>
+<span>error</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeRealized'/withoutCurrencyMovement) ≠ report_value(reports/ir/current/totals/gains/rea/market_converted)</span>:<br>
+<span>[value('AUD',344.9275)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/rea/market_converted),evaluation_failure2)</span></p>
+
+<p>
+<span>error</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeRealized'/onlyCurrencyMovement) ≠ report_value(reports/ir/current/totals/gains/rea/forex)</span>:<br>
+<span>[value('AUD',-4.1408)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/rea/forex),evaluation_failure4)</span></p>
+
+<p>
+<span>error</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/withoutCurrencyMovement) ≠ report_value(reports/ir/current/totals/gains/unr/market_converted)</span>:<br>
+<span>[value('AUD',-279.1712),value(without_currency_movement_against_since('SG_Issuer_SA','AUD',['AUD'],date(2017,7,1)),10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/market_converted),evaluation_failure6)</span></p>
+
+<p>
+<span>error</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncomeUnrealized'/onlyCurrencyMovement) ≠ report_value(reports/ir/current/totals/gains/unr/forex)</span>:<br>
+<span>[value('AUD',-0.2928),value('SG_Issuer_SA',10),value(without_currency_movement_against_since('SG_Issuer_SA','AUD',['AUD'],date(2017,7,1)),-10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unr/forex),evaluation_failure8)</span></p>
+
+<p>
+<span>error</span>:<br>
+<span>account_balance(reports/pl/current,'Accounts'/'InvestmentIncome') ≠ report_value(reports/ir/current/totals/gains/total)</span>:<br>
+<span>[value('AUD',61.3227),value('SG_Issuer_SA',10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/total),evaluation_failure10)</span></p>
+
+<p>
+<span>error</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncome'/unrealized) ≠ report_value(reports/ir/current/totals/gains/unrealized_total)</span>:<br>
+<span>[value('AUD',-279.464),value('SG_Issuer_SA',10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/unrealized_total),evaluation_failure12)</span></p>
+
+<p>
+<span>error</span>:<br>
+<span>account_balance(reports/pl/current,'InvestmentIncome'/realized) ≠ report_value(reports/ir/current/totals/gains/realized_total)</span>:<br>
+<span>[value('AUD',340.7867)] ≠ evaluation_failed(report_value(reports/ir/current/totals/gains/realized_total),evaluation_failure14)</span></p>
+
+<p>
+<span>error</span>:<br>
+<span>account_balance(reports/bs/current,'Accounts'/'FinancialInvestments') ≠ report_value(reports/ir/current/totals/closing/total_cost_converted)</span>:<br>
+<span>[value('AUD',102),value('SG_Issuer_SA',10)] ≠ evaluation_failed(report_value(reports/ir/current/totals/closing/total_cost_converted),evaluation_failure16)</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/bs/current,'Accounts'/'HistoricalEarnings') = account_balance(reports/pl/historical,'Accounts'/'NetIncomeLoss')</span>:<br>
+<span>[] = []</span></p>
+
+<p>
+<span>ok</span>:<br>
+<span>account_balance(reports/bs/current,'Accounts'/'NetAssets') = account_balance(reports/bs/current,'Accounts'/'Equity')</span>:<br>
+<span>[value('AUD',949),value('SG_Issuer_SA',10)] = [value('AUD',949),value('SG_Issuer_SA',10)]</span></p>
+</body>
+</html>

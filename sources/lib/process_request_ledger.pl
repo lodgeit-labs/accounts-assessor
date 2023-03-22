@@ -1,8 +1,8 @@
 
 /*
 
-
-state ( -> static data) -> structured reports ( -> crosschecks)
+due to legacy parts of codebase, the highlevel dataflow goes through Static_Data and is somewhat like this:
+state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
 
 
 */
@@ -10,35 +10,56 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 
  process_request_ledger :-
 	ct(
-		'this is an Investment Calculator query',
+		"is this an Investment Calculator query?",
 		get_optional_singleton_sheet(ic_ui:report_details_sheet, _)
 	),
+	%progress(),
  	!ledger_initialization,
- 	*valid_ledger_model,
+	*valid_ledger_model,
  	ct('process_request_ledger is finished.').
 
 
  ledger_initialization :-
 	!cf(extract_start_and_end_date),
 	!cf(stamp_result),
-	!cf(extract_report_parameters),
+	!cf('extract "output_dimensional_facts"'),
+	!cf('extract "cost_or_market"'),
+	!cf(extract_report_currency),
+	!cf('extract action verbs'),
+	!cf('extract bank accounts'),
+	!cf('extract GL accounts'),
 	!cf(make_gl_viewer_report),
 	!cf(write_accounts_json_report),
-	!cf(extract_exchange_rates).
+	!cf(extract_exchange_rates),
+
+	/* there is currently a non-declarative tracking of GL accounts. this has the purpose of disallowing arbitrary code to generate GL txs with nonexistent GL accounts. All accounts have to be "added" first.
+	but with fixpoint reasoning we can instead enforce (in a maplist...
+	*/
+	/* ensure that all expected accounts are explicitly reported, even if no GL transaction ever touches them */
+	!cf('ensure system accounts exist 0'([])).
+
+
+
+/*
+A valid ledger model has input and output documents, and possibly a bunch of phases, where each phase automates some posting of GL transactions that some business logic requires.
+
+we need to update the vocabulary a bit:
+an ST - "Statement Transaction", originally "bank statement transaction", is now effectively any transaction that only has an implicit primary account and is yet to be "preprocessed - split into multiple GL transactions.
+*/
 
  valid_ledger_model :-
 
+	/* start with a blank state */
  	!initial_state(S0),
 
-	once(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
-	cf('ensure system accounts exist 0'(Bank_Lump_STs)),
-
+	!(cf(generate_bank_opening_balances_sts(Bank_Lump_STs))),
 	handle_sts(S0, Bank_Lump_STs, S2),
 	doc_add(S2, rdfs:comment, "with bank opening STSs"),
 
+	/* each GL input sheet can be set to be applied at a particular phase */
 	ct('phase: opening balance GL inputs',
-		/* todo implement cutoffs inside extract_gl_inputs */
 		(extract_gl_inputs(phases:opening_balance, Gl_input_txs),
+		/* gl inputs are just GL transactions, not STs */
 	 	handle_txs(S2, Gl_input_txs, S4))),
 	doc_add(S4, rdfs:comment, "with Gl_input_txs"),
 
@@ -47,6 +68,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
 			smsf_rollover0(S4, S6))
 	;	S4 = S6),
 
+	/* this phasing is somewhat arbitrary, just driven by our usecases */
  	cf('phase: main 1'(S6, S7)),
  	doc_add(S7, rdfs:comment, "after main 1"),
  	cf('phase: main 2'(S7, S8)),
@@ -76,7 +98,7 @@ state ( -> static data) -> structured reports ( -> crosschecks)
  	!once(cf('ensure system accounts exist 0'(Sts3))).
 
 
-'phase: main 2'(S2, S4) :-
+ 'phase: main 2'(S2, S4) :-
  	(	is_not_cutoff
  	->	(
 			!cf(extract_gl_inputs(_, Txs7)),
@@ -326,15 +348,6 @@ This is done with a symlink. This allows to bypass cache, for example in pessera
 	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
 	!doc_add(Result, l:timestamp, DateTime),
 	doc_add($>result, l:type, l:ledger).
-
- extract_report_parameters :-
-	!cf('extract "output_dimensional_facts"'),
-	!cf('extract "cost_or_market"'),
-	!cf(extract_report_currency),
-	!cf('extract action verbs'),
-	!cf('extract bank accounts'),
-	!cf('extract GL accounts').
-
 
  read_ic_n_sts_processed(N) :-
 	b_current_num_with_default(ic_n_sts_processed, 0, N).

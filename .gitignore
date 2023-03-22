@@ -293,7 +293,7 @@ paket-files/
 .fake/
 
 # JetBrains Rider
-.idea/
+#.idea/
 *.sln.iml
 
 # CodeRush personal settings
@@ -372,3 +372,7 @@ a.out
 
 secrets
 accounts-assessor-wiki/
+private_wiki
+log
+.attach_pid*
+

@@ -9,14 +9,18 @@
 	% here we get Fn explicitly, because we're gonna generate alerts that link to it.
 	grab_nondet_report_fn('crosschecks.html', Fn),
 	maplist(crosscheck_output(Fn), Json.results, Html),
-	add_report_page_with_body__singleton(9, 'crosschecks', Html, loc(file_name,Fn), 'crosschecks_html').
+	add_report_page_with_body__singleton(15, 'crosschecks', Html, loc(file_name,Fn), 'crosschecks_html').
 
  crosscheck_output(Fn, Result, Html) :-
-	round_term(Result, _{check:Check, evaluation:Evaluation, status:Status}),
-	Html0 = [span([Status]), ':', br([]), span([Check_Str]), ':', br([]), span([Evaluation_Str])],
+	round_term(Result, _{check:Check, evaluation:Evaluation, status:Status, diff:Diff}),
+	Html0 = [span([Status]), ':', br([]), span([Check_Str]), ':', br([]), span([Evaluation_Str]), ':', br([]), span([Diff_Str])],
 	(	Status == ok
 	->	Html = p(Html0)
 	;	Html = p([b(Html0)])),
+	format(
+		   string(Diff_Str),
+		   '(~q)',
+		   [Diff]),
 	format(
 		   string(Check_Str),
 		   '~q ~w ~q',
@@ -163,7 +167,7 @@ fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_cre
 	}.
 
 
- evaluate_equality(Sd, equality(A, B), crosscheck{check:Check, evaluation:Evaluation, status:Status}) :-
+ evaluate_equality(Sd, equality(A, B), crosscheck{check:Check, evaluation:Evaluation, status:Status, diff: Diff}) :-
 	evaluate(Sd, A, A2),
 	evaluate(Sd, B, B2),
 	(
@@ -171,12 +175,14 @@ fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_cre
 	->
 	 (
 	  Equality_Str = '=',
-	  Status = 'ok'
+	  Status = 'ok',
+	  Diff = []
 	 )
 	;
 	 (
 	  Equality_Str = '≠',
-	  Status = 'error'
+	  Status = 'error',
+      vec_sub(A2, B2, Diff)
 	 )
 	),
 	Check = check{op: Equality_Str, a:A, b:B},

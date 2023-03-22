@@ -1,19 +1,11 @@
-# todo make a non-hollow(with static files copy) Dockerfile
+FROM httpd:2
 
-FROM httpd:2.4.48-alpine
 
 VOLUME /usr/local/apache2/htdocs/tmp/
 VOLUME /usr/local/apache2/htdocs/static/
-
-
-
-COPY apache/conf/* /usr/local/apache2/conf/
-
-
-
-#VOLUME /usr/local/apache2/conf/
-#RUN rm /usr/local/apache2/conf/httpd.conf
-#VOLUME /usr/local/apache2/conf/httpd.conf
-#VOLUME /usr/local/apache2/conf/htpasswd
-
+COPY conf/* /usr/local/apache2/conf/
 ENV proxy-initial-not-pooled true
+
+HEALTHCHECK CMD /bin/true # curl? http://127.0.0.1:8080/
+
+# todo make a non-hollow(with static files copy) Dockerfile

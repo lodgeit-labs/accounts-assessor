@@ -17,7 +17,7 @@
 :- [search_paths].
 
 
-:- setenv('DETERMINANCY_CHECKER__USE__UNDO', true).
+%:- setenv('DETERMINANCY_CHECKER__USE__UNDO', true). % not until swipl V8.3.28 or so.
 :- ['../public_lib/lodgeit_solvers/prolog/utils/utils'].
 :- ['../public_lib/lodgeit_solvers/prolog/utils/doc_dump_server'].
 
@@ -79,6 +79,7 @@
 :- [state].
 :- [system_accounts].
 :- [tables].
+%:- [testcase_converter].
 :- [trading].
 :- [transactions].
 :- [trial_balance].

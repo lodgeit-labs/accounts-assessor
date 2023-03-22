@@ -1,0 +1,12 @@
+<html>
+<head>
+    <title>Job {{job_id}} status {{status}}</title>
+{% if refresh %}
+    <meta http-equiv="refresh" content="5">
+{% endif %}
+</head>
+<body>
+    <h1>Job {{job_id}} status {{status}}</h1>
+    <pre>{{json}}</pre>
+</body>
+</html>

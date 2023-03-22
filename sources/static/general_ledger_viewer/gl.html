@@ -122,14 +122,15 @@
 		template: `
 			<tr class="transaction">
 				<td>GL</td>
-				<td><truncate clamp="..." :length="60" less="⇦" :text="$root.accounts_index[data.account].name"></truncate></td>
+				<td><truncate clamp="..." :length="100" less="⇦" :text="$root.accounts_index[data.account].name"></truncate></td>
 				<td>{{ data.date }}</td>
 				<td>{{ data.description }}</td>
-				<td></td>
-				<td></td>
+				<td>-</td>
+				<td>-</td>
 				<td> <vector :data="data.vector"></vector> </td>
 				<td> <vector :data="data.vector_converted_at_transaction_date"></vector> </td>
 				<td> <vector :data="data.vector_converted_at_balance_date"></vector> </td>
+				<td>-</td>
 				<td> <vector :data="data.running_balance"></vector> </td>
 			</tr>
 		`

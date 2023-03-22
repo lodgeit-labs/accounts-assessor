@@ -26,6 +26,30 @@
 	write_report_file(Fn2, Json_Text, Report_File_URL, Final_fn),
 	add_report_file(-10, Key, Title, Report_File_URL).
 
+
+ make_same_named_symlinked_json_report(Json, Name) :-
+/* make a json report (with Name + an increasing id), and make a symlink to the last version */
+	make_symlinked_json_report(Json, Name, Name).
+
+ make_symlinked_json_report(Json, Base, Symlink_name) :-
+	!make_json_report(Json,	Base, Final_fn),
+	% get the symlink path
+	report_file_path__singleton(
+		loc(file_name, Symlink_name),
+		_,
+		loc(absolute_path, Link)
+	),
+	% make the symlink
+	!shell4(
+		[
+			'ln', '-s', '-n', '-f',
+			Final_fn,
+			Link
+		],
+		0
+	).
+
+
  html_tokenlist_string(Tokenlist, String) :-
 	setup_call_cleanup(
 		new_memory_file(X),

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xbrli:xbrl
+    xmlns:xbrli="http://www.xbrl.org/2003/instance"
+    xmlns:link="http://www.xbrl.org/2003/linkbase"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:iso4217="http://www.xbrl.org/2003/iso4217"
+    xmlns:basic="http://www.xbrlsite.com/basic"
+    xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
+    xsi:schemaLocation="http://www.xbrlsite.com/basic taxonomy/basic.xsd http://www.xbrl.org/2003/instance http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd http://xbrl.org/2006/xbrldi http://www.xbrl.org/2006/xbrldi-2006.xsd">
+  <link:schemaRef
+      xlink:type="simple"
+      xlink:href="taxonomy/basic.xsd"
+      xlink:title="Taxonomy schema"/>
+  <link:linkbaseRef
+      xlink:type="simple"
+      xlink:href="taxonomy/basic-formulas.xml"
+      xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase"/>
+  <link:linkBaseRef
+      xlink:type="simple"
+      xlink:href="taxonomy/basic-formulas-cross-checks.xml"
+      xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase"/>
+  <xbrli:unit id="U-SG_Issuer_SA">
+    <xbrli:measure>iso4217:SG_Issuer_SA</xbrli:measure>
+  </xbrli:unit>
+  <xbrli:unit id="U-USD">
+    <xbrli:measure>iso4217:USD</xbrli:measure>
+  </xbrli:unit>
+  <xbrli:unit
+      id="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__">
+    <xbrli:measure>iso4217:without_currency_movement_against_since_USD_USD____date_2017_7_1__</xbrli:measure>
+  </xbrli:unit>
+  <xbrli:unit
+      id="U-without_currency_movement_against_since_USD_USD____date_2018_6_30__">
+    <xbrli:measure>iso4217:without_currency_movement_against_since_USD_USD____date_2018_6_30__</xbrli:measure>
+  </xbrli:unit>
+  <xbrli:unit
+      id="U-without_currency_movement_against_since_SG_Issuer_SA_USD____date_2017_7_1__">
+    <xbrli:measure>iso4217:without_currency_movement_against_since_SG_Issuer_SA_USD____date_2017_7_1__</xbrli:measure>
+  </xbrli:unit>
+  <xbrli:context id="I-2018">
+    <xbrli:period>
+      <xbrli:instant>2018-06-30</xbrli:instant>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+    </xbrli:entity>
+  </xbrli:context>
+  <xbrli:context id="D-2018">
+    <xbrli:period>
+      <xbrli:startDate>2017-07-01</xbrli:startDate>
+      <xbrli:endDate>2018-06-30</xbrli:endDate>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+    </xbrli:entity>
+  </xbrli:context>
+  <xbrli:context id="I-2018-WellsFargo">
+    <xbrli:period>
+      <xbrli:instant>2018-06-30</xbrli:instant>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+    </xbrli:entity>
+    <xbrli:scenario>
+      <xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Instant">
+	<basic:BankAccount_Instant>
+	  <name>BanksWellsFargo</name>
+	  <value>10000</value>
+	</basic:BankAccount_Instant>
+      </xbrldi:typedMember>
+    </xbrli:scenario>
+  </xbrli:context>
+  <xbrli:context id="D-2018-WellsFargo">
+    <xbrli:period>
+      <xbrli:startDate>2017-07-01</xbrli:startDate>
+      <xbrli:endDate>2018-06-30</xbrli:endDate>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+      <xbrli:segment>
+	<xbrldi:typedMember dimension="basic:Dimension_BankAccounts_Duration">
+	  <basic:BankAccount_Duration>WellsFargo</basic:BankAccount_Duration>
+	</xbrldi:typedMember>
+      </xbrli:segment>
+    </xbrli:entity>
+  </xbrli:context>
+  <xbrli:context id="D-2018-SG_Issuer_SA">
+    <xbrli:period>
+      <xbrli:startDate>2017-07-01</xbrli:startDate>
+      <xbrli:endDate>2018-06-30</xbrli:endDate>
+    </xbrli:period>
+    <xbrli:entity>
+      <identifier scheme="http://www.example.com">TestData</identifier>
+      <xbrli:segment>
+	<xbrldi:typedMember dimension="basic:Dimension_Investments_Duration">
+	  <basic:Investment_Duration>SG_Issuer_SA</basic:Investment_Duration>
+	</xbrldi:typedMember>
+      </xbrli:segment>
+    </xbrli:entity>
+  </xbrli:context>
+  <basic:Banks
+      contextRef="I-2018-WellsFargo"
+      unitRef="U-USD"
+      decimals="INF">300.00</basic:Banks>
+  <basic:CurrencyMovement
+      contextRef="D-2018-WellsFargo"
+      unitRef="U-USD"
+      decimals="INF">300.00</basic:CurrencyMovement>
+  <basic:CurrencyMovement
+      contextRef="D-2018-WellsFargo"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">-100.00</basic:CurrencyMovement>
+  <basic:CurrencyMovement
+      contextRef="D-2018-WellsFargo"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_6_30__"
+      decimals="INF">-200.00</basic:CurrencyMovement>
+  <basic:InvestmentIncomeRealizedOnlyCurrencyMovement
+      contextRef="D-2018-SG_Issuer_SA"
+      unitRef="U-USD"
+      decimals="INF">200.00</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeRealizedOnlyCurrencyMovement
+      contextRef="D-2018-SG_Issuer_SA"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">-200.00</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
+      contextRef="D-2018-SG_Issuer_SA"
+      unitRef="U-USD"
+      decimals="INF">-50.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+  <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
+      contextRef="D-2018-SG_Issuer_SA"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">200.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement
+      contextRef="D-2018-SG_Issuer_SA"
+      unitRef="U-SG_Issuer_SA"
+      decimals="INF">5.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement
+      contextRef="D-2018-SG_Issuer_SA"
+      unitRef="U-without_currency_movement_against_since_SG_Issuer_SA_USD____date_2017_7_1__"
+      decimals="INF">-5.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement
+      contextRef="D-2018-SG_Issuer_SA"
+      unitRef="U-USD"
+      decimals="INF">-50.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement
+      contextRef="D-2018-SG_Issuer_SA"
+      unitRef="U-without_currency_movement_against_since_SG_Issuer_SA_USD____date_2017_7_1__"
+      decimals="INF">5.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+  <basic:NetAssets contextRef="I-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:NetAssets>
+  <basic:NetAssets contextRef="I-2018" unitRef="U-USD" decimals="INF">300.00</basic:NetAssets>
+  <basic:Assets contextRef="I-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:Assets>
+  <basic:Assets contextRef="I-2018" unitRef="U-USD" decimals="INF">300.00</basic:Assets>
+  <basic:CurrentAssets contextRef="I-2018" unitRef="U-USD" decimals="INF">300.00</basic:CurrentAssets>
+  <basic:CashAndCashEquivalents contextRef="I-2018" unitRef="U-USD" decimals="INF">300.00</basic:CashAndCashEquivalents>
+  <basic:Banks contextRef="I-2018" unitRef="U-USD" decimals="INF">300.00</basic:Banks>
+  <basic:NoncurrentAssets contextRef="I-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:NoncurrentAssets>
+  <basic:FinancialInvestments contextRef="I-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:FinancialInvestments>
+  <basic:Equity contextRef="I-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:Equity>
+  <basic:Equity contextRef="I-2018" unitRef="U-USD" decimals="INF">600.00</basic:Equity>
+  <basic:Equity
+      contextRef="I-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">-100.00</basic:Equity>
+  <basic:Equity
+      contextRef="I-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_6_30__"
+      decimals="INF">-200.00</basic:Equity>
+  <basic:RetainedEarnings contextRef="I-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:RetainedEarnings>
+  <basic:RetainedEarnings contextRef="I-2018" unitRef="U-USD" decimals="INF">400.00</basic:RetainedEarnings>
+  <basic:RetainedEarnings
+      contextRef="I-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">-100.00</basic:RetainedEarnings>
+  <basic:RetainedEarnings
+      contextRef="I-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_6_30__"
+      decimals="INF">-200.00</basic:RetainedEarnings>
+  <basic:CurrentEarnings contextRef="I-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:CurrentEarnings>
+  <basic:CurrentEarnings contextRef="I-2018" unitRef="U-USD" decimals="INF">400.00</basic:CurrentEarnings>
+  <basic:CurrentEarnings
+      contextRef="I-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">-100.00</basic:CurrentEarnings>
+  <basic:CurrentEarnings
+      contextRef="I-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_6_30__"
+      decimals="INF">-200.00</basic:CurrentEarnings>
+  <basic:ShareCapital contextRef="I-2018" unitRef="U-USD" decimals="INF">200.00</basic:ShareCapital>
+  <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:NetIncomeLoss>
+  <basic:NetIncomeLoss contextRef="D-2018" unitRef="U-USD" decimals="INF">400.00</basic:NetIncomeLoss>
+  <basic:NetIncomeLoss
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">-100.00</basic:NetIncomeLoss>
+  <basic:NetIncomeLoss
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_6_30__"
+      decimals="INF">-200.00</basic:NetIncomeLoss>
+  <basic:Revenue contextRef="D-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:Revenue>
+  <basic:Revenue contextRef="D-2018" unitRef="U-USD" decimals="INF">400.00</basic:Revenue>
+  <basic:Revenue
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">-100.00</basic:Revenue>
+  <basic:Revenue
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_6_30__"
+      decimals="INF">-200.00</basic:Revenue>
+  <basic:CurrencyMovement contextRef="D-2018" unitRef="U-USD" decimals="INF">300.00</basic:CurrencyMovement>
+  <basic:CurrencyMovement
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">-100.00</basic:CurrencyMovement>
+  <basic:CurrencyMovement
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_6_30__"
+      decimals="INF">-200.00</basic:CurrencyMovement>
+  <basic:CurrencyMovementWellsFargo contextRef="D-2018" unitRef="U-USD" decimals="INF">300.00</basic:CurrencyMovementWellsFargo>
+  <basic:CurrencyMovementWellsFargo
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">-100.00</basic:CurrencyMovementWellsFargo>
+  <basic:CurrencyMovementWellsFargo
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_6_30__"
+      decimals="INF">-200.00</basic:CurrencyMovementWellsFargo>
+  <basic:InvestmentIncome contextRef="D-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:InvestmentIncome>
+  <basic:InvestmentIncome contextRef="D-2018" unitRef="U-USD" decimals="INF">100.00</basic:InvestmentIncome>
+  <basic:InvestmentIncomeRealized contextRef="D-2018" unitRef="U-USD" decimals="INF">150.00</basic:InvestmentIncomeRealized>
+  <basic:InvestmentIncomeRealizedOnlyCurrencyMovement contextRef="D-2018" unitRef="U-USD" decimals="INF">200.00</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeRealizedOnlyCurrencyMovement
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">-200.00</basic:InvestmentIncomeRealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeRealizedWithoutCurrencyMovement contextRef="D-2018" unitRef="U-USD" decimals="INF">-50.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+  <basic:InvestmentIncomeRealizedWithoutCurrencyMovement
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">200.00</basic:InvestmentIncomeRealizedWithoutCurrencyMovement>
+  <basic:InvestmentIncomeUnrealized contextRef="D-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:InvestmentIncomeUnrealized>
+  <basic:InvestmentIncomeUnrealized contextRef="D-2018" unitRef="U-USD" decimals="INF">-50.00</basic:InvestmentIncomeUnrealized>
+  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement contextRef="D-2018" unitRef="U-SG_Issuer_SA" decimals="INF">5.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_SG_Issuer_SA_USD____date_2017_7_1__"
+      decimals="INF">-5.00</basic:InvestmentIncomeUnrealizedOnlyCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement contextRef="D-2018" unitRef="U-USD" decimals="INF">-50.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+  <basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement
+      contextRef="D-2018"
+      unitRef="U-without_currency_movement_against_since_SG_Issuer_SA_USD____date_2017_7_1__"
+      decimals="INF">5.00</basic:InvestmentIncomeUnrealizedWithoutCurrencyMovement>
+  <basic:Trial_Balance contextRef="I-2018" unitRef="U-USD" decimals="INF">-300.00</basic:Trial_Balance>
+  <basic:Trial_Balance
+      contextRef="I-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2017_7_1__"
+      decimals="INF">100.00</basic:Trial_Balance>
+  <basic:Trial_Balance
+      contextRef="I-2018"
+      unitRef="U-without_currency_movement_against_since_USD_USD____date_2018_6_30__"
+      decimals="INF">200.00</basic:Trial_Balance>
+</xbrli:xbrl>

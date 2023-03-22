@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+
+
+ <!-- reports:  {
+  "alerts": [],
+  "reports": [
+    {
+      "id":"livestock_report_Cow_html",
+      "key":"Cow",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.97/livestock_report_Cow.html"
+      }
+    },
+    {
+      "id":"response_xml",
+      "key":"xml response",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.97/response.xml"
+      }
+    },
+    {
+      "id":"request_xml",
+      "key":"request_xml",
+      "val": {
+	"url":"http://koom-KVM:8080/tmp/1574486829.0812657.97/request.xml"
+      }
+    },
+    {
+      "id":"all",
+      "key":"all files",
+      "val": {"url":"http://koom-KVM:8080/tmp/1574486829.0812657.97/"}
+    }
+  ]
+} --> <response>
+<livestocks>
+<livestock>
+<name>Cow</name>
+<currency>AUD</currency>
+<unitsBorn>10</unitsBorn>
+<naturalIncreaseValuePerUnit>20</naturalIncreaseValuePerUnit>
+<unitsSales>6</unitsSales>
+<saleValue>7663</saleValue>
+<unitsRations>5</unitsRations>
+<unitsOpening>25</unitsOpening>
+<openingValue>4000</openingValue>
+<unitsClosing>29</unitsClosing>
+<unitsPurchases>10</unitsPurchases>
+<purchaseValue>7000</purchaseValue>
+<unitsDeceased>5</unitsDeceased>
+<Killed_for_rations_value>1244.4444444444443</Killed_for_rations_value>
+<Stock_on_hand_at_end_of_year_value>7217.777777777777</Stock_on_hand_at_end_of_year_value>
+<Closing_and_killed_and_sales_minus_losses_count>35</Closing_and_killed_and_sales_minus_losses_count>
+<Closing_and_killed_and_sales_value>16125.222222222223</Closing_and_killed_and_sales_value>
+<Opening_and_purchases_and_increase_count>45</Opening_and_purchases_and_increase_count>
+<Opening_and_purchases_value>11000</Opening_and_purchases_value>
+<Natural_Increase_value>200</Natural_Increase_value>
+<Average_cost>248.88888888888889</Average_cost>
+<Revenue>7663</Revenue>
+<Livestock_COGS>2537.7777777777783</Livestock_COGS>
+<Gross_Profit_on_Livestock_Trading>5125.222222222222</Gross_Profit_on_Livestock_Trading>
+<Explanation>Gross_Profit_on_Livestock_Trading = Sales_value-(Stock_on_hand_at_beginning_of_year_value+Purchases_value-Average_cost*(Stock_on_hand_at_beginning_of_year_count+Natural_increase_count+Purchases_count-Killed_for_rations_count-Losses_count-Sales_count)-Killed_for_rations_count*Average_cost)
+Gross_Profit_on_Livestock_Trading = 7663 - (4000 + 7000 - 248.88888888888889 * (25 + 10 + 10 - 5 - 5 - 6) - 5 * 248.88888888888889)
+Average_cost = (Stock_on_hand_at_beginning_of_year_value+Purchases_value+Natural_increase_count*Natural_increase_value_per_head)/(Stock_on_hand_at_beginning_of_year_count+Purchases_count+Natural_increase_count)
+Average_cost = (4000 + 7000 + 10 * 20) / (25 + 10 + 10)</Explanation>
+</livestock>
+</livestocks>
+</response>
+
+

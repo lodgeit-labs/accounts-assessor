@@ -1,0 +1,126 @@
+[
+  {"source":"initial_GL", "transactions": []},
+  {
+    "source": {
+      "account":"WellsFargo",
+      "date":"2017-07-01",
+      "exchanged":"vector([])",
+      "misc": {"desc2":""},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+      "vector": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+      "verb":"Introduce_Capital"
+    },
+    "transactions": [
+      {
+	"account":"BanksWellsFargo",
+	"date":"2017-07-01",
+	"description":"Introduce_Capital - incoming money",
+	"running_balance": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":200, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":200, "unit":"AUD"} ]
+      },
+      {
+	"account":"ShareCapital",
+	"date":"2017-07-01",
+	"description":"Introduce_Capital",
+	"running_balance": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":200, "debit":0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"WellsFargo",
+      "date":"2017-07-10",
+      "exchanged":"vector([])",
+      "misc": {"desc2":""},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+      "vector": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+      "verb":"Purchase_Method_C"
+    },
+    "transactions": [
+      {
+	"account":"BanksWellsFargo",
+	"date":"2017-07-10",
+	"description":"Purchase_Method_C - outgoing money",
+	"running_balance": [],
+	"type":"instant",
+	"vector": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":200, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":200, "debit":0, "unit":"AUD"} ]
+      },
+      {
+	"account":"GstReceivable",
+	"date":"2017-07-10",
+	"description":"Purchase_Method_C",
+	"running_balance": [ {"credit":0, "debit":20, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":20, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":20, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":20, "unit":"AUD"} ]
+      },
+      {
+	"account":"Purchases",
+	"date":"2017-07-10",
+	"description":"Purchase_Method_C",
+	"running_balance": [ {"credit":0, "debit":180, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":180, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":180, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":180, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {
+    "source": {
+      "account":"WellsFargo",
+      "date":"2018-06-28",
+      "exchanged":"vector([])",
+      "misc": {"desc2":""},
+      "report_currency_transacted_amount_converted_at_balance_date": [ {"credit":0, "debit":400, "unit":"AUD"} ],
+      "report_currency_transacted_amount_converted_at_transaction_date": [ {"credit":0, "debit":400, "unit":"AUD"} ],
+      "vector": [ {"credit":0, "debit":400, "unit":"AUD"} ],
+      "verb":"Sale_Method_C"
+    },
+    "transactions": [
+      {
+	"account":"BanksWellsFargo",
+	"date":"2018-06-28",
+	"description":"Sale_Method_C - incoming money",
+	"running_balance": [ {"credit":0, "debit":400, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":0, "debit":400, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":0, "debit":400, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":0, "debit":400, "unit":"AUD"} ]
+      },
+      {
+	"account":"GstPayable",
+	"date":"2018-06-28",
+	"description":"Sale_Method_C",
+	"running_balance": [ {"credit":40, "debit":0, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":40, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":40, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":40, "debit":0, "unit":"AUD"} ]
+      },
+      {
+	"account":"Income",
+	"date":"2018-06-28",
+	"description":"Sale_Method_C",
+	"running_balance": [ {"credit":360, "debit":0, "unit":"AUD"} ],
+	"type":"instant",
+	"vector": [ {"credit":360, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_balance_date": [ {"credit":360, "debit":0, "unit":"AUD"} ],
+	"vector_converted_at_transaction_date": [ {"credit":360, "debit":0, "unit":"AUD"} ]
+      }
+    ]
+  },
+  {"source":"livestock", "transactions": []}
+]
