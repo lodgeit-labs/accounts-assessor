@@ -30,7 +30,7 @@ from urllib.parse import urlparse
 
 def ccd(cmd, env):
 	logging.getLogger().info(' '.join([f'{k}={(v).__repr__()} \\\n' for k,v in env.items()]) + shlex.join(cmd))
-	subprocess.check_call(cmd, env=dict(**os.environ, env))
+	subprocess.check_call(cmd, env=dict(**os.environ, **env))
 
 
 @click.group()
@@ -94,8 +94,10 @@ def cli():
 
 @click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='mate-terminal -e "tmux attach-session -t {session_name}"')
 
+@click.option('-ts', '--tmux_session_name', 'tmux_session_name', type=str, default='')
+
 @click.pass_context
-def run(click_ctx, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, **choices):
+def run(click_ctx, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, tmux_session_name, **choices):
 	no_cache = choices['no_cache']
 	del choices['no_cache']
 	omit_images = choices['omit_images']
@@ -137,7 +139,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 
 	os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull --ignore-pull-failures --include-deps ') # this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it)
 
-	click_ctx.invoke(build,*(),**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images, 'terminal_cmd': terminal_cmd})
+	build(**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images, 'terminal_cmd': terminal_cmd, 'tmux_session_name': tmux_session_name})
 
 	if rm_stack:
 		print('wait for old network to disappear..')
@@ -177,7 +179,6 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 			ccd(ss('docker ps'), env={})
 			atexit.unregister(shutdown)
 			while True:
-				import time
 				time.sleep(1000)
 			exit(1)
 
@@ -467,26 +468,7 @@ def realpath(x):
 tmux_session = None
 
 
-@cli.command(help="""build the docker images.""")
-
-@click.option('-pp', '--port_postfix', 				type=str, 	default='',
-	help="last two or more digits of the services' public ports. Also identifies the particular docker stack. This way, you can deploy multiple stacks on one machine. Because you'll probably want each stack to consist of different images, build.sh takes PP as first parameter, and suffixes names of all images with it. This could maybe be done better with docker labels? idk..")
-
-@click.option('-m', '--mode', 				type=str, 	default='full',
-	help="hollow or full images? mount host directories containing source code or copy everything into image?")
-
-@click.option('-p', '--parallel', 			type=bool, 	default=False,
-	help="build docker images in parallel?")
-
-@click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
-
-@click.option('-om', '--omit_image', 'omit_images', type=str, default=[], multiple=True,
-	help=" ")
-
-@click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='',
-	help=" ")
-
-def build(port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd):
+def build(port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd, tmux_session_name):
 	global _parallel, tmux_session
 	_parallel=parallel
 
@@ -494,7 +476,10 @@ def build(port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd):
 		import libtmux
 		logging.getLogger('libtmux').setLevel(logging.WARNING)
 		server = libtmux.Server()
-		tmux_session = server.new_session()#window_command=
+		if tmux_session_name == '':
+			tmux_session = server.new_session()#window_command=
+		else:
+			tmux_session = server.sessions.filter(session_name=tmux_session_name)[0]
 
 		tmuxcmd = 'tmux attach-session -t ' + tmux_session.name
 
