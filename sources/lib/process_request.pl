@@ -197,7 +197,7 @@
 	result_property(l:has_job_handle, H),
 	atomic_list_concat(['../',H],H2),
 	report_file_path__singleton(loc(file_name, H2), Tmp_Dir_Url, _),
-	add_report_file(-100,'job_handle', 'job_handle', Tmp_Dir_Url).
+	add_report_file(-100,'job_tmp_url', 'job_tmp_url', Tmp_Dir_Url).
 
 
  make_doc_dump_report :-

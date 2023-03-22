@@ -158,7 +158,6 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 	logging.getLogger().info('requested_output_format: %s' % requested_output_format)
 	if requested_output_format in ['immediate_xml', 'immediate_json_reports_list']:
 		reports = job.result.get(block=True, timeout=1000 * 1000)
-		#reports = json.load(open('/app/server_root/tmp/' + response_tmp_directory_name + '/000000_response.json.json'))
 		if requested_output_format == 'immediate_xml':
 			return RedirectResponse(find_report_by_key(reports['reports'], 'response'))
 		else:
@@ -169,8 +168,8 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 			"alerts": ["job scheduled."],
 			"reports":
 			[{
-				"title": "result URL",
-				"key": "result_url",
+				"title": "job URL",
+				"key": "job_tmp_url",
 				"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}},
 			{
 				"title": "job API URL",
