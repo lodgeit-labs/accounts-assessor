@@ -30,7 +30,9 @@ from urllib.parse import urlparse
 
 def ccd(cmd, env):
 	logging.getLogger().info(' '.join([f'{k}={(v).__repr__()} \\\n' for k,v in env.items()]) + shlex.join(cmd))
-	subprocess.check_call(cmd, env=dict(**os.environ, **env))
+	e = os.environ.copy()
+	e.update(env)
+	subprocess.check_call(cmd, env=e)
 
 
 @click.group()
