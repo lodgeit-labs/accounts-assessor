@@ -107,7 +107,7 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 async def views_limbo(request: Request, job_id: str):
 	job = await get_task(job_id)
 	if job is not None:
-		if job['status'] == 'Success' and 'reports' in job['result']['result']:
+		if job['status'] == 'Success' and 'reports' in job['result'].get('result',{}):
 			return RedirectResponse(find_report_by_key(job['result']['result']['reports'], 'task_directory'))
 		else:
 			# it turns out that failures are not permanent
