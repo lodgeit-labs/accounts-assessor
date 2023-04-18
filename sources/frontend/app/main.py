@@ -78,10 +78,20 @@ app = FastAPI()
 async def read_root():
 	return {"Hello": "World"}
 
-@app.get("/health")
-async def read_root():
-	return "ok"
 
+#@app.get("/health")
+#...
+
+@app.post("/health_check")
+async def post(request: Request):
+	r = json_prolog_rpc_call(request, {
+		"method": "chat",
+		"params": {"type":"sbe","current_state":[]}
+	})
+	if r == {"result":{"question":"Are you a Sole trader, Partnership, Company or Trust?","state":[{"question_id":0,"response":-1}]}}:
+		return "ok"
+	else:
+		raise HTTPException(status_code=500, detail="self-test failed")
 
 @app.post("/chat")
 async def post(body: ChatRequest, request: Request):
