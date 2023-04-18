@@ -280,7 +280,8 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 
 			del v['networks']
 			if 'deploy' in v:
-				del v['deploy']
+				#del v['deploy']
+				pass
 			#v = v['deploy']
 			#if 'update_config' in v:
 			#	del v['update_config']
