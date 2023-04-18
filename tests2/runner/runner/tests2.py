@@ -214,7 +214,7 @@ class Permutations(luigi.Task):
 
 class EndpointTestsSummary(luigi.Task):
 	session = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
-	#sanitize_filename(tss.replace(' ', '_'))
+
 
 	def requires(self):
 		return Permutations(self.session)
