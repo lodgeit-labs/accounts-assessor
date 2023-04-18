@@ -165,6 +165,9 @@ services:
         condition: on-failure
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+    volumes:
+      - "redis_data:/data"
+    command: '/usr/local/bin/docker-entrypoint.sh --appendonly yes' # --save 60 1
 
 
 
@@ -308,6 +311,7 @@ volumes:
   agdata:
   agconfig:
   rabbitmq:
+  redis_data:
   caddy_data:
   caddy_config:
   postgresql_data:
