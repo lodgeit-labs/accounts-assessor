@@ -78,6 +78,10 @@ app = FastAPI()
 async def read_root():
 	return {"Hello": "World"}
 
+@app.get("/health")
+async def read_root():
+	return "ok"
+
 
 @app.post("/chat")
 async def post(body: ChatRequest, request: Request):
