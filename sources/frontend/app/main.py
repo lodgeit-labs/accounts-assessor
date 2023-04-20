@@ -83,7 +83,7 @@ async def read_root():
 #...
 
 @app.post("/health_check")
-async def post(request: Request):
+def post(request: Request):
 	r = json_prolog_rpc_call(request, {
 		"method": "chat",
 		"params": {"type":"sbe","current_state":[]}
@@ -94,7 +94,7 @@ async def post(request: Request):
 		raise HTTPException(status_code=500, detail="self-test failed")
 
 @app.post("/chat")
-async def post(body: ChatRequest, request: Request):
+def post(body: ChatRequest, request: Request):
 	return json_prolog_rpc_call(request, {
 		"method": "chat",
 		"params": body.dict(),
@@ -140,7 +140,7 @@ async def get_task(id: str):
 
 
 @app.post("/upload")
-async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
+def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
 	"""
 	'json_reports_list' is a misnomer at this point, these requests process asynchronously, and we only return what is basically a result handle (url).
 	otherwise, we block waiting for prolog to finish, or for client to give up.
@@ -151,7 +151,7 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 	#final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
 
 	logging.getLogger().warn('file1: %s, file2: %s' % (file1, file2))
-	request_files_in_tmp = await save_request_files(file1, file2, request_tmp_directory_path)
+	request_files_in_tmp = save_request_files(file1, file2, request_tmp_directory_path)
 
 	job = call_prolog_calculator.call_prolog_calculator(
 		request_tmp_directory_name=request_tmp_directory_name,
@@ -199,10 +199,10 @@ async def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=Non
 		raise Exception('unexpected requested_output_format')
 
 
-async def save_request_files(file1, file2, request_tmp_directory_path):
+def save_request_files(file1, file2, request_tmp_directory_path):
 	request_files_in_tmp=[]
 	for file in filter(None, [file1, file2]):
-		logging.getLogger().warn('file: %s' % file)
+		logging.getLogger().info('file: %s' % file)
 		request_files_in_tmp.append(save_uploaded_file(request_tmp_directory_path, file))
 	return request_files_in_tmp
 
