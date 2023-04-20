@@ -140,9 +140,6 @@ services:
       - redis
     deploy:
       replicas: 1
-      update_config:
-        parallelism: 2
-        delay: 10s
       placement:
         constraints: [node.role == manager]
       restart_policy:
@@ -180,9 +177,6 @@ services:
       - 10035
     deploy:
       replicas: 1
-      update_config:
-        parallelism: 1
-        delay: 10s
       restart_policy:
         condition: any
         delay: "240s"
