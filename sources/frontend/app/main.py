@@ -80,18 +80,20 @@ async def read_root():
 
 
 #@app.get("/health")
-#...
+#some status page here?
+
 
 @app.post("/health_check")
 def post(request: Request):
 	r = json_prolog_rpc_call(request, {
 		"method": "chat",
 		"params": {"type":"sbe","current_state":[]}
-	})
+	}, queue_name='health')
 	if r == {"result":{"question":"Are you a Sole trader, Partnership, Company or Trust?","state":[{"question_id":0,"response":-1}]}}:
 		return "ok"
 	else:
 		raise HTTPException(status_code=500, detail="self-test failed")
+
 
 @app.post("/chat")
 def post(body: ChatRequest, request: Request):
@@ -101,9 +103,9 @@ def post(body: ChatRequest, request: Request):
 	})
 
 
-def json_prolog_rpc_call(request, msg):
+def json_prolog_rpc_call(request, msg, queue_name=None):
 	msg["client"] = request.client.host
-	return invoke_rpc.call_prolog.send(msg=msg).result.get(block=True, timeout=1000 * 1000)
+	return invoke_rpc.call_prolog.send_with_options(kwargs={'msg'=msg}, queue_name=queue_name).result.get(block=True, timeout=1000 * 1000)
 
 
 

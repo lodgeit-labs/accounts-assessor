@@ -6,12 +6,28 @@ set -x
 
 _term() {
   echo "Caught SIGTERM signal!"
-  kill -TERM "$child" 2>/dev/null
+  kill -TERM "$child0"
+  kill -TERM "$child1"
 }
 trap _term SIGTERM
-PYTHONPATH=/app/sources/common/libs/remoulade/ watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --threads 5 --prefetch-multiplier 1 main invoke_rpc &
-child=$!
-wait "$child"
+
+
+
+export PYTHONPATH /app/sources/common/libs/remoulade/
+
+
+
+watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --threads 1 --prefetch-multiplier 1 --queues health main invoke_rpc &
+child0=$!
+
+watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --threads 1 --prefetch-multiplier 1 main invoke_rpc&
+child1=$!
+
+
+wait "$child0"
+kill -TERM "$child1"
+wait "$child1"
+
 echo "end"
 
 
