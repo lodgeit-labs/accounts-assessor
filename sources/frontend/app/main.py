@@ -33,6 +33,8 @@ import logging
 
 
 
+class UploadedFileException(Exception):
+	pass
 
 
 class ChatRequest(BaseModel):
@@ -143,17 +145,17 @@ async def get_task(id: str):
 
 @app.post("/upload")
 def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
-	"""
-	'json_reports_list' is a misnomer at this point, these requests process asynchronously, and we only return what is basically a result handle (url).
-	otherwise, we block waiting for prolog to finish, or for client to give up.
-	"""
+
 	server_url=os.environ['PUBLIC_URL']
-
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
-	#final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
-
-	logging.getLogger().warn('file1: %s, file2: %s' % (file1, file2))
-	request_files_in_tmp = save_request_files(file1, file2, request_tmp_directory_path)
+	try:
+		request_files_in_tmp = save_request_files([file1, file2], request_tmp_directory_path)
+	except UploadedFileException as e:
+		return JSONResponse(
+		{
+			"alerts": [e.msg],
+			"reports": []
+		})
 
 	job = call_prolog_calculator.call_prolog_calculator(
 		request_tmp_directory_name=request_tmp_directory_name,
@@ -166,18 +168,15 @@ def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, req
 
 	logging.getLogger().info('job.message_id: %s' % job.message_id)
 	final_result_tmp_directory_name = job.message_id
-
-	# the limit here is that the excel plugin doesn't do any async or such. It will block until either a response is received, or it timeouts.
-	# for json_reports_list, we must choose a timeout that happens faster than client's timeout. If client timeouts, it will have received nothing and can't even open browser or let user load result sheets manually
-	# but if we timeout too soon, we will have no chance to send a full reports list with result sheets, and users will get an unnecessary browser window + will have to load sheets manually.
-	# with xml requests, there is no way to indicate any errors, so just try to process it in time, and let the client timeout if it takes too long.
 	logging.getLogger().info('requested_output_format: %s' % requested_output_format)
+
 	if requested_output_format in ['immediate_xml', 'immediate_json_reports_list']:
 		reports = job.result.get(block=True, timeout=1000 * 1000)
 		if requested_output_format == 'immediate_xml':
 			return RedirectResponse(find_report_by_key(reports['reports'], 'response'))
 		else:
 			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory') + '/000000_response.json.json')
+
 	elif requested_output_format == 'job_handle':
 		return JSONResponse(
 		{
@@ -201,20 +200,35 @@ def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, req
 		raise Exception('unexpected requested_output_format')
 
 
-def save_request_files(file1, file2, request_tmp_directory_path):
+def save_request_files(files, request_tmp_directory_path):
 	request_files_in_tmp=[]
-	for file in filter(None, [file1, file2]):
-		logging.getLogger().info('file: %s' % file)
-		request_files_in_tmp.append(save_uploaded_file(request_tmp_directory_path, file))
+	for file in filter(None, files):
+		logging.getLogger().info('uploaded: %s' % file)
+		uploaded = save_uploaded_file(request_tmp_directory_path, file)
+		to_be_processed = uploaded
+		if uploaded.lcase().endswith('.xlsx'):
+			to_be_processed = uploaded + '.n3'
+			convert_excel_to_rdf(uploaded, to_be_processed)
+		request_files_in_tmp.append(to_be_processed)
 	return request_files_in_tmp
 
 
 def save_uploaded_file(tmp_directory_path, src):
-	logging.getLogger().warn('src: %s' % src)
+	logging.getLogger().info('src: %s' % src)
 	dest = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(src.filename)]))
 	with open(dest, 'wb+') as dest_fd:
 		shutil.copyfileobj(src.file, dest_fd)
 	return dest
+
+
+def convert_excel_to_rdf(uploaded, to_be_processed):
+	# run the c# code here?
+	raise UploadedFileException('not implemented')
+
+
+# also: def fill_workbook_with_template():
+	# either generate a xlsx file and return it to client, to be saved to onedrive (or to overwrite the selected onedrive xlsx file)
+	# or run a direct request to msft graph api here
 
 
 @app.exception_handler(RequestValidationError)
