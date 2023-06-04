@@ -86,8 +86,7 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 1) clone the repo,
 2) `git submodule update --init --recursive`
 3) `cd docker_scripts`
-3) `./first_run.sh`
-4) `./develop.sh`  
+4) see docker_scripts/README.md
 
 ## usage
 

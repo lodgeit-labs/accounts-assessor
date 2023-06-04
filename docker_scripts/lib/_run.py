@@ -43,7 +43,8 @@ def cli():
 @cli.command(
 	help="""deploy the docker compose/stack""",
 	context_settings=dict(
-    	ignore_unknown_options=True
+    	ignore_unknown_options=True,
+		show_default=True
     ))
 
 @click.option('-d1', '--debug_frontend_server', 				type=bool, 	default=False, 
@@ -94,9 +95,9 @@ def cli():
 #@click.argument('build_args', nargs=-1, type=click.UNPROCESSED)
 @click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
 
-@click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='mate-terminal -e "tmux attach-session -t {session_name}"')
+@click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='mate-terminal -e "tmux attach-session -t {session_name}"', help="""`mate-terminal -e "tmux attach-session -t {session_name}"` by default. A format string for a command to run for viewing the progress of docker commands. Empty string to disable.""")
 
-@click.option('-ts', '--tmux_session_name', 'tmux_session_name', type=str, default='')
+@click.option('-ts', '--tmux_session_name', 'tmux_session_name', type=str, default='', help='name of a pre-existing tmux session to run docker commands in. Defaults to an empty string - create a new session.')
 
 @click.pass_context
 def run(click_ctx, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, tmux_session_name, **choices):
