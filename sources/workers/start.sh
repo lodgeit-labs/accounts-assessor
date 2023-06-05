@@ -20,7 +20,7 @@ export PYTHONPATH /app/sources/common/libs/remoulade/
 watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --threads 1 --prefetch-multiplier 1 --queues health main invoke_rpc &
 child0=$!
 
-watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --threads 1 --prefetch-multiplier 1 main invoke_rpc&
+watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --threads 1 --prefetch-multiplier 1 main invoke_rpc &
 child1=$!
 
 
