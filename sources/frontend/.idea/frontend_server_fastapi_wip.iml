@@ -3,11 +3,15 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$/../common">
       <sourceFolder url="file://$MODULE_DIR$/../common/libs/remoulade" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/../common/libs" />
+      <excludeFolder url="file://$MODULE_DIR$/../common/venv" />
     </content>
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <content url="file://$MODULE_DIR$/../workers" />
+    <content url="file://$MODULE_DIR$/../workers">
+      <excludeFolder url="file://$MODULE_DIR$/../workers/venv" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

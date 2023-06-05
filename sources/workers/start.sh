@@ -15,12 +15,12 @@ trap _term SIGTERM
 
 export PYTHONPATH /app/sources/common/libs/remoulade/
 
+set MODULES main invoke_rpc
 
-
-watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --threads 1 --prefetch-multiplier 1 --queues health main invoke_rpc &
+watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --prefetch-multiplier 1 --queues health  --threads 1 $MODULES &
 child0=$!
 
-watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --threads 1 --prefetch-multiplier 1 main invoke_rpc &
+watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --prefetch-multiplier 1 --queues default --threads 1 $MODULES &
 child1=$!
 
 
