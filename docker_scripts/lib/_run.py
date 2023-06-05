@@ -169,6 +169,9 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		'REMOULADE_API': 'http://localhost:5005' if hn else 'http://remoulade-api:5005',
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
 	}
+
+	open('../generated_stack_files/build_done', "w").write('1')
+
 	if compose:
 		cmd = 'docker-compose -f ' + stack_fn + ' -p robust --compatibility '
 		import atexit
