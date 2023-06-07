@@ -14,14 +14,16 @@ from remoulade.scheduler import ScheduledJob, Scheduler
 
 redis_backend = RedisBackend(url=os.environ['REDIS_HOST'])
 result_time_limit_ms = 10 * 12 * 31 * 24 * 60 * 60 * 1000
-
-broker = RabbitmqBroker(url="amqp://"+os.environ['RABBITMQ_URL']+"?timeout=15")
+broker_url="amqp://"+os.environ['RABBITMQ_URL']+"?timeout=15"
+print(broker_url)
+broker = RabbitmqBroker(url=broker_url)
 
 broker.add_middleware(Results(backend=redis_backend, store_results=True, result_ttl=result_time_limit_ms))
 broker.add_middleware(MessageState(PostgresBackend(url=os.environ['REMOULADE_PG_URI']), state_ttl=result_time_limit_ms))
 broker.add_middleware(Cancel(backend=CancelBackend()))
 broker.add_middleware(CurrentMessage())
 
+print(broker)
 remoulade.set_broker(broker)
 scheduler = Scheduler(broker, [])
 #scheduler = Scheduler(broker, [ScheduledJob(actor_name="ping", args=(), interval=100)])

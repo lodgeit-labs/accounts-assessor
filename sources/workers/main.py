@@ -9,5 +9,5 @@ def ping2():
 remoulade.declare_actors([ping2])
 
 
-#print(remoulade.get_broker())
-#print(remoulade.get_broker().actors)
+print(remoulade.get_broker())
+print(remoulade.get_broker().actors)
