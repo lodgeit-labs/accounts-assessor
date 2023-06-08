@@ -67,7 +67,7 @@ def call_prolog_calculator2(kwargs):
 
 
 
-@remoulade.actor
+@remoulade.actor(alternative_queues=["health"])
 def call_prolog(
 		msg,
 		dev_runner_options=[],

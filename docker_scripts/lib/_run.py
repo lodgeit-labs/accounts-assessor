@@ -43,10 +43,18 @@ def cli():
 @cli.command(
 	help="""deploy the docker compose/stack""",
 	context_settings=dict(
-    	ignore_unknown_options=True
+    	ignore_unknown_options=True,
+		show_default=True
     ))
 
-@click.option('-d1', '--debug_frontend_server', 				type=bool, 	default=False, 
+
+@click.option('-of', '--offline', 		type=bool, 	default=False,
+	help="don't use internet..")
+
+@click.option('-sr', '--stay_running', 				type=bool, 	default=True,
+	help="keep the script running after the stack is brought up.")
+
+@click.option('-d1', '--debug_frontend_server', 				type=bool, 	default=False,
 	help="")
 
 @click.option('-pp', '--port_postfix', 				type=str, 	default='', 
@@ -94,12 +102,12 @@ def cli():
 #@click.argument('build_args', nargs=-1, type=click.UNPROCESSED)
 @click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
 
-@click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='mate-terminal -e "tmux attach-session -t {session_name}"')
+@click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='mate-terminal -e "tmux attach-session -t {session_name}"', help="""`mate-terminal -e "tmux attach-session -t {session_name}"` by default. A format string for a command to run for viewing the progress of docker commands. Empty string to disable.""")
 
-@click.option('-ts', '--tmux_session_name', 'tmux_session_name', type=str, default='')
+@click.option('-ts', '--tmux_session_name', 'tmux_session_name', type=str, default='', help='name of a pre-existing tmux session to run docker commands in. Defaults to an empty string - create a new session.')
 
 @click.pass_context
-def run(click_ctx, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, tmux_session_name, **choices):
+def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, tmux_session_name, **choices):
 	no_cache = choices['no_cache']
 	del choices['no_cache']
 	omit_images = choices['omit_images']
@@ -121,7 +129,7 @@ ServerName {public_host}
 """ + '\n'.join([f"""
 ProxyPassReverse "/{path}" "http://{frontend}:7788/{path}"
 ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeout=160 retry=10 acquire=3000 Keepalive=Off
-""" for path in 'health health_check chat upload api view'.split()]))
+""" for path in 'health health_check chat upload api view web'.split()]))
  
 	pp = port_postfix
 
@@ -139,9 +147,10 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
 
-	os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull --ignore-pull-failures --include-deps ') # this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it)
+	if not offline:
+		os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull --ignore-pull-failures --include-deps ') # this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it)
 
-	build(**{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images, 'terminal_cmd': terminal_cmd, 'tmux_session_name': tmux_session_name})
+	build(offline, **{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images, 'terminal_cmd': terminal_cmd, 'tmux_session_name': tmux_session_name})
 
 	if rm_stack:
 		print('wait for old network to disappear..')
@@ -168,20 +177,29 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		'REMOULADE_API': 'http://localhost:5005' if hn else 'http://remoulade-api:5005',
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
 	}
+
+	open('../generated_stack_files/build_done.flag', "w").write('1')
+
 	if compose:
 		cmd = 'docker-compose -f ' + stack_fn + ' -p robust --compatibility '
-		import atexit
-		def shutdown():
-			ccd(ss(cmd + ' down  -t 999999 '), env=e)
-		atexit.register(shutdown)
+
+		if stay_running:
+			import atexit
+			def shutdown():
+				ccd(ss(cmd + ' down  -t 999999 '), env=e)
+			atexit.register(shutdown)
+
 		try:
 			subprocess.Popen(['lib/logtail.py',	cmd, tmux_session.name])
-			ccd(ss(cmd + ' up --remove-orphans '), env=e)
+			ccd(ss(cmd + ' up --remove-orphans ' + ('' if stay_running else ' --detach')), env=e)
 		except subprocess.CalledProcessError:
 			ccd(ss('docker ps'), env={})
-			atexit.unregister(shutdown)
-			while True:
-				time.sleep(1000)
+
+			if stay_running:
+				atexit.unregister(shutdown)
+				while True:
+					time.sleep(1000)
+
 			exit(1)
 
 	else:
@@ -471,7 +489,7 @@ def realpath(x):
 tmux_session = None
 
 
-def build(port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd, tmux_session_name):
+def build(offline, port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd, tmux_session_name):
 	global _parallel, tmux_session
 	_parallel=parallel
 
@@ -502,7 +520,7 @@ def build(port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd, tmu
 				dockerfile=dockerfile
 			))
 
-	dbptks = 'docker build --pull -t "koo5/{service_name}'
+	dbptks = 'docker build ' + ('' if offline else '--pull') + ' -t "koo5/{service_name}'
 	dbtks = 'docker build -t "koo5/{service_name}'
 
 	ubuntu = task('ubuntu', 'ubuntu', 'docker build --pull -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
