@@ -16,7 +16,7 @@ def run():
 		pass
 	threading.Thread(target=health_check).start() # , daemon=True
 	try:
-		subprocess.check_call(shlex.split('./develop.sh --stay_running false --parallel_build true --public_url "http://robust10.local:8877"') + sys.argv[1:])
+		subprocess.check_call(shlex.split('./develop.sh --terminal_cmd '' --stay_running false --parallel_build true --public_url "http://robust10.local:8877"') + sys.argv[1:])
 		print('okk..')
 	except:
 		dead = True

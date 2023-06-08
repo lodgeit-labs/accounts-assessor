@@ -24,6 +24,7 @@ sudo apt install -y tmux;_
 
 # you'll definitely need docker obtained one way or another
 which docker; or sudo apt install docker.io golang-docker-credential-helpers;_
+sudo usermod -aG docker $USER;_
 
 # compose is a tad more suitable for development than swarm 
 which docker-compose; or sudo apt install -y docker-compose;_
