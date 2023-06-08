@@ -13,7 +13,8 @@ jobs:
         #  persist-credentials: false
 
       - run: docker_scripts/first_run0.sh
-      - run: docker_scripts/first_run.sh
+      - run: docker_scripts/first_run1.sh
+      - run: docker_scripts/first_run1b.sh
       - run: docker_scripts/first_run2.sh
       - run: cd docker_scripts; ./up.py
         

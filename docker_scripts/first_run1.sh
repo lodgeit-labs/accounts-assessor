@@ -1,5 +1,7 @@
 #!/usr/bin/env fish
 
+sudo echo "i'm root"; or echo "root level setup skipped"; and exit 0
+
 set DIR (dirname (readlink -m (status --current-filename)))
 cd "$DIR"
 
@@ -24,18 +26,6 @@ which docker; or sudo apt install docker.io golang-docker-credential-helpers
 
 # compose is a tad more suitable for development than swarm 
 which docker-compose; or sudo apt install -y docker-compose
-
-# for the building and running UI
-python3 -m pip install --user click pyyaml 
-
-# (note we're not installing some bindings here, we're installing docker-compose itself)
-# python3 -m pip install --user docker-compose
-
-# for run_last_request_in_docker (these are bindings)
-python3 -m pip install --user docker 
-
-# for nice building UI
-python3 -m pip install --user libtmux fire
 
 # if not using compose:
 #docker swarm init
