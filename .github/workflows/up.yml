@@ -2,6 +2,8 @@ name: up
 
 on:
   push:
+env:
+  ACTIONS_RUNNER_DEBUG: true
 jobs:
   build:
     runs-on: self-hosted
