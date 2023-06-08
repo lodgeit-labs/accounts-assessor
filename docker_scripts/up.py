@@ -15,9 +15,10 @@ def run():
 		os.unlink(flag)
 	except:
 		pass
-	t = threading.Thread(target=health_check).start()
+	t = threading.Thread(target=health_check)
+	t.start()
 	try:
-		cmd = shlex.split('./develop.sh --terminal_cmd '' --stay_running false --parallel_build true --public_url "http://robust10.local:8877"') + sys.argv[1:]
+		cmd = shlex.split('./develop.sh --terminal_cmd "" --stay_running false --parallel_build true --public_url "http://robust10.local:8877"') + sys.argv[1:]
 		print(cmd)
 		subprocess.check_call(cmd)
 		print('okk..')
@@ -46,7 +47,7 @@ def health_check():
 
 	try:
 		print('health_check...')
-		subprocess.check_call(shlex.split("""curl  --trace-time --trace - --retry-connrefused  --retry-delay 10 --retry 10 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' http://localhost:7788/health_check"""))
+		subprocess.check_call(shlex.split("""curl  --trace-time --trace-ascii - --retry-connrefused  --retry-delay 10 --retry 10 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' http://localhost:7788/health_check"""))
 		print('healthcheck ok')
 		
 	except Exception as e:
