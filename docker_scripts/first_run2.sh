@@ -7,7 +7,6 @@ cd "$DIR"
 python3 setup.py develop --user
 
 _ROBUST_COMPLETE=source_fish robust > ~/.config/fish/completions/robust-complete.fish
-`                                 
 
 cd ..
 cp -r secrets_example secrets
