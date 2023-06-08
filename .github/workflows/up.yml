@@ -1,7 +1,7 @@
 name: up
 
-on:
-  push:
+on: [ push, pull_request ]
+
 env:
   ACTIONS_RUNNER_DEBUG: true
 jobs:
