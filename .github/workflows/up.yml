@@ -1,0 +1,20 @@
+name: up
+
+on:
+  push:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2 
+        
+        # If you're using actions/checkout@v2 you must set persist-credentials to false in most cases for the deployment to work correctly.
+        #with:
+        #  persist-credentials: false
+      
+      - run: docker_scripts/first_run2.sh
+      - run: cd docker_scripts; ./up.py
+        
+#      - run: npm run up
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

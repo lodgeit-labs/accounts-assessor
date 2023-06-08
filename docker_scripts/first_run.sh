@@ -3,10 +3,10 @@
 set DIR (dirname (readlink -m (status --current-filename)))
 cd "$DIR"
 
-sudo apt install python3 python3-pip 
+sudo apt install python3 python3-pip
 
 # not sure if still needed, maybe was only used for generating password file?
-sudo apt install apache2-utils 
+#sudo apt install apache2-utils
 
 # sorry, i do a lot of small scripting with it, as it's my daily shell. But it shouldn't be hard to get by without it, if necessary
 sudo apt install fish 
