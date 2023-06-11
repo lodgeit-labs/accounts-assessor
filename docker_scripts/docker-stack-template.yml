@@ -149,6 +149,22 @@ services:
         condition: service_healthy
 
 
+  csharp-services:
+    image: koo5/csharp-services${PP}:latest
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+    hostnet_ports:
+      - 17789
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+
 
   redis:
     image: redis:6-alpine

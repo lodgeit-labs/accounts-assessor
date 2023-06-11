@@ -176,6 +176,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		'REMOULADE_PG_URI': 'postgresql://remoulade@localhost:5432/remoulade' if hn else 'postgresql://remoulade@postgres:5432/remoulade',
 		'REMOULADE_API': 'http://localhost:5005' if hn else 'http://remoulade-api:5005',
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
+		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
 	}
 
 	open('../generated_stack_files/build_done.flag', "w").write('1')
@@ -525,9 +526,10 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images, terminal
 
 	ubuntu = task('ubuntu', 'ubuntu', 'docker build --pull -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
 
-	svc('apache', 		'apache', 						dbptks+'{port_postfix}"', 	"Dockerfile")
-	svc('agraph', 		'agraph', 						dbptks+'{port_postfix}"', 	"Dockerfile")
-	svc('super-bowl', 	'../sources/super-bowl/',		dbptks+'"',				"container/Dockerfile")
+	svc('apache', 		  'apache', 						dbptks+'{port_postfix}"', 	"Dockerfile")
+	svc('agraph', 		  'agraph', 						dbptks+'{port_postfix}"', 	"Dockerfile")
+	svc('super-bowl', 	  '../sources/super-bowl/',			dbptks+'"',					"container/Dockerfile")
+	svc('csharp-services','../sources/CsharpServices/WebApplication2',	dbptks+'"',	"../../../docker_scripts/csharp_services/Dockerfile")
 
 	join([ubuntu])
 

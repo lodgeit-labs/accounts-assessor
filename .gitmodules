@@ -14,3 +14,6 @@
 	path = sources/super-bowl
 	url = https://github.com/koo5/super-bowl
 
+[submodule "sources/CsharpServices"]
+	path = sources/CsharpServices
+	url = https://github.com/koo5/CsharpServices

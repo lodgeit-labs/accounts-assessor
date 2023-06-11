@@ -207,7 +207,7 @@ def save_request_files(files, request_tmp_directory_path):
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
 		to_be_processed = uploaded
 		if uploaded.lcase().endswith('.xlsx'):
-			to_be_processed = uploaded + '.n3'
+			to_be_processed = uploaded + '.trig'
 			convert_excel_to_rdf(uploaded, to_be_processed)
 		request_files_in_tmp.append(to_be_processed)
 	return request_files_in_tmp
@@ -222,8 +222,13 @@ def save_uploaded_file(tmp_directory_path, src):
 
 
 def convert_excel_to_rdf(uploaded, to_be_processed):
-	# run the c# code here?
-	raise UploadedFileException('not implemented')
+	"""run a POST request to csharp-services to convert the file"""
+	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"input": uploaded, "output": to_be_processed})
+
+
+
+
+	
 
 
 # also: def fill_workbook_with_template():
