@@ -319,22 +319,27 @@
                         appendTo(container);
                     }
 
-                    var nameplate = $("<div>").
+                    $("<div>").
                       addClass("nameplate").
                       text(item.name).
                       appendTo(tile);
-
-                    if (item.file) {
-                      $("<div></div><form action=\"/reference\" method=\"post\">" +
-                              " <input type=\"button\" value=\"robust IC\" />" +
-                              ' <input type="hidden" name="doc_url" value="' + downloadUrl + '" />' +
-                              "</form></div>").appendTo(nameplate);
-                    }
 
                   });
                 }
                 else if (data.file) {
                   // 1-up view
+
+                  var downloadUrl = data['@microsoft.graph.downloadUrl'];
+                  if (downloadUrl && item.name.match(/\.xlsx$/i)) {
+
+
+                      $("<div></div><form action=\"/reference\" method=\"post\">" +
+                              " <input type=\"button\" value=\"invoke robust IC\" />" +
+                              ' <input type="hidden" name="doc_url" value="' + downloadUrl + '" />' +
+                              "</form></div><br>").appendTo('#od-items');
+
+                  }
+
                   var tile = $("<div>").
                     addClass("item").
                     addClass("oneup").
