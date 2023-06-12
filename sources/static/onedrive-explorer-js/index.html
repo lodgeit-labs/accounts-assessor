@@ -330,7 +330,7 @@
                   // 1-up view
 
                   var downloadUrl = data['@microsoft.graph.downloadUrl'];
-                  if (downloadUrl && item.name.match(/\.xlsx$/i)) {
+                  if (downloadUrl && data['name'].match(/\.xlsx$/i)) {
 
 
                       $("<div></div><form action=\"/reference\" method=\"post\">" +
@@ -345,7 +345,7 @@
                     addClass("oneup").
                     appendTo("#od-items");
 
-                  
+
                   if (downloadUrl) {
                     tile.click(function(){window.open(downloadUrl, "Download");});
                   }
