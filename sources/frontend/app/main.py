@@ -47,6 +47,24 @@ class RpcCommand(BaseModel):
 
 
 
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+# set root logger level to DEBUG and output to console
+ch = logging.StreamHandler()
+
+# create formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# add formatter to ch
+ch.setFormatter(formatter)
+
+# add ch to logger
+logger.addHandler(ch)
+
+
+
+
 
 # @csrf_exempt
 # def sparql_proxy(request):
@@ -166,9 +184,9 @@ def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, req
 		final_result_tmp_directory_path = None,#final_result_tmp_directory_path,
 	)
 
-	logging.getLogger().info('job.message_id: %s' % job.message_id)
+	logger.info('job.message_id: %s' % job.message_id)
 	final_result_tmp_directory_name = job.message_id
-	logging.getLogger().info('requested_output_format: %s' % requested_output_format)
+	logger.info('requested_output_format: %s' % requested_output_format)
 
 	if requested_output_format in ['immediate_xml', 'immediate_json_reports_list']:
 		reports = job.result.get(block=True, timeout=1000 * 1000)
@@ -203,7 +221,7 @@ def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, req
 def save_request_files(files, request_tmp_directory_path):
 	request_files_in_tmp=[]
 	for file in filter(None, files):
-		logging.getLogger().info('uploaded: %s' % file)
+		logger.info('uploaded: %s' % file)
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
 		to_be_processed = uploaded
 		if uploaded.lower().endswith('.xlsx'):
@@ -214,7 +232,7 @@ def save_request_files(files, request_tmp_directory_path):
 
 
 def save_uploaded_file(tmp_directory_path, src):
-	logging.getLogger().info('src: %s' % src)
+	logger.info('src: %s' % src)
 	dest = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(src.filename)]))
 	with open(dest, 'wb+') as dest_fd:
 		shutil.copyfileobj(src.file, dest_fd)
