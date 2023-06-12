@@ -52,7 +52,8 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
-    #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by coping the dev one
+      CSHARP_SERVICES_URL:
+    #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by copying the dev one
     #  REQUIREMENTS_FILE: requirements.txt
     volumes:
       - tmp:/app/server_root/tmp
