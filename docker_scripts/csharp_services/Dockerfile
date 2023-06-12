@@ -18,6 +18,7 @@ ARG uid=1000
 ARG gid=1000
 RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
 USER myuser
-todo deal with data directory (need to be one level higher actually)
+
+VOLUME /App/RdfTemplates.n3
 
 ENTRYPOINT ["dotnet", "CsharpServices.dll"]

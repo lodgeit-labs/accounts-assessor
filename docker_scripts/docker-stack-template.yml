@@ -154,6 +154,7 @@ services:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
+      - "../sources/static/:/App/data/"
     networks:
       - backend
     hostnet_ports:
@@ -164,6 +165,10 @@ services:
         constraints: [node.role == manager]
       restart_policy:
         condition: any
+    environment:
+      CSHARPSERVICES_DATADIR: "/App/data/"
+        
+        
 
 
   redis:
