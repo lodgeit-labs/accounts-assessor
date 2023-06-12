@@ -161,27 +161,54 @@ async def get_task(id: str):
 	return message
 
 
+@app.post("/reference")
+def reference(file1: str):
+	# is this a onedrive url? 
+	if file1.startswith('https://public.db.files.1drv.com/'): # hack!
+		# get the file
+		r = requests.get(file1)
+		
+		request_tmp_directory_name, request_tmp_directory_path = create_tmp()
+		
+		# save r into request_tmp_directory_path
+		fn = request_tmp_directory_path / 'file1.xlsx' # hack! we assume everything coming through this endpo
+		with open(fn, 'wb') as f:
+			f.write(r.content)
+
+		return process_request(request_tmp_directory_name, fn, 'rdf', 'job_handle')	
+		
+	
+
+
 @app.post("/upload")
-def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
-
-	server_url=os.environ['PUBLIC_URL']
+def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
+	
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
-	try:
-		request_files_in_tmp = save_request_files([file1, file2], request_tmp_directory_path)
-	except UploadedFileException as e:
-		return JSONResponse(
-		{
-			"alerts": [e.msg],
-			"reports": []
-		})
+	
+	files = filter(None, [file1, file2])
+	
+	files2=[] # list of local paths of uploaded files
+	for file in files:
+		logger.info('uploaded: %s' % file)
+		uploaded = save_uploaded_file(request_tmp_directory_path, file)
+		files2.append(uploaded)
+		
+	return process_request(request_tmp_directory_name, files2, request_format, requested_output_format)
 
+
+
+
+def process_request(request_tmp_directory_name, files, request_format, requested_output_format):
+	files = list(map(convert_request_file, files))
+	
+	server_url=os.environ['PUBLIC_URL']
 	job = call_prolog_calculator.call_prolog_calculator(
 		request_tmp_directory_name=request_tmp_directory_name,
 		server_url=server_url,
-		request_files=request_files_in_tmp,
+		request_files=files,
 		request_format = request_format,
-		final_result_tmp_directory_name = None,#final_result_tmp_directory_name,
-		final_result_tmp_directory_path = None,#final_result_tmp_directory_path,
+		final_result_tmp_directory_name = None,
+		final_result_tmp_directory_path = None,
 	)
 
 	logger.info('job.message_id: %s' % job.message_id)
@@ -218,19 +245,6 @@ def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, req
 		raise Exception('unexpected requested_output_format')
 
 
-def save_request_files(files, request_tmp_directory_path):
-	request_files_in_tmp=[]
-	for file in filter(None, files):
-		logger.info('uploaded: %s' % file)
-		uploaded = save_uploaded_file(request_tmp_directory_path, file)
-		to_be_processed = uploaded
-		if uploaded.lower().endswith('.xlsx'):
-			to_be_processed = uploaded + '.trig'
-			convert_excel_to_rdf(uploaded, to_be_processed)
-		request_files_in_tmp.append(to_be_processed)
-	return request_files_in_tmp
-
-
 def save_uploaded_file(tmp_directory_path, src):
 	logger.info('src: %s' % src)
 	dest = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(src.filename)]))
@@ -239,9 +253,19 @@ def save_uploaded_file(tmp_directory_path, src):
 	return dest
 
 
+def convert_request_file(file):
+	if file.lower().endswith('.xlsx'):
+		to_be_processed = file + '.n3'
+		convert_excel_to_rdf(file, to_be_processed)
+		return to_be_processed
+	return file
+
+
 def convert_excel_to_rdf(uploaded, to_be_processed):
 	"""run a POST request to csharp-services to convert the file"""
-	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"input": uploaded, "output": to_be_processed})
+	logger.info('extract sheets: %s' % uploaded)
+	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": "ic_ui:investment_calculator_sheets", "input_fn": uploaded, "output_fn": to_be_processed}).raise_for_status()
+	
 
 
 

@@ -12,7 +12,7 @@ RUN dotnet publish -c Debug -o out
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 
-RUN apt update; apt install -y curl
+RUN apt update; apt install -y curl fonts-noto-core
 
 
 WORKDIR /App
