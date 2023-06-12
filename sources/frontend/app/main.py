@@ -6,8 +6,8 @@ import ntpath
 import shutil
 import requests
 
-from typing import Optional, Any, List
-from fastapi import FastAPI, Request, File, UploadFile, HTTPException
+from typing import Optional, Any, List, Annotated
+from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -162,7 +162,7 @@ async def get_task(id: str):
 
 
 @app.post("/reference")
-def reference(file_url: str):
+def reference(file_url: : Annotated[str, Form()]):
 	"""
 	This endpoint is for running IC on a file that is already on the internet ("by reference").
 	"""
