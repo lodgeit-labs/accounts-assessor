@@ -16,3 +16,6 @@ doing the same without docker-stack:
     http://fabiorehm.com/blog/2014/09/11/running-gui-apps-with-docker/
 
 
+
+## inotify limit reached
+https://www.suse.com/support/kb/doc/?id=000020048
