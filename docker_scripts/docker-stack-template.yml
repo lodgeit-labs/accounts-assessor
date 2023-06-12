@@ -65,6 +65,8 @@ services:
     depends_on:
       services:
         condition: service_healthy
+      csharp-services:
+        condition: service_healthy
       remoulade-api:
         condition: service_healthy
     deploy:
