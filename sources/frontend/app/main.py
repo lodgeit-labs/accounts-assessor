@@ -162,16 +162,19 @@ async def get_task(id: str):
 
 
 @app.post("/reference")
-def reference(file1: str):
+"""
+This endpoint is for running IC on a file that is already on the internet ("by reference").
+"""
+def reference(file_url: str):
 	# is this a onedrive url? 
-	if file1.startswith('https://public.db.files.1drv.com/'): # hack!
+	if file_url.startswith('https://public.db.files.1drv.com/'): # hack!
 		# get the file
-		r = requests.get(file1)
+		r = requests.get(file_url)
 		
 		request_tmp_directory_name, request_tmp_directory_path = create_tmp()
 		
 		# save r into request_tmp_directory_path
-		fn = request_tmp_directory_path / 'file1.xlsx' # hack! we assume everything coming through this endpo
+		fn = request_tmp_directory_path / 'file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
 		with open(fn, 'wb') as f:
 			f.write(r.content)
 
