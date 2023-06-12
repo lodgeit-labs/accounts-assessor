@@ -206,7 +206,7 @@ def save_request_files(files, request_tmp_directory_path):
 		logging.getLogger().info('uploaded: %s' % file)
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
 		to_be_processed = uploaded
-		if uploaded.lcase().endswith('.xlsx'):
+		if uploaded.lower().endswith('.xlsx'):
 			to_be_processed = uploaded + '.n3'
 			convert_excel_to_rdf(uploaded, to_be_processed)
 		request_files_in_tmp.append(to_be_processed)

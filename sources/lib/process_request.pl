@@ -332,7 +332,7 @@
 
 /* only done when Request_format = "rdf" */
  check_request_version :-
-	Expected = "2",
+	Expected = "3",
 	!request_data(D),
 	(	doc(D, l:client_version, V)
 	->	(	V = Expected
