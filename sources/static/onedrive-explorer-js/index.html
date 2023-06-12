@@ -333,7 +333,7 @@
                   if (downloadUrl && data['name'].match(/\.xlsx$/i)) {
 
 
-                      $("<div></div><form action=\"/reference\" method=\"post\">" +
+                      $("<div><form action=\"/reference\" method=\"POST\">" +
                               " <input type=\"button\" value=\"invoke robust IC\" />" +
                               ' <input type="hidden" name="doc_url" value="' + downloadUrl + '" />' +
                               "</form></div><br>").appendTo('#od-items');
