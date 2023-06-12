@@ -334,7 +334,7 @@
 
 
                       $("<div><form action=\"/reference\" method=\"POST\">" +
-                              ' <input type="hidden" name="file_url" value="' + downloadUrl + '" />' +
+                              ' <input type="hidden" name="fileurl">' + downloadUrl.escape() + '</input>' +
                               " <button>invoke robust IC\ </button>" +
                               "</form></div><br>").appendTo('#od-items');
 
