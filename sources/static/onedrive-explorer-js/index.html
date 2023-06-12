@@ -133,7 +133,6 @@
   <div id="od-content">
     <div id="od-items" class="od-pagecol"></div>
     <div id="od-json" class="od-pagecol"></div>
-    <button>robust</button>
   </div>
   <script>
     var baseUrl = getQueryVariable("baseUrl")
@@ -324,6 +323,14 @@
                       addClass("nameplate").
                       text(item.name).
                       appendTo(tile);
+
+                    if (item.file) {
+                      $("<form action=\"/reference\" method=\"post\">" +
+                              " <input type=\"button\" value=\"robust IC\" />")" +
+                              ' <input type="hidden" name="doc_url" value="' + downloadUrl + '" />' +
+                              "</form>").appendTo(tile);
+                    }
+
                   });
                 }
                 else if (data.file) {
