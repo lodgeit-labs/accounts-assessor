@@ -352,7 +352,7 @@
 			add_report_file(-20,'request_xml', 'request_xml', Url),
 			Type = xml
 		)
-	;	(	loc_icase_endswith(Path, "n3")
+	;	(	(loc_icase_endswith(Path, "n3");loc_icase_endswith(Path, "trig"))
 		->	(
 				add_report_file(-20,'request_n3', 'request_n3', Url),
 				Type = n3
