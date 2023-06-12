@@ -319,7 +319,7 @@
                         appendTo(container);
                     }
 
-                    $("<div>").
+                    var nameplate = $("<div>").
                       addClass("nameplate").
                       text(item.name).
                       appendTo(tile);
@@ -328,7 +328,7 @@
                       $("<div></div><form action=\"/reference\" method=\"post\">" +
                               " <input type=\"button\" value=\"robust IC\" />" +
                               ' <input type="hidden" name="doc_url" value="' + downloadUrl + '" />' +
-                              "</form></div>").appendTo(tile);
+                              "</form></div>").appendTo(nameplate);
                     }
 
                   });
