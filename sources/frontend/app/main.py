@@ -162,7 +162,7 @@ async def get_task(id: str):
 
 
 @app.post("/reference")
-def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
+def reference(fileurl: str = Form(...)):
 	"""
 	This endpoint is for running IC on a file that is already on the internet ("by reference").
 	"""
