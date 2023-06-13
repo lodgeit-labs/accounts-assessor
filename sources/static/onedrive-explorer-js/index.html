@@ -333,8 +333,13 @@
                   if (downloadUrl && data['name'].match(/\.xlsx$/i)) {
 
 
+
+                    // prevent XSS
+                    downloadUrl = downloadUrl.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+                    downloadUrl = encodeURI(downloadUrl);
+
                       $("<div><form action=\"/reference\" method=\"POST\">" +
-                              ' <input type="hidden" name="fileurl">' + downloadUrl.escape() + '</input>' +
+                              ' <input type="hidden" name="fileurl">' + downloadUrl + '</input>' +
                               " <button>invoke robust IC\ </button>" +
                               "</form></div><br>").appendTo('#od-items');
 
