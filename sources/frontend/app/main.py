@@ -174,7 +174,7 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 		request_tmp_directory_name, request_tmp_directory_path = create_tmp()
 		
 		# save r into request_tmp_directory_path
-		fn = request_tmp_directory_path / 'file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
+		fn = request_tmp_directory_path + '/file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
 		with open(fn, 'wb') as f:
 			f.write(r.content)
 
