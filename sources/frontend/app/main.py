@@ -178,7 +178,7 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 		with open(fn, 'wb') as f:
 			f.write(r.content)
 
-		return process_request(request_tmp_directory_name, fn, 'rdf', 'job_handle')	
+		return process_request(request_tmp_directory_name, [fn], 'rdf', 'job_handle')	
 		
 	
 
