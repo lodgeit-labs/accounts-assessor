@@ -169,7 +169,7 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	This endpoint is for running IC on a file that is already on the internet ("by reference").
 	"""
 	# is this a onedrive url? 
-	if urllib.parse(fileurl).netloc.endswith("db.files.1drv.com"):
+	if urllib.parse.urlparse(fileurl).netloc.endswith("db.files.1drv.com"):
 
 		# get the file
 		r = requests.get(fileurl)
