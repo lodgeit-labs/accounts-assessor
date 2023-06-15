@@ -4,10 +4,12 @@ import json
 import datetime
 import ntpath
 import shutil
+import re
+
 import requests
 
-from typing import Optional, Any, List
-from fastapi import FastAPI, Request, File, UploadFile, HTTPException
+from typing import Optional, Any, List, Annotated
+from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -44,6 +46,24 @@ class ChatRequest(BaseModel):
 class RpcCommand(BaseModel):
 	method: str
 	params: Any
+
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
+# set root logger level to DEBUG and output to console
+ch = logging.StreamHandler()
+
+# create formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# add formatter to ch
+ch.setFormatter(formatter)
+
+# add ch to logger
+logger.addHandler(ch)
+
 
 
 
@@ -143,32 +163,63 @@ async def get_task(id: str):
 	return message
 
 
+@app.post("/reference")
+def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
+	"""
+	This endpoint is for running IC on a file that is already on the internet ("by reference").
+	"""
+	# is this a onedrive url? 
+	if urllib.parse.urlparse(fileurl).netloc.endswith("db.files.1drv.com"):
+
+		# get the file
+		r = requests.get(fileurl)
+		
+		request_tmp_directory_name, request_tmp_directory_path = create_tmp()
+		
+		# save r into request_tmp_directory_path
+		fn = request_tmp_directory_path + '/file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
+		with open(fn, 'wb') as f:
+			f.write(r.content)
+
+		return process_request(request_tmp_directory_name, [fn], 'rdf', 'job_handle')	
+		
+	
+
+
 @app.post("/upload")
-def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
-
-	server_url=os.environ['PUBLIC_URL']
+def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
+	
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
-	try:
-		request_files_in_tmp = save_request_files([file1, file2], request_tmp_directory_path)
-	except UploadedFileException as e:
-		return JSONResponse(
-		{
-			"alerts": [e.msg],
-			"reports": []
-		})
+	
+	files = filter(None, [file1, file2])
+	
+	files2=[] # list of local paths of uploaded files
+	for file in files:
+		logger.info('uploaded: %s' % file)
+		uploaded = save_uploaded_file(request_tmp_directory_path, file)
+		files2.append(uploaded)
+		
+	return process_request(request_tmp_directory_name, files2, request_format, requested_output_format)
 
+
+
+
+def process_request(request_tmp_directory_name, files, request_format, requested_output_format):
+	files = list(map(convert_request_file, files))
+	
+	server_url=os.environ['PUBLIC_URL']
 	job = call_prolog_calculator.call_prolog_calculator(
 		request_tmp_directory_name=request_tmp_directory_name,
 		server_url=server_url,
-		request_files=request_files_in_tmp,
+		request_files=files,
 		request_format = request_format,
-		final_result_tmp_directory_name = None,#final_result_tmp_directory_name,
-		final_result_tmp_directory_path = None,#final_result_tmp_directory_path,
+		final_result_tmp_directory_name = None,
+		final_result_tmp_directory_path = None,
 	)
 
-	logging.getLogger().info('job.message_id: %s' % job.message_id)
+	logger.info('job.message_id: %s' % job.message_id)
 	final_result_tmp_directory_name = job.message_id
-	logging.getLogger().info('requested_output_format: %s' % requested_output_format)
+	logger.info('requested_output_format: %s' % requested_output_format)
 
 	if requested_output_format in ['immediate_xml', 'immediate_json_reports_list']:
 		reports = job.result.get(block=True, timeout=1000 * 1000)
@@ -200,30 +251,32 @@ def post(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, req
 		raise Exception('unexpected requested_output_format')
 
 
-def save_request_files(files, request_tmp_directory_path):
-	request_files_in_tmp=[]
-	for file in filter(None, files):
-		logging.getLogger().info('uploaded: %s' % file)
-		uploaded = save_uploaded_file(request_tmp_directory_path, file)
-		to_be_processed = uploaded
-		if uploaded.lcase().endswith('.xlsx'):
-			to_be_processed = uploaded + '.n3'
-			convert_excel_to_rdf(uploaded, to_be_processed)
-		request_files_in_tmp.append(to_be_processed)
-	return request_files_in_tmp
-
-
 def save_uploaded_file(tmp_directory_path, src):
-	logging.getLogger().info('src: %s' % src)
+	logger.info('src: %s' % src)
 	dest = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(src.filename)]))
 	with open(dest, 'wb+') as dest_fd:
 		shutil.copyfileobj(src.file, dest_fd)
 	return dest
 
 
+def convert_request_file(file):
+	if file.lower().endswith('.xlsx'):
+		to_be_processed = file + '.n3'
+		convert_excel_to_rdf(file, to_be_processed)
+		return to_be_processed
+	return file
+
+
 def convert_excel_to_rdf(uploaded, to_be_processed):
-	# run the c# code here?
-	raise UploadedFileException('not implemented')
+	"""run a POST request to csharp-services to convert the file"""
+	logger.info('extract sheets: %s' % uploaded)
+	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": "ic_ui:investment_calculator_sheets", "input_fn": uploaded, "output_fn": to_be_processed}).raise_for_status()
+	
+
+
+
+
+	
 
 
 # also: def fill_workbook_with_template():

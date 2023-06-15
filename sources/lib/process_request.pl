@@ -34,20 +34,17 @@
 	doc_add(Result_uri, rdf:type, l:'Result'),
 	doc_add(Result_uri, l:has_result_data_uri_base, Result_data_uri_base),
 	doc_add(Result_uri, l:has_job_handle, Dict.final_result_tmp_directory_name),
+	set_server_public_url(Dict.server_url),
 
 	findall(
 		loc(absolute_path, P),
 		member(P, Dict.request_files),
 		Request_Files
 	),
+
 	(	Request_Files = [Dir]
 	->	resolve_directory(Dir, Request_Files2)
 	;	Request_Files2 = Request_Files),
-
-	set_server_public_url(Dict.server_url),
-	(	Request_Files2 = []
-	->	throw_string('no request files.')
-	;	true),
 
 	'make task_directory report entry',
 	'make task_directory report entry 2',
@@ -305,8 +302,12 @@
 %:- debug(tmp_files).
 
  process_multifile_request(Request_format, Request_data_uri_base, File_Paths) :-
-
  	debug(tmp_files, "process_multifile_request(~w)~n", [File_Paths]),
+ 	
+	(	File_Paths = []
+	->	throw_string('no request files.')
+	;	true),
+
 	(	Request_format = "xml"
 	->	(	!accept_request_file(File_Paths, Xml_Tmp_File_Path, xml),
 			!load_request_xml(Xml_Tmp_File_Path, Dom),
@@ -332,7 +333,7 @@
 
 /* only done when Request_format = "rdf" */
  check_request_version :-
-	Expected = "2",
+	Expected = "3",
 	!request_data(D),
 	(	doc(D, l:client_version, V)
 	->	(	V = Expected
@@ -351,7 +352,7 @@
 			add_report_file(-20,'request_xml', 'request_xml', Url),
 			Type = xml
 		)
-	;	(	loc_icase_endswith(Path, "n3")
+	;	(	(loc_icase_endswith(Path, "n3");loc_icase_endswith(Path, "trig");loc_icase_endswith(Path, "trig.gz"))
 		->	(
 				add_report_file(-20,'request_n3', 'request_n3', Url),
 				Type = n3

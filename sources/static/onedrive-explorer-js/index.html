@@ -16,7 +16,7 @@
 
 	// these should be templated
         "clientId": "e156ab76-4891-4e2e-ba8e-4996e975ae40",
-        "redirectUri": "https://pong.ueueeu.eu/callback.html",
+        "redirectUri": "https://robust1.ueueeu.eu/static/onedrive-explorer-js/callback.html",
 
         "scopes": "user.read files.read files.read.all sites.read.all",
         "authServiceUri": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
@@ -133,7 +133,6 @@
   <div id="od-content">
     <div id="od-items" class="od-pagecol"></div>
     <div id="od-json" class="od-pagecol"></div>
-    <button>robust</button>
   </div>
   <script>
     var baseUrl = getQueryVariable("baseUrl")
@@ -324,16 +323,35 @@
                       addClass("nameplate").
                       text(item.name).
                       appendTo(tile);
+
                   });
                 }
                 else if (data.file) {
                   // 1-up view
+
+                  var downloadUrl = data['@microsoft.graph.downloadUrl'];
+                  if (downloadUrl && data['name'].match(/\.xlsx$/i)) {
+
+
+
+                    // prevent XSS
+                    downloadUrl = downloadUrl.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+                    downloadUrl = encodeURI(downloadUrl);
+
+                      $("<div><form action=\"/reference\" method=\"POST\">" +
+                              //' <input type="hidden" name="fileurl" value="' + downloadUrl + '"/>' +
+                              'URL:<input type="text" name="fileurl" value="' + downloadUrl + '"/>' +
+                              " <button>invoke robust IC</button>" +
+                              "</form></div><br>").appendTo('#od-items');
+
+                  }
+
                   var tile = $("<div>").
                     addClass("item").
                     addClass("oneup").
                     appendTo("#od-items");
 
-                  var downloadUrl = data['@microsoft.graph.downloadUrl'];
+
                   if (downloadUrl) {
                     tile.click(function(){window.open(downloadUrl, "Download");});
                   }

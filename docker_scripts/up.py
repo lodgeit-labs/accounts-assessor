@@ -42,6 +42,9 @@ def health_check():
 			print('waiting for build to finish')
 			time.sleep(10)
 
+	if die.is_set():
+		return
+
 	print('build done...')
 	time.sleep(10)
 

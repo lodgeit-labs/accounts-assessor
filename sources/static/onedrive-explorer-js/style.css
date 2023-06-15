@@ -13,7 +13,6 @@
 
 #od-commands a {
   text-decoration: none;
-  color: white;
   font-size: 12pt;
 }
 
@@ -35,11 +34,10 @@
 
 #od-breadcrumb a {
     text-decoration: none;
-    color: black;
 }
 
 #od-loading {
-  background: rgba(255,255,255,.8) url('spinner_grey_40_transparent.gif') 50% 50% no-repeat;
+  background: url('spinner_grey_40_transparent.gif') 50% 50% no-repeat;
   position: fixed;
   top: 0;
   left: 0;
@@ -60,19 +58,19 @@ body {
 .item {
   display: inline-block;
   width: 200px;
-  height: 150px;
+  height: 200px;
   margin: 0.1em;
   margin-top: 0.05em;
   margin-bottom: 0.05em;
   cursor: pointer;
-  background-color: hsla(0, 0%, 95%, 1);
+  background-color: hsla(0, 0%, 95%, 0.1);
   border: 1px solid #094AB2;
   overflow: hidden;
   position: relative;
   font-family: 'segoe ui';
   font-size: 12pt;
 }
-
+/*
 .nameplate {
     /* background-color: #094AB2; */
     /* width: 200px; */
@@ -85,8 +83,8 @@ body {
     padding-right: 4px;
     overflow:  hidden;
     right:  4px;
-}
-
+}*/
+/*
 .folder {
   background-color: #094AB2;
   color: white;
@@ -95,7 +93,7 @@ body {
 .file {
   color: black;
 }
-
+*/
 img {
   height:auto;
   width: auto;

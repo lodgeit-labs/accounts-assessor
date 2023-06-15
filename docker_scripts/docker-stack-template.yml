@@ -52,7 +52,8 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
-    #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by coping the dev one
+      CSHARP_SERVICES_URL:
+    #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by copying the dev one
     #  REQUIREMENTS_FILE: requirements.txt
     volumes:
       - tmp:/app/server_root/tmp
@@ -63,6 +64,8 @@ services:
       - 7788
     depends_on:
       services:
+        condition: service_healthy
+      csharp-services:
         condition: service_healthy
       remoulade-api:
         condition: service_healthy
@@ -148,6 +151,27 @@ services:
       agraph:
         condition: service_healthy
 
+
+  csharp-services:
+    image: koo5/csharp-services${PP}:latest
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+      - "../sources/static/:/App/data/"
+    networks:
+      - backend
+    hostnet_ports:
+      - 17789
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+    environment:
+      CSHARPSERVICES_DATADIR: "/App/data/"
+        
+        
 
 
   redis:
