@@ -4,6 +4,8 @@ import json
 import datetime
 import ntpath
 import shutil
+import re
+
 import requests
 
 from typing import Optional, Any, List, Annotated
@@ -167,7 +169,8 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	This endpoint is for running IC on a file that is already on the internet ("by reference").
 	"""
 	# is this a onedrive url? 
-	if fileurl.startswith('https://public.db.files.1drv.com/'): # hack!
+	if urllib.parse(fileurl).netloc.endswith("db.files.1drv.com"):
+
 		# get the file
 		r = requests.get(fileurl)
 		
