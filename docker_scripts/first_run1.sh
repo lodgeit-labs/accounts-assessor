@@ -31,3 +31,6 @@ which docker-compose; or sudo apt install -y docker-compose;_
 
 # if not using compose:
 #docker swarm init;_
+
+echo -e "fs.inotify.max_user_instances=65535\nfs.inotify.max_user_watches=4194304" | sudo tee /etc/sysctl.d/inotify.conf
+
