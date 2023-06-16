@@ -6,6 +6,7 @@ cd "$DIR"
 # finally, the building/running script itself. And no, there probably isnt that much reason for it not to be runnable without installation
 python3 setup.py develop --user;_
 
+mkdir -p ~/.config/fish/completions/
 _ROBUST_COMPLETE=source_fish ~/.local/bin/robust > ~/.config/fish/completions/robust-complete.fish
 
 cd ..

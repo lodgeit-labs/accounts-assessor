@@ -1,15 +1,16 @@
 #!/usr/bin/env fish
+sudo echo "i'm root!" || { echo "root level setup skipped" && exit 0; }
+
+
 function _; or status --is-interactive; or exit 1; end
 
-
-sudo echo "i'm root"; or echo "root level setup skipped"; and exit 0
 
 set DIR (dirname (readlink -m (status --current-filename)))
 cd "$DIR"
 
 
 cat ~/robust_first_run_v1_done.flag; and exit 0
-touch robust_first_run_v1_done.flag
+touch ~/robust_first_run_v1_done.flag
 
 sudo apt install -y python3 python3-pip;_
 
@@ -33,4 +34,5 @@ which docker-compose; or sudo apt install -y docker-compose;_
 #docker swarm init;_
 
 echo -e "fs.inotify.max_user_instances=65535\nfs.inotify.max_user_watches=4194304" | sudo tee /etc/sysctl.d/inotify.conf
+sudo sysctl --load=/etc/sysctl.d/inotify.conf
 
