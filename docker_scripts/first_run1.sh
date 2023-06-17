@@ -9,9 +9,6 @@ set DIR (dirname (readlink -m (status --current-filename)))
 cd "$DIR"
 
 
-cat ~/robust_first_run_v1_done.flag; and exit 0
-touch ~/robust_first_run_v1_done.flag
-
 sudo apt install -y python3 python3-pip;_
 
 # not sure if still needed, maybe was only used for generating password file?
