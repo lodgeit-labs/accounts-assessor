@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cd "${0%/*}" # https://stackoverflow.com/questions/3349105/how-can-i-set-the-current-working-directory-to-the-directory-of-the-script-in-ba
+cd "$(dirname "$(readlink -f -- "$0")")"
 
 cat ~/robust_first_run_v1_done.flag && exit 0
 
