@@ -2,7 +2,7 @@
 
 cd "$(dirname "$(readlink -f -- "$0")")"
 
-set FLAG ~/robust_first_run_v2_done.flag
+set FLAG ~/robust_first_run_v3_done.flag
 cat $FLAG && { echo "not initing again"; exit 0; }
 
 ./first_run0.sh
