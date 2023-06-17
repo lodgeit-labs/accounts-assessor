@@ -1,9 +1,8 @@
 #!/usr/bin/env fish
 
-set DIR (dirname (readlink -m (status --current-filename)))
-cd "$DIR"
+set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
 
-# finally, the building/running script itself. And no, there probably isnt that much reason for it not to be runnable without installation
+# finally, the building/running script itself. And no, there probably isnt that much reason for it not to be runnable without installation. I think it was for shell autocomplete.
 python3 setup.py develop --user;_
 
 mkdir -p ~/.config/fish/completions/
