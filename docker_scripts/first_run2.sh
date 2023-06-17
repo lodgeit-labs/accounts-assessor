@@ -12,9 +12,4 @@ end
 mkdir -p ~/.config/fish/completions/
 _ROBUST_COMPLETE=source_fish ~/.local/bin/robust > ~/.config/fish/completions/robust-complete.fish
 
-cd ..
-cp -r secrets_example secrets;_
-cp -r sources/config_example sources/config;_
-
-
-
+./init_configs.sh
