@@ -3,4 +3,4 @@
 # rdf hackery2:fish/get_script_dir.fish
 set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
 
-./lib/_run.py $argv
+./up.py $argv
