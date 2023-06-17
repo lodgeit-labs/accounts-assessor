@@ -1,5 +1,5 @@
 #!/usr/bin/env fish
-sudo echo "i'm root!" || { echo "root level setup skipped" && exit 0; }
+sudo echo "i'm root!" or begin; echo "root level setup skipped"; exit 0; end
 
 
 function _; or status --is-interactive; or exit 1; end
