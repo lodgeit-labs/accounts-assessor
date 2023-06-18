@@ -3,6 +3,7 @@ import datetime
 import os,subprocess,time,shlex,logging,sys,threading,tempfile
 from itertools import count
 
+
 l = logging.getLogger()
 l.setLevel(logging.DEBUG)
 l.addHandler(logging.StreamHandler())
@@ -249,7 +250,7 @@ def logtail(compose_events_cmd):
 			s = line.split()
 			container_id = s[4]
 			line_quoted = shlex.quote(line)
-			tmux_stuff.put({'window_name':'X'+container_id[:8], 'window_shell':f'echo {line_quoted}; docker logs -f ' + container_id + ' | cat; cat'})
+			tmux_stuff.put({'window_name':container_id[:5], 'window_shell':f'echo {line_quoted}; docker logs -f ' + container_id + ' | cat; cat'})
 	# we kinda might rather want docker-compose -f ../generated_stack_files/last.yml -p robust logs -f <service name>
 	# but as it is, this does pop up a new tmux window when a container is restarted etc, and brings it to the front, and there's always a bit of the old log and then the new, which is nice. Does it ever happen that the log stops being printed while a container is running (with `docker logs`)?
 
@@ -502,7 +503,7 @@ def task(name, dir, cmd):
 	stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err', mode='w+')
 	files += [stde, stdo]
 	tailcmd = 'tail -f '+ stdo.name + ' ' + stde.name
-	tmux_stuff.put({'window_name':name, 'window_shell':tailcmd})
+	tmux_stuff.put({'window_name':name[:5], 'window_shell':tailcmd})
 	subprocess.Popen(shlex.split(tailcmd))
 
 	sys.stdout.write(intro)
@@ -560,6 +561,7 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 	svc('services', 			'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/services/Dockerfile_hollow")
 	svc('frontend', 			'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/frontend/Dockerfile_hollow")
 
+	os.set_blocking(sys.stdout.fileno(), False)
 	print("ok?")
 	join_all()
 
