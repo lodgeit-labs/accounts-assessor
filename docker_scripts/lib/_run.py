@@ -35,6 +35,32 @@ def ccd(cmd, env):
 	subprocess.check_call(cmd, env=e)
 
 
+import queue
+
+tmux_stuff = queue.SimpleQueue()
+
+def tmuxer(tmux_session_name, terminal_cmd):
+
+	import libtmux
+	logging.getLogger('libtmux').setLevel(logging.WARNING)
+
+	tmux_server = libtmux.Server()
+	#if tmux_session_name == '':
+	tmux_session = tmux_server.new_session(session_name='robust_'+str(datetime.datetime.utcnow().timestamp()).replace('.', '_'))
+	#else:
+	#tmux_session = tmux_server.sessions.filter(session_name=tmux_session_name)[0]
+
+	terminal_cmd = terminal_cmd.format(session_name=tmux_session.name)
+	if terminal_cmd != '':
+		vvv = shlex.split(terminal_cmd)
+		print(shlex.join(vvv))
+		subprocess.Popen(vvv)
+
+	while True:
+		x=tmux_stuff.get()
+		tmux_session.new_window(window_name=x['window_name'], window_shell=x['window_shell'])		
+
+
 @click.group()
 def cli():
 	pass
@@ -150,7 +176,9 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	if not offline:
 		os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull --ignore-pull-failures --include-deps ') # this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it)
 
-	build(offline, **{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images, 'terminal_cmd': terminal_cmd, 'tmux_session_name': tmux_session_name})
+	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
+
+	build(offline, **{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images})
 
 	if rm_stack:
 		print('wait for old network to disappear..')
@@ -191,7 +219,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 			atexit.register(shutdown)
 
 		try:
-			subprocess.Popen(['lib/logtail.py',	cmd, tmux_session.name])
+			threading.Thread(daemon=True, target = logtail, args = (cmd,)).start()
+			
 			ccd(ss(cmd + ' up --remove-orphans ' + ('' if stay_running else ' --detach')), env=e)
 		except subprocess.CalledProcessError:
 			ccd(ss('docker ps'), env={})
@@ -207,6 +236,23 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+pp], env=e)
 		shell('docker stack ps robust'+pp + ' --no-trunc')
 		shell('./follow_logs_noagraph.sh '+pp)
+
+import io
+
+def logtail(compose_events_cmd):
+	cmd = shlex.split('stdbuf -oL -eL ' + compose_events_cmd + ' events')
+	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+	for line in io.TextIOWrapper(proc.stdout, encoding="utf-8"):
+		if 'container start' in line or 'container die' in line:
+			print(line)
+		if 'container start' in line:
+			s = line.split()
+			container_id = s[4]
+			line_quoted = shlex.quote(line)
+			tmux_stuff.put({'window_name':'X'+container_id[:8], 'window_shell':f'echo {line_quoted}; docker logs -f ' + container_id + ' | cat; cat'})
+	# we kinda might rather want docker-compose -f ../generated_stack_files/last.yml -p robust logs -f <service name>
+	# but as it is, this does pop up a new tmux window when a container is restarted etc, and brings it to the front, and there's always a bit of the old log and then the new, which is nice. Does it ever happen that the log stops being printed while a container is running (with `docker logs`)?
+
 
 
 def deploy_stack(pp, fn, django_args):
@@ -456,7 +502,7 @@ def task(name, dir, cmd):
 	stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err', mode='w+')
 	files += [stde, stdo]
 	tailcmd = 'tail -f '+ stdo.name + ' ' + stde.name
-	tmux_session.new_window(window_name=name, window_shell=tailcmd)
+	tmux_stuff.put({'window_name':name, 'window_shell':tailcmd})
 	subprocess.Popen(shlex.split(tailcmd))
 
 	sys.stdout.write(intro)
@@ -480,27 +526,11 @@ def realpath(x):
 	return co(['realpath', x])[:-1]
 
 
-tmux_session = None
 
-
-def build(offline, port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd, tmux_session_name):
-	global _parallel, tmux_session
+def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
+	global _parallel
 	_parallel=parallel
 
-	#if _parallel:
-	import libtmux
-	logging.getLogger('libtmux').setLevel(logging.WARNING)
-	tmux_server = libtmux.Server()
-	#if tmux_session_name == '':
-	tmux_session = tmux_server.new_session(session_name='robust_'+str(datetime.datetime.utcnow().timestamp()).replace('.', '_'))
-	#else:
-	#tmux_session = tmux_server.sessions.filter(session_name=tmux_session_name)[0]
-
-	terminal_cmd = terminal_cmd.format(session_name=tmux_session.name)
-	if terminal_cmd != '':
-		vvv = shlex.split(terminal_cmd)
-		print(shlex.join(vvv))
-		subprocess.Popen(vvv)
 
 	cc('./lib/git_info.fish')
 
