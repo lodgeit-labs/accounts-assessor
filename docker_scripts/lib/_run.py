@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import datetime
 import os,subprocess,time,shlex,logging,sys,threading,tempfile
 from itertools import count
 
@@ -450,37 +450,30 @@ files = []
 def task(name, dir, cmd):
 	global files
 
-
 	cmd = 'stdbuf -oL -eL ' + cmd
 	intro = '\n\ncd ' + shlex.quote(dir) + '\n' + shlex.quote(cmd) + '\n...'
-	if not _parallel:
-		sys.stdout.write(intro)
-		thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir})
-		thread.task = cmd
-		threads.append(thread)
-		thread.start()
+	stdo = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_out', mode='w+')
+	stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err', mode='w+')
+	files += [stde, stdo]
+	tailcmd = 'tail -f '+ stdo.name + ' ' + stde.name
+	tmux_session.new_window(window_name=name, window_shell=tailcmd)
+	subprocess.Popen(shlex.split(tailcmd))
+
+	sys.stdout.write(intro)
+	stdo.write(intro)
+
+	thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir, 'stdout':stdo, 'stderr':stde})
+	thread.task = cmd
+	threads.append(thread)
+	thread.start()
+
+	if _parallel:
+		return thread
+	else:
 		join([thread])
 		threads.remove(thread)
 		return thread
-
-	else:
-
-		stdo = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_out', mode='w+')
-		stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err', mode='w+')
-		files += [stde, stdo]
-		tailcmd = 'tail -f '+ stdo.name + ' ' + stde.name
-		tmux_session.new_window(window_shell=tailcmd)
-		subprocess.Popen(shlex.split(tailcmd))
-
-		sys.stdout.write(intro)
-		stdo.write(intro)
-
-		thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir, 'stdout':stdo, 'stderr':stde})
-		thread.task = cmd
-		threads.append(thread)
-		thread.start()
-		return thread
-
+		
 
 
 def realpath(x):
@@ -494,22 +487,20 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images, terminal
 	global _parallel, tmux_session
 	_parallel=parallel
 
-	if _parallel:
-		import libtmux
-		logging.getLogger('libtmux').setLevel(logging.WARNING)
-		server = libtmux.Server()
-		if tmux_session_name == '':
-			tmux_session = server.new_session()#window_command=
-		else:
-			tmux_session = server.sessions.filter(session_name=tmux_session_name)[0]
+	#if _parallel:
+	import libtmux
+	logging.getLogger('libtmux').setLevel(logging.WARNING)
+	tmux_server = libtmux.Server()
+	#if tmux_session_name == '':
+	tmux_session = tmux_server.new_session(session_name='robust_'+str(datetime.datetime.utcnow().timestamp()).replace('.', '_'))
+	#else:
+	#tmux_session = tmux_server.sessions.filter(session_name=tmux_session_name)[0]
 
-		tmuxcmd = 'tmux attach-session -t ' + tmux_session.name
-
-		terminal_cmd = terminal_cmd.format(session_name=tmux_session.name)
-		if terminal_cmd != '':
-			vvv = shlex.split(terminal_cmd)
-			print(shlex.join(vvv))
-			subprocess.Popen(vvv)
+	terminal_cmd = terminal_cmd.format(session_name=tmux_session.name)
+	if terminal_cmd != '':
+		vvv = shlex.split(terminal_cmd)
+		print(shlex.join(vvv))
+		subprocess.Popen(vvv)
 
 	cc('./lib/git_info.fish')
 
