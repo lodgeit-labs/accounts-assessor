@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-
+import datetime
 import os,subprocess,time,shlex,logging,sys,threading,tempfile
 from itertools import count
+
 
 l = logging.getLogger()
 l.setLevel(logging.DEBUG)
@@ -33,6 +34,32 @@ def ccd(cmd, env):
 	e = os.environ.copy()
 	e.update(env)
 	subprocess.check_call(cmd, env=e)
+
+
+import queue
+
+tmux_stuff = queue.SimpleQueue()
+
+def tmuxer(tmux_session_name, terminal_cmd):
+
+	import libtmux
+	logging.getLogger('libtmux').setLevel(logging.WARNING)
+
+	tmux_server = libtmux.Server()
+	#if tmux_session_name == '':
+	tmux_session = tmux_server.new_session(session_name='robust_'+str(datetime.datetime.utcnow().timestamp()).replace('.', '_'))
+	#else:
+	#tmux_session = tmux_server.sessions.filter(session_name=tmux_session_name)[0]
+
+	terminal_cmd = terminal_cmd.format(session_name=tmux_session.name)
+	if terminal_cmd != '':
+		vvv = shlex.split(terminal_cmd)
+		print(shlex.join(vvv))
+		subprocess.Popen(vvv)
+
+	while True:
+		x=tmux_stuff.get()
+		tmux_session.new_window(window_name=x['window_name'], window_shell=x['window_shell'])		
 
 
 @click.group()
@@ -150,7 +177,9 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	if not offline:
 		os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull --ignore-pull-failures --include-deps ') # this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it)
 
-	build(offline, **{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images, 'terminal_cmd': terminal_cmd, 'tmux_session_name': tmux_session_name})
+	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
+
+	build(offline, **{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images})
 
 	if rm_stack:
 		print('wait for old network to disappear..')
@@ -191,7 +220,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 			atexit.register(shutdown)
 
 		try:
-			subprocess.Popen(['lib/logtail.py',	cmd, tmux_session.name])
+			threading.Thread(daemon=True, target = logtail, args = (cmd,)).start()
+			
 			ccd(ss(cmd + ' up --remove-orphans ' + ('' if stay_running else ' --detach')), env=e)
 		except subprocess.CalledProcessError:
 			ccd(ss('docker ps'), env={})
@@ -207,6 +237,23 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+pp], env=e)
 		shell('docker stack ps robust'+pp + ' --no-trunc')
 		shell('./follow_logs_noagraph.sh '+pp)
+
+import io
+
+def logtail(compose_events_cmd):
+	cmd = shlex.split('stdbuf -oL -eL ' + compose_events_cmd + ' events')
+	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+	for line in io.TextIOWrapper(proc.stdout, encoding="utf-8"):
+		if 'container start' in line or 'container die' in line:
+			print(line)
+		if 'container start' in line:
+			s = line.split()
+			container_id = s[4]
+			line_quoted = shlex.quote(line)
+			tmux_stuff.put({'window_name':container_id[:5], 'window_shell':f'echo {line_quoted}; docker logs -f ' + container_id + ' | cat; cat'})
+	# we kinda might rather want docker-compose -f ../generated_stack_files/last.yml -p robust logs -f <service name>
+	# but as it is, this does pop up a new tmux window when a container is restarted etc, and brings it to the front, and there's always a bit of the old log and then the new, which is nice. Does it ever happen that the log stops being printed while a container is running (with `docker logs`)?
+
 
 
 def deploy_stack(pp, fn, django_args):
@@ -450,66 +497,41 @@ files = []
 def task(name, dir, cmd):
 	global files
 
-
 	cmd = 'stdbuf -oL -eL ' + cmd
 	intro = '\n\ncd ' + shlex.quote(dir) + '\n' + shlex.quote(cmd) + '\n...'
-	if not _parallel:
-		sys.stdout.write(intro)
-		thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir})
-		thread.task = cmd
-		threads.append(thread)
-		thread.start()
+	stdo = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_out', mode='w+')
+	stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err', mode='w+')
+	files += [stde, stdo]
+	tailcmd = 'tail -f '+ stdo.name + ' ' + stde.name
+	tmux_stuff.put({'window_name':name[:5], 'window_shell':tailcmd})
+	subprocess.Popen(shlex.split(tailcmd))
+
+	sys.stdout.write(intro)
+	stdo.write(intro)
+
+	thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir, 'stdout':stdo, 'stderr':stde})
+	thread.task = cmd
+	threads.append(thread)
+	thread.start()
+
+	if _parallel:
+		return thread
+	else:
 		join([thread])
 		threads.remove(thread)
 		return thread
-
-	else:
-
-		stdo = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_out', mode='w+')
-		stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err', mode='w+')
-		files += [stde, stdo]
-		tailcmd = 'tail -f '+ stdo.name + ' ' + stde.name
-		tmux_session.new_window(window_shell=tailcmd)
-		subprocess.Popen(shlex.split(tailcmd))
-
-		sys.stdout.write(intro)
-		stdo.write(intro)
-
-		thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir, 'stdout':stdo, 'stderr':stde})
-		thread.task = cmd
-		threads.append(thread)
-		thread.start()
-		return thread
-
+		
 
 
 def realpath(x):
 	return co(['realpath', x])[:-1]
 
 
-tmux_session = None
 
-
-def build(offline, port_postfix, mode, parallel, no_cache, omit_images, terminal_cmd, tmux_session_name):
-	global _parallel, tmux_session
+def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
+	global _parallel
 	_parallel=parallel
 
-	if _parallel:
-		import libtmux
-		logging.getLogger('libtmux').setLevel(logging.WARNING)
-		server = libtmux.Server()
-		if tmux_session_name == '':
-			tmux_session = server.new_session()#window_command=
-		else:
-			tmux_session = server.sessions.filter(session_name=tmux_session_name)[0]
-
-		tmuxcmd = 'tmux attach-session -t ' + tmux_session.name
-
-		terminal_cmd = terminal_cmd.format(session_name=tmux_session.name)
-		if terminal_cmd != '':
-			vvv = shlex.split(terminal_cmd)
-			print(shlex.join(vvv))
-			subprocess.Popen(vvv)
 
 	cc('./lib/git_info.fish')
 
@@ -539,6 +561,7 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images, terminal
 	svc('services', 			'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/services/Dockerfile_hollow")
 	svc('frontend', 			'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/frontend/Dockerfile_hollow")
 
+	os.set_blocking(sys.stdout.fileno(), False)
 	print("ok?")
 	join_all()
 

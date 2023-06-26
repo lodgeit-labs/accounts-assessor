@@ -11,9 +11,6 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-#sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../internal_workers')))
-#sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
-
 
 import account_hierarchy
 

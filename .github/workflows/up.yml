@@ -12,4 +12,5 @@ jobs:
         with:
           submodules: recursive
       - run: docker_scripts/first_run.sh
+      - run: docker_scripts/init_configs.sh
       - run: docker_scripts/up.sh
