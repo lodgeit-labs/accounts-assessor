@@ -3,7 +3,7 @@ on: [ pull_request ]
 env:
   ACTIONS_RUNNER_DEBUG: true
 jobs:
-  up:
+  developer_deployment_test:
     if: github.repository == 'lodgeit-labs/accounts-assessor'
     runs-on: ubuntu-22.04
     steps:

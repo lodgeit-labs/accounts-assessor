@@ -3,7 +3,7 @@ on: [ push ]
 env:
   ACTIONS_RUNNER_DEBUG: true
 jobs:
-  up:
+  fast_and_unreliable_developer_deployment_test:
     if: github.repository == 'koo5/accounts-assessor'
     runs-on: self-hosted
     steps:
