@@ -1,12 +1,11 @@
-name: up
-
-on: [ push, pull_request ]
+on: [ pull_request ]
 
 env:
   ACTIONS_RUNNER_DEBUG: true
 jobs:
-  build:
-    runs-on: self-hosted
+  up:
+    if: github.repository == 'lodgeit-labs/accounts-assessor'
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
