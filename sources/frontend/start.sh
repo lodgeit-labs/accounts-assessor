@@ -9,7 +9,7 @@ _term() {
 trap _term SIGTERM
 
 set -xv
-watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  -- ./start2.sh  &
+watchmedo auto-restart --debounce-interval 1 --interval 5 -d .  -d ../common  --patterns="*.py;*.egg" --recursive  -- ./start2.sh  &
 child=$!
 wait "$child"
 echo "end"
