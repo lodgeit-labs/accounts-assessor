@@ -3,7 +3,7 @@
 set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
 
 # finally, the building/running script itself. And no, there probably isnt that much reason for it not to be runnable without installation. I think it was for shell autocomplete.
-
+function _old_fish_prompt; end; # https://github.com/python/cpython/issues/93858 ?
 . venv/bin/activate.fish
 python3 setup.py develop ;_
 
