@@ -9,7 +9,7 @@ set DIR (dirname (readlink -m (status --current-filename)))
 cd "$DIR"
 
 
-sudo apt install -y python3 python3-pip ;_ # virtualenv?
+sudo apt install -y python3 python3-pip python3-venv ;_
 
 # for nice building/deployment UI
 sudo apt install -y tmux ;_
