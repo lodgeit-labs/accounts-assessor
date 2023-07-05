@@ -2,6 +2,7 @@
 function _; or status --is-interactive; or exit 1; end
 
 python3.10 -m venv venv ;_
+function _old_fish_prompt; end; # https://github.com/python/cpython/issues/93858 ?
 . venv/bin/activate.fish ;_
 
 # (note we're not installing bindings here, we're installing docker-compose itself)
