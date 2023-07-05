@@ -16,10 +16,10 @@ trap _term SIGTERM
 export PYTHONPATH=/app/sources/common/libs/remoulade/
 
 
-watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --prefetch-multiplier 1 --queues health  --threads 1 invoke_rpc &
+watchmedo auto-restart --debounce-interval 1 --interval 5 -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --prefetch-multiplier 1 --queues health  --threads 1 invoke_rpc &
 child0=$!
 
-watchmedo auto-restart -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --prefetch-multiplier 1 --queues default --threads 1 invoke_rpc &
+watchmedo auto-restart --debounce-interval 1 --interval 5 -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --prefetch-multiplier 1 --queues default --threads 1 invoke_rpc &
 child1=$!
 
 
