@@ -15,4 +15,3 @@ cat $FLAG && { echo "not initing again"; exit 0; }
 ./first_run2.sh
 
 touch $FLAG
-
