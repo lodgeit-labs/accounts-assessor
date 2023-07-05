@@ -5,7 +5,7 @@ set -e
 
 cd "$(dirname "$(readlink -f -- "$0")")"
 
-FLAG=~/robust_first_run_v6_done.flag
+FLAG=~/robust_first_run_v8_done.flag
 
 cat $FLAG && { echo "not initing again"; exit 0; }
 
@@ -15,4 +15,3 @@ cat $FLAG && { echo "not initing again"; exit 0; }
 ./first_run2.sh
 
 touch $FLAG
-

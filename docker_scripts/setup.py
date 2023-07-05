@@ -6,8 +6,11 @@ setup(
     packages=find_packages(include=['lib']),
     python_requires='>=3.9',
     install_requires=[
-        'Click',
-        'pyyaml'
+        'Click>=8',
+        'pyyaml',
+        'libtmux',
+        'docker'
+
     ],
     entry_points={
         'console_scripts': [
