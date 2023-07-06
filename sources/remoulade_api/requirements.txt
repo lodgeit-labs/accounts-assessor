@@ -43,7 +43,7 @@ packaging==23.0
     #   apispec
     #   marshmallow
     #   webargs
-requests==2.28.2
+requests==2.31.0
     # via agraph-python
 urllib3==1.26.15
     # via requests
