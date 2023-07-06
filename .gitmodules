@@ -17,3 +17,6 @@
 [submodule "sources/CsharpServices"]
 	path = sources/CsharpServices
 	url = https://github.com/koo5/CsharpServices
+[submodule "sdk"]
+	path = sdk
+	url = https://github.com/koo5/robust_sdk

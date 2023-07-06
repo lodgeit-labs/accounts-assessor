@@ -2,6 +2,12 @@
 import datetime
 import os,subprocess,time,shlex,logging,sys,threading,tempfile
 from itertools import count
+import click
+import yaml
+from copy import deepcopy
+from urllib.parse import urlparse
+import queue
+import libtmux
 
 
 l = logging.getLogger()
@@ -14,21 +20,6 @@ ss = shlex.split
 
 
 
-try:
-	import click
-	import yaml
-	yaml.FullLoader
-except:
-	print('please install:\npython3 -m pip install --user -U click pyyaml')
-	exit(1)
-
-
-
-from copy import deepcopy
-from urllib.parse import urlparse
-	
-
-
 def ccd(cmd, env):
 	logging.getLogger().info(' '.join([f'{k}={(v).__repr__()} \\\n' for k,v in env.items()]) + shlex.join(cmd))
 	e = os.environ.copy()
@@ -36,13 +27,11 @@ def ccd(cmd, env):
 	subprocess.check_call(cmd, env=e)
 
 
-import queue
 
 tmux_stuff = queue.SimpleQueue()
 
 def tmuxer(tmux_session_name, terminal_cmd):
 
-	import libtmux
 	logging.getLogger('libtmux').setLevel(logging.WARNING)
 
 	tmux_server = libtmux.Server()
@@ -175,7 +164,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		shell('docker stack rm robust' + pp)
 
 	if not offline:
-		os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull --ignore-pull-failures --include-deps ') # this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it)
+		os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull --ignore-pull-failures --include-deps ') # this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it) https://github.com/docker/compose#docker-compose-v2
 
 	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
 

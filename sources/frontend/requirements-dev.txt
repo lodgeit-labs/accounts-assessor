@@ -38,7 +38,7 @@ python-multipart==0.0.6
     # via frontend (pyproject.toml)
 pyyaml==6.0
     # via frontend (pyproject.toml)
-requests==2.28.2
+requests==2.31.0
     # via
     #   agraph-python
     #   frontend (pyproject.toml)

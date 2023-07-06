@@ -20,7 +20,7 @@ python-daemon==2.3.2
     # via luigi
 python-dateutil==2.8.2
     # via luigi
-requests==2.28.2
+requests==2.31.0
     # via -r requirements.in
 six==1.16.0
     # via python-dateutil
@@ -28,7 +28,7 @@ sqlalchemy==1.3.24
     # via -r requirements.in
 tenacity==8.2.2
     # via luigi
-tornado==6.2
+tornado==6.3.2
     # via luigi
 urllib3==1.26.14
     # via requests
