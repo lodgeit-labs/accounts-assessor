@@ -1,15 +1,14 @@
 
 
  extract_gl_inputs(Phase, Txs) :-
-    get_sheets_data(ic_ui:gl, Gls),
+	get_sheets_data(ic_ui:gl, Gls),
  	maplist(extract_gl_input(Phase), $>doc_list_items(Gls), Txs0),
 	flatten(Txs0, Txs).
 
  extract_action_inputs(Phase, Txs) :-
- 	(	doc($>request_data, ic_ui:action_input, Input)qqq
- 	->	(	maplist(extract_action_input(Phase), $>doc_list_items(Input), Txs0),
-			flatten(Txs0, Txs))
-	;	Txs = []).
+	get_sheets_data(ic_ui:action_input, Inputs),
+ 	maplist(extract_action_input(Phase), Inputs, Txs0),
+	flatten(Txs0, Txs).
 
  extract_gl_input(Phase, Gl, []) :-
  	\+check_phase(Phase, Gl, ic:phase).
@@ -140,10 +139,9 @@ extract_gl_tx(Sheet_name, Default_Currency, _, _, [Item|Items], [Tx1|Txs]) :-
 
 
  extract_reallocations(Phase, Txs) :-
- 	(	doc($>request_data, ic_ui:reallocation, Gls)qqq
- 	->	(	maplist(!extract_reallocation(Phase), $>doc_list_items(Gls), Txs0),
-			flatten(Txs0, Txs))
-	;	Txs = []).
+	get_sheets_data(ic_ui:reallocation, Inputs),
+	maplist(!extract_reallocation(Phase), Inputs, Txs0),
+	flatten(Txs0, Txs).
 
  extract_reallocation(Phase, Gl, []) :-
 	\+check_phase(Phase, Gl, ic:phase).

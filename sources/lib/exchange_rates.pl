@@ -299,28 +299,28 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 ┣╸ ┏╋┛ ┃ ┣┳┛┣━┫┃   ┃
 ┗━╸╹ ╹ ╹ ╹┗╸╹ ╹┗━╸ ╹
 */
-extract_exchange_rates :-
+ extract_exchange_rates :-
 	(	at_cost
 	->	Exchange_Rates = []
 	;	extract_exchange_rates1(Exchange_Rates)),
 	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
 	!result_add_property(l:exchange_rates, Exchange_Rates).
 
+ extract_exchange_rates1(Exchange_Rates) :-
+ 	!get_sheet_data(ic:unit_valueses, X),
 
-
-extract_exchange_rates1(Exchange_Rates) :-
- 	!doc($>request_data, ic:unit_valueses, X),qqq
- 	!doc(X, excel:has_unknown_fields, Fields0),
- 	!doc_list_items(Fields0, Fields),
- 	maplist(!parse_date_field, Fields),
- 	!doc(X, rdf:value, Items0),
- 	!doc_list_items(Items0, Items),
- 	maplist(extract_exchange_rates2(Fields), Items, Exchange_Rates0),
- 	flatten(Exchange_Rates0, Exchange_Rates),
+	todo alternative, semantic, mode
+	!doc(X, excel:has_unknown_fields, Fields0),
+	!doc_list_items(Fields0, Fields),
+	maplist(!parse_date_field, Fields),
+	!doc(X, rdf:value, Items0),
+	!doc_list_items(Items0, Items),
+	maplist(extract_exchange_rates2(Fields), Items, Exchange_Rates0),
+	flatten(Exchange_Rates0, Exchange_Rates),
 	maplist(assert_ground, Exchange_Rates),
 	true.
 
-parse_date_field(Field) :-
+ parse_date_field(Field) :-
 	!doc(Field, excel:has_header_cell_value, V),
 	(	V = date(_,_,_)
 	->	(
@@ -334,7 +334,7 @@ parse_date_field(Field) :-
 			;	throw_format('unexpected unit value header (must be either "opening" or "closing" or a valid date): ~q', [V])),
 	doc_add(Field, l:true_date, Date).
 
-extract_exchange_rates2(Fields, Item, Rates) :-
+ extract_exchange_rates2(Fields, Item, Rates) :-
 	!doc_value(Item, uv:name, Src0),
 	atom_string(Src,Src0),
 
