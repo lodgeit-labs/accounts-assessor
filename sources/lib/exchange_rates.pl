@@ -309,7 +309,7 @@ extract_exchange_rates :-
 
 
 extract_exchange_rates1(Exchange_Rates) :-
- 	!doc($>request_data, ic:unit_valueses, X),
+ 	!doc($>request_data, ic:unit_valueses, X),qqq
  	!doc(X, excel:has_unknown_fields, Fields0),
  	!doc_list_items(Fields0, Fields),
  	maplist(!parse_date_field, Fields),
