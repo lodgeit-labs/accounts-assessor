@@ -306,19 +306,22 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
 	!result_add_property(l:exchange_rates, Exchange_Rates).
 
+
  extract_exchange_rates1(Exchange_Rates) :-
  	!get_sheet_data(ic:unit_valueses, X),
 
-	todo alternative, semantic, mode
 	!doc(X, excel:has_unknown_fields, Fields0),
 	!doc_list_items(Fields0, Fields),
 	maplist(!parse_date_field, Fields),
+
 	!doc(X, rdf:value, Items0),
 	!doc_list_items(Items0, Items),
 	maplist(extract_exchange_rates2(Fields), Items, Exchange_Rates0),
+
 	flatten(Exchange_Rates0, Exchange_Rates),
 	maplist(assert_ground, Exchange_Rates),
 	true.
+
 
  parse_date_field(Field) :-
 	!doc(Field, excel:has_header_cell_value, V),
@@ -332,9 +335,13 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 		;	(	V = "closing"
 			->	!result_property(l:end_date, Date))
 			;	throw_format('unexpected unit value header (must be either "opening" or "closing" or a valid date): ~q', [V])),
-	doc_add(Field, l:true_date, Date).
+	doc_add(Field, l:parsed_as_date, Date).
+
 
  extract_exchange_rates2(Fields, Item, Rates) :-
+
+	/* Item here is a row in the unit values sheet. For each such row, there can be several "unknown field" cells, each of which contains an exchange rate. Alternatively, an Item can instead have an "l:date" property. */
+
 	!doc_value(Item, uv:name, Src0),
 	atom_string(Src,Src0),
 
@@ -345,17 +352,19 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	findall(
 		exchange_rate(Date, Src, Dst, V),
 		(
-			member(Field, Fields),
-			doc_value(Item, Field, V0),
-			my_number_string(V,V0),
-			!doc(Field, l:true_date, Date)
+			(
+				member(Field, Fields),
+				doc_value(Item, Field, V0),
+				my_number_string(V,V0),
+				!doc(Field, l:parsed_as_date, Date)
+			)
+			;
+			(
+				doc(Item, l:date, Date)
+			)
 		),
 		Rates
 	).
-
-
-
-
 
 
 
