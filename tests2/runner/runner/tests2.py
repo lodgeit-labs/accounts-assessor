@@ -38,19 +38,28 @@ class AsyncComputationStart(luigi.Task):
 
 
 	def run(self):
-		inputs = self.copy_inputs()
+		request_files_dir: pathlib.Path = P(self.test['path']) / 'inputs'
+		request_files_dir.mkdir(parents=True, exist_ok=True)
+		inputs = self.copy_inputs(request_files_dir)
+		inputs.append(self.write_custom_job_metadata(request_files_dir))
 		self.run_request(inputs)
 
 
-	def copy_inputs(self):
-		request_files_dir: pathlib.Path = P(self.test['path']) / 'inputs'
-		request_files_dir.mkdir(parents=True, exist_ok=True)
+	def copy_inputs(self, request_files_dir):
 		files = []
 		input_file: pathlib.Path
 		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
 			shutil.copyfile(input_file, request_files_dir / input_file.name)
 			files.append(request_files_dir / input_file.name)
 		return files
+
+	def write_custom_job_metadata(self, request_files_dir):
+		data = dict(self.test)
+		fn = request_files_dir / 'custom_job_metadata.json'
+		with open(fn, 'w') as fp:
+			json.dump(data, fp, indent=4)
+		return fn
+
 
 
 	def run_request(self, inputs: list[pathlib.Path]):
@@ -60,10 +69,14 @@ class AsyncComputationStart(luigi.Task):
 
 		request_format = 'xml' if any([str(i).lower().endswith('xml') for i in inputs]) else 'rdf'
 
+
+		files = {}
+		for idx, input_file in enumerate(inputs):
+			files['file' + str(idx+1)] = open(inputs[idx])
 		resp = requests.post(
 				url + '/upload',
 				params={'request_format':request_format},
-				files={'file1':open(inputs[0])}
+				files=files
 		)
 		if resp.ok:
 			handle = find_report_by_key(resp.json()['reports'], 'job_api_url')
@@ -175,14 +188,15 @@ class Permutations(luigi.Task):
 	robust_server_url = luigi.parameter.OptionalParameter(default='http://localhost:80')
 	suite = luigi.parameter.OptionalPathParameter(default='../endpoint_tests')
 	debug = luigi.parameter.OptionalBoolParameter(default=None, parsing=luigi.BoolParameter.EXPLICIT_PARSING)
+	dirglob = luigi.parameter.OptionalParameter(default='')
 
 
 	def robust_testcase_dirs(self):
-		dirs0 = [P(x) for x in sorted(glob.glob('**/', root_dir=self.suite, recursive=True))]
+		dirs0 = [P(x) for x in sorted(glob.glob('**/' + self.dirglob, root_dir=self.suite, recursive=True))]
 		dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
 		dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
 		if dirs2 == []:
-			return ['.']
+			return ['.'] # is this supposed to be self.suite instead?
 		return dirs2
 
 

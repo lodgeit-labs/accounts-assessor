@@ -9,9 +9,6 @@ from fs_utils import get_absolute_paths, flatten_file_list_with_dirs_into_file_l
 import call_prolog_calculator
 
 
-celery_app=None
-
-
 @click.command()
 @click.argument('request_files', nargs=-1)
 @click.option('-d', '--dev_runner_options', type=str)
@@ -43,7 +40,6 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 	copy_request_files_to_tmp(request_tmp_directory_absolute_path, files3)
 	final_result_tmp_directory_name, final_result_tmp_directory_path = create_tmp()
 	call_prolog_calculator.call_prolog_calculator(
-		celery_app=celery_app,
 		server_url=server_url,
 		request_tmp_directory_name=request_tmp_directory_name,
 		request_files=files3,
