@@ -360,7 +360,7 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 			)
 			;
 			(
-				doc(Item, l:date, Date)
+				doc_value(Item, uv:date, Date)
 			)
 		),
 		Rates

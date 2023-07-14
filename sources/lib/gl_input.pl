@@ -2,7 +2,7 @@
 
  extract_gl_inputs(Phase, Txs) :-
 	get_sheets_data(ic_ui:gl, Gls),
- 	maplist(extract_gl_input(Phase), $>doc_list_items(Gls), Txs0),
+ 	maplist(extract_gl_input(Phase), Gls, Txs0),
 	flatten(Txs0, Txs).
 
  extract_action_inputs(Phase, Txs) :-
