@@ -1,5 +1,5 @@
 {
-	"DONT_GTRACE" : false,
-	"DIE_ON_ERROR" : true,
+	"DONT_GTRACE" : true,
+	"DIE_ON_ERROR" : false,
 	"DEBUG" : true
 }

@@ -70,8 +70,8 @@ def cli():
 @click.option('-sr', '--stay_running', 				type=bool, 	default=True,
 	help="keep the script running after the stack is brought up.")
 
-@click.option('-d1', '--debug_frontend_server', 				type=bool, 	default=False,
-	help="")
+#@click.option('-d1', '--debug_frontend_server', 				type=bool, 	default=False,
+# 	help="")
 
 @click.option('-pp', '--port_postfix', 				type=str, 	default='', 
 	help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
@@ -82,8 +82,11 @@ def cli():
 @click.option('-ms', '--mount_host_sources_dir', 	type=bool, 	default=False, 
 	help="bind-mount source code directories, instead of copying them into images. Useful for development.")
 
-@click.option('-nr', '--django_noreload', 			type=bool, 	default=False, 
+@click.option('-nr', '--django_noreload', 			type=bool, 	default=True,
 	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
+
+#@click.option('-nr', '--django_noreload', 			type=bool, 	default=True,
+#	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
 
 @click.option('-pu', '--public_url', 				type=str, 	default="http://localhost",
 	help="The public-facing url, including scheme and, optionally, port. Used in django to construct URLs, and hostname is used in Caddy and apache.")
@@ -292,7 +295,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, debug_frontend_server, enable_public_insecure, compose, omit_services, include_services, secrets_dir):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir):
 
 	res = deepcopy(src)
 	services = res['services']

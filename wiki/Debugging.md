@@ -6,9 +6,9 @@ http://localhost:9000
 * for debugging docker/containers
 * not part of the stack, but recommended to spin up separately
 
-
 ## RabbitMQ console
 http://localhost:15672
+* guest / guest (RABBITMQ_DEFAULT_USER and RABBITMQ_DEFAULT_PASS...)
 * monitor all messagess and queues
 
 ## superbowl
@@ -19,6 +19,10 @@ http://localhost:1238/
 http://0.0.0.0:10035/#
 * secrets/AGRAPH_SUPER_USER, secrets/AGRAPH_SUPER_PASSWORD
 
+## test runner (luigi)
+http://localhost:8082/
+
+
 ..
 
 # general
@@ -28,7 +32,7 @@ http://0.0.0.0:10035/#
 
 # debugging checklist:
 
-## `./run.sh` flags:
+## `robust run` flags:
 	
 * `--mount_host_sources_dir true` - this ensures that all source etc directories are mounted rather than copied. This means that you can always just modify any prolog source file and re-run a request.
 	
@@ -62,7 +66,7 @@ If unset:
 
 configuration: `sources/swipl/xpce/Defaults`: adjust font size as needed.
 
-gtrace is useful, although it gets confused often. In some swipl versions it's better than in others.
+gtrace is useful, although it gets confused often. In some swipl versions it's better than in others. Swipl also seems to hang for a long time after aborting out of gtrace lately.
 * https://github.com/SWI-Prolog/swipl-devel/issues/757
 * https://github.com/SWI-Prolog/swipl-devel/issues/774
 
