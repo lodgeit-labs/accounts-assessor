@@ -61,10 +61,10 @@
 	((cf(make_zip)->true;true)).
 
 
- flag_default(die_on_error, false).
+ flag_default(disable_graceful_resume_on_unexpected_error, false).
 
  process_request(Request_format, Request_data_uri_base, File_Paths) :-
-	(	current_prolog_flag(die_on_error, true)
+	(	current_prolog_flag(disable_graceful_resume_on_unexpected_error, true)
 	->	(
 			process_multifile_request(Request_format, Request_data_uri_base, File_Paths),
 			Exception = none

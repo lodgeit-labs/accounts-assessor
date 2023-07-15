@@ -1,5 +1,5 @@
 {
-	"DONT_GTRACE" : true,
-	"DIE_ON_ERROR" : false,
+	"DONT_GTRACE" : false,
+	"DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR" : true,
 	"DEBUG" : true
 }

@@ -12,6 +12,6 @@ last_request_host_path = tmp_volume_data_path + os.path.split(os.readlink(tmp_vo
 #os.environ.setdefault('AGRAPH_SECRET_HOST', 'localhost')
 #os.environ.setdefault('AGRAPH_SECRET_PORT', '10035')
 
-os.system("""/usr/bin/time  env SERVICES_URL="http://localhost:17788" PYTHONUNBUFFERED=1 ../sources/workers/invoke_rpc_cmdline.py --debug true --halt true -s "http://localhost:7788"  --prolog_flags "set_prolog_flag(die_on_error,false)" 
+os.system("""/usr/bin/time  env SERVICES_URL="http://localhost:17788" PYTHONUNBUFFERED=1 ../sources/workers/invoke_rpc_cmdline.py --debug true --halt true -s "http://localhost:7788"  --prolog_flags "set_prolog_flag(disable_graceful_resume_on_unexpected_error,false)" 
 --dev_runner_options="" """ + last_request_host_path)
 

@@ -24,14 +24,14 @@ testcase(Params) :-
 	member(Mode, ['remote', 'subprocess']),
 
 	(	Mode == 'subprocess'
-	->	member(Die_on_error, [true, false])
-	;	/*Die_on_error = na*/true),
+	->	member(Disable_graceful_resume_on_unexpected_error, [true, false])
+	;	/*Disable_graceful_resume_on_unexpected_error = na*/true),
 
 	Params = [
 		type=robust_endpoint_test,
 		testcase=Testcase,
 		mode=Mode,
-		die_on_error=Die_on_error,
+		disable_graceful_resume_on_unexpected_error=Disable_graceful_resume_on_unexpected_error,
 		priority=0
 		/*
 		alter dates, try different st count limits? this could be declared in the testcase directory in a json or pl file
