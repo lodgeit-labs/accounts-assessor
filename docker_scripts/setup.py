@@ -9,7 +9,8 @@ setup(
         'Click>=8',
         'pyyaml',
         'libtmux',
-        'docker'
+        'docker',
+        'fire'
 
     ],
     entry_points={
