@@ -26,6 +26,11 @@ def ccd(cmd, env):
 	e.update(env)
 	subprocess.check_call(cmd, env=e)
 
+def call(cmd, env):
+	e = os.environ.copy()
+	e.update(env)
+	subprocess.call(cmd, env=e)
+
 
 
 tmux_stuff = queue.SimpleQueue()
@@ -161,13 +166,30 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		django_args	= " --noreload"
 	else:
 		django_args	= ''
-	
+
+	hn = choices['use_host_network']
+	e = {
+		"PP": pp,
+		'DISPLAY':os.environ.get('DISPLAY', ''),
+		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
+		'REDIS_HOST':  'redis://localhost' if hn else 'redis://redis',
+		'AGRAPH_HOST': 'localhost' if hn else 'agraph',
+		'AGRAPH_PORT': '10035',
+		'REMOULADE_PG_URI': 'postgresql://remoulade@localhost:5432/remoulade' if hn else 'postgresql://remoulade@postgres:5432/remoulade',
+		'REMOULADE_API': 'http://localhost:5005' if hn else 'http://remoulade-api:5005',
+		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
+		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
+	}
+
 	stack_fn = generate_stack_file(port_postfix, public_url, choices)
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
 
+	compose_cmd = 'docker-compose -f ' + stack_fn + ' -p robust --compatibility '
+
 	if not offline:
-		os.system('docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility pull --ignore-pull-failures --include-deps ') # this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it) https://github.com/docker/compose#docker-compose-v2
+		# this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it) https://github.com/docker/compose#docker-compose-v2
+		call(ss(compose_cmd + ' pull --ignore-pull-failures --include-deps '), env=e)
 
 	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
 
@@ -186,35 +208,22 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 
 	shell('pwd')
 	shell('./lib/git_info.fish')
-	hn = choices['use_host_network']
-	e = {
-		"PP": pp,
-		'DISPLAY':os.environ.get('DISPLAY', ''),
-		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
-		'REDIS_HOST':  'redis://localhost' if hn else 'redis://redis',
-		'AGRAPH_HOST': 'localhost' if hn else 'agraph',
-		'AGRAPH_PORT': '10035',
-		'REMOULADE_PG_URI': 'postgresql://remoulade@localhost:5432/remoulade' if hn else 'postgresql://remoulade@postgres:5432/remoulade',
-		'REMOULADE_API': 'http://localhost:5005' if hn else 'http://remoulade-api:5005',
-		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
-		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
-	}
 
 	open('../generated_stack_files/build_done.flag', "w").write('1')
 
 	if compose:
-		cmd = 'docker-compose -f ' + stack_fn + ' -p robust --compatibility '
+
 
 		if stay_running:
 			import atexit
 			def shutdown():
-				ccd(ss(cmd + ' down  -t 999999 '), env=e)
+				ccd(ss(compose_cmd + ' down  -t 999999 '), env=e)
 			atexit.register(shutdown)
 
 		try:
-			threading.Thread(daemon=True, target = logtail, args = (cmd,)).start()
+			threading.Thread(daemon=True, target = logtail, args = (compose_cmd,)).start()
 			
-			ccd(ss(cmd + ' up --remove-orphans ' + ('' if stay_running else ' --detach')), env=e)
+			ccd(ss(compose_cmd + ' up --remove-orphans ' + ('' if stay_running else ' --detach')), env=e)
 		except subprocess.CalledProcessError:
 			ccd(ss('docker ps'), env={})
 
@@ -343,9 +352,10 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 			#v = v['deploy']
 			#if 'update_config' in v:
 			#	del v['update_config']
-			#if 'restart_policy' in v:
-			#	if 'delay' in v['restart_policy']:
-			#		del v['restart_policy']['delay']
+			if 'deploy' in v:
+				if 'restart_policy' in v['deploy']:
+					if 'delay' in v['deploy']['restart_policy']:
+						del v['deploy']['restart_policy']['delay']
 
 	for k,v in services.items():
 		if 'hostnet_ports' in v:
