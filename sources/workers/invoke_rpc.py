@@ -88,7 +88,7 @@ def call_prolog(
 	if debug == None:
 		debug = config.get('DEBUG', False)
 	dont_gtrace = os.getenv('DONT_GTRACE', config.get('DONT_GTRACE', False))
-	die_on_error = os.getenv('DIE_ON_ERROR', config.get('DIE_ON_ERROR', False))
+	disable_graceful_resume_on_unexpected_error = os.getenv('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', config.get('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', False))
 
 	logging.getLogger().info('msg:')
 	logging.getLogger().info(msg)
@@ -115,8 +115,8 @@ def call_prolog(
 		debug_goal += 'set_prolog_flag(gtrace,false),'
 	else:
 		debug_goal += 'guitracer,'
-	if die_on_error:
-		debug_goal += 'set_prolog_flag(die_on_error,true),'
+	if disable_graceful_resume_on_unexpected_error:
+		debug_goal += 'set_prolog_flag(disable_graceful_resume_on_unexpected_error,true),'
 	if halt:
 		halt_goal = ',halt'
 	else:

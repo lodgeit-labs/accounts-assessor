@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-import os,subprocess,time,shlex,logging,sys,threading,tempfile
+import os,subprocess,time,shlex,logging,sys,threading,tempfile,fire
 
 
 die = threading.Event()
@@ -9,7 +9,10 @@ failed = threading.Event()
 flag = '../generated_stack_files/build_done.flag'
 
 
-def run():
+
+#class Up():
+
+def run(terminal_cmd="", parallel_build=True, public_url = "http://localhost:8877"):
 
 	try:
 		os.unlink(flag)
@@ -18,18 +21,21 @@ def run():
 	t = threading.Thread(target=health_check)
 	t.start()
 	try:
-		cmd = shlex.split('./develop.sh --terminal_cmd "" --stay_running false --parallel_build true --public_url "http://robust10.local:8877"') + sys.argv[1:]
+		cmd = shlex.split('./develop.sh --stay_running false')
+		if terminal_cmd != True:
+		      cmd += ['--terminal_cmd', terminal_cmd]
+		cmd += ['--parallel_build', str(parallel_build), '--public_url', public_url]# + sys.argv[1:]
 		print(cmd)
 		subprocess.check_call(cmd)
 		print('okk..')
 	except:
 		die.set()
 		t.join()
-		sys.exit(1)	
+		sys.exit(1)
 
 	t.join()
 	sys.exit(0 if not failed.is_set() else 1)
-			
+
 
 
 def health_check():
@@ -60,5 +66,7 @@ def health_check():
 
 
 
-if __name__ == '__main__':
-	run()
+#if __name__ == '__main__':
+#	run()
+if __name__ == "__main__":
+	fire.Fire(run)

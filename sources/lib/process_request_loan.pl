@@ -1,5 +1,5 @@
 
-process_request_loan(Request_File, DOM) :-
+ process_request_loan(Request_File, DOM) :-
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
 	(xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3)->true;true),
@@ -40,7 +40,7 @@ process_request_loan(Request_File, DOM) :-
 % display_xml_loan_response/3
 % -------------------------------------------------------------------
 
-xml_loan_response(
+ xml_loan_response(
 	IncomeYear,
 	loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
 	LoanResponseXML
@@ -60,7 +60,7 @@ xml_loan_response(
 	   '</LoanSummary>\n'],
    LoanResponseXML).
 
-display_xml_loan_response(IncomeYear, LoanSummary) :-
+ display_xml_loan_response(IncomeYear, LoanSummary) :-
 	xml_loan_response(IncomeYear, LoanSummary, LoanResponseXML),
 
 	report_file_path(loc(file_name, 'response.xml'), Url, Path, _),
@@ -89,7 +89,7 @@ display_xml_loan_response(IncomeYear, LoanSummary) :-
 % convert_xpath_results/14 
 % -------------------------------------------------------------------
 
-convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
+ convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
 		      NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments
 ) :-
 	generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDate, NLoanRepayments),
@@ -100,18 +100,18 @@ convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDat
 	;	NPrincipalAmount = -1),
 	atom_number(Term, NTerm).
 
-generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDay, NLoanRepayments) :-
+ generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDay, NLoanRepayments) :-
 	generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear),
 	parse_date_into_absolute_days(LodgementDate, NLodgementDay),
 	generate_absolute_day(loan_repayments, LoanRepayments, NLoanRepayments).
      
-generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear) :-
+ generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear) :-
 	atom_number(CreationIncomeYear, CreationIncomeYearNumber),
 	absolute_day(date(CreationIncomeYearNumber, 7, 1), NCreationIncomeYear).
 
-generate_absolute_day(loan_repayments, [], []).
+ generate_absolute_day(loan_repayments, [], []).
 
-generate_absolute_day(loan_repayments, [loan_repayment(Date, Value)|Rest1], [loan_repayment(NDate, NValue)|Rest2]) :-
+ generate_absolute_day(loan_repayments, [loan_repayment(Date, Value)|Rest1], [loan_repayment(NDate, NValue)|Rest2]) :-
 	parse_date_into_absolute_days(Date, NDate),
 	atom_number(Value, NValue),
 	generate_absolute_day(loan_repayments, Rest1, Rest2).
@@ -121,7 +121,7 @@ generate_absolute_day(loan_repayments, [loan_repayment(Date, Value)|Rest1], [loa
 % compute_opening_balance/2
 % ----------------------------------------------------------------------
 
-compute_opening_balance(OpeningBalance, NOpeningBalance) :-
+ compute_opening_balance(OpeningBalance, NOpeningBalance) :-
 	(	OpeningBalance = -1
 	->	NOpeningBalance = false
 	;	atom_number(OpeningBalance, NOpeningBalance)).
@@ -133,7 +133,7 @@ compute_opening_balance(OpeningBalance, NOpeningBalance) :-
 %	- ConstructLoanAgreement function (PrologEngpoint/LoanController.cs)
 % ----------------------------------------------------------------------
 
-calculate_computation_year(ComputationYear, CreationIncomeYear, NComputationYear) :-
+ calculate_computation_year(ComputationYear, CreationIncomeYear, NComputationYear) :-
 	atom_number(ComputationYear, NCY),
 	atom_number(CreationIncomeYear, NCIY),
 	NComputationYear is NCY - NCIY - 1.

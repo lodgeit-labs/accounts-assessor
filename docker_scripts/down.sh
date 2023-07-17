@@ -7,4 +7,4 @@ set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
 
 . venv/bin/activate.fish ;_
 
-docker_scripts/venv/bin/docker-compose  -f generated_stack_files/last.yml -p robust --compatibility down
+docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility down

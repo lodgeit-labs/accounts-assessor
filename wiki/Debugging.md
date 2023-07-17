@@ -6,9 +6,9 @@ http://localhost:9000
 * for debugging docker/containers
 * not part of the stack, but recommended to spin up separately
 
-
 ## RabbitMQ console
 http://localhost:15672
+* guest / guest (RABBITMQ_DEFAULT_USER and RABBITMQ_DEFAULT_PASS...)
 * monitor all messagess and queues
 
 ## superbowl
@@ -19,6 +19,10 @@ http://localhost:1238/
 http://0.0.0.0:10035/#
 * secrets/AGRAPH_SUPER_USER, secrets/AGRAPH_SUPER_PASSWORD
 
+## test runner (luigi)
+http://localhost:8082/
+
+
 ..
 
 # general
@@ -28,7 +32,7 @@ http://0.0.0.0:10035/#
 
 # debugging checklist:
 
-## `./run.sh` flags:
+## `robust run` flags:
 	
 * `--mount_host_sources_dir true` - this ensures that all source etc directories are mounted rather than copied. This means that you can always just modify any prolog source file and re-run a request.
 	
@@ -37,9 +41,9 @@ http://0.0.0.0:10035/#
 ## exceptions
 there are two general cases:
 * our code calls `throw_string`/`throw_value`. `DONT_GTRACE` and `DISPLAY` applies.
-* something else throws an exception, like a division by zero: `DIE_ON_ERROR` controls if it gets converted into an alert or caught by swipl toplevel, possibly causing gtrace to be invoked.
+* something else throws an exception, like a division by zero: `DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR` controls if it gets converted into an alert or caught by swipl toplevel, possibly causing gtrace to be invoked.
 
-not sure if, at this point, it still makes sense to have the option to invoke gtrace in `throw_string`, as opposed to having it just throw the exception, and letting it propagate like "normal" exceptions do, controlled by `DIE_ON_ERROR`.   
+not sure if, at this point, it still makes sense to have the option to invoke gtrace in `throw_string`, as opposed to having it just throw the exception, and letting it propagate like "normal" exceptions do, controlled by `DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR`.   
 
 
 ## `sources/config/worker_config.json`:
@@ -53,7 +57,7 @@ If unset:
 
 * "DONT_GTRACE" : invoke (gui)tracer when throw_string is called? (if $DISPLAY is available)
     
-* "DIE_ON_ERROR" : 
+* "DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR" : 
 		* true: let exceptions propagate so that gtrace pops up
 		* false: catch exceptions and convert them into alerts
 
@@ -62,7 +66,7 @@ If unset:
 
 configuration: `sources/swipl/xpce/Defaults`: adjust font size as needed.
 
-gtrace is useful, although it gets confused often. In some swipl versions it's better than in others.
+gtrace is useful, although it gets confused often. In some swipl versions it's better than in others. Swipl also seems to hang for a long time after aborting out of gtrace lately.
 * https://github.com/SWI-Prolog/swipl-devel/issues/757
 * https://github.com/SWI-Prolog/swipl-devel/issues/774
 
@@ -72,7 +76,7 @@ gtrace is enabled by running 'guitracer'. Robust does this if 'have_display' suc
 	
 take care of prolog 'debug' flag. This is set by '--debug' parameter on swipl command line. It's set to true when running requests on the command line (`invoke_rpc_cmdline.py`), but not when running in the webserver. 
 	
-if 'guitracer' was previously invoked, 'gtrace' will kick in when the repl catches an uncaught exception. Unfortunately, 'process_request' catches exceptions to produce alerts and return response to client instead. This means that normal exceptions (not thrown with `throw_string`) in Robust code dont cause gtrace to run - unless you set the debugging flag 'die_on_error'. But it could be done with prolog_exception_hook, which we already use anyway.
+if 'guitracer' was previously invoked, 'gtrace' will kick in when the repl catches an uncaught exception. Unfortunately, 'process_request' catches exceptions to produce alerts and return response to client instead. This means that normal exceptions (not thrown with `throw_string`) in Robust code dont cause gtrace to run - unless you set the debugging flag 'disable_graceful_resume_on_unexpected_error'. But it could be done with prolog_exception_hook, which we already use anyway.
 
 ```Failed to connect to X-server at `:0.0 ```: This is a permission error, because docker is running under different user. Run `xhost +local:docker` to fix this for a session.
 

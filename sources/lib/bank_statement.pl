@@ -68,7 +68,7 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	),
 
 
-	(	current_prolog_flag(die_on_error, true)
+	(	current_prolog_flag(disable_graceful_resume_on_unexpected_error, true)
 	->	(
 			call(Item_goal),
 			pop_context,

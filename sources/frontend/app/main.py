@@ -168,6 +168,8 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	"""
 	This endpoint is for running IC on a file that is already on the internet ("by reference").
 	"""
+	# todo, we should probably instead implement this as a part of "preprocessing" the uploaded content, that is, there'd be a "reference" type of "uploaded file", and the referenced url should then also be retrieved in a unified way along with retrieving for example xbrl taxonomies referenced by xbrl files.
+
 	# is this a onedrive url? 
 	if urllib.parse.urlparse(fileurl).netloc.endswith("db.files.1drv.com"):
 
@@ -205,7 +207,7 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 
 
 def process_request(request_tmp_directory_name, files, request_format, requested_output_format):
-	files = list(map(convert_request_file, files))
+	files = list(filter(None, map(convert_request_file, files)))
 	
 	server_url=os.environ['PUBLIC_URL']
 	job = call_prolog_calculator.call_prolog_calculator(
@@ -260,6 +262,8 @@ def save_uploaded_file(tmp_directory_path, src):
 
 
 def convert_request_file(file):
+	if file == 'custom_job_metadata.json':
+		return None
 	if file.lower().endswith('.xlsx'):
 		to_be_processed = file + '.n3'
 		convert_excel_to_rdf(file, to_be_processed)
