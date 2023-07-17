@@ -138,22 +138,47 @@ class Evaluation(luigi.Task):
 
 	def run(self):
 
-		o: luigi.LocalTarget = self.output()['outputs']
-		P(o.path).mkdir(parents=True, exist_ok=True)
+		# job info / response json sent by robust api
+		job_fn = P(self.input().path)
+		job = json.load(open(job_fn))
 
-		job = json.load(open(P(self.input().path)))
-		delta = []
+		# directory where we'll download reports that we want to analyze
+		results: luigi.LocalTarget = self.output()['outputs']
+		P(results.path).mkdir(parents=True, exist_ok=True)
 
-		if job['status'] != 'Success':
-			delta.append("""job['status'] != 'Success'""")
-		else:
+		# judiciously picked list of interesting differences between expected and actual results
+		delta:list[dict] = []
+
+		def check_job_json():
+			job_expected_fn = P(self.test['suite']) / 'responses' / 'job.json'
+			overwrite_job_json_op = {"op": "cp", "src": self.input().path, "dst": job_expected_fn}
+			try:
+				job_expected = json.load(open(job_expected_fn))
+			except FileNotFoundError:
+				delta.append({
+					"msg":"job.json is missing in testcase",
+					"fix": overwrite_job_json_op
+				})
+			else:
+				if job['status'] != job_expected['status']:
+					delta.append({
+						"msg":"job['status'] differs",# + ": " + jsondiffstr(job['status'] != job_expected['status'])
+						"fix": [overwrite_job_json_op]
+					})
+
+
+		check_job_json()
+
+
+		reports = []
+		if job['status'] == 'Success':
 			result = job['result']
 			if type(result) != dict or 'reports' not in result:
 				delta.append("""type(result) != dict or 'reports' not in result""")
 			else:
 				reports = result['reports']
 
-				with o.temporary_path() as tmp:
+				with results.temporary_path() as tmp:
 					alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
 
 				alerts_expected = json.load(open(P(self.test['suite']) / 'responses' / 'alerts_json.json'))

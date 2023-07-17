@@ -141,8 +141,8 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 async def views_limbo(request: Request, job_id: str):
 	job = await get_task(job_id)
 	if job is not None:
-		if job['status'] == 'Success' and 'reports' in job['result'].get('result',{}):
-			return RedirectResponse(find_report_by_key(job['result']['result']['reports'], 'task_directory'))
+		if job['status'] == 'Success' and 'reports' in job['result']:
+			return RedirectResponse(find_report_by_key(job['result']['reports'], 'task_directory'))
 		else:
 			# it turns out that failures are not permanent
 			return templates.TemplateResponse("job.html", {"request": request, "job_id": job_id, "json": json.dumps(job, indent=4, sort_keys=True), "refresh": (job['status'] not in [ 'Success']), 'status': job['status']})
@@ -157,9 +157,12 @@ async def get_task(id: str):
 	message = r.json()
 	if message['actor_name'] not in ["call_prolog_calculator2"]:
 		return None
+
+	# a dict with either result or error key (i think...)
 	message['result'] = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id).json()
+
 	if 'result' in message['result']:
-		message['result']['result'] = json.loads(message['result']['result'])
+		message['result'] = json.loads(message['result']['result'])
 	return message
 
 
