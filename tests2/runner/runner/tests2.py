@@ -136,6 +136,9 @@ class Evaluation(luigi.Task):
 		return AsyncComputationResult(self.test)
 
 
+	def reportlist_from_saved_responses_directory(self, path):
+		return [{'fn' : f} for f in P(path).glob('*')]
+
 	def run(self):
 
 		# job info / response json sent by robust api
@@ -149,25 +152,38 @@ class Evaluation(luigi.Task):
 		# judiciously picked list of interesting differences between expected and actual results
 		delta:list[dict] = []
 
-		def check_job_json():
-			job_expected_fn = P(self.test['suite']) / 'responses' / 'job.json'
-			overwrite_job_json_op = {"op": "cp", "src": self.input().path, "dst": job_expected_fn}
-			try:
-				job_expected = json.load(open(job_expected_fn))
-			except FileNotFoundError:
+		job_expected_fn = P(self.test['suite']) / 'responses' / 'job.json'
+		overwrite_job_json_op = {"op": "cp", "src": self.input().path, "dst": job_expected_fn}
+		jobfile_missing_delta = None
+		try:
+			job_expected = json.load(open(job_expected_fn))
+		except FileNotFoundError:
+			jobfile_missing_delta = {
+							"msg":"job.json is missing in testcase",
+							"fix": overwrite_job_json_op
+						}
+			delta.append(jobfile_missing_delta)
+			reports = self.reportlist_from_saved_responses_directory(results.path)
+		else:
+			if job['status'] != job_expected['status']:
 				delta.append({
-					"msg":"job.json is missing in testcase",
-					"fix": overwrite_job_json_op
+					"msg":"job['status'] differs",# + ": " + jsondiffstr(job['status'] != job_expected['status'])
+					"fix": [overwrite_job_json_op]
 				})
-			else:
-				if job['status'] != job_expected['status']:
-					delta.append({
-						"msg":"job['status'] differs",# + ": " + jsondiffstr(job['status'] != job_expected['status'])
-						"fix": [overwrite_job_json_op]
-					})
+			if job_expected['status'] == 'Success':
+				reports = job['result']['reports']
 
 
-		check_job_json()
+
+		job_expected_fn = P(self.test['suite']) / 'responses' / 'job.json'
+
+		expected_reports = for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
+
+		for r in expected_reports:
+			
+
+
+
 
 
 		reports = []
@@ -177,6 +193,8 @@ class Evaluation(luigi.Task):
 				delta.append("""type(result) != dict or 'reports' not in result""")
 			else:
 				reports = result['reports']
+
+
 
 				with results.temporary_path() as tmp:
 					alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
