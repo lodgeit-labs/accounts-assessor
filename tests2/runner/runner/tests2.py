@@ -179,10 +179,19 @@ class Evaluation(luigi.Task):
 
 		expected_reports = for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
 
+
+		reports_to_compare = []
+
 		for r in expected_reports:
-			
-
-
+			fn = r['fn']
+			received_report = find_report_by_key(reports, 'fn', fn)
+			if received_report is None:
+				delta.append({
+					"msg": f"report {fn} is missing in testcase",
+					"fix": {"op": "cp", "src": fn, "dst": results.path}
+				})
+			else:
+				reports_to_compare.append({'expected_fn': fn, 'received_url': received_report['url']})
 
 
 
