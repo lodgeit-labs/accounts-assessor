@@ -34,6 +34,8 @@
 	doc_add(Result_uri, rdf:type, l:'Result'),
 	doc_add(Result_uri, l:has_result_data_uri_base, Result_data_uri_base),
 	doc_add(Result_uri, l:has_job_handle, Dict.final_result_tmp_directory_name),
+	doc_add(Result_uri, l:request_tmp_directory_name, Dict.request_tmp_directory_name),
+
 	set_server_public_url(Dict.server_url),
 
 	findall(

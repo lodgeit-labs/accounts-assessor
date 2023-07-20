@@ -136,25 +136,29 @@ class Evaluation(luigi.Task):
 		return AsyncComputationResult(self.test)
 
 
-	def reportlist_from_saved_responses_directory(self, path):
-		return [{'fn' : f} for f in P(path).glob('*')]
 
 	def run(self):
+
+		# judiciously picked list of interesting differences between expected and actual results
+		delta:list[dict] = []
 
 		# job info / response json sent by robust api
 		job_fn = P(self.input().path)
 		job = json.load(open(job_fn))
 
+		def done():
+			with self.output()['evaluation'].open('w') as out:
+				json.dump({'test':dict(self.test), 'job': job, 'delta':delta}, out, indent=4, sort_keys=True)
+
+
 		# directory where we'll download reports that we want to analyze
 		results: luigi.LocalTarget = self.output()['outputs']
 		P(results.path).mkdir(parents=True, exist_ok=True)
 
-		# judiciously picked list of interesting differences between expected and actual results
-		delta:list[dict] = []
 
 		job_expected_fn = P(self.test['suite']) / 'responses' / 'job.json'
 		overwrite_job_json_op = {"op": "cp", "src": self.input().path, "dst": job_expected_fn}
-		jobfile_missing_delta = None
+
 		try:
 			job_expected = json.load(open(job_expected_fn))
 		except FileNotFoundError:
@@ -163,15 +167,34 @@ class Evaluation(luigi.Task):
 							"fix": overwrite_job_json_op
 						}
 			delta.append(jobfile_missing_delta)
-			reports = self.reportlist_from_saved_responses_directory(results.path)
-		else:
-			if job['status'] != job_expected['status']:
+			return done()
+
+		if job['status'] != job_expected['status']:
+			delta.append({
+				"msg":"job['status'] differs",# + ": " + jsondiffstr(job['status'] != job_expected['status'])
+				"fix": [overwrite_job_json_op]
+			})
+			return done()
+
+
+		saved_reports = [{'fn':fn} for fn in glob()]
+
+
+		if job['status'] != 'Success':
+			if saved_reports != []:
 				delta.append({
-					"msg":"job['status'] differs",# + ": " + jsondiffstr(job['status'] != job_expected['status'])
-					"fix": [overwrite_job_json_op]
+					"msg":"extraneous saved report files in a testcase that should fail"
 				})
-			if job_expected['status'] == 'Success':
-				reports = job['result']['reports']
+				return done()
+
+
+
+
+
+		if job_expected['status'] == 'Success':
+			reports = job['result']['reports']
+		else:
+			reports = []
 
 
 
@@ -213,8 +236,6 @@ class Evaluation(luigi.Task):
 				if alerts_expected != alerts_got:
 					delta.append("""alerts_expected != alerts_got""")
 
-		with self.output()['evaluation'].open('w') as out:
-			json.dump({'test':dict(self.test), 'job': job, 'delta':delta}, out, indent=4, sort_keys=True)
 
 
 	def output(self):
