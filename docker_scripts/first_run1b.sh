@@ -1,7 +1,7 @@
 #!/usr/bin/env fish
 function _; or status --is-interactive; or exit 1; end
 
-python3.10 -m venv venv ;_
+python3 -m venv venv ;_
 function _old_fish_prompt; end; # https://github.com/python/cpython/issues/93858 ?
 . venv/bin/activate.fish ;_
 
