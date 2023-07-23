@@ -198,7 +198,6 @@ class Evaluation(luigi.Task):
 
 
 
-		job_expected_fn = P(self.test['suite']) / 'responses' / 'job.json'
 
 		expected_reports = for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
 
