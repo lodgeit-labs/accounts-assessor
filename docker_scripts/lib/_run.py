@@ -21,7 +21,8 @@ ss = shlex.split
 
 
 def ccd(cmd, env):
-	logging.getLogger().info(' '.join([f'{k}={(v).__repr__()} \\\n' for k,v in env.items()]) + shlex.join(cmd))
+	eee = ' '.join([f'{k}={(v).__repr__()}' for k,v in env.items()]) + '\\\n' + shlex.join(cmd)
+	logging.getLogger().info(eee)
 	e = os.environ.copy()
 	e.update(env)
 	subprocess.check_call(cmd, env=e)
