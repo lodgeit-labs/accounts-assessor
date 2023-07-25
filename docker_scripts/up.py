@@ -18,7 +18,7 @@ def run(terminal_cmd="", parallel_build=True, public_url = "http://localhost:887
 		os.unlink(flag)
 	except:
 		pass
-	t = threading.Thread(target=health_check)
+	t = threading.Thread(target=health_check, args=(public_url,))
 	t.start()
 	try:
 		cmd = shlex.split('./develop.sh --stay_running false')
@@ -38,7 +38,7 @@ def run(terminal_cmd="", parallel_build=True, public_url = "http://localhost:887
 
 
 
-def health_check():
+def health_check(public_url):
 
 	while not die.is_set():
 		try:
@@ -56,7 +56,7 @@ def health_check():
 
 	try:
 		print('health_check...')
-		subprocess.check_call(shlex.split("""curl  --trace-time --trace-ascii - --retry-connrefused  --retry-delay 10 --retry 10 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' http://localhost:7788/health_check"""))
+		subprocess.check_call(shlex.split(f"""curl  --trace-time --trace-ascii - --retry-connrefused  --retry-delay 10 --retry 10 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' {public_url}/health_check"""))
 		print('healthcheck ok')
 		
 	except Exception as e:

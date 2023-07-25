@@ -169,71 +169,69 @@ class Evaluation(luigi.Task):
 			delta.append(jobfile_missing_delta)
 			return done()
 
-		if job['status'] != job_expected['status']:
-			delta.append({
-				"msg":"job['status'] differs",# + ": " + jsondiffstr(job['status'] != job_expected['status'])
-				"fix": [overwrite_job_json_op]
-			})
-			return done()
 
-
-		saved_reports = [{'fn':fn} for fn in glob()]
-
-
-		if job['status'] != 'Success':
-			if saved_reports != []:
-				delta.append({
-					"msg":"extraneous saved report files in a testcase that should fail"
-				})
-				return done()
-
-
-
-
-
-		if job_expected['status'] == 'Success':
-			reports = job['result']['reports']
-		else:
-			reports = []
-
-
-
-
-		expected_reports = for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
-
-
-		reports_to_compare = []
-
-		for r in expected_reports:
-			fn = r['fn']
-			received_report = find_report_by_key(reports, 'fn', fn)
-			if received_report is None:
-				delta.append({
-					"msg": f"report {fn} is missing in testcase",
-					"fix": {"op": "cp", "src": fn, "dst": results.path}
-				})
-			else:
-				reports_to_compare.append({'expected_fn': fn, 'received_url': received_report['url']})
-
-
-
-		reports = []
-		if job['status'] == 'Success':
-			result = job['result']
-			if type(result) != dict or 'reports' not in result:
-				delta.append("""type(result) != dict or 'reports' not in result""")
-			else:
-				reports = result['reports']
-
-
-
-				with results.temporary_path() as tmp:
-					alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
-
-				alerts_expected = json.load(open(P(self.test['suite']) / 'responses' / 'alerts_json.json'))
-
-				if alerts_expected != alerts_got:
-					delta.append("""alerts_expected != alerts_got""")
+		# if job['status'] != job_expected['status']:
+		# 	delta.append({
+		# 		"msg":"job['status'] differs",# + ": " + jsondiffstr(job['status'] != job_expected['status'])
+		# 		"fix": [overwrite_job_json_op]
+		# 	})
+		# 	return done()
+		#
+		#
+		# saved_reports = [{'fn':fn} for fn in glob()]
+		#
+		#
+		# if job['status'] != 'Success':
+		# 	if saved_reports != []:
+		# 		delta.append({
+		# 			"msg":"extraneous saved report files in a testcase that should fail"
+		# 		})
+		# 		return done()
+		#
+		#
+		#
+		# if job_expected['status'] == 'Success':
+		# 	reports = job['result']['reports']
+		# else:
+		# 	reports = []
+		#
+		#
+		#
+		# expected_reports = for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
+		#
+		#
+		# reports_to_compare = []
+		#
+		# for r in expected_reports:
+		# 	fn = r['fn']
+		# 	received_report = find_report_by_key(reports, 'fn', fn)
+		# 	if received_report is None:
+		# 		delta.append({
+		# 			"msg": f"report {fn} is missing in testcase",
+		# 			"fix": {"op": "cp", "src": fn, "dst": results.path}
+		# 		})
+		# 	else:
+		# 		reports_to_compare.append({'expected_fn': fn, 'received_url': received_report['url']})
+		#
+		#
+		#
+		# reports = []
+		# if job['status'] == 'Success':
+		# 	result = job['result']
+		# 	if type(result) != dict or 'reports' not in result:
+		# 		delta.append("""type(result) != dict or 'reports' not in result""")
+		# 	else:
+		# 		reports = result['reports']
+		#
+		#
+		#
+		# 		with results.temporary_path() as tmp:
+		# 			alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
+		#
+		# 		alerts_expected = json.load(open(P(self.test['suite']) / 'responses' / 'alerts_json.json'))
+		#
+		# 		if alerts_expected != alerts_got:
+		# 			delta.append("""alerts_expected != alerts_got""")
 
 
 

@@ -107,7 +107,7 @@ services:
       frontend: # workers don't have a good way to healthcheck. So instead of sequencing other containers after workers, we sequence workers after everything else. Theres a small risk of a deadlock if we run frontend with no parallelism (only makes sense for debugging) and somebody comes along and makes a request just before the healthcheck is about to make a request. And users running synchronous requests could experience timeouts when the stack is starting up.
         condition: service_healthy
     deploy:
-      replicas: 2
+      replicas: 1
       placement:
         constraints: [node.role == manager]
       restart_policy:
