@@ -8,6 +8,7 @@ from os import listdir, makedirs
 from os.path import isfile, join
 import ntpath
 import shlex
+from pathlib import Path as P
 
 def files_in_dir(dir):
 	result = []
@@ -95,10 +96,12 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 
 
 def dirs_fixup():
-	for d in robust_testcase_dirs('../../tests2/endpoint_tests/'):
-		makedirs(str(d / 'request'), exist_ok=True)
-		for file in listfiles(str(d)):
+	suite = P('../../tests2/endpoint_tests/')
+	for d in robust_testcase_dirs(suite):
+		print(d)
+		makedirs(str(suite / d / 'request'), exist_ok=True)
+		for file in listfiles(suite / d):
 			os.rename(file, str(d / 'request' / file))
 
 def listfiles(path):
-	return list(filter(lambda x: not pathlib.Path(x).is_dir(), glob.glob(path + '/*')))
+	return list(filter(lambda x: not P(x).is_dir(), glob.glob(str(path) + '/*')))
