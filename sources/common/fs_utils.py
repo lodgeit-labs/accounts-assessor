@@ -98,10 +98,15 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 def dirs_fixup():
 	suite = P('../../tests2/endpoint_tests/')
 	for d in robust_testcase_dirs(suite):
-		print(d)
-		makedirs(str(suite / d / 'request'), exist_ok=True)
+		print(f'testcase:{d}')
+		newdir = str(suite / d / 'request')
+		print(f'newdir: {newdir}')
+		makedirs(newdir, exist_ok=True)
 		for file in listfiles(suite / d):
-			os.rename(file, str(d / 'request' / os.path.basename(file)))
+			print(f'request file:{file}')
+			tgt = str(d / 'request' / os.path.basename(file))
+			print(f'tgt:{tgt}')
+			os.rename(file, tgt)
 
 
 def listfiles(path) -> P:
