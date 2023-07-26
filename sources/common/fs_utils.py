@@ -101,7 +101,11 @@ def dirs_fixup():
 		print(d)
 		makedirs(str(suite / d / 'request'), exist_ok=True)
 		for file in listfiles(suite / d):
-			os.rename(file, str(d / 'request' / file))
+			os.rename(file, str(d / 'request' / os.path.basename(file)))
 
-def listfiles(path):
-	return list(filter(lambda x: not P(x).is_dir(), glob.glob(str(path) + '/*')))
+
+def listfiles(path) -> P:
+	for f in glob.glob(str(path) + '/*'):
+		f = P(f)
+		if not f.is_dir():
+			yield f
