@@ -104,7 +104,7 @@ def dirs_fixup():
 		makedirs(newdir, exist_ok=True)
 		for file in listfiles(suite / d):
 			print(f'request file:{file}')
-			tgt = str(d / 'request' / os.path.basename(file))
+			tgt = str(suite / d / 'request' / os.path.basename(file))
 			print(f'tgt:{tgt}')
 			os.rename(file, tgt)
 
