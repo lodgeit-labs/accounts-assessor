@@ -546,10 +546,11 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 				dockerfile=dockerfile
 			))
 
-	dbptks = 'docker build ' + ('' if offline else '--pull') + ' -t "koo5/{service_name}'
+	pull = '' if offline else '--pull '
+	dbptks = f'docker build {pull} -t "koo5/{{service_name}}'
 	dbtks = 'docker build -t "koo5/{service_name}'
 
-	ubuntu = task('ubuntu', 'ubuntu', 'docker build --pull -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
+	ubuntu = task('ubuntu', 'ubuntu', f'docker build {pull} -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
 
 	svc('apache', 		  'apache', 						dbptks+'{port_postfix}"', 	"Dockerfile")
 	svc('agraph', 		  'agraph', 						dbptks+'{port_postfix}"', 	"Dockerfile")

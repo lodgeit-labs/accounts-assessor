@@ -12,7 +12,7 @@ flag = '../generated_stack_files/build_done.flag'
 
 #class Up():
 
-def run(terminal_cmd="", parallel_build=True, public_url = "http://localhost:8877"):
+def run(terminal_cmd="", parallel_build=True, public_url = "http://localhost:8877", offline=False):
 
 	try:
 		os.unlink(flag)
@@ -24,7 +24,7 @@ def run(terminal_cmd="", parallel_build=True, public_url = "http://localhost:887
 		cmd = shlex.split('./develop.sh --stay_running false')
 		if terminal_cmd != True:
 		      cmd += ['--terminal_cmd', terminal_cmd]
-		cmd += ['--parallel_build', str(parallel_build), '--public_url', public_url]# + sys.argv[1:]
+		cmd += ['--parallel_build', str(parallel_build), '--public_url', public_url, '--offline', str(offline)]# + sys.argv[1:]
 		print(cmd)
 		subprocess.check_call(cmd)
 		print('okk..')

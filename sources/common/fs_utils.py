@@ -1,8 +1,10 @@
 """
 general-purpose filesystem utilities
 """
+import glob
 import os.path, sys
-from os import listdir
+import pathlib
+from os import listdir, makedirs
 from os.path import isfile, join
 import ntpath
 import shlex
@@ -82,3 +84,21 @@ def find_report_by_key(reports, name):
 		if i['key'] == name:
 			return i['val']['url']
 
+
+def robust_testcase_dirs(suite='.', dirglob=''):
+	dirs0 = [pathlib.Path(x) for x in sorted(glob.glob('**/' + dirglob, root_dir=suite, recursive=True))]
+	# filterr out 'responses' dirs
+	dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
+	# fitler out non-leaf dirs
+	dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
+	return dirs2
+
+
+def dirs_fixup():
+	for d in robust_testcase_dirs('../../tests2/endpoint_tests/'):
+		makedirs(str(d / 'request'), exist_ok=True)
+		for file in listfiles(str(d)):
+			os.rename(file, str(d / 'request' / file))
+
+def listfiles(path):
+	return list(filter(lambda x: not pathlib.Path(x).is_dir(), glob.glob(path + '/*')))

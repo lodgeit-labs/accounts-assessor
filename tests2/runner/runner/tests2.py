@@ -10,6 +10,7 @@ import pathlib
 from pathlib import Path as P
 import sys,os
 from urllib.parse import urlparse
+import fs_utils
 
 #print(sys.path)
 #print(os.path.dirname(__file__))
@@ -157,7 +158,7 @@ class Evaluation(luigi.Task):
 
 
 		job_expected_fn = P(self.test['suite']) / 'responses' / 'job.json'
-		overwrite_job_json_op = {"op": "cp", "src": self.input().path, "dst": job_expected_fn}
+		overwrite_job_json_op = {"op": "cp", "src": str(self.input().path), "dst": str(job_expected_fn)}
 
 		try:
 			job_expected = json.load(open(job_expected_fn))
@@ -262,12 +263,7 @@ class Permutations(luigi.Task):
 
 
 	def robust_testcase_dirs(self):
-		dirs0 = [P(x) for x in sorted(glob.glob('**/' + self.dirglob, root_dir=self.suite, recursive=True))]
-		dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
-		dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
-		if dirs2 == []:
-			return ['.'] # is this supposed to be self.suite instead?
-		return dirs2
+		 return fs_utils.robust_testcase_dirs(self.suite, self.dirglob)
 
 
 	def required_evaluations(self):
