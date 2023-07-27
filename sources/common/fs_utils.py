@@ -89,26 +89,30 @@ def find_report_by_key(reports, name):
 def robust_testcase_dirs(suite='.', dirglob=''):
 	dirs0 = [pathlib.Path(x) for x in sorted(glob.glob(root_dir=suite, pathname='**/' + dirglob, recursive=True))]
 	# filterr out 'responses' dirs
-	dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
+	#dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
 	# fitler out non-leaf dirs
-	dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
-	return dirs2
+	#dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
+
+	for d in dirs0:
+		if glob.glob(root_dir=suite, pathname=d + '/request/*') != []:
+			yield d
+	#return dirs2
 
 
 
-def dirs_fixup():
-	"""walk testcase dirs and do some stuff"""
-	suite = P('../../tests2/endpoint_tests/')
-	for d in robust_testcase_dirs(suite):
-		print(f'testcase:{d}')
-		newdir = str(suite / d / 'request')
-		print(f'newdir: {newdir}')
-		makedirs(newdir, exist_ok=True)
-		for file in listfiles(suite / d):
-			print(f'request file:{file}')
-			tgt = str(suite / d / 'request' / os.path.basename(file))
-			print(f'tgt:{tgt}')
-			os.rename(file, tgt)
+# def dirs_fixup():
+# 	"""walk testcase dirs and do some stuff"""
+# 	suite = P('../../tests2/endpoint_tests/')
+# 	for d in robust_testcase_dirs(suite):
+# 		print(f'testcase:{d}')
+# 		newdir = str(suite / d / 'request')
+# 		print(f'newdir: {newdir}')
+# 		makedirs(newdir, exist_ok=True)
+# 		for file in listfiles(suite / d):
+# 			print(f'request file:{file}')
+# 			tgt = str(suite / d / 'request' / os.path.basename(file))
+# 			print(f'tgt:{tgt}')
+# 			os.rename(file, tgt)
 
 
 def listfiles(path) -> P:

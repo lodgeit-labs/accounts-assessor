@@ -49,7 +49,7 @@ class AsyncComputationStart(luigi.Task):
 	def copy_inputs(self, request_files_dir):
 		files = []
 		input_file: pathlib.Path
-		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
+		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('request/*'))):
 			shutil.copyfile(input_file, request_files_dir / input_file.name)
 			files.append(request_files_dir / input_file.name)
 		return files
