@@ -10,13 +10,13 @@ import pathlib
 from pathlib import Path as P
 import sys,os
 from urllib.parse import urlparse
-import fs_utils
+
 
 #print(sys.path)
 #print(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
 from fs_utils import directory_files, find_report_by_key
-
+import fs_utils
 
 
 
@@ -70,7 +70,6 @@ class AsyncComputationStart(luigi.Task):
 
 		request_format = 'xml' if any([str(i).lower().endswith('xml') for i in inputs]) else 'rdf'
 
-
 		files = {}
 		for idx, input_file in enumerate(inputs):
 			files['file' + str(idx+1)] = open(inputs[idx])
@@ -84,6 +83,7 @@ class AsyncComputationStart(luigi.Task):
 		else:
 			resp.raise_for_status()
 
+		logging.getLogger('robust').debug('handle: ' + handle)
 		with self.output().open('w') as o:
 			o.write(handle)
 

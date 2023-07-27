@@ -87,7 +87,7 @@ def find_report_by_key(reports, name):
 
 
 def robust_testcase_dirs(suite='.', dirglob=''):
-	dirs0 = [pathlib.Path(x) for x in sorted(glob.glob('**/' + dirglob, root_dir=suite, recursive=True))]
+	dirs0 = [pathlib.Path(x) for x in sorted(glob.glob(root_dir=suite, pathname='**/' + dirglob, recursive=True))]
 	# filterr out 'responses' dirs
 	dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
 	# fitler out non-leaf dirs
@@ -95,7 +95,9 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 	return dirs2
 
 
+
 def dirs_fixup():
+	"""walk testcase dirs and do some stuff"""
 	suite = P('../../tests2/endpoint_tests/')
 	for d in robust_testcase_dirs(suite):
 		print(f'testcase:{d}')

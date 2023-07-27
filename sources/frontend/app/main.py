@@ -195,11 +195,9 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
 	
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
-	
-	files = filter(None, [file1, file2])
-	
+
 	files2=[] # list of local paths of uploaded files
-	for file in files:
+	for file in filter(None, [file1, file2]):
 		logger.info('uploaded: %s' % file)
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
 		files2.append(uploaded)
@@ -265,13 +263,16 @@ def save_uploaded_file(tmp_directory_path, src):
 
 
 def convert_request_file(file):
-	if file == 'custom_job_metadata.json':
+	logger.info('convert_request_file: %s' % file)
+
+	if file.endswith('/custom_job_metadata.json'):
 		return None
 	if file.lower().endswith('.xlsx'):
 		to_be_processed = file + '.n3'
 		convert_excel_to_rdf(file, to_be_processed)
 		return to_be_processed
-	return file
+	else:
+		return file
 
 
 def convert_excel_to_rdf(uploaded, to_be_processed):

@@ -87,7 +87,7 @@ def call_prolog(
 	# this one is a command-line parameter
 	if debug == None:
 		debug = config.get('DEBUG', False)
-	dont_gtrace = os.getenv('DONT_GTRACE', config.get('DONT_GTRACE', False))
+	DONT_GTRACE_ON_OWN_EXCEPTIONS = os.getenv('DONT_GTRACE_ON_OWN_EXCEPTIONS', config.get('DONT_GTRACE_ON_OWN_EXCEPTIONS', False))
 	disable_graceful_resume_on_unexpected_error = os.getenv('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', config.get('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', False))
 
 	logging.getLogger().info('msg:')
@@ -111,7 +111,7 @@ def call_prolog(
 	else:
 		dev_runner_debug_args = [['--debug', 'false']]
 		debug_goal = 'set_prolog_flag(debug,false),'
-	if dont_gtrace:
+	if DONT_GTRACE_ON_OWN_EXCEPTIONS:
 		debug_goal += 'set_prolog_flag(gtrace,false),'
 	else:
 		debug_goal += 'guitracer,'
