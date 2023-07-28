@@ -15,6 +15,5 @@ USER myuser
 COPY --chown=myuser:myuser  swipl/xpce/* /home/myuser/.config/swi-prolog/xpce/
 
 WORKDIR /app/sources/workers
-
 LABEL mode=full
 

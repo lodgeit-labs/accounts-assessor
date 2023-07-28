@@ -114,5 +114,9 @@ RUN chown myuser:myuser /app/server_root/
 USER myuser
 COPY init_prolog.sh .
 RUN ./init_prolog.sh
+
+ENV WATCHMEDO_INTERVAL=5
+ENV WATCHMEDO=true
+
 ENTRYPOINT ["/app/sources/workers/start.sh"]
 HEALTHCHECK CMD /bin/true

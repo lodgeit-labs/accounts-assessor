@@ -53,6 +53,9 @@ services:
       AGRAPH_HOST:
       AGRAPH_PORT:
       CSHARP_SERVICES_URL:
+      FLASK_DEBUG:
+      FLASK_ENV:
+      WATCHMEDO:
     #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by copying the dev one
     #  REQUIREMENTS_FILE: requirements.txt
     volumes:
@@ -90,6 +93,7 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
+      WATCHMEDO:
     volumes:
       - tmp:/app/server_root/tmp
       - cache:/app/cache
@@ -132,6 +136,9 @@ services:
     image: koo5/services${PP}:latest
     environment:
       RABBITMQ_URL:
+      FLASK_DEBUG:
+      FLASK_ENV:
+      WATCHMEDO:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -272,6 +279,7 @@ services:
     environment:
       SUPERBOWL_WEBSERVER_PORT: 1238
       REMOULADE_BACKEND_LOCATION: http://127.0.0.1:5005
+      WATCHMEDO:
     deploy:
       replicas: 1
       restart_policy:
@@ -294,6 +302,9 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
+      FLASK_DEBUG:
+      FLASK_ENV:
+      WATCHMEDO:
     deploy:
       replicas: 1
       restart_policy:

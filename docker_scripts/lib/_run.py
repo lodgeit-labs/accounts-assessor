@@ -65,13 +65,16 @@ def cli():
 @cli.command(
 	help="""deploy the docker compose/stack""",
 	context_settings=dict(
-    	ignore_unknown_options=True,
+		ignore_unknown_options=True,
 		show_default=True
     ))
 
 
 @click.option('-of', '--offline', 		type=bool, 	default=False,
 	help="don't use internet..")
+
+@click.option('-de', '--develop', 		type=bool, 	default=False,
+	help="Development and debugging mode. CPU-intensive.")
 
 @click.option('-sr', '--stay_running', 				type=bool, 	default=True,
 	help="keep the script running after the stack is brought up.")
@@ -163,12 +166,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	else:
 		hollow = 'full'
 	
-	if choices['django_noreload']:
-		django_args	= " --noreload"
-	else:
-		django_args	= ''
-
 	hn = choices['use_host_network']
+
 	e = {
 		"PP": pp,
 		'DISPLAY':os.environ.get('DISPLAY', ''),
@@ -181,6 +180,18 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
 		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
 	}
+
+	if choices['develop']:
+		pass
+	else:
+		e['FLASK_DEBUG'] = '0'
+		e['FLASK_ENV'] = 'production'
+		e['WATCHMEDO'] = ''
+	del choices['develop']
+
+	#for ch in choices.items()
+		#f'svcenv_{service}_{var}'
+
 
 	stack_fn = generate_stack_file(port_postfix, public_url, choices)
 	if rm_stack and not compose:

@@ -21,6 +21,12 @@ VOLUME /app/sources/
 USER myuser
 
 
+ENV FLASK_ENV=development
+ENV FLASK_DEBUG=1
+ENV PYTHONUNBUFFERED=1
+ENV WATCHMEDO_INTERVAL=5
+ENV WATCHMEDO=true
+
 
 WORKDIR /app/sources/frontend
 
