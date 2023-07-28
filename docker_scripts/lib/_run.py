@@ -180,6 +180,9 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
 		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
 	}
+	#
+	# if choices['display']:
+	# 	e['DISPLAY']' = os.environ.get('DISPLAY', '')
 
 	if choices['develop']:
 		pass

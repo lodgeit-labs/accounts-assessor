@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 #print(sys.path)
 #print(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sdk/common')))
 from fs_utils import directory_files, find_report_by_key
 import fs_utils
 
@@ -50,6 +51,9 @@ class AsyncComputationStart(luigi.Task):
 		files = []
 		input_file: pathlib.Path
 		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('request/*'))):
+			if input_file.endswith('/request.xml'):
+				request_rdf_file = request_files_dir / 'request.n3'
+				convert_ledger_xml_to_rdf(input_file, request_rdf_file)
 			shutil.copyfile(input_file, request_files_dir / input_file.name)
 			files.append(request_files_dir / input_file.name)
 		return files
@@ -319,6 +323,9 @@ class EndpointTestsSummary(luigi.Task):
 		return luigi.LocalTarget(self.session / 'summary.json')
 
 
+
+def convert_ledger_xml_to_rdf(input_file, request_rdf_file):
+	pass
 
 
 """

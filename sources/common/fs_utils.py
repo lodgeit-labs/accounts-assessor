@@ -94,7 +94,7 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 	#dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
 
 	for d in dirs0:
-		if glob.glob(root_dir=suite, pathname=d + '/request/*') != []:
+		if glob.glob(root_dir=suite, pathname=str(d) + '/request/*') != []:
 			yield d
 	#return dirs2
 

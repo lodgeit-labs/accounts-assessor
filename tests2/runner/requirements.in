@@ -1,3 +1,4 @@
 luigi
 sqlalchemy<1.4
 requests
+../../sdk
