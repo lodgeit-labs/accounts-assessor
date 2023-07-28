@@ -15,10 +15,9 @@ from urllib.parse import urlparse
 #print(sys.path)
 #print(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sdk/common')))
 from fs_utils import directory_files, find_report_by_key
 import fs_utils
-
+from robust_sdk.cli import xml2rdf
 
 
 
@@ -51,11 +50,12 @@ class AsyncComputationStart(luigi.Task):
 		files = []
 		input_file: pathlib.Path
 		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('request/*'))):
-			if input_file.endswith('/request.xml'):
-				request_rdf_file = request_files_dir / 'request.n3'
-				convert_ledger_xml_to_rdf(input_file, request_rdf_file)
-			shutil.copyfile(input_file, request_files_dir / input_file.name)
-			files.append(request_files_dir / input_file.name)
+			if str(input_file).endswith('/request.xml'):
+				x = convert_ledger_xml_to_rdf(input_file, request_files_dir)
+			else:
+				x = request_files_dir / input_file.name
+				shutil.copyfile(input_file, x)
+			files.append(x)
 		return files
 
 	def write_custom_job_metadata(self, request_files_dir):
@@ -324,8 +324,9 @@ class EndpointTestsSummary(luigi.Task):
 
 
 
-def convert_ledger_xml_to_rdf(input_file, request_rdf_file):
-	pass
+def convert_ledger_xml_to_rdf(input_file, request_dir):
+	with open(input_file) as f:
+		return xml2rdf(f, request_dir)
 
 
 """
