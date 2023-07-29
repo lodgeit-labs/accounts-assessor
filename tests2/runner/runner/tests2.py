@@ -11,6 +11,7 @@ from pathlib import Path as P
 import sys,os
 from urllib.parse import urlparse
 
+from runner.utils import MyJSONEncoder
 
 #print(sys.path)
 #print(os.path.dirname(__file__))
@@ -34,7 +35,7 @@ class Dummy(luigi.Task):
 
 
 
-class AsyncComputationStart(luigi.Task):
+class AsyncComputationPrepare(luigi.Task):
 	test = luigi.parameter.DictParameter()
 
 
@@ -43,7 +44,8 @@ class AsyncComputationStart(luigi.Task):
 		request_files_dir.mkdir(parents=True, exist_ok=True)
 		inputs = self.copy_inputs(request_files_dir)
 		inputs.append(self.write_custom_job_metadata(request_files_dir))
-		self.run_request(inputs)
+		with self.output().open('w') as out:
+			json.dump(inputs, out, indent=4, sort_keys=True, cls=MyJSONEncoder)
 
 
 	def copy_inputs(self, request_files_dir):
@@ -68,10 +70,26 @@ class AsyncComputationStart(luigi.Task):
 		return fn
 
 
-	def run_request(self, inputs: list[pathlib.Path]):
+	def output(self):
+		return luigi.LocalTarget(P(self.test['path']) / 'request_files.json')
+
+
+
+
+class AsyncComputationStart(luigi.Task):
+	test = luigi.parameter.DictParameter()
+
+
+	def requires(self):
+		return AsyncComputationPrepare(self.test)
+
+	def run(self):
 		url = self.test['robust_server_url']
 		logging.getLogger('robust').debug('')
 		logging.getLogger('robust').debug('querying ' + url)
+
+		with self.input().open() as input:
+			inputs = json.load(input)
 
 		request_format = 'xml' if any([str(i).lower().endswith('xml') for i in inputs]) else 'rdf'
 
@@ -297,8 +315,13 @@ class Permutations(luigi.Task):
 
 
 
+
+def optional_session_path_parameter():
+	return luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/' + str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
+
+
 class EndpointTestsSummary(luigi.Task):
-	session = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
+	session = optional_session_path_parameter()
 
 
 	def requires(self):
@@ -322,6 +345,31 @@ class EndpointTestsSummary(luigi.Task):
 
 	def output(self):
 		return luigi.LocalTarget(self.session / 'summary.json')
+
+
+
+
+class EndpointTestsDebugPrepare(luigi.WrapperTask):
+	""" a debugging target that only prepares input files, without actually starting any jobs
+	"""
+	session = optional_session_path_parameter()
+
+	def requires(self):
+		return Permutations(self.session)
+
+	def run(self):
+		with self.input().open() as pf:
+			yield [AsyncComputationStart(t) for t in json.load(pf)]
+
+
+
+
+
+
+
+
+
+
 
 
 
