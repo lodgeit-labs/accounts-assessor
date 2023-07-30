@@ -359,7 +359,7 @@ class EndpointTestsDebugPrepare(luigi.WrapperTask):
 
 	def run(self):
 		with self.input().open() as pf:
-			yield [AsyncComputationStart(t) for t in json.load(pf)]
+			yield [AsyncComputationPrepare(t) for t in json.load(pf)]
 
 
 
