@@ -13,7 +13,9 @@ RUN apt-get update -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+ENV APACHE_HEALTHCHECK_INTERVAL 15s
+
 EXPOSE 8877
-HEALTHCHECK --interval=5s --timeout=50s --start-period=5s --retries=3 CMD curl -L -S --fail http://127.0.0.1:8877/
+HEALTHCHECK --interval={APACHE_HEALTHCHECK_INTERVAL} --timeout=50s --start-period=5s --retries=3 CMD curl -L -S --fail http://127.0.0.1:8877/
 
 # todo make a non-hollow(with static files copy) Dockerfile
