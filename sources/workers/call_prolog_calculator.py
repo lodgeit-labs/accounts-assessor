@@ -32,10 +32,13 @@ def call_prolog_calculator(final_result_tmp_directory_name, final_result_tmp_dir
 
 
 def update_last_request_symlink(msg):
-	subprocess.call(['/bin/rm', get_tmp_directory_absolute_path('last_request')])
 	subprocess.call([
 		'/bin/ln', '-s',
-		# get_tmp_directory_absolute_path(msg['params']['request_tmp_directory_name']), #<- absolute
-		(msg['params']['request_tmp_directory_name']),  # <- relative
+		msg['params']['request_tmp_directory_name'],
+		msg['params']['request_tmp_directory_name'] + '/last_request',
+	])
+	subprocess.call([
+		'/bin/mv',
+		msg['params']['request_tmp_directory_name'] + '/last_request',
 		get_tmp_directory_absolute_path('last_request')
 	])
