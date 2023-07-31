@@ -317,7 +317,7 @@ class Permutations(luigi.Task):
 
 
 def optional_session_path_parameter():
-	return luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/' + str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
+	return luigi.parameter.OptionalPathParameter(default=os.path.expanduser('~/robust_tests/') + str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
 
 
 class EndpointTestsSummary(luigi.Task):
