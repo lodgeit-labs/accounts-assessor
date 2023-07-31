@@ -60,7 +60,7 @@
 	->	json_write(current_output, err{warning:m{message:'multiple solutions'}})
 	;	true),
 
-	((cf(make_zip)->true;true)).
+	true.%((cf(make_zip)->true;true)).
 
 
  flag_default(disable_graceful_resume_on_unexpected_error, false).
