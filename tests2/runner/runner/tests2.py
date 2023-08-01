@@ -16,7 +16,7 @@ from runner.utils import MyJSONEncoder
 #print(sys.path)
 #print(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../..')))
 from fs_utils import directory_files, find_report_by_key
 import fs_utils
 from robust_sdk.xml2rdf import Xml2rdf
@@ -321,6 +321,9 @@ class Permutations(luigi.Task):
 def optional_session_path_parameter():
 	return luigi.parameter.OptionalPathParameter(default=robust_tests_folder() + str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
 
+
+
+
 class EndpointTestsSummary(luigi.Task):
 	session = optional_session_path_parameter()
 
@@ -328,11 +331,19 @@ class EndpointTestsSummary(luigi.Task):
 	def requires(self):
 		return Permutations(self.session)
 
+	
+	def make_latest_symlink(self):
+		target = self.session.parts[-1]
+		symlink = self.session / 'latest'
+		os.system(f'ln -s {target} {symlink}')
+		os.system(f'mv {symlink} {self.session}')
+
 
 	def run(self):
 		with self.input().open() as pf:
 			permutations = json.load(pf)
 		evals = list(Evaluation(t) for t in permutations)
+		self.make_latest_symlink()
 		yield evals
 
 		with self.output().open('w') as out:
