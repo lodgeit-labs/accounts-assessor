@@ -11,7 +11,7 @@ from pathlib import Path as P
 import sys,os
 from urllib.parse import urlparse
 
-from runner.utils import MyJSONEncoder
+from runner.utils import *
 
 #print(sys.path)
 #print(os.path.dirname(__file__))
@@ -335,8 +335,8 @@ class EndpointTestsSummary(luigi.Task):
 	def make_latest_symlink(self):
 		target = self.session.parts[-1]
 		symlink = self.session / 'latest'
-		os.system(f'ln -s {target} {symlink}')
-		os.system(f'mv {symlink} {self.session}')
+		ccss(f'ln -s {target} {symlink}')
+		ccss(f'mv {symlink} {robust_tests_folder()}')
 
 
 	def run(self):
