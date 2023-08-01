@@ -16,9 +16,11 @@ from runner.utils import MyJSONEncoder
 #print(sys.path)
 #print(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
 from fs_utils import directory_files, find_report_by_key
 import fs_utils
 from robust_sdk.xml2rdf import Xml2rdf
+from common import robust_tests_folder
 
 
 
@@ -317,8 +319,7 @@ class Permutations(luigi.Task):
 
 
 def optional_session_path_parameter():
-	return luigi.parameter.OptionalPathParameter(default=os.path.expanduser('~/robust_tests/') + str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
-
+	return luigi.parameter.OptionalPathParameter(default=robust_tests_folder() + str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
 
 class EndpointTestsSummary(luigi.Task):
 	session = optional_session_path_parameter()
