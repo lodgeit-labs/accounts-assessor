@@ -16,7 +16,7 @@ trap _term SIGTERM
 export PYTHONPATH=/app/sources/common/libs/remoulade/
 
 
-if $WATCHMEDO; then
+if [ ! -z $WATCHMEDO]; then
   watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --prefetch-multiplier 1 --queues health  --threads 1 invoke_rpc &
   child0=$!
   watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --prefetch-multiplier 1 --queues default --threads 1 invoke_rpc &
