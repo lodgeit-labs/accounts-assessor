@@ -24,7 +24,9 @@ def main():
 	for test in j:
 		for d in test['delta']:
 			print(d['msg'])
-			fix = d['fix']
-			print(prompt(verbalize_fix(fix) + '?'))
-			
+			if d['msg'] == "job.json is missing in testcase":
+				
+				fix = d['fix']
+				#print(prompt(verbalize_fix(fix) + '?'))
+						
 			#fix['op']
