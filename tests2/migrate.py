@@ -25,8 +25,21 @@ def main():
 		for d in test['delta']:
 			print(d['msg'])
 			if d['msg'] == "job.json is missing in testcase":
-				
+
 				fix = d['fix']
 				#print(prompt(verbalize_fix(fix) + '?'))
-						
+
+				run_fix(fix)
+
+
 			#fix['op']
+
+
+def run_fix(fix):
+	if fix['op'] == 'cp':
+		try:
+			subprocess.check_call(['cp', fix['src'], fix['dst']])
+		except:
+			pass
+	else:
+		print('unknown op')
