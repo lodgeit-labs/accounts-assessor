@@ -37,7 +37,7 @@ class Dummy(luigi.Task):
 
 
 
-class AsyncComputationPrepare(luigi.Task):
+class TestPrepare(luigi.Task):
 	test = luigi.parameter.DictParameter()
 
 
@@ -78,12 +78,12 @@ class AsyncComputationPrepare(luigi.Task):
 
 
 
-class AsyncComputationStart(luigi.Task):
+class TestStart(luigi.Task):
 	test = luigi.parameter.DictParameter()
 
 
 	def requires(self):
-		return AsyncComputationPrepare(self.test)
+		return TestPrepare(self.test)
 
 	def run(self):
 		url = self.test['robust_server_url']
@@ -119,13 +119,13 @@ class AsyncComputationStart(luigi.Task):
 
 
 
-class AsyncComputationResult(luigi.Task):
+class TestResult(luigi.Task):
 	test = luigi.parameter.DictParameter()
 
 
 	def requires(self):
-		return AsyncComputationStart(self.test)
-
+		return TestStart(self.test)
+	
 
 	def run(self):
 		with self.input().open() as input:
@@ -152,14 +152,14 @@ class AsyncComputationResult(luigi.Task):
 
 
 
-class Evaluation(luigi.Task):
+class TestEvaluate(luigi.Task):
 	priority = 100
 
 	test = luigi.parameter.DictParameter()
 
 
 	def requires(self):
-		return AsyncComputationResult(self.test)
+		return TestResult(self.test)
 
 
 
@@ -182,7 +182,8 @@ class Evaluation(luigi.Task):
 		P(results.path).mkdir(parents=True, exist_ok=True)
 
 
-		job_expected_fn = P(self.test['suite']) / 'responses' / 'job.json'
+		job_expected_fn = os.path.abspath(P(self.test['suite']) / self.test['dir'] / 'job.json')
+		logging.getLogger('robust').info(job_expected_fn)
 		overwrite_job_json_op = {"op": "cp", "src": str(self.input().path), "dst": str(job_expected_fn)}
 
 		try:
@@ -288,7 +289,7 @@ class Permutations(luigi.Task):
 
 
 	def robust_testcase_dirs(self):
-		 return fs_utils.robust_testcase_dirs(self.suite, self.dirglob)
+		return fs_utils.robust_testcase_dirs(self.suite, self.dirglob)
 
 
 	def required_evaluations(self):
@@ -324,14 +325,14 @@ def optional_session_path_parameter():
 
 
 
-class EndpointTestsSummary(luigi.Task):
+class Summary(luigi.Task):
 	session = optional_session_path_parameter()
 
 
 	def requires(self):
 		return Permutations(self.session)
 
-	
+
 	def make_latest_symlink(self):
 		target = self.session.parts[-1]
 		symlink = self.session / 'latest'
@@ -342,7 +343,7 @@ class EndpointTestsSummary(luigi.Task):
 	def run(self):
 		with self.input().open() as pf:
 			permutations = json.load(pf)
-		evals = list(Evaluation(t) for t in permutations)
+		evals = list(TestEvaluate(t) for t in permutations)
 		self.make_latest_symlink()
 		yield evals
 
@@ -361,7 +362,7 @@ class EndpointTestsSummary(luigi.Task):
 
 
 
-class EndpointTestsDebugPrepare(luigi.WrapperTask):
+class TestDebugPrepare(luigi.WrapperTask):
 	""" a debugging target that only prepares input files, without actually starting any jobs
 	"""
 	session = optional_session_path_parameter()
@@ -371,7 +372,7 @@ class EndpointTestsDebugPrepare(luigi.WrapperTask):
 
 	def run(self):
 		with self.input().open() as pf:
-			yield [AsyncComputationPrepare(t) for t in json.load(pf)]
+			yield [TestPrepare(t) for t in json.load(pf)]
 
 
 

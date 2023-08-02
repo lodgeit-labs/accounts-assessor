@@ -4,7 +4,7 @@ import time
 import subprocess
 import click,json
 from common import robust_tests_folder
-import PyInquirer
+#import PyInquirer
 
 
 
@@ -12,12 +12,11 @@ def prompt(*args, **kwargs):
 	return PyInquirer.prompt(*args, **kwargs)
 
 
-def verbalize_fix(f)
+def verbalize_fix(f):
 	return f['op'] + ' ' + f['src'] + ' ' + f['dst']
 
 
 @click.command()
-%#@click.option('--keep_putting_to_sleep', type=bool, default=False)
 def main():
 	with open(robust_tests_folder() + '/latest/summary.json') as f:
 		j = json.load(f)
@@ -43,3 +42,6 @@ def run_fix(fix):
 			pass
 	else:
 		print('unknown op')
+
+if __name__ == '__main__':
+	main()
