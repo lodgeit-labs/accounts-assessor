@@ -136,6 +136,8 @@ def cli():
 
 @click.option('-ws', '--workers_scale', 'workers_scale', type=int, default=1, help='number of worker containers to spawn')
 
+#@click.option('-xs', '--xpce_scale', 'xpce_scale', type=real, default=1, help='XPCE UI scale')
+
 @click.pass_context
 def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, tmux_session_name, **choices):
 	no_cache = choices['no_cache']
