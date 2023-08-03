@@ -19,7 +19,7 @@
  process_request_rpc_calculator(Dict) :-
 	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.result_tmp_directory_name)),
 	doc_init,
-	nicety(init_doc_dump_server),
+	%init_doc_dump_server,
 	context_trace_init_trail_0,
 	'='(Request_uri, $>atom_string(<$, Dict.request_uri)),
 	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),

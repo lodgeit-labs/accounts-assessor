@@ -310,9 +310,13 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
  extract_exchange_rates1(Exchange_Rates) :-
  	!get_sheet_data(ic:unit_valueses, X),
 
-	!doc(X, excel:has_unknown_fields, Fields0),
-	!doc_list_items(Fields0, Fields),
-	maplist(!parse_date_field, Fields),
+	(	(
+			doc(X, excel:has_unknown_fields, Fields0),
+			!doc_list_items(Fields0, Fields),
+			maplist(!parse_date_field, Fields)
+		)
+	->	true
+	;	Fields = []),
 
 	!doc(X, rdf:value, Items0),
 	!doc_list_items(Items0, Items),
@@ -360,7 +364,8 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 			)
 			;
 			(
-				doc_value(Item, uv:date, Date)
+				doc_value(Item, uv:date, Date),
+				doc_value(Item, uv:currency, Dst_Str),
 			)
 		),
 		Rates

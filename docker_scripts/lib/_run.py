@@ -134,6 +134,8 @@ def cli():
 
 @click.option('-ts', '--tmux_session_name', 'tmux_session_name', type=str, default='', help='name of a pre-existing tmux session to run docker commands in. Defaults to an empty string - create a new session.')
 
+@click.option('-ws', '--workers_scale', 'workers_scale', type=int, default=1, help='number of worker containers to spawn')
+
 @click.pass_context
 def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, tmux_session_name, **choices):
 	no_cache = choices['no_cache']
@@ -319,7 +321,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir, workers_scale):
 
 	res = deepcopy(src)
 	services = res['services']
@@ -371,6 +373,11 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 				if 'restart_policy' in v['deploy']:
 					if 'delay' in v['deploy']['restart_policy']:
 						del v['deploy']['restart_policy']['delay']
+
+	for x in ['workers']:
+		if x in services:
+			services[x].get('deploy', {})['replicas'] = workers_scale
+
 
 	for k,v in services.items():
 		if 'hostnet_ports' in v:

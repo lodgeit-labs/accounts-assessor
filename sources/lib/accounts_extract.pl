@@ -10,10 +10,10 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 	extract_accounts2.
 
  extract_accounts2 :-
-	report_details(Details),
-	doc_value(Details, ic_ui:account_taxonomies, T),
-	doc_list_items(T, Taxonomies),
-	maplist(load_account_hierarchy,Taxonomies).
+	!report_details(Details),
+	!doc_value(Details, ic_ui:account_taxonomies, T),
+	!doc_list_items(T, Taxonomies),
+	maplist(!load_account_hierarchy,Taxonomies).
 
  load_account_hierarchy(Taxonomy0) :-
 	doc_value(Taxonomy0, account_taxonomies:url, Taxonomy),
