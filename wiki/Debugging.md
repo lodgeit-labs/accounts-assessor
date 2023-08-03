@@ -132,7 +132,7 @@ grab the env vars as printed by develop.sh:
  REDIS_HOST='redis://localhost' \
  AGRAPH_HOST='localhost' \
  AGRAPH_PORT='10035' \
- REMOULADE_PG_URI='postgresql://remoulade@localhost:5432/remoulade' \
+ REMOULADE_PG_URI='postgresql://remoulade@localhost:5433/remoulade' \
  SERVICES_URL='http://localhost:17788' \
 ```
 and do what start.sh does:

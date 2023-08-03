@@ -250,13 +250,13 @@ services:
     networks:
       - backend
     hostnet_ports:
-      - 5432
+      - 5433
     volumes:
       - 'postgresql_data:/bitnami/postgresql'
 #    command: ["postgres", "-c", "max_connections=2000", "-c", "shared_buffers=2048MB"]
     environment:
 #     - PGDATA=/bitnami/postgresql
-      - POSTGRESQL_EXTRA_FLAGS=-c max_connections=2000 -c shared_buffers=2048MB
+      - POSTGRESQL_EXTRA_FLAGS=-c max_connections=2000 -c shared_buffers=2048MB -c port=5433
       - ALLOW_EMPTY_PASSWORD=yes
       - POSTGRESQL_POSTGRES_PASSWORD=""
       - POSTGRESQL_DATABASE=remoulade
@@ -266,7 +266,7 @@ services:
       restart_policy:
         condition: any
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready --dbname=remoulade --username=remoulade --timeout=100 --port=5432 --host=127.0.0.1"]
+      test: ["CMD-SHELL", "pg_isready --dbname=remoulade --username=remoulade --timeout=100 --port=5433 --host=127.0.0.1"]
       interval: 30s
       timeout: 5s
       retries: 5
