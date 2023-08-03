@@ -101,6 +101,7 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       # for gtrace:
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - 
     networks:
       - backend
     depends_on:
