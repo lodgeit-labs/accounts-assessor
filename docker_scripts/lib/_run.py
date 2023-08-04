@@ -136,6 +136,8 @@ def cli():
 
 @click.option('-ws', '--workers_scale', 'workers_scale', type=int, default=1, help='number of worker containers to spawn')
 
+@click.option('-ss', '--container_startup_sequencing', 'container_startup_sequencing', type=bool, default=True, help='obey depends_on declarations in compose file. If false, containers will be started in parallel. This is useful for development, unless you are debugging problems that occur on container startup, but may cause problems in production, if requests are made when not all services are ready. Note that waitforit is still used to wait for services to be ready.')
+
 #@click.option('-xs', '--xpce_scale', 'xpce_scale', type=real, default=1, help='XPCE UI scale')
 
 @click.pass_context
@@ -323,7 +325,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir, workers_scale):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir, workers_scale, container_startup_sequencing):
 
 	res = deepcopy(src)
 	services = res['services']
@@ -384,6 +386,8 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	for k,v in services.items():
 		if 'hostnet_ports' in v:
 			del v['hostnet_ports']
+		if not container_startup_sequencing:
+			v['depends_on'] = {}
 
 	if mount_host_sources_dir:
 		for x in ['workers','services','frontend', 'remoulade-api']:

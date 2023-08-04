@@ -159,7 +159,9 @@ async def get_task(id: str):
 		return None
 
 	# a dict with either result or error key (i think...)
-	message['result'] = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id).json()
+	result = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id, params={'max_size':'99999999'})
+	logger.info('result: %s' % result.text)
+	message['result'] = result.json()
 
 	if 'result' in message['result']:
 		message['result'] = json.loads(message['result']['result'])

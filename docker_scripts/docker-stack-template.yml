@@ -104,11 +104,18 @@ services:
     networks:
       - backend
     depends_on:
+      # workers don't have a good way to healthcheck. So instead of sequencing other containers after workers, we sequence workers after everything else. Theres a small risk of a deadlock if we run frontend with no parallelism (only makes sense for debugging) and somebody comes along and makes a request just before the healthcheck is about to make a request. And users running synchronous requests could experience timeouts when the stack is starting up.
       services:
         condition: service_healthy
       remoulade-api:
         condition: service_healthy
-      frontend: # workers don't have a good way to healthcheck. So instead of sequencing other containers after workers, we sequence workers after everything else. Theres a small risk of a deadlock if we run frontend with no parallelism (only makes sense for debugging) and somebody comes along and makes a request just before the healthcheck is about to make a request. And users running synchronous requests could experience timeouts when the stack is starting up.
+      frontend: 
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     deploy:
       replicas: 1
@@ -119,17 +126,6 @@ services:
     secrets:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
-    depends_on:
-      services:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      remoulade-api:
-        condition: service_healthy
 
 
   services:
