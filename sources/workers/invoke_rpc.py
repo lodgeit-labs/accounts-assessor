@@ -163,7 +163,7 @@ def call_prolog(
 		(stdout_data, stderr_data) = p.communicate(input = input)# + '\n\n')
 	else:
 		print('invoke_rpc: invoking swipl...')
-		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE)
+		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, env=os.environ.copy() | dict([(k,str(v)) for k,v in config.items()]))
 		(stdout_data, stderr_data) = p.communicate()
 
 

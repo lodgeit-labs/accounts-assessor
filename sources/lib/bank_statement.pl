@@ -273,7 +273,7 @@ take statement/source transaction and generate a list of plain transactios.
 
 
 	coord_vec(Coord_Ours_Converted, Converted_Vector_Ours),
-	/* in case of an empty vector, the unit was lost, so fill it back in */
+	/* in case of an empty vector, the unit name was lost, so fill it back in */
 	result_property(l:report_currency, Report_Currency0),
 	(	Report_Currency0 = [Report_Currency]
 	->	Coord_Ours_Converted = coord(Report_Currency, _)
