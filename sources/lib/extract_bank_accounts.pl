@@ -8,6 +8,7 @@
  	*get_sheets_data(ic_ui:bank_statement_sheet, Bss),
  	!maplist(!cf('extract bank account'), Bss).
 
+
  'extract bank account'(Acc) :-
 	push_format('extract bank account from: ~w', [$>sheet_and_cell_string(Acc)]),
 	!doc_new_uri(bank_account, Uri),
@@ -15,6 +16,7 @@
 
 	atom_string(Account_Currency, $>rpv(Acc, bs:account_currency)),
 	assertion(atom(Account_Currency)),
+	ct(currency(Account_Currency)),
 	!doc_add(Uri, l:currency, Account_Currency),
 	!doc_add(Uri, l:source, Acc),
 
@@ -26,7 +28,7 @@
 	;	true),
 	[First_row|Raw_items1] = Raw_items0,
 	check_first_row(First_row),
-	%gtrace,
+
 	!doc_add(Uri, l:raw_items, Raw_items1),
 
 	(	opv(First_row, bs:bank_balance, Opening_balance_number)
@@ -50,6 +52,7 @@
 	(atom(Account_Name)->true;throw_string('account_name: atom expected')),
 	!doc_add(Uri, l:name, Account_Name),
 	pop_context.
+
 
  check_first_row(First_row) :-
 	(	(
