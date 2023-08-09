@@ -3,7 +3,7 @@
 
 
 
-import shlex, subprocess, logging
+import shlex, subprocess, logging, os
 try:
 	import click
 except:
@@ -76,7 +76,8 @@ l.addHandler(logging.StreamHandler())
 
 
 def run(port_postfix, server_public_url, debug, request, script):
-	cc(['./lib/xhost.py'])
+	if os.environ.get('DISPLAY','') != '':
+		cc(['./lib/xhost.py'])
 	cc(['./lib/git_info.fish'])
 
 	HOME = realpath('~')
@@ -100,9 +101,9 @@ def run(port_postfix, server_public_url, debug, request, script):
 
 	if script == None:
 		script = f""" \
-					cd /app/server_root/; \
+					cd /app/server_root/tmp; \
 					env PYTHONUNBUFFERED=1  \
-					../sources/workers/invoke_rpc_cmdline.py \
+					/app/sources/workers/invoke_rpc_cmdline.py \
 					{DBG1} \
 					--halt true \
 					-s "{server_public_url}" \
@@ -129,6 +130,10 @@ def run(port_postfix, server_public_url, debug, request, script):
 			--env="ROBUST_ROL_ENABLE_CHECKS" \
 			--env="ENABLE_CONTEXT_TRACE_TRAIL" \
 			--env="ROBUST_ENABLE_NICETY_REPORTS" \
+			--env="REDIS_HOST" \
+			--env="RABBITMQ_URL" \
+			--env="REMOULADE_PG_URI" \
+
 	\
 			--env SECRET__CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672//" \
 			--entrypoint bash
