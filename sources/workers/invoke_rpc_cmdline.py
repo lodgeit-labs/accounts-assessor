@@ -18,9 +18,11 @@ import call_prolog_calculator
 @click.option('-dbg', '--debug', type=bool, default=True)
 @click.option('-hlt', '--halt', type=bool, default=True)
 @click.option('-pc', '--pipe_rpc_json_to_swipl_stdin', type=bool, default=False)
-@click.option('-debug_call_prolog', '--debug_call_prolog', type=bool, default=True)
+@click.option('-de', '--debug_call_prolog', type=bool, default=True)
+@click.option('-dr', '--dry_run', type=bool, default=False, help="stop before invoking swipl")
+
 def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, server_url, halt,
-		pipe_rpc_json_to_swipl_stdin, debug_call_prolog):
+		pipe_rpc_json_to_swipl_stdin, debug_call_prolog, dry_run):
 
 	if debug_call_prolog:
 		# is the name right?
@@ -51,7 +53,8 @@ def run(debug_loading, debug, request_files, dev_runner_options, prolog_flags, s
 		halt=halt,
 		final_result_tmp_directory_name=final_result_tmp_directory_name,
 		final_result_tmp_directory_path=final_result_tmp_directory_path,
-		request_format = request_format
+		request_format = request_format,
+		dry_run=dry_run
 	)
 
 if __name__ == '__main__':

@@ -54,7 +54,8 @@ l.addHandler(logging.StreamHandler())
 
 @click.command(
 	help="""Run a request by attaching an internal-workers-hollow container to a deployed robust docker stack.""",
-	context_settings=dict(help_option_names=['-h', '--help'])
+	context_settings=dict(help_option_names=['-h', '--help'],
+						  show_default=True)
 	)
 
 @click.option('-pp', '--port_postfix', 			type=str, 	default='',
@@ -67,15 +68,17 @@ l.addHandler(logging.StreamHandler())
 	help="debug, default True.")
 
 @click.option('-r', '--request', 				type=str, 	default='/app/server_root/tmp/last_request',
-	help="the directory containing the request file(s), defaults to /tmp/last_request.")
+	help="the directory containing the request file(s).")
 
 @click.option('-s', '--script', 				type=str,
 	help="override what to run inside the container")
 
+@click.option('-dr', '--dry_run', type=bool, default=False, help="stop before invoking swipl")
 
 
 
-def run(port_postfix, server_public_url, debug, request, script):
+
+def run(port_postfix, server_public_url, debug, request, script, dry_run):
 	if os.environ.get('DISPLAY','') != '':
 		cc(['./lib/xhost.py'])
 	cc(['./lib/git_info.fish'])
@@ -106,6 +109,7 @@ def run(port_postfix, server_public_url, debug, request, script):
 					/app/sources/workers/invoke_rpc_cmdline.py \
 					{DBG1} \
 					--halt true \
+					--dry_run {dry_run} \
 					-s "{server_public_url}" \
 					--prolog_flags "{DBG2},set_prolog_flag(services_server,'http://services:17788')" \
 					{sq(request)} \

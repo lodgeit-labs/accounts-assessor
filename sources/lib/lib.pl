@@ -17,7 +17,7 @@
 :- [search_paths].
 
 
-%:- setenv('DETERMINANCY_CHECKER__USE__UNDO', true). % not until swipl V8.3.28 or so.
+%:- setenv('DETERMINANCY_CHECKER__USE__UNDO', true). % not until swipl V8.3.28 or so. % it's time to switch?
 :- ['../public_lib/lodgeit_solvers/prolog/utils/utils'].
 :- ['../public_lib/lodgeit_solvers/prolog/utils/doc_dump_server'].
 

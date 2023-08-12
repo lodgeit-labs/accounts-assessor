@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 @remoulade.actor
-def call_prolog_calculator2(kwargs):
+def call_prolog_calculator2(kwargs, timeout=999999999999):
 	msg = kwargs['msg']
 	params = msg['params']
 
@@ -75,7 +75,8 @@ def call_prolog(
 		debug_loading=None,
 		debug=None,
 		halt=True,
-		pipe_rpc_json_to_swipl_stdin=False
+		pipe_rpc_json_to_swipl_stdin=False,
+		dry_run=False
 ):
 
 
@@ -151,9 +152,12 @@ def call_prolog(
 	#					'-v',
 	#					'--f', "user time :%U secs, max mem: %M kb",
 						cmd])
-	logging.getLogger().warn('invoke_rpc: cmd:')
-	logging.getLogger().warn(shlex.join(cmd))
 
+
+	logging.getLogger().warn('invoke_rpc: cmd:')
+	env = os.environ.copy() | dict([(k,str(v)) for k,v in config.items()])
+	logging.getLogger().warn(env_string(env))
+	logging.getLogger().warn(shlex.join(cmd))
 
 	if pipe_rpc_json_to_swipl_stdin:
 		p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)#, shell=True)
@@ -163,9 +167,12 @@ def call_prolog(
 		(stdout_data, stderr_data) = p.communicate(input = input)# + '\n\n')
 	else:
 		print('invoke_rpc: invoking swipl...')
-		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, env=os.environ.copy() | dict([(k,str(v)) for k,v in config.items()]))
-		(stdout_data, stderr_data) = p.communicate()
+		if not dry_run:
+			p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, env=env)
+			(stdout_data, stderr_data) = p.communicate()
 
+	if dry_run:
+		return {'result':'ok'}
 
 	if stdout_data in [b'', '']:
 		return {'status':'error', 'message': 'invoke_rpc: got no stdout from swipl.'}
@@ -200,6 +207,11 @@ def uri_params(tmp_directory_name):
 	}
 
 
+def env_string(dict):
+	r = ""
+	for k,v in dict.items():
+		r += f"""{k}={shlex.quote(v)} \\\n"""
+	return r
 
 
 remoulade.declare_actors([call_prolog, call_prolog_calculator2])

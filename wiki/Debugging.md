@@ -144,5 +144,18 @@ and do what start.sh does:
 remoulade --threads 1 invoke_rpc
 ```
 
+## running requests manually in swipl toplevel in docker
+1) grab the envvars as printend when stack is brought up. Maybe we should save it alongside last.yml.
+
+```
+PP='' DISPLAY='' RABBITMQ_URL='localhost:5672' REDIS_HOST='redis://localhost' AGRAPH_HOST='localhost' AGRAPH_PORT='10035' REMOULADE_PG_URI='postgresql://remoulade@localhost:5433/remoulade' REMOULADE_API='http://localhost:5005' SERVICES_URL='http://localhost:17788' CSHARP_SERVICES_URL='http://localhost:17789' FLASK_DEBUG='0' FLASK_ENV='production' WATCHMEDO='' \
+
+ 
+
+
+
+
+
+
 
 
