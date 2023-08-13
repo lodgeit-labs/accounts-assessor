@@ -11,7 +11,7 @@ except:
 
 
 @click.command()
-@click.option('-pp', '--port_postfix', type=str, required=True)
+@click.option('-pp', '--port_postfix', type=str, default='')
 def run(port_postfix):
 
 	client = docker.from_env()
