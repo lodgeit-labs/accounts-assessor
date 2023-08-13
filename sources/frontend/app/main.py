@@ -32,7 +32,7 @@ from fs_utils import directory_files, find_report_by_key
 from tmp_dir_path import create_tmp
 import call_prolog_calculator
 import logging
-
+from misc import *
 
 
 class UploadedFileException(Exception):
@@ -188,8 +188,8 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 		with open(fn, 'wb') as f:
 			f.write(r.content)
 
-		return process_request(request_tmp_directory_name, [fn], 'rdf', 'job_handle')	
-		
+		return process_request(request_tmp_directory_name, [fn])
+
 	
 
 
@@ -209,30 +209,27 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 
 
 
-def process_request(request_tmp_directory_name, files, request_format, requested_output_format):
-	files = list(filter(None, map(convert_request_file, files)))
-	
+def process_request(request_tmp_directory_name, files, request_format ='rdf', requested_output_format = 'job_handle'):
 	server_url=os.environ['PUBLIC_URL']
-	job = call_prolog_calculator.call_prolog_calculator(
-		request_tmp_directory_name=request_tmp_directory_name,
+
+	files = convert_request_files(files)
+
+	job = call_prolog_calculator.create_calculator_job(
 		server_url=server_url,
+		request_tmp_directory_name=request_tmp_directory_name,
 		request_files=files,
 		request_format = request_format,
-		final_result_tmp_directory_name = None,
-		final_result_tmp_directory_path = None,
 	)
 
-	logger.info('job.message_id: %s' % job.message_id)
 	final_result_tmp_directory_name = job.message_id
 	logger.info('requested_output_format: %s' % requested_output_format)
 
-	if requested_output_format in ['immediate_xml', 'immediate_json_reports_list']:
-		reports = job.result.get(block=True, timeout=1000 * 1000)
-		if requested_output_format == 'immediate_xml':
+	if requested_output_format == 'immediate_xml':
+			reports = job.result.get(block=True, timeout=1000 * 1000)
 			return RedirectResponse(find_report_by_key(reports['reports'], 'response'))
-		else:
+	elif requested_output_format == 'immediate_json_reports_list':
+			reports = job.result.get(block=True, timeout=1000 * 1000)
 			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory') + '/000000_response.json.json')
-
 	elif requested_output_format == 'job_handle':
 		return JSONResponse(
 		{
@@ -263,25 +260,6 @@ def save_uploaded_file(tmp_directory_path, src):
 		shutil.copyfileobj(src.file, dest_fd)
 	return dest
 
-
-def convert_request_file(file):
-	logger.info('convert_request_file: %s' % file)
-
-	if file.endswith('/custom_job_metadata.json'):
-		return None
-	if file.lower().endswith('.xlsx'):
-		to_be_processed = file + '.n3'
-		convert_excel_to_rdf(file, to_be_processed)
-		return to_be_processed
-	else:
-		return file
-
-
-def convert_excel_to_rdf(uploaded, to_be_processed):
-	"""run a POST request to csharp-services to convert the file"""
-	logger.info('extract sheets: %s' % uploaded)
-	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": "ic_ui:investment_calculator_sheets", "input_fn": uploaded, "output_fn": to_be_processed}).raise_for_status()
-	
 
 
 

@@ -8,8 +8,8 @@ from pathlib import Path
 
 
 
-@remoulade.actor
-def call_prolog_calculator2(kwargs, timeout=999999999999):
+@remoulade.actor(timeout=999999999999)
+def call_prolog_calculator2(kwargs):
 	msg = kwargs['msg']
 	params = msg['params']
 

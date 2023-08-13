@@ -24,8 +24,42 @@ class Cli:
 	
 	"""
 
-	def prepare_calculation(self):
-		
+	def prepare_calculation(self, input_directory):
+		"""
+		* optional conversion from xlsx to rdf
+		* creation of final_result directory
+		* creation of result directory
+		* last_result symlink
+		* read worker_config_json
+		* assemble goal for swipl
+
+
+		"""
+
+
+		pass
+
+
+
+	def local_rpc(self):
+		pass
+
+
+	def local_calculator(self):
+		pass
+
+
+	def trigger_rpc(self):
+		pass
+
+
+	def trigger_calculator(self):
+		pass
+
+
+
+
+
 
 
 if __name__ == "__main__":
