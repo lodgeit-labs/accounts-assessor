@@ -34,7 +34,10 @@ l.addHandler(logging.StreamHandler())
 
 
 
-RUNNING_CONTAINER_ID = co(['./lib/get_id_of_running_container.py'])[:-1]
+RUNNING_CONTAINER_ID = co(['./lib/get_id_of_running_worker_container.py'])[:-1]
 
 
+
+
+print('worker: ' + RUNNING_CONTAINER_ID)
 
