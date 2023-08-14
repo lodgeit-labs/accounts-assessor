@@ -279,14 +279,12 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 	dict_pairs(Ir, _, Structured_Json_Pairs).
 
 /*
-To ensure that each response references the shared taxonomy via a unique url,
-a flag can be used when running the server, for example like this:
-```swipl -s prolog_server.pl  -g "set_flag(prepare_unique_taxonomy_url, true),run_simple_server"```
+To ensure that each response references the shared taxonomy via a unique url, flag can be used.
 This is done with a symlink. This allows to bypass cache, for example in pesseract.
 */
  taxonomy_url_base :-
 	!symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url),
-	(	get_flag(prepare_unique_taxonomy_url, true)
+	(	env_bool('PREPARE_UNIQUE_TAXONOMY_URL', true)
 	->	Taxonomy_Dir_Url = Unique_Taxonomy_Dir_Url
 	;	Taxonomy_Dir_Url = 'taxonomy/'),
 	!result_add_property(l:taxonomy_url_base, Taxonomy_Dir_Url).

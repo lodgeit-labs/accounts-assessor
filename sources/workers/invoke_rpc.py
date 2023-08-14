@@ -70,6 +70,9 @@ def call_prolog_calculator2(kwargs):
 @remoulade.actor(alternative_queues=["health"])
 def call_prolog(
 		msg,
+		options = None
+):
+	default_options = dict(
 		dev_runner_options=[],
 		prolog_flags='true',
 		debug_loading=None,
@@ -77,22 +80,14 @@ def call_prolog(
 		halt=True,
 		pipe_rpc_json_to_swipl_stdin=False,
 		dry_run=False
-):
-
-
-	# configuration changeable per-request:
+	)
 	with open(sources('config/worker_config.json'), 'r') as c:
 		config = json.load(c)
+	options = default_options | config | options
+	print(options)
 
-	# not sure if these should even default to the values in the config json, seems to be more confusing than useful.
-	# this one is a command-line parameter
-	if debug == None:
-		debug = config.get('DEBUG', False)
-	DONT_GTRACE_ON_OWN_EXCEPTIONS = os.getenv('DONT_GTRACE_ON_OWN_EXCEPTIONS', config.get('DONT_GTRACE_ON_OWN_EXCEPTIONS', False))
-	disable_graceful_resume_on_unexpected_error = os.getenv('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', config.get('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', False))
+	logging.getLogger().info('msg: ' + str(msg))
 
-	logging.getLogger().info('msg:')
-	logging.getLogger().info(msg)
 	sys.stdout.flush()
 	sys.stderr.flush()
 
@@ -101,57 +96,41 @@ def call_prolog(
 	#logging.getLogger().warn(git('sources/static/git_info.txt'))
 	#logging.getLogger().warn(os.path.join(result_tmp_path))
 
-	# construct the command line:
-	if debug_loading:
+
+	# construct the command line
+
+	if options['debug_loading']:
 		entry_file = 'lib/debug_loading_rpc_server.pl'
 	else:
 		entry_file = "lib/rpc_server.pl"
-	if debug:
+
+	if options['debug']:
 		dev_runner_debug_args = [['--debug', 'true']]
 		debug_goal = 'debug,set_prolog_flag(debug,true),'
 	else:
 		dev_runner_debug_args = [['--debug', 'false']]
 		debug_goal = 'set_prolog_flag(debug,false),'
-	if DONT_GTRACE_ON_OWN_EXCEPTIONS:
-		debug_goal += 'set_prolog_flag(gtrace,false),'
-	else:
-		debug_goal += 'guitracer,'
-	if disable_graceful_resume_on_unexpected_error:
-		debug_goal += 'set_prolog_flag(disable_graceful_resume_on_unexpected_error,true),'
-	if halt:
+
+	if options['halt']:
 		halt_goal = ',halt'
 	else:
 		halt_goal = ''
 
 
 	input = json.dumps(msg)
-	cmd0 = [
+	goal = ",make,utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
+	cmd = flatten_lists([
+		#'/usr/bin/time',
+		#	'-v',
+		#	--f', "user time :%U secs, max mem: %M kb",
 		git("sources/public_lib/lodgeit_solvers/tools/dev_runner/dev_runner.pl"),
 		['--problem_lines_whitelist',
 		 git("sources/public_lib/lodgeit_solvers/tools/dev_runner/problem_lines_whitelist")],
-		#['--toplevel', 'false'],
-		#['--compile', 'true'],
-	]
-	cmd0b = dev_runner_debug_args + [["--script", sources(entry_file)]]
-	cmd1 = dev_runner_options
-
-
-	# pipe the command or pass as an argument?
-	if pipe_rpc_json_to_swipl_stdin:
-		goal = ',utils:print_debugging_checklist,lib:process_request_rpc_cmdline'
-	else:
-		goal = ",make,utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
-
-
-
-	cmd2 = [['-g', debug_goal + prolog_flags + goal + halt_goal]]
-	cmd = cmd0 + cmd0b + cmd1 + cmd2
-
-
-	cmd = flatten_lists([#'/usr/bin/time',
-	#					'-v',
-	#					'--f', "user time :%U secs, max mem: %M kb",
-						cmd])
+		dev_runner_debug_args + [["--script", sources(entry_file)]],
+		options['dev_runner_options'],
+		'-g',
+		debug_goal + options['prolog_flags'] + goal + halt_goal
+	])
 
 
 	logging.getLogger().warn('invoke_rpc: cmd:')
@@ -159,20 +138,14 @@ def call_prolog(
 	logging.getLogger().warn(env_string(env))
 	logging.getLogger().warn(shlex.join(cmd))
 
-	if pipe_rpc_json_to_swipl_stdin:
-		p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)#, shell=True)
-		print('invoke_rpc: piping to swipl:')
-		print(input)
-		sys.stdout.flush()
-		(stdout_data, stderr_data) = p.communicate(input = input)# + '\n\n')
-	else:
-		print('invoke_rpc: invoking swipl...')
-		if not dry_run:
-			p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, env=env)
-			(stdout_data, stderr_data) = p.communicate()
 
-	if dry_run:
+	if not options['dry_run']:
+		print('invoke_rpc: invoking swipl...')
+		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, env=env)
+		(stdout_data, stderr_data) = p.communicate()
+	else:
 		return {'result':'ok'}
+
 
 	if stdout_data in [b'', '']:
 		return {'status':'error', 'message': 'invoke_rpc: got no stdout from swipl.'}

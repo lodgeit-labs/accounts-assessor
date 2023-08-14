@@ -63,10 +63,10 @@
 	true.%((cf(make_zip)->true;true)).
 
 
- flag_default(disable_graceful_resume_on_unexpected_error, false).
+ flag_default('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', false).
 
  process_request(Request_format, Request_data_uri_base, File_Paths) :-
-	(	current_prolog_flag(disable_graceful_resume_on_unexpected_error, true)
+	(	flag('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', true)
 	->	(
 			process_multifile_request(Request_format, Request_data_uri_base, File_Paths),
 			Exception = none
@@ -426,12 +426,6 @@
 	format(' -->'),
 	write(Output_Xml_String).
 
-
-/* http uri parameter -> prolog flag */
- maybe_supress_generating_unique_taxonomy_urls(Options2) :-
-	(	member(relativeurls='1', Options2)
-	->	set_flag(prepare_unique_taxonomy_url, false)
-	;	true).
 
  response_file_name(Request_File_Name, Response_File_Name) :-
 	(	replace_request_with_response(Request_File_Name, Response_File_Name)
