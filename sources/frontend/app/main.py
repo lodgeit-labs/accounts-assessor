@@ -17,6 +17,9 @@ from fastapi.responses import RedirectResponse
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
+
+import worker
+
 templates = Jinja2Templates(directory="templates")
 
 
@@ -32,7 +35,7 @@ from fs_utils import directory_files, find_report_by_key
 from tmp_dir_path import create_tmp
 import call_prolog_calculator
 import logging
-from misc import *
+
 
 
 class UploadedFileException(Exception):
@@ -127,7 +130,7 @@ def post(body: ChatRequest, request: Request):
 
 def json_prolog_rpc_call(request, msg, queue_name=None):
 	msg["client"] = request.client.host
-	return invoke_rpc.call_prolog.send_with_options(kwargs={'msg':msg}, queue_name=queue_name).result.get(block=True, timeout=1000 * 1000)
+	return worker.call_remote_rpc_job(msg, queue_name).result.get(block=True, timeout=1000 * 1000)
 
 
 
@@ -209,19 +212,16 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 
 
 
-def process_request(request_tmp_directory_name, files, request_format ='rdf', requested_output_format = 'job_handle'):
+def process_request(request_directory, request_files, request_format ='rdf', requested_output_format = 'job_handle'):
 	server_url=os.environ['PUBLIC_URL']
 
-	files = convert_request_files(files)
-
-	job = call_prolog_calculator.create_calculator_job(
-		server_url=server_url,
-		request_tmp_directory_name=request_tmp_directory_name,
-		request_files=files,
+	job = worker.trigger_remote_calculator_job(
+		request_directory=request_directory,
+		request_files=request_files,
 		request_format = request_format,
+		server_url=server_url,
 	)
 
-	final_result_tmp_directory_name = job.message_id
 	logger.info('requested_output_format: %s' % requested_output_format)
 
 	if requested_output_format == 'immediate_xml':
@@ -238,15 +238,15 @@ def process_request(request_tmp_directory_name, files, request_format ='rdf', re
 			[{
 				"title": "job URL",
 				"key": "job_tmp_url",
-				"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}},
+				"val":{"url": tmp_file_url(server_url, job.message_id, '')}},
 			{
 				"title": "job API URL",
 				"key": "job_api_url",
-				"val":{"url": server_url + '/api/job/' + final_result_tmp_directory_name}},
+				"val":{"url": server_url + '/api/job/' + job.message_id}},
 			{
 				"title": "job view URL",
 				"key": "job_view_url",
-				"val":{"url": server_url + '/view/job/' + final_result_tmp_directory_name}},
+				"val":{"url": server_url + '/view/job/' + job.message_id}},
 			]
 		})
 	else:

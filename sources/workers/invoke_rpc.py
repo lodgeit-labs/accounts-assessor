@@ -8,8 +8,8 @@ from pathlib import Path
 
 
 
-@remoulade.actor(timeout=999999999999)
-def call_prolog_calculator2(kwargs):
+
+def call_prolog_calculator(kwargs):
 	msg = kwargs['msg']
 	params = msg['params']
 
@@ -17,26 +17,25 @@ def call_prolog_calculator2(kwargs):
 	result_tmp_directory_name, result_tmp_path = create_tmp()
 	params['result_tmp_directory_name'] = result_tmp_directory_name
 
-	if params.get('final_result_tmp_directory_path', None) is None:
-		params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id
-		params['final_result_tmp_directory_path'] = get_tmp_directory_absolute_path(params['final_result_tmp_directory_name'])
-		Path(params['final_result_tmp_directory_path']).mkdir(parents = True, exist_ok = True)
+	params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id
+	params['final_result_tmp_directory_path'] = get_tmp_directory_absolute_path(params['final_result_tmp_directory_name'])
+	Path(params['final_result_tmp_directory_path']).mkdir(parents = True, exist_ok = True)
 
-		print("final_result_tmp_directory_path: " + params['final_result_tmp_directory_path'])
+	print("final_result_tmp_directory_path: " + params['final_result_tmp_directory_path'])
 
-		# link the result dir from the final_result(job_handle) dir
-		ln('../'+result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/' + result_tmp_directory_name)
+	# link the result dir from the final_result(job_handle) dir
+	ln('../'+result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/' + result_tmp_directory_name)
 
-		# symlink tmp/last_result to tmp/xxxxx:
-		last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
-		try:
-			if os.path.exists(last_result_symlink_path):
-				subprocess.call(['/bin/rm', last_result_symlink_path])
-			ln(
-				result_tmp_directory_name,
-				last_result_symlink_path)
-		except Exception as e:
-			print(e)
+	# symlink tmp/last_result to tmp/xxxxx:
+	last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
+	try:
+		if os.path.exists(last_result_symlink_path):
+			subprocess.call(['/bin/rm', last_result_symlink_path])
+		ln(
+			result_tmp_directory_name,
+			last_result_symlink_path)
+	except Exception as e:
+		print(e)
 
 	# write call info txt:
 	with open(os.path.join(result_tmp_path, 'rpc_call_info.txt'), 'w') as info:
@@ -67,11 +66,13 @@ def call_prolog_calculator2(kwargs):
 
 
 
-@remoulade.actor(alternative_queues=["health"])
 def call_prolog(
 		msg,
 		options = None
 ):
+	if options is None:
+		options = {}
+
 	default_options = dict(
 		dev_runner_options=[],
 		prolog_flags='true',
@@ -81,21 +82,17 @@ def call_prolog(
 		pipe_rpc_json_to_swipl_stdin=False,
 		dry_run=False
 	)
+
 	with open(sources('config/worker_config.json'), 'r') as c:
 		config = json.load(c)
-	options = default_options | config | options
-	print(options)
 
+	options = default_options | config | options
+
+	logging.getLogger().info('options: ' + options)
 	logging.getLogger().info('msg: ' + str(msg))
 
 	sys.stdout.flush()
 	sys.stderr.flush()
-
-	#logging.getLogger().warn(os.getcwd())
-	#logging.getLogger().warn(os.path.abspath(git('sources/static/git_info.txt')))
-	#logging.getLogger().warn(git('sources/static/git_info.txt'))
-	#logging.getLogger().warn(os.path.join(result_tmp_path))
-
 
 	# construct the command line
 
@@ -188,5 +185,17 @@ def env_string(dict):
 
 
 remoulade.declare_actors([call_prolog, call_prolog_calculator2])
+
+
+
+
+
+
+
+
+#logging.getLogger().warn(os.getcwd())
+#logging.getLogger().warn(os.path.abspath(git('sources/static/git_info.txt')))
+#logging.getLogger().warn(git('sources/static/git_info.txt'))
+#logging.getLogger().warn(os.path.join(result_tmp_path))
 
 

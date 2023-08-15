@@ -1,3 +1,5 @@
+from pathlib import PurePath
+
 
 def convert_request_files(files):
 	return list(filter(None, map(convert_request_file, files)))
@@ -7,11 +9,11 @@ def convert_request_file(file):
 	logger.info('convert_request_file: %s' % file)
 
 	if file.endswith('/custom_job_metadata.json'):
-		return None
+		return None # effectively hide the file from further processing
 	if file.lower().endswith('.xlsx'):
-		to_be_processed = file + '.n3'
-		convert_excel_to_rdf(file, to_be_processed)
-		return to_be_processed
+		converted = PurePath('/'.join(file.parts[:-1] + ('converted', file.parts[-1] + '.n3')))
+		convert_excel_to_rdf(file, converted)
+		return converted
 	else:
 		return file
 

@@ -16,31 +16,31 @@
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
 
 
- process_request_rpc_calculator(Dict) :-
-	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.result_tmp_directory_name)),
+ process_request_rpc_calculator(Params) :-
+	set_unique_tmp_directory_name(loc(tmp_directory_name, Params.result_tmp_directory_name)),
 	doc_init,
 	%init_doc_dump_server,
 	context_trace_init_trail_0,
-	'='(Request_uri, $>atom_string(<$, Dict.request_uri)),
+	'='(Request_uri, $>atom_string(<$, Params.request_uri)),
 	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),
 	'='(Request_data_uri, $>atomic_list_concat([Request_data_uri_base, 'request'])),
-	'='(Result_uri, $>atomic_list_concat([Dict.rdf_namespace_base, 'results/', Dict.result_tmp_directory_name])),
+	'='(Result_uri, $>atomic_list_concat([Params.rdf_namespace_base, 'results/', Params.result_tmp_directory_name])),
 	'='(Result_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
 
-	maplist(doc_add(Result_uri, l:rdf_explorer_base), Dict.rdf_explorer_bases),
+	maplist(doc_add(Result_uri, l:rdf_explorer_base), Params.rdf_explorer_bases),
 	doc_add(Request_uri, rdf:type, l:'Request'),
 	doc_add(Request_uri, l:has_result, Result_uri),
 	doc_add(Request_uri, l:has_request_data, Request_data_uri),
 	doc_add(Result_uri, rdf:type, l:'Result'),
 	doc_add(Result_uri, l:has_result_data_uri_base, Result_data_uri_base),
-	doc_add(Result_uri, l:has_job_handle, Dict.final_result_tmp_directory_name),
-	doc_add(Request_data_uri, l:request_tmp_directory_name, Dict.request_tmp_directory_name),
+	doc_add(Result_uri, l:has_job_handle, Params.final_result_tmp_directory_name),
+	doc_add(Request_data_uri, l:request_tmp_directory_name, Params.request_tmp_directory_name),
 
-	set_server_public_url(Dict.server_url),
+	set_server_public_url(Params.server_url),
 
 	findall(
 		loc(absolute_path, P),
-		member(P, Dict.request_files),
+		member(P, Params.request_files),
 		Request_Files
 	),
 
@@ -51,7 +51,7 @@
 	'make task_directory report entry',
 	'make task_directory report entry 2',
 
-	findall(x, process_request(Dict.request_format, Request_data_uri_base, Request_Files2), Solutions),
+	findall(x, process_request(Params.request_format, Request_data_uri_base, Request_Files2), Solutions),
 	length(Solutions, Solutions_len),
 	(	Solutions_len #= 0
 	->	json_write(current_output, err{error:m{message:'no solutions'}})
