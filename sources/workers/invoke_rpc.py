@@ -190,7 +190,7 @@ def env_string(dict):
 	return r
 
 
-remoulade.declare_actors([call_prolog, call_prolog_calculator2])
+
 
 
 

@@ -158,7 +158,7 @@ async def get_task(id: str):
 	if not r.ok:
 		return None
 	message = r.json()
-	if message['actor_name'] not in ["call_prolog_calculator2"]:
+	if message['actor_name'] not in ["local_calculator"]:
 		return None
 
 	# a dict with either result or error key (i think...)

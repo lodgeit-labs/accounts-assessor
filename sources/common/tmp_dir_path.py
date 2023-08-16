@@ -57,3 +57,16 @@ def copy_request_files_to_tmp(tmp_directory_absolute_path, files):
 def ln(target, source):
 	xxx1 = ['/bin/ln', '-s', target, source]
 	subprocess.call(xxx1)
+
+
+def update_last_request_symlink(msg):
+	subprocess.call([
+		'/bin/ln', '-s',
+		msg['params']['request_tmp_directory_name'],
+		msg['params']['request_tmp_directory_name'] + '/last_request',
+	])
+	subprocess.call([
+		'/bin/mv',
+		msg['params']['request_tmp_directory_name'] + '/last_request',
+		get_tmp_directory_absolute_path('last_request')
+	])

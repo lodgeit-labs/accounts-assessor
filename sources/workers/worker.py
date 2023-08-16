@@ -38,7 +38,7 @@ def local_rpc(msg, options):
 def trigger_remote_calculator_job(**kwargs):
 	return local_calculator.send(kwargs=kwargs)
 
-@remoulade.actor(timeout=999999999999)
+@remoulade.actor(time_limit=1000*60*60*24*365*1000)
 def local_calculator(
 	request_directory: str,
 	server_url='http://localhost:8877',
@@ -47,12 +47,12 @@ def local_calculator(
 	msg = dict(
 		method='calculator',
 		params=dict(
-			request_directory = request_directory,
+			request_tmp_directory_name = request_directory,
 			request_files = convert_request_files(directory_files(request_directory)),
 			server_url = server_url
 		)
 	)
-
+	#update_last_request_symlink(msg)
 	return invoke_rpc.call_prolog_calculator(msg, options)
 
 
@@ -71,5 +71,19 @@ def run_last_request_outside_of_docker(self):
 
 
 
+
+remoulade.declare_actors([local_rpc, local_calculator])
+
+
 if __name__ == "__main__":
-	fire.Fire()
+	fire.Fire(Worker)
+
+
+
+
+
+"""
+
+
+>> #PP='' DISPLAY='' RABBITMQ_URL='localhost:5672' REDIS_HOST='redis://localhost' AGRAPH_HOST='localhost' AGRAPH_PORT='10035' REMOULADE_PG_URI='postgresql://remoulade@localhost:5433/remoulade' REMOULADE_API='http://localhost:5005' SERVICES_URL='http://localhost:17788' CSHARP_SERVICES_URL='http://localhost:17789' FLASK_DEBUG='0' FLASK_ENV='production' WATCHMEDO='' ./run_last_request_in_docker_with_host_fs.py --dry_run True --request /app/server_root/tmp/1691798911.3167622.57.1.A52CC96x3070
+"""
