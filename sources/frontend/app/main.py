@@ -18,13 +18,13 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
 
-import worker
 
 templates = Jinja2Templates(directory="templates")
 
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
+import worker
 
 
 

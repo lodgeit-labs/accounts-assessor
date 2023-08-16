@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 
-import sys, os, shlex
 
-import fire
-
+import os
 import invoke_rpc
 from fs_utils import directory_files
 from tasking import remoulade
 from misc import convert_request_files
-
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
 
 
 
@@ -25,8 +21,6 @@ We have two main ways of invoking prolog:
 	might get reused now, because we will again be generating a goal string that can be copy&pasted into swipl.
 
 """
-
-
 
 def call_remote_rpc_job(msg, queue='default'):
 	return local_rpc.send_with_options(kwargs={'msg':msg}, queue_name=queue).result.get(block=True, timeout=1000 * 1000)
@@ -56,12 +50,9 @@ def local_calculator(
 	return invoke_rpc.call_prolog_calculator(msg, options)
 
 
-
-
 def run_last_request_outside_of_docker(self):
 	"""
 	you should run this script from server_root/
-
 	you should also have `services` running on the host (it doesnt matter that it's simultaneously running in docker), because they have to access files by the paths that `workers` sends them.
 	"""
 	tmp_volume_data_path = '/var/lib/docker/volumes/robust_tmp/_data/'
@@ -71,19 +62,14 @@ def run_last_request_outside_of_docker(self):
 
 
 
-
+print(local_calculator.fn)
 remoulade.declare_actors([local_rpc, local_calculator])
 
-
-if __name__ == "__main__":
-	fire.Fire(Worker)
 
 
 
 
 
 """
-
-
 >> #PP='' DISPLAY='' RABBITMQ_URL='localhost:5672' REDIS_HOST='redis://localhost' AGRAPH_HOST='localhost' AGRAPH_PORT='10035' REMOULADE_PG_URI='postgresql://remoulade@localhost:5433/remoulade' REMOULADE_API='http://localhost:5005' SERVICES_URL='http://localhost:17788' CSHARP_SERVICES_URL='http://localhost:17789' FLASK_DEBUG='0' FLASK_ENV='production' WATCHMEDO='' ./run_last_request_in_docker_with_host_fs.py --dry_run True --request /app/server_root/tmp/1691798911.3167622.57.1.A52CC96x3070
 """
