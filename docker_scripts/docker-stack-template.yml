@@ -82,7 +82,7 @@ services:
       - AGRAPH_SUPER_PASSWORD
 
 
-  workers:
+  workers: # at this point, it should be called worker
     image: koo5/workers${PP}:latest
     environment:
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"

@@ -23,7 +23,7 @@ def call_prolog_calculator(kwargs):
 	result_tmp_directory_name, result_tmp_path = create_tmp()
 	params['result_tmp_directory_name'] = result_tmp_directory_name
 
-	params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id || 'cli'
+	params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id | 'cli'
 	params['final_result_tmp_directory_path'] = get_tmp_directory_absolute_path(params['final_result_tmp_directory_name'])
 	Path(params['final_result_tmp_directory_path']).mkdir(parents = True, exist_ok = True)
 
