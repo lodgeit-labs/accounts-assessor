@@ -5,11 +5,15 @@ import glob
 import os.path, sys
 import pathlib
 from os import listdir, makedirs
-from os.path import isfile, join
+import os.path
 import ntpath
 import shlex
 from pathlib import Path as P
 
+
+
+
+# !!!!
 def files_in_dir(dir):
 	result = []
 	for filename in os.listdir(dir):
@@ -17,6 +21,17 @@ def files_in_dir(dir):
 		if os.path.isfile(filename2):
 			result.append(filename2)
 	return result
+def directory_files(directory):
+	return [f for f in listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+
+def listfiles(path) -> P:
+	for f in glob.glob(str(path) + '/*'):
+		f = P(f)
+		if not f.is_dir():
+			yield f
+
+
+
 
 def get_absolute_paths(request_files):
 	return [os.path.abspath(os.path.expanduser(f)) for f in request_files]
@@ -31,9 +46,6 @@ def flatten_file_list_with_dirs_into_file_list(paths):
 		else:
 			raise Exception('file not found: {0}'.format(path))
 	return files
-
-def directory_files(directory):
-	return [f for f in listdir(directory) if isfile(join(directory, f))]
 
 def save_django_uploaded_file(tmp_directory_path, f):
 	tmp_fn = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(f.name)]))
@@ -115,8 +127,3 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 # 			os.rename(file, tgt)
 
 
-def listfiles(path) -> P:
-	for f in glob.glob(str(path) + '/*'):
-		f = P(f)
-		if not f.is_dir():
-			yield f

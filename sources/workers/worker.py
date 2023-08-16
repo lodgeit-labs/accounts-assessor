@@ -5,6 +5,7 @@ import sys, os, shlex
 import fire
 
 import invoke_rpc
+from fs_utils import directory_files
 from tasking import remoulade
 from misc import convert_request_files
 
@@ -40,37 +41,19 @@ def trigger_remote_calculator_job(**kwargs):
 @remoulade.actor(timeout=999999999999)
 def local_calculator(
 	request_directory: str,
-	request_files: list[str] | None = None,
-	request_format='rdf',
 	server_url='http://localhost:8877',
 	options=None
 ):
-
-	if request_files is None:
-		request_files = find_request_files_in_directory(request_directory)
-	request_files = convert_request_files(request_files)
-
 	msg = dict(
 		method='calculator',
 		params=dict(
-			request_files = request_files,
 			request_directory = request_directory,
-			request_format = request_format,
+			request_files = convert_request_files(directory_files(request_directory)),
 			server_url = server_url
 		)
 	)
 
 	return invoke_rpc.call_prolog_calculator(msg, options)
-
-
-def local_calculator(
-	request_directory: str,
-	request_files: list[str],
-	request_format='rdf',
-	server_url='http://localhost:8877'):
-
-
-
 
 
 
@@ -84,8 +67,7 @@ def run_last_request_outside_of_docker(self):
 	tmp_volume_data_path = '/var/lib/docker/volumes/robust_tmp/_data/'
 	os.system('sudo chmod -R o+rX '+tmp_volume_data_path)
 	last_request_host_path = tmp_volume_data_path + os.path.split(os.readlink(tmp_volume_data_path+'last_request'))[-1]
-
-	self.local_calculator(self.prepare_calculation(last_request_host_path))
+	local_calculator(last_request_host_path)
 
 
 
