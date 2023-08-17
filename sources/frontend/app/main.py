@@ -135,8 +135,8 @@ def json_prolog_rpc_call(request, msg, queue_name=None):
 
 
 
-def tmp_file_url(server_url, tmp_dir_name, fn):
-	return server_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
+def tmp_file_url(public_url, tmp_dir_name, fn):
+	return public_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
 
 
 
@@ -191,7 +191,7 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 		with open(fn, 'wb') as f:
 			f.write(r.content)
 
-		return process_request(request_tmp_directory_name, [fn])
+		return process_request(request_tmp_directory_name)
 
 	
 
@@ -201,25 +201,21 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 	
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
 
-	files2=[] # list of local paths of uploaded files
 	for file in filter(None, [file1, file2]):
 		logger.info('uploaded: %s' % file)
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
-		files2.append(uploaded)
-		
-	return process_request(request_tmp_directory_name, files2, request_format, requested_output_format)
+
+	return process_request(request_tmp_directory_name, requested_output_format)
 
 
 
 
-def process_request(request_directory, request_files, request_format ='rdf', requested_output_format = 'job_handle'):
-	server_url=os.environ['PUBLIC_URL']
+def process_request(request_directory, requested_output_format = 'job_handle'):
+	public_url=os.environ['PUBLIC_URL']
 
 	job = worker.trigger_remote_calculator_job(
 		request_directory=request_directory,
-		request_files=request_files,
-		request_format = request_format,
-		server_url=server_url,
+		public_url=public_url,
 	)
 
 	logger.info('requested_output_format: %s' % requested_output_format)
@@ -238,15 +234,15 @@ def process_request(request_directory, request_files, request_format ='rdf', req
 			[{
 				"title": "job URL",
 				"key": "job_tmp_url",
-				"val":{"url": tmp_file_url(server_url, job.message_id, '')}},
+				"val":{"url": tmp_file_url(public_url, job.message_id, '')}},
 			{
 				"title": "job API URL",
 				"key": "job_api_url",
-				"val":{"url": server_url + '/api/job/' + job.message_id}},
+				"val":{"url": public_url + '/api/job/' + job.message_id}},
 			{
 				"title": "job view URL",
 				"key": "job_view_url",
-				"val":{"url": server_url + '/view/job/' + job.message_id}},
+				"val":{"url": public_url + '/view/job/' + job.message_id}},
 			]
 		})
 	else:

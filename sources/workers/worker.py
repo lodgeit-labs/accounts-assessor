@@ -6,9 +6,7 @@ import invoke_rpc
 from fs_utils import directory_files
 from tasking import remoulade
 from misc import convert_request_files
-
-
-
+from tmp_dir_path import get_tmp_directory_absolute_path
 
 """
 We have two main ways of invoking prolog:
@@ -30,24 +28,24 @@ def local_rpc(msg, options):
 	return invoke_rpc.call_prolog(msg, options)
 
 def trigger_remote_calculator_job(**kwargs):
-	return local_calculator.send(kwargs=kwargs)
+	return local_calculator.send_with_options(kwargs=kwargs)
 
 @remoulade.actor(time_limit=1000*60*60*24*365*1000)
 def local_calculator(
 	request_directory: str,
-	server_url='http://localhost:8877',
+	public_url='http://localhost:8877',
 	options=None
 ):
 	msg = dict(
 		method='calculator',
 		params=dict(
 			request_tmp_directory_name = request_directory,
-			request_files = convert_request_files(directory_files(request_directory)),
-			server_url = server_url
+			request_files = convert_request_files(directory_files(get_tmp_directory_absolute_path(request_directory))),
+			public_url = public_url
 		)
 	)
 	#update_last_request_symlink(msg)
-	return invoke_rpc.call_prolog_calculator(msg, options)
+	return invoke_rpc.call_prolog_calculator(msg=msg, options=options)
 
 
 def run_last_request_outside_of_docker(self):

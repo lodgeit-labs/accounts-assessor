@@ -36,7 +36,7 @@
 	doc_add(Result_uri, l:has_job_handle, Params.final_result_tmp_directory_name),
 	doc_add(Request_data_uri, l:request_tmp_directory_name, Params.request_tmp_directory_name),
 
-	set_server_public_url(Params.server_url),
+	set_server_public_url(Params.public_url),
 
 	findall(
 		loc(absolute_path, P),
