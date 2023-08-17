@@ -9,8 +9,8 @@
 :- initialization(init_guitracer).
 
  init_guitracer :-
-	(	env_bool('GTRACE_ON_OWN_EXCEPTIONS', true),
-	->	:- guitracer
+	(	env_bool('GTRACE_ON_OWN_EXCEPTIONS', true)
+	->	guitracer
 	;	true).
 
 

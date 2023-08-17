@@ -145,7 +145,7 @@ def call_prolog(
 
 
 	if not options['dry_run']:
-		print('invoke_rpc: invoking swipl...')
+		#print('invoke_rpc: invoking swipl...')
 		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, env=env)
 		(stdout_data, stderr_data) = p.communicate()
 	else:
