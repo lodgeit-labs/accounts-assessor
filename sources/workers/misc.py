@@ -1,4 +1,4 @@
-import logging
+import logging, shlex
 from pathlib import PurePath
 
 import requests

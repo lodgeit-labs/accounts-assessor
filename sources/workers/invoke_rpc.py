@@ -23,7 +23,9 @@ def call_prolog_calculator(**kwargs):
 	result_tmp_directory_name, result_tmp_path = create_tmp()
 	params['result_tmp_directory_name'] = result_tmp_directory_name
 
-	params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id | 'cli'
+	params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id
+	if params['final_result_tmp_directory_name'] is None:
+		params['final_result_tmp_directory_name'] = 'cli'
 	params['final_result_tmp_directory_path'] = get_tmp_directory_absolute_path(params['final_result_tmp_directory_name'])
 	Path(params['final_result_tmp_directory_path']).mkdir(parents = True, exist_ok = True)
 
@@ -94,7 +96,7 @@ def call_prolog(
 
 	options = default_options | config | options
 
-	logging.getLogger().info('options: ' + options)
+	logging.getLogger().info('options: ' + str(options))
 	logging.getLogger().info('msg: ' + str(msg))
 
 	sys.stdout.flush()
@@ -138,8 +140,8 @@ def call_prolog(
 
 	logging.getLogger().warn('invoke_rpc: cmd:')
 	env = os.environ.copy() | dict([(k,str(v)) for k,v in config.items()])
-	logging.getLogger().warn(env_string(env))
-	logging.getLogger().warn(shlex.join(cmd))
+	logging.getLogger().warn('env: ' + env_string(env))
+	logging.getLogger().warn('cmd: ' + shlex.join(cmd))
 
 
 	if not options['dry_run']:
