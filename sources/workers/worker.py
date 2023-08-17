@@ -3,7 +3,7 @@
 
 import os
 import invoke_rpc
-from fs_utils import directory_files
+from fs_utils import files_in_dir
 from tasking import remoulade
 from misc import convert_request_files
 from tmp_dir_path import get_tmp_directory_absolute_path
@@ -40,7 +40,7 @@ def local_calculator(
 		method='calculator',
 		params=dict(
 			request_tmp_directory_name = request_directory,
-			request_files = convert_request_files(directory_files(get_tmp_directory_absolute_path(request_directory))),
+			request_files = convert_request_files(files_in_dir(get_tmp_directory_absolute_path(request_directory))),
 			public_url = public_url
 		)
 	)
