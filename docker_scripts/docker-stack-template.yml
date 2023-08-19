@@ -52,7 +52,6 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
-      CSHARP_SERVICES_URL:
       FLASK_DEBUG:
       FLASK_ENV:
       WATCHMEDO:
@@ -87,6 +86,7 @@ services:
     environment:
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
       SERVICES_URL:
+      CSHARP_SERVICES_URL:
       RABBITMQ_URL:
       REMOULADE_PG_URI:
       REMOULADE_API:

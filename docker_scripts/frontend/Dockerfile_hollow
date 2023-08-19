@@ -15,8 +15,8 @@ RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[
 
 
 EXPOSE 7788
-RUN mkdir -p /app/server_root
-VOLUME /app/server_root
+RUN mkdir -p /app/server_root/tmp
+VOLUME /app/server_root/tmp
 VOLUME /app/sources/
 USER myuser
 

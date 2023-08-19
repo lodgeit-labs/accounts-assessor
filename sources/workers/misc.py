@@ -1,4 +1,4 @@
-import logging, shlex
+import logging, shlex, os
 from pathlib import PurePath
 
 import requests
@@ -14,9 +14,11 @@ def convert_request_file(file):
 	if file.endswith('/custom_job_metadata.json'):
 		return None # effectively hide the file from further processing
 	if file.lower().endswith('.xlsx'):
-		converted = PurePath('/'.join(file.parts[:-1] + ('converted', file.parts[-1] + '.n3')))
-		convert_excel_to_rdf(file, converted)
-		return converted
+		converted_dir = PurePath('/'.join(PurePath(file).parts[:-1] + ('converted',)))
+		os.makedirs(converted_dir, exist_ok=True)
+		converted_file = str(converted_dir.joinpath(str(PurePath(file).name) + '.n3'))
+		convert_excel_to_rdf(file, converted_file)
+		return converted_file
 	else:
 		return file
 
@@ -24,7 +26,7 @@ def convert_request_file(file):
 def convert_excel_to_rdf(uploaded, to_be_processed):
 	"""run a POST request to csharp-services to convert the file"""
 	logging.getLogger().info('xlsx_to_rdf: %s -> %s' % (uploaded, to_be_processed))
-	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": "ic_ui:investment_calculator_sheets", "input_fn": uploaded, "output_fn": to_be_processed}).raise_for_status()
+	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": "ic_ui:investment_calculator_sheets", "input_fn": str(uploaded), "output_fn": str(to_be_processed)}).raise_for_status()
 
 
 

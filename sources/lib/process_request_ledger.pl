@@ -282,6 +282,8 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 To ensure that each response references the shared taxonomy via a unique url, flag can be used.
 This is done with a symlink. This allows to bypass cache, for example in pesseract.
 */
+flag_default('PREPARE_UNIQUE_TAXONOMY_URL', true).
+
  taxonomy_url_base :-
 	!symlink_tmp_taxonomy_to_static_taxonomy(Unique_Taxonomy_Dir_Url),
 	(	env_bool('PREPARE_UNIQUE_TAXONOMY_URL', true)
