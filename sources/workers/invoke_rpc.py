@@ -85,7 +85,7 @@ def call_prolog(
 		dev_runner_options=[],
 		prolog_flags='true',
 		debug_loading=None,
-		debug=None,
+		prolog_debug=True,
 		halt=True,
 		pipe_rpc_json_to_swipl_stdin=False,
 		dry_run=False
@@ -109,7 +109,7 @@ def call_prolog(
 	else:
 		entry_file = "lib/rpc_server.pl"
 
-	if options['debug']:
+	if options['prolog_debug']:
 		dev_runner_debug_args = [['--debug', 'true']]
 		debug_goal = 'debug,set_prolog_flag(debug,true),'
 	else:
