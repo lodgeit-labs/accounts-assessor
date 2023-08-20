@@ -90,7 +90,7 @@
 	!cf(make_alerts_report(Alerts_html)),
 
 	nicety(!cf(make_doc_dump_report)),
-	(!cf(make_context_trace_report)),
+	nicety(!cf(make_context_trace_report)),
 
 	!cf(json_report_entries(Files3)),
 	Json_Out = _{alerts:Alerts3, reports:Files3},
@@ -177,7 +177,7 @@
 
 
  make_context_trace_report :-
-	get_context_trace(Trace0),
+	!cf(get_context_trace(Trace0)),
 	ct("reverse context_trace", reverse(Trace0,Trace)),
 	ct("maplist(make_context_trace_report2...", maplist(make_context_trace_report2,Trace, Html)),
 	ct("add_report_page_with_body(context_trace...", add_report_page_with_body(11, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html)).
