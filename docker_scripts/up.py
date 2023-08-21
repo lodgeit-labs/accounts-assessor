@@ -27,7 +27,7 @@ def run(terminal_cmd="", parallel_build=True, public_url = "http://localhost:887
 		cmd += ['--parallel_build', str(parallel_build), '--public_url', public_url, '--offline', str(offline)]# + sys.argv[1:]
 		print(cmd)
 		subprocess.check_call(cmd)
-		print('okk..')
+		print('develop.sh finished.')
 	except:
 		die.set()
 		t.join()

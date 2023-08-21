@@ -23,7 +23,7 @@ We have two main ways of invoking prolog:
 """
 
 def call_remote_rpc_job(msg, queue='default'):
-	return local_rpc.send_with_options(kwargs={'msg':msg}, queue_name=queue).result.get(block=True, timeout=1000 * 1000)
+	return local_rpc.send_with_options(kwargs={'msg':msg}, queue_name=queue)
 
 @remoulade.actor(alternative_queues=["health"])
 def local_rpc(msg, options=None):
