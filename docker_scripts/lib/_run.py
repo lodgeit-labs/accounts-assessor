@@ -21,7 +21,8 @@ ss = shlex.split
 
 
 def ccd(cmd, env):
-	logging.getLogger().info(' '.join([f'{k}={(v).__repr__()} \\\n' for k,v in env.items()]) + shlex.join(cmd))
+	eee = ' '.join([f'{k}={(v).__repr__()}' for k,v in env.items()]) + '\\\n' + shlex.join(cmd)
+	logging.getLogger().info(eee)
 	e = os.environ.copy()
 	e.update(env)
 	subprocess.check_call(cmd, env=e)
@@ -64,13 +65,16 @@ def cli():
 @cli.command(
 	help="""deploy the docker compose/stack""",
 	context_settings=dict(
-    	ignore_unknown_options=True,
+		ignore_unknown_options=True,
 		show_default=True
     ))
 
 
 @click.option('-of', '--offline', 		type=bool, 	default=False,
 	help="don't use internet..")
+
+@click.option('-de', '--develop', 		type=bool, 	default=False,
+	help="Development and debugging mode. CPU-intensive.")
 
 @click.option('-sr', '--stay_running', 				type=bool, 	default=True,
 	help="keep the script running after the stack is brought up.")
@@ -130,6 +134,12 @@ def cli():
 
 @click.option('-ts', '--tmux_session_name', 'tmux_session_name', type=str, default='', help='name of a pre-existing tmux session to run docker commands in. Defaults to an empty string - create a new session.')
 
+@click.option('-ws', '--workers_scale', 'workers_scale', type=int, default=1, help='number of worker containers to spawn')
+
+@click.option('-ss', '--container_startup_sequencing', 'container_startup_sequencing', type=bool, default=True, help='obey depends_on declarations in compose file. If false, containers will be started in parallel. This is useful for development, unless you are debugging problems that occur on container startup, but may cause problems in production, if requests are made when not all services are ready. Note that waitforit is still used to wait for services to be ready.')
+
+#@click.option('-xs', '--xpce_scale', 'xpce_scale', type=real, default=1, help='XPCE UI scale')
+
 @click.pass_context
 def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, tmux_session_name, **choices):
 	no_cache = choices['no_cache']
@@ -162,12 +172,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	else:
 		hollow = 'full'
 	
-	if choices['django_noreload']:
-		django_args	= " --noreload"
-	else:
-		django_args	= ''
-
 	hn = choices['use_host_network']
+
 	e = {
 		"PP": pp,
 		'DISPLAY':os.environ.get('DISPLAY', ''),
@@ -175,11 +181,26 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 		'REDIS_HOST':  'redis://localhost' if hn else 'redis://redis',
 		'AGRAPH_HOST': 'localhost' if hn else 'agraph',
 		'AGRAPH_PORT': '10035',
-		'REMOULADE_PG_URI': 'postgresql://remoulade@localhost:5432/remoulade' if hn else 'postgresql://remoulade@postgres:5432/remoulade',
+		'REMOULADE_PG_URI': 'postgresql://remoulade@localhost:5433/remoulade' if hn else 'postgresql://remoulade@postgres:5433/remoulade',
 		'REMOULADE_API': 'http://localhost:5005' if hn else 'http://remoulade-api:5005',
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
 		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
 	}
+	#
+	# if choices['display']:
+	# 	e['DISPLAY']' = os.environ.get('DISPLAY', '')
+
+	if choices['develop']:
+		pass
+	else:
+		e['FLASK_DEBUG'] = '0'
+		e['FLASK_ENV'] = 'production'
+		e['WATCHMEDO'] = ''
+	del choices['develop']
+
+	#for ch in choices.items()
+		#f'svcenv_{service}_{var}'
+
 
 	stack_fn = generate_stack_file(port_postfix, public_url, choices)
 	if rm_stack and not compose:
@@ -304,7 +325,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir, workers_scale, container_startup_sequencing):
 
 	res = deepcopy(src)
 	services = res['services']
@@ -357,9 +378,16 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 					if 'delay' in v['deploy']['restart_policy']:
 						del v['deploy']['restart_policy']['delay']
 
+	for x in ['workers']:
+		if x in services:
+			services[x].get('deploy', {})['replicas'] = workers_scale
+
+
 	for k,v in services.items():
 		if 'hostnet_ports' in v:
 			del v['hostnet_ports']
+		if not container_startup_sequencing:
+			v['depends_on'] = {}
 
 	if mount_host_sources_dir:
 		for x in ['workers','services','frontend', 'remoulade-api']:
@@ -545,10 +573,11 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 				dockerfile=dockerfile
 			))
 
-	dbptks = 'docker build ' + ('' if offline else '--pull') + ' -t "koo5/{service_name}'
+	pull = '' if offline else '--pull '
+	dbptks = f'docker build {pull} -t "koo5/{{service_name}}'
 	dbtks = 'docker build -t "koo5/{service_name}'
 
-	ubuntu = task('ubuntu', 'ubuntu', 'docker build --pull -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
+	ubuntu = task('ubuntu', 'ubuntu', f'docker build {pull} -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
 
 	svc('apache', 		  'apache', 						dbptks+'{port_postfix}"', 	"Dockerfile")
 	svc('agraph', 		  'agraph', 						dbptks+'{port_postfix}"', 	"Dockerfile")

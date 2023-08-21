@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <balanceSheetRequest>
+    <generator>
+      <date>2019-07-09T11:48:58.1513095Z</date>
+      <source>LodgeiT Tool</source>
+      <author>
+        <firstname>waqas</firstname>
+        <lastname>awan</lastname>
+        <company>uhudsoft</company>
+      </author>
+    </generator>
+    <company>
+      <abn>12345678912</abn>
+      <tfn />
+      <clientcode />
+      <anzsic />
+      <notes />
+      <directors />
+    </company>
+
+	<startDate>2018-01-01</startDate>
+    <endDate>2018-12-30</endDate>
+
+
+	<defaultCurrency>
+      <unitType>AUD</unitType>
+    </defaultCurrency>
+	<reportCurrency>
+      <unitType>AUD</unitType>
+    </reportCurrency>
+
+    <unitValues>
+
+      <unitValue>
+        <unitType>CHF</unitType>
+        <unitValue>2</unitValue>
+        <unitValueDate>2015-01-01</unitValueDate>
+      </unitValue>
+
+      <unitValue>
+        <unitType>CHF</unitType>
+        <unitValue>4</unitValue>
+        <unitValueDate>2018-01-01</unitValueDate>
+      </unitValue>
+
+      <unitValue>
+        <unitType>CHF</unitType>
+        <unitValue>4</unitValue>
+        <unitValueDate>2018-05-01</unitValueDate>
+      </unitValue>
+
+      <unitValue>
+        <unitType>CHF</unitType>
+        <unitValue>6</unitValue>
+        <unitValueDate>2018-12-30</unitValueDate>
+      </unitValue>
+
+      <unitValue>
+        <unitType>Leonteq_N</unitType>
+        <unitValue>10</unitValue>
+        <unitValueCurrency>CHF</unitValueCurrency>
+        <unitValueDate>2018-01-01</unitValueDate>
+      </unitValue>
+
+	  <unitValue> <!-- not sure if we should require the unitValue, since it can be obtained from the sale -->
+        <unitType>Leonteq_N</unitType>
+        <unitValue>10</unitValue>
+        <unitValueCurrency>CHF</unitValueCurrency>
+        <unitValueDate>2015-05-01</unitValueDate>
+      </unitValue>
+
+      <unitValue>
+        <unitType>Leonteq_N</unitType>
+        <unitValue>10</unitValue>
+        <unitValueCurrency>CHF</unitValueCurrency>
+        <unitValueDate>2018-12-30</unitValueDate>
+      </unitValue>
+
+    </unitValues>
+
+    <bankStatement>
+      <title>Bank Statement</title>
+      <period>2018-07-01 - 2018-12-30</period>
+      <accountDetails>
+        <accountNo />
+        <accountName>CHF_Bank </accountName>
+        <bankID />
+        <currency>CHF</currency>
+        <transactions>
+		  
+		  <transaction>
+            <transdesc>Invest_In</transdesc>
+            <transdate>2015-01-01</transdate>
+            <debit>100</debit>
+            <credit>0</credit>
+            <unit>10</unit>
+            <unitType>Leonteq_N</unitType>
+          </transaction>
+		  
+		  <transaction>
+            <transdesc>Dispose_Of</transdesc>
+            <transdate>2015-05-01</transdate>
+            <debit>0</debit>
+            <credit>100</credit>
+            <unit>10</unit>
+            <unitType>Leonteq_N</unitType>
+          </transaction>
+		  
+        </transactions>
+      </accountDetails>
+    </bankStatement>
+  </balanceSheetRequest>
+</reports>
+
+<!--
+Leonteq_N does not change against CHF, and the Invest_In gets the bank account into overdraft, so the total is always 0.
+-->

@@ -1,0 +1,41 @@
+%:-set_prolog_flag(compile_meta_arguments, always).
+%:-set_prolog_flag(stack_limit, 9080706050403020100).
+%hhh :- current_prolog_flag(malloc,X),format(user_error, '~q~n', [X]).
+%:- set_prolog_stack(global, spare(20000)).
+%:- set_prolog_stack(local, spare(20000)).
+%:- set_prolog_stack(trail, spare(20000)).
+%:- ((have_display,flag(gtrace,true)) -> (writeq(wtf),nl,nl,halt(0),guitracer) ; true). % this would precede evaluation the flag setting goal passed to swipl on command line
+%:- print_debugging_checklist.
+
+
+/*process_request_rpc_cmdline3("testcase_permutations", Params) :-
+	findall(Testcase,
+		(
+
+			testcase(T),
+			include(ground, T, T2),
+			dict_pairs(Params, _, Params_pairs),
+			append(Params_pairs, T2, T3),
+			maplist(pair_to_json, T3, Testcase)
+		),
+		Testcases
+	),
+	json_write(current_output, response{status:ok, result: Testcases}).*/
+
+
+
+
+
+
+	else:
+
+
+	if pipe_rpc_json_to_swipl_stdin:
+		p = subprocess.Popen(cmd, universal_newlines=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)#, shell=True)
+		print('invoke_rpc: piping to swipl:')
+		print(input)
+		sys.stdout.flush()
+		(stdout_data, stderr_data) = p.communicate(input = input)# + '\n\n')
+
+
+

@@ -175,32 +175,37 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 			)
 		)
 	;
+
 		(
 			Historical_Without_Currency_Movement = [coord(
 				without_movement_after(
 					without_currency_movement_against_since(
-						Goods_Unit, Purchase_Currency, Report_Currency, Transaction_Day
+						Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date
 					), 
-					Transaction_Day
+					Before_Start
 				),
 				Goods_Debit)
 			],
 				
 			dr_cr_table_to_txs([
 				% Account                                     DR                                                  CR
-				(Currency_Movement_Account,          Goods_Opening    ,                     Historical_Without_Currency_Movement),
-				(Excluding_Forex_Account,            Historical_Without_Currency_Movement    , Cost)
-			], Historical_Txs, [Description, ' - historical part'], dr
+				(Currency_Movement_Account,          Goods_Opening    ,                     	Historical_Without_Currency_Movement),
+				(Excluding_Forex_Account,            Historical_Without_Currency_Movement    , 	Cost)
+			], 
+			Historical_Txs, [Description, ' - historical part'], dr
 			),
+			
 			Current_Without_Currency_Movement = [coord(
 				without_currency_movement_against_since(Goods_Unit, Purchase_Currency, Report_Currency, Before_Start),
 				Goods_Debit)
 			],
+			
 			dr_cr_table_to_txs([
 				% Account                             DR                                           CR
-				(Currency_Movement_Account,  Goods,                  Current_Without_Currency_Movement),
-				(Excluding_Forex_Account,	  Current_Without_Currency_Movement,    Goods_Opening)
-			], Current_Txs, [Description, ' - current part'], dr
+				(Currency_Movement_Account,  	Goods,                  				Current_Without_Currency_Movement),
+				(Excluding_Forex_Account,	  	Current_Without_Currency_Movement,    	Goods_Opening)
+			], 
+			Current_Txs, [Description, ' - current part'], dr
 			)
 		)
 	).

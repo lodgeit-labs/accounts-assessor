@@ -3,6 +3,11 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/docker_scripts" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sdk" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests2" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sdk/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests2/runner/venv/lib/python3.10/site-packages" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/scraps" />
       <excludeFolder url="file://$MODULE_DIR$/tests" />
       <excludeFolder url="file://$MODULE_DIR$/generated_stack_files" />

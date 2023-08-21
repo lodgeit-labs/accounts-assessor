@@ -20,3 +20,5 @@
 [submodule "sdk"]
 	path = sdk
 	url = https://github.com/koo5/robust_sdk
+[submodule "remoulade"]
+	url = https://github.com/koo5/remoulade/

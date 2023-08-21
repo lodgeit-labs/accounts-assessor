@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<reports 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
+  
+  <balanceSheetRequest>
+    <generator>
+      <date>2014-08-28T10:58:40.000165Z</date>
+      <source>LODGEIT</source>
+      <author>
+        <firstname>David</firstname>
+        <lastname>Joe</lastname>
+        <company>XYZ Company Pvt Ltd</company>
+      </author>
+    </generator>
+    <company>
+      <abn>11111111111</abn>
+      <anzsic />
+    </company>
+
+    <!-- Needed for computation of retained earnings in balance sheet. -->
+    <startDate>2017-07-01</startDate>
+    <!-- Needed for computation of most fields in balance sheet. -->
+    <endDate>2018-06-30</endDate>
+
+    <defaultCurrency>
+      <unitType>AUD</unitType>
+    </defaultCurrency>
+    <reportCurrency>
+      <unitType>AUD</unitType>
+    </reportCurrency>
+
+    <!-- Needed for the tracking of units in inventory. Also needed for correct computation of gains and losses. -->
+    <unitValues>
+
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.4492753623188408</unitValue>
+        <unitValueCurrency>AUD</unitValueCurrency>
+        <unitValueDate>2017-07-01</unitValueDate>
+      </unitValue>
+
+      <unitValue>
+        <unitType>USD</unitType>
+        <unitValue>1.4285714285714286</unitValue>
+        <unitValueCurrency>AUD</unitValueCurrency>
+        <unitValueDate>2018-06-30</unitValueDate>
+      </unitValue>
+
+      <unitValue>
+        <unitType>SG_Issuer_SA</unitType>
+        <unitValue>40</unitValue>
+        <unitValueCurrency>USD</unitValueCurrency>
+      </unitValue>
+    </unitValues>    
+
+    <bankStatement>
+      <title>Bank Statement</title>
+      <period>2010-01-01 - 2010-06-30</period>
+      <accountDetails>
+        <accountNo>1-1110</accountNo>
+        <accountName>WellsFargo</accountName>
+        <dateofBankStatement>2018-09-30</dateofBankStatement>
+        <bankID>Commonwealth Bank</bankID>
+        <currency>USD</currency>
+        <transactions>
+
+          <transaction>
+            <transdesc>Introduce_Capital</transdesc>
+            <transdate>2017-07-01</transdate>
+            <debit>0</debit>
+            <credit>200</credit>
+          </transaction>
+          <transaction>
+            <transdesc>Invest_In</transdesc>
+            <transdate>2017-07-01</transdate>
+            <debit>50</debit>
+            <credit>0</credit>
+            <unit>5</unit>
+            <unitType>SG_Issuer_SA</unitType>
+          </transaction>
+          <transaction>
+            <transdesc>Dispose_Of</transdesc>
+            <transdate>2018-06-30</transdate>
+            <debit>0.00</debit>
+            <credit>200.00</credit>
+            <unit>5</unit>
+            <unitType>SG_Issuer_SA</unitType>
+          </transaction>
+
+        </transactions>
+      </accountDetails>
+    </bankStatement>
+  </balanceSheetRequest>
+</reports>

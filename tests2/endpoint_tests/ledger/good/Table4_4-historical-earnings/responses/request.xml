@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+
+
+<!-- https://www.mathstat.dal.ca/~selinger/accounting/tutorial.html#Table-4.4 -->
+
+
+
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
+  <balanceSheetRequest>
+    <generator>
+      <date>2019-07-04T14:59:53.952296Z</date>
+      <source>LodgeiT Tool</source>
+      <author>
+        <firstname>waqas</firstname>
+        <lastname>awan</lastname>
+        <company>uhudsoft</company>
+      </author>
+    </generator>
+    <company>
+      <abn>12345678912</abn>
+      <tfn />
+      <clientcode />
+      <anzsic />
+      <notes />
+      <directors />
+    </company>
+    <startDate>2000-01-03</startDate>
+    <endDate>2020-12-12</endDate>
+
+    <defaultCurrency>
+      <unitType></unitType>
+    </defaultCurrency>
+
+    <reportCurrency>
+      <unitType>CAD</unitType>
+    </reportCurrency>
+
+    <unitValues>
+
+      <unitValue>
+        <unitValue>0.1</unitValue>
+        <unitValueDate>2000-01-01</unitValueDate>
+        <unitType>USD</unitType>
+        <unitValueCurrency>CAD</unitValueCurrency>
+      </unitValue>
+
+      <unitValue>
+        <unitValue>1.2</unitValue>
+        <unitValueDate>2000-01-02</unitValueDate>
+        <unitType>USD</unitType>
+        <unitValueCurrency>CAD</unitValueCurrency>
+      </unitValue>
+
+      <unitValue>
+        <unitValue>1.3</unitValue>
+        <unitValueDate>2000-01-03</unitValueDate>
+        <unitType>USD</unitType>
+        <unitValueCurrency>CAD</unitValueCurrency>
+      </unitValue>
+
+      <unitValue>
+        <unitValue>1.25</unitValue>
+        <unitValueDate>2000-01-05</unitValueDate>
+        <unitType>USD</unitType>
+        <unitValueCurrency>CAD</unitValueCurrency>
+      </unitValue>
+
+      <unitValue>
+        <unitValue>1.25</unitValue>
+        <unitValueDate>2000-01-07</unitValueDate>
+        <unitType>USD</unitType>
+        <unitValueCurrency>CAD</unitValueCurrency>
+      </unitValue>
+
+      <unitValue>
+        <unitValue>1000</unitValue>
+        <unitValueDate>2020-12-12</unitValueDate>
+        <unitType>USD</unitType>
+        <unitValueCurrency>CAD</unitValueCurrency>
+      </unitValue>
+
+   
+    </unitValues>
+
+	<accountHierarchy>
+		default_account_hierarchy.xml
+	</accountHierarchy>
+	
+	<accountHierarchy>
+		<Expenses>
+			<FoodExpenses/>
+		</Expenses>
+	</accountHierarchy>
+	
+
+    <actionTaxonomy>
+      <action>
+        <id>Introduce_Capital</id>
+        <exchangeAccount>ShareCapital</exchangeAccount>
+        <tradingAccount />
+        <description>introduce capital</description>
+      </action>
+      <action>
+        <id>Exchange</id>
+        <exchangeAccount>ClearingAccount</exchangeAccount>
+        <tradingAccount />
+        <description>exchange</description>
+      </action>
+      <action>
+        <id>Buy_Food</id>
+        <exchangeAccount>FoodExpenses</exchangeAccount>
+        <tradingAccount />
+        <description>buy food</description>
+      </action>
+    </actionTaxonomy>
+
+	
+		
+	
+    <bankStatement>
+      <title>Bank Statement</title>
+      <period>2018-07-02 - 2018-12-30</period>
+      <accountDetails>
+        <accountNo />
+        <accountName>CAD_Bank </accountName>
+        <bankID />
+        <currency>CAD</currency>
+
+        <transactions>
+          <transaction>
+            <transdesc>Introduce_Capital</transdesc>
+            <transdate>2000-01-01</transdate>
+            <credit>200</credit>
+          </transaction>
+          <transaction>
+            <transdesc>Exchange</transdesc>
+            <transdate>2000-01-02</transdate>
+            <debit>120</debit>
+          </transaction>
+          <transaction>
+            <transdesc>Exchange</transdesc>
+            <transdate>2000-01-05</transdate>
+            <credit>75</credit>
+          </transaction>
+          <transaction>
+            <transdesc>Buy_Food</transdesc>
+            <transdate>2000-01-07</transdate>
+            <debit>20</debit>
+          </transaction>
+        </transactions>
+
+      </accountDetails>
+      <accountDetails>
+        <accountNo />
+        <accountName>USD_Bank </accountName>
+        <bankID />
+        <currency>USD</currency>
+
+        <transactions>
+          <transaction>
+            <transdesc>Exchange</transdesc>
+            <transdate>2000-01-02</transdate>
+            <credit>100</credit>
+          </transaction>
+          <transaction>
+            <transdesc>Buy_Food</transdesc>
+            <transdate>2000-01-03</transdate>
+            <debit>40</debit>
+          </transaction>
+          <transaction>
+            <transdesc>Exchange</transdesc>
+            <transdate>2000-01-05</transdate>
+            <debit>60</debit>
+          </transaction>
+        </transactions>
+
+      </accountDetails>
+    </bankStatement>
+  </balanceSheetRequest>
+</reports>

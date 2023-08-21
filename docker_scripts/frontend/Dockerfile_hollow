@@ -15,11 +15,17 @@ RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[
 
 
 EXPOSE 7788
-RUN mkdir -p /app/server_root
-VOLUME /app/server_root
+RUN mkdir -p /app/server_root/tmp
+VOLUME /app/server_root/tmp
 VOLUME /app/sources/
 USER myuser
 
+
+ENV FLASK_ENV=development
+ENV FLASK_DEBUG=1
+ENV PYTHONUNBUFFERED=1
+ENV WATCHMEDO_INTERVAL=5
+ENV WATCHMEDO=true
 
 
 WORKDIR /app/sources/frontend

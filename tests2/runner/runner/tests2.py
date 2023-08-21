@@ -11,12 +11,16 @@ from pathlib import Path as P
 import sys,os
 from urllib.parse import urlparse
 
+from runner.utils import *
+
 #print(sys.path)
 #print(os.path.dirname(__file__))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../..')))
 from fs_utils import directory_files, find_report_by_key
-
-
+import fs_utils
+from robust_sdk.xml2rdf import Xml2rdf
+from common import robust_tests_folder
 
 
 
@@ -33,7 +37,7 @@ class Dummy(luigi.Task):
 
 
 
-class AsyncComputationStart(luigi.Task):
+class TestPrepare(luigi.Task):
 	test = luigi.parameter.DictParameter()
 
 
@@ -42,16 +46,23 @@ class AsyncComputationStart(luigi.Task):
 		request_files_dir.mkdir(parents=True, exist_ok=True)
 		inputs = self.copy_inputs(request_files_dir)
 		inputs.append(self.write_custom_job_metadata(request_files_dir))
-		self.run_request(inputs)
+		with self.output().open('w') as out:
+			json.dump(inputs, out, indent=4, sort_keys=True, cls=MyJSONEncoder)
 
 
 	def copy_inputs(self, request_files_dir):
 		files = []
 		input_file: pathlib.Path
-		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
-			shutil.copyfile(input_file, request_files_dir / input_file.name)
-			files.append(request_files_dir / input_file.name)
+		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('request/*'))):
+			if str(input_file).endswith('/request.xml'):
+				with open(input_file) as f:
+					x = Xml2rdf().xml2rdf(input_file, request_files_dir)
+			else:
+				x = request_files_dir / input_file.name
+				shutil.copyfile(input_file, x)
+			files.append(x)
 		return files
+
 
 	def write_custom_job_metadata(self, request_files_dir):
 		data = dict(self.test)
@@ -61,14 +72,28 @@ class AsyncComputationStart(luigi.Task):
 		return fn
 
 
+	def output(self):
+		return luigi.LocalTarget(P(self.test['path']) / 'request_files.json')
 
-	def run_request(self, inputs: list[pathlib.Path]):
+
+
+
+class TestStart(luigi.Task):
+	test = luigi.parameter.DictParameter()
+
+
+	def requires(self):
+		return TestPrepare(self.test)
+
+	def run(self):
 		url = self.test['robust_server_url']
 		logging.getLogger('robust').debug('')
 		logging.getLogger('robust').debug('querying ' + url)
 
-		request_format = 'xml' if any([str(i).lower().endswith('xml') for i in inputs]) else 'rdf'
+		with self.input().open() as input:
+			inputs = json.load(input)
 
+		request_format = 'xml' if any([str(i).lower().endswith('xml') for i in inputs]) else 'rdf'
 
 		files = {}
 		for idx, input_file in enumerate(inputs):
@@ -83,6 +108,7 @@ class AsyncComputationStart(luigi.Task):
 		else:
 			resp.raise_for_status()
 
+		logging.getLogger('robust').debug('handle: ' + handle)
 		with self.output().open('w') as o:
 			o.write(handle)
 
@@ -93,13 +119,13 @@ class AsyncComputationStart(luigi.Task):
 
 
 
-class AsyncComputationResult(luigi.Task):
+class TestResult(luigi.Task):
 	test = luigi.parameter.DictParameter()
 
 
 	def requires(self):
-		return AsyncComputationStart(self.test)
-
+		return TestStart(self.test)
+	
 
 	def run(self):
 		with self.input().open() as input:
@@ -126,43 +152,114 @@ class AsyncComputationResult(luigi.Task):
 
 
 
-class Evaluation(luigi.Task):
+class TestEvaluate(luigi.Task):
 	priority = 100
 
 	test = luigi.parameter.DictParameter()
 
 
 	def requires(self):
-		return AsyncComputationResult(self.test)
+		return TestResult(self.test)
+
 
 
 	def run(self):
 
-		o: luigi.LocalTarget = self.output()['outputs']
-		P(o.path).mkdir(parents=True, exist_ok=True)
+		# judiciously picked list of interesting differences between expected and actual results
+		delta:list[dict] = []
 
-		job = json.load(open(P(self.input().path)))
-		delta = []
+		# job info / response json sent by robust api
+		job_fn = P(self.input().path)
+		job = json.load(open(job_fn))
 
-		if job['status'] != 'Success':
-			delta.append("""job['status'] != 'Success'""")
-		else:
-			result = job['result']
-			if type(result) != dict or 'reports' not in result:
-				delta.append("""type(result) != dict or 'reports' not in result""")
-			else:
-				reports = result['reports']
+		def done():
+			with self.output()['evaluation'].open('w') as out:
+				json.dump({'test':dict(self.test), 'job': job, 'delta':delta}, out, indent=4, sort_keys=True)
 
-				with o.temporary_path() as tmp:
-					alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
 
-				alerts_expected = json.load(open(P(self.test['suite']) / 'responses' / 'alerts_json.json'))
+		# directory where we'll download reports that we want to analyze
+		results: luigi.LocalTarget = self.output()['outputs']
+		P(results.path).mkdir(parents=True, exist_ok=True)
 
-				if alerts_expected != alerts_got:
-					delta.append("""alerts_expected != alerts_got""")
 
-		with self.output()['evaluation'].open('w') as out:
-			json.dump({'test':dict(self.test), 'job': job, 'delta':delta}, out, indent=4, sort_keys=True)
+		job_expected_fn = os.path.abspath(P(self.test['suite']) / self.test['dir'] / 'job.json')
+		logging.getLogger('robust').info(job_expected_fn)
+		overwrite_job_json_op = {"op": "cp", "src": str(self.input().path), "dst": str(job_expected_fn)}
+
+		try:
+			job_expected = json.load(open(job_expected_fn))
+		except FileNotFoundError:
+			jobfile_missing_delta = {
+							"msg":"job.json is missing in testcase",
+							"fix": overwrite_job_json_op
+						}
+			delta.append(jobfile_missing_delta)
+			return done()
+
+
+		# if job['status'] != job_expected['status']:
+		# 	delta.append({
+		# 		"msg":"job['status'] differs",# + ": " + jsondiffstr(job['status'] != job_expected['status'])
+		# 		"fix": [overwrite_job_json_op]
+		# 	})
+		# 	return done()
+		#
+		#
+		# saved_reports = [{'fn':fn} for fn in glob()]
+		#
+		#
+		# if job['status'] != 'Success':
+		# 	if saved_reports != []:
+		# 		delta.append({
+		# 			"msg":"extraneous saved report files in a testcase that should fail"
+		# 		})
+		# 		return done()
+		#
+		#
+		#
+		# if job_expected['status'] == 'Success':
+		# 	reports = job['result']['reports']
+		# else:
+		# 	reports = []
+		#
+		#
+		#
+		# expected_reports = for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
+		#
+		#
+		# reports_to_compare = []
+		#
+		# for r in expected_reports:
+		# 	fn = r['fn']
+		# 	received_report = find_report_by_key(reports, 'fn', fn)
+		# 	if received_report is None:
+		# 		delta.append({
+		# 			"msg": f"report {fn} is missing in testcase",
+		# 			"fix": {"op": "cp", "src": fn, "dst": results.path}
+		# 		})
+		# 	else:
+		# 		reports_to_compare.append({'expected_fn': fn, 'received_url': received_report['url']})
+		#
+		#
+		#
+		# reports = []
+		# if job['status'] == 'Success':
+		# 	result = job['result']
+		# 	if type(result) != dict or 'reports' not in result:
+		# 		delta.append("""type(result) != dict or 'reports' not in result""")
+		# 	else:
+		# 		reports = result['reports']
+		#
+		#
+		#
+		# 		with results.temporary_path() as tmp:
+		# 			alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
+		#
+		# 		alerts_expected = json.load(open(P(self.test['suite']) / 'responses' / 'alerts_json.json'))
+		#
+		# 		if alerts_expected != alerts_got:
+		# 			delta.append("""alerts_expected != alerts_got""")
+
 
 
 	def output(self):
@@ -192,12 +289,7 @@ class Permutations(luigi.Task):
 
 
 	def robust_testcase_dirs(self):
-		dirs0 = [P(x) for x in sorted(glob.glob('**/' + self.dirglob, root_dir=self.suite, recursive=True))]
-		dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
-		dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
-		if dirs2 == []:
-			return ['.'] # is this supposed to be self.suite instead?
-		return dirs2
+		return fs_utils.robust_testcase_dirs(self.suite, self.dirglob)
 
 
 	def required_evaluations(self):
@@ -226,18 +318,33 @@ class Permutations(luigi.Task):
 
 
 
-class EndpointTestsSummary(luigi.Task):
-	session = luigi.parameter.OptionalPathParameter(default='/tmp/robust_tests/'+str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
+
+def optional_session_path_parameter():
+	return luigi.parameter.OptionalPathParameter(default=robust_tests_folder() + str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_'))
+
+
+
+
+class Summary(luigi.Task):
+	session = optional_session_path_parameter()
 
 
 	def requires(self):
 		return Permutations(self.session)
 
 
+	def make_latest_symlink(self):
+		target = self.session.parts[-1]
+		symlink = self.session / 'latest'
+		ccss(f'ln -s {target} {symlink}')
+		ccss(f'mv {symlink} {robust_tests_folder()}')
+
+
 	def run(self):
 		with self.input().open() as pf:
 			permutations = json.load(pf)
-		evals = list(Evaluation(t) for t in permutations)
+		evals = list(TestEvaluate(t) for t in permutations)
+		self.make_latest_symlink()
 		yield evals
 
 		with self.output().open('w') as out:
@@ -251,6 +358,30 @@ class EndpointTestsSummary(luigi.Task):
 
 	def output(self):
 		return luigi.LocalTarget(self.session / 'summary.json')
+
+
+
+
+class TestDebugPrepare(luigi.WrapperTask):
+	""" a debugging target that only prepares input files, without actually starting any jobs
+	"""
+	session = optional_session_path_parameter()
+
+	def requires(self):
+		return Permutations(self.session)
+
+	def run(self):
+		with self.input().open() as pf:
+			yield [TestPrepare(t) for t in json.load(pf)]
+
+
+
+
+
+
+
+
+
 
 
 

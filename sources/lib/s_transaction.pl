@@ -354,8 +354,9 @@ handle_additional_file(Bn, S_Transactions) :-
 	!doc(Acc, l:currency, Account_Currency),
 	!doc(Acc, l:name, Account_Name),
 	!doc(Acc, l:raw_items, Items),
-	!maplist('extract bank statement transaction'(Account_Currency, Account_Name), Items, S_Transactions0),
-	exclude(var, S_Transactions0, S_Transactions1),
+	!doc(Acc, l:source_type, Source_Type),
+	!maplist('extract bank statement transaction'(Source_Type, Account_Currency, Account_Name), Items, S_Transactions0),
+ 	exclude(var, S_Transactions0, S_Transactions1),
 	cf('bank statement transactions are ordered by date'(Acc, S_Transactions1)),
 	pop_format.
 
@@ -385,7 +386,9 @@ handle_additional_file(Bn, S_Transactions) :-
 	).
 
 
- 'extract bank statement transaction'(_, _, Item, _) :-
+ /* accept empty row */
+ 'extract bank statement transaction'(Source_Type, _, _, Item, _) :-
+ 	e(Source_Type, ic_ui:bank_statement_sheet),
 	\+doc_value(Item, bs:transaction_description, _),
 	\+read_date(Item, bs:bank_transaction_date, _),
 	\+doc_value(Item,bs:units_count,_),
@@ -395,7 +398,7 @@ handle_additional_file(Bn, S_Transactions) :-
 	\+doc_value(Item,bs:credit,_),
 	!.
 
-'extract bank statement transaction'(Account_Currency, Account_Name, Item, S_Transaction) :-
+'extract bank statement transaction'(_Source_Type, Account_Currency, Account_Name, Item, S_Transaction) :-
 	push_format('extract bank statement transaction from: ~w', [$>sheet_and_cell_string(Item)]),
 	atom_string(Action_verb_name, $>rpv(Item, bs:transaction_description)),
 	!read_date(Item, bs:bank_transaction_date, Date),

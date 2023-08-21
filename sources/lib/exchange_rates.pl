@@ -173,30 +173,24 @@ In other words, if we aquire, before report start, an investment in a foreign cu
 then our historical gains on that investement are expressed with help of without_movement_after.
 It makes sure that not only is the unit value from correct date used, but that also the subsequent conversion into report currency is done at that date's rates.
 */
-without_movement_after(Table, Exchange_Date, Src, Dst, Rate) :-
+ without_movement_after(Table, Exchange_Date, Src, Dst, Rate) :-
 	Src = without_movement_after(Unit, Freeze_Date),
-	(
-		Freeze_Date @> Exchange_Date
-	->
-		Exchange_Date2 = Exchange_Date
-	;
-		Exchange_Date2 = Freeze_Date 
-	),
+	% let Exchange_Date2 be the smaller of Exchange_Date and Freeze_Date
+	(	Freeze_Date @> Exchange_Date
+	->	Exchange_Date2 = Exchange_Date
+	;	Exchange_Date2 = Freeze_Date),
 	exchange_rate2(Table, Exchange_Date2, Unit, Dst, Rate).
 	
-all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full) :-
+ all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full) :-
 	assertion(nonvar(Dest_Currency)),
 	findall(
 		(Dest_Currency, Rate), 
 		without_movement_after(Table, Day, Src_Currency, Dest_Currency, Rate),
 		Best_Rates1
 	),
-	(
-		Best_Rates1 \= []
-	-> 
-		Best_Rates = Best_Rates1
-	;
-		(	false
+	(	Best_Rates1 \= []
+	->	Best_Rates = Best_Rates1
+	;	(	false
 		->	%for debugging, find all exchange rates just to make sure they are all the same:
 			!findall(
 				(Dest_Currency, Rate),
@@ -227,7 +221,7 @@ force_rates_into_float(Day, Src_Currency, Best_Rates, Exchange_Rates_Full) :-
 
 exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	/*either we will allow this pred to take unbound arguments or not, not decided yet, hence the sorting by params below */
-	assertion(ground((Table, Day, Src_Currency, Dest_Currency))),
+	assertion(ground((Table, Day, Src_Currency, Dest_Currency))), % if inputs must be ground, the below can be greatly simplified
 	all_exchange_rates(Table, Day, Src_Currency, Dest_Currency, Exchange_Rates_Full),
 	findall(
 		params(Day, Src_Currency, Dest_Currency),
@@ -245,17 +239,16 @@ exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 		Exchange_Rates
 	),
 	sort(Exchange_Rates, Exchange_Rates_Sorted),
+	
+	% this is the only useful part - check each rate against each other, if they differ, throw
 	findall(
 		_,
 		(
 			member(R1, Exchange_Rates_Sorted),
 			member(R2, Exchange_Rates_Sorted),
-			(
-				floats_close_enough(R1, R2)
-			->
-				true
-			;
-				(
+			(	floats_close_enough(R1, R2)
+			->	true
+			;	(
 					format(string(Str), 'multiple different exchange rates found for: Day:~w, Src_Currency:~w, Dest_Currency:~w, rates found:~w\n', [Day, Src_Currency, Dest_Currency, Exchange_Rates_Sorted]),
 					throw_string(Str)
 				)
@@ -310,9 +303,13 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
  extract_exchange_rates1(Exchange_Rates) :-
  	!get_sheet_data(ic:unit_valueses, X),
 
-	!doc(X, excel:has_unknown_fields, Fields0),
-	!doc_list_items(Fields0, Fields),
-	maplist(!parse_date_field, Fields),
+	(	(
+			doc(X, excel:has_unknown_fields, Fields0),
+			!doc_list_items(Fields0, Fields),
+			maplist(!parse_date_field, Fields)
+		)
+	->	true
+	;	Fields = []),
 
 	!doc(X, rdf:value, Items0),
 	!doc_list_items(Items0, Items),
@@ -360,7 +357,8 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 			)
 			;
 			(
-				doc_value(Item, uv:date, Date)
+				doc_value(Item, uv:date, Date),
+				doc_value(Item, uv:value, V)
 			)
 		),
 		Rates

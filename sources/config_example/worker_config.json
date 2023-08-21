@@ -1,5 +1,5 @@
 {
-	"DONT_GTRACE" : true,
+	"GTRACE_ON_OWN_EXCEPTIONS" : false,
 	"DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR" : false,
-	"DEBUG" : true
+	"prolog_debug" : true
 }

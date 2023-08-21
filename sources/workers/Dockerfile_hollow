@@ -21,11 +21,20 @@ RUN     apt-get install -y \
 
 
 RUN apt-get install -y libpq-dev #for remoulade
+#RUN rm -rf /var/lib/apt/lists/*
+
+
 RUN chown myuser:myuser /app/
+RUN chown -R myuser:myuser /home/myuser
+RUN ls -thrlsa /home/myuser/
+RUN touch /home/myuser/.gitconfig
+RUN chown -R myuser:myuser /home/myuser
+RUN ls -thrlsa /home/myuser/.gitconfig
+RUN df -Tha
 
 USER myuser
 
-#RUN rm -rf /var/lib/apt/lists/*
+RUN git config --global --add safe.directory /app/swipl/packages/xpce
 
 RUN uname -a
 RUN gcc -v 2>&1
@@ -34,7 +43,7 @@ RUN gcc -v 2>&1
 #RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
 #RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
 #RUN git clone --recurse-submodules  --depth 1 -b V8.3.28  "https://github.com/koo5/swipl-devel.git"       swipl
-RUN git clone --recurse-submodules  --depth 1 -b V9.1.3  "https://github.com/SWI-Prolog/swipl.git"       swipl
+RUN git clone --recurse-submodules  --depth 1 -b V9.0.4  "https://github.com/SWI-Prolog/swipl.git"       swipl
 
 WORKDIR swipl
 #RUN git reset a624386fa4c4718866a906e597e92b8b1b048382 --hard
@@ -88,7 +97,7 @@ RUN chown -R myuser:myuser /app/sources/common/libs/remoulade/
 USER myuser
 
 USER root
-# you can't run this as non-root, because python insists on writing some random stuff somewhere random around the filesystem. Also, you can't install in develop mode (-e), because python insists on writing random stuff into the sources directory and then expects to find it there (which it wont if the sources directory gets mounted over by a volume for runtime). 2023 people, 2023.
+# you can't run this as non-root, because python insists on writing some random stuff somewhere random around the filesystem. Also, you can't install in develop mode (-e), because python insists on writing random stuff into the sources directory and then expects to find it there (which it wont if the sources directory gets mounted over by a volume for runtime). 2023, people, 2023.
 RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v -v -v --upgrade --ignore-installed --user  libs/remoulade/[rabbitmq,redis,postgres]
 USER myuser
 
@@ -99,7 +108,8 @@ RUN mkdir -p /app/server_root/tmp
 RUN mkdir -p /app/server_root/control
 RUN chown myuser:myuser /app/server_root/tmp
 RUN chown myuser:myuser /app/server_root/control
-VOLUME /app/server_root
+VOLUME /app/server_root/tmp
+RUN chown myuser:myuser /app/server_root/tmp
 
 
 RUN mkdir -p /app/cache
@@ -114,5 +124,9 @@ RUN chown myuser:myuser /app/server_root/
 USER myuser
 COPY init_prolog.sh .
 RUN ./init_prolog.sh
-ENTRYPOINT ["/app/sources/workers/start.sh"]
+
+ENV WATCHMEDO_INTERVAL=5
+ENV WATCHMEDO=true
+
+CMD ["/app/sources/workers/start.sh"]
 HEALTHCHECK CMD /bin/true

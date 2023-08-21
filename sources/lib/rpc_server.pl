@@ -5,6 +5,15 @@
 	:- format(user_error, 'SWIPL_NODEBUG on~n', []).
 :- endif.
 
+
+:- initialization(init_guitracer).
+
+ init_guitracer :-
+	(	env_bool('GTRACE_ON_OWN_EXCEPTIONS', true)
+	->	guitracer
+	;	true).
+
+
 :- use_module(library(http/json)).
 :- use_module('residency', []).
 :- use_module('sbe', []).
@@ -12,23 +21,7 @@
 
 :- ['lib'].
 
-%:-set_prolog_flag(compile_meta_arguments, always).
-%:-set_prolog_flag(stack_limit, 9080706050403020100).
-%hhh :- current_prolog_flag(malloc,X),format(user_error, '~q~n', [X]).
-%:- hhh.
-%:- set_prolog_stack(global, spare(20000)).
-%:- set_prolog_stack(local, spare(20000)).
-%:- set_prolog_stack(trail, spare(20000)).
-
-
-%:- ((have_display,flag(gtrace,true)) -> (writeq(wtf),nl,nl,halt(0),guitracer) ; true). % this would precede evaluation the flag setting goal passed to swipl on command line
-
-%:- print_debugging_checklist.
-
 :- misc_check(env_bool('PYTHONUNBUFFERED', true)).
-
-
-
 
 
 /* read command from stdin */
@@ -60,19 +53,8 @@ process_request_rpc_cmdline2(Dict) :-
 	flush_output.
 
 
-/*process_request_rpc_cmdline3("testcase_permutations", Params) :-
-	findall(Testcase,
-		(
 
-			testcase(T),
-			include(ground, T, T2),
-			dict_pairs(Params, _, Params_pairs),
-			append(Params_pairs, T2, T3),
-			maplist(pair_to_json, T3, Testcase)
-		),
-		Testcases
-	),
-	json_write(current_output, response{status:ok, result: Testcases}).*/
+
 
 process_request_rpc_cmdline3("calculator", Dict) :-
 	!,
@@ -82,6 +64,8 @@ process_request_rpc_cmdline3("chat", Dict) :-
 	!,
 	!(do_chat(Dict, Response)),
 	json_write(current_output, Response).
+
+
 
 process_request_rpc_cmdline3(_,_) :-
 	json_write(current_output, response{status:error, message:unknown_method}).

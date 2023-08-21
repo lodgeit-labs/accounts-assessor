@@ -16,7 +16,7 @@ redis_backend = RedisBackend(url=os.environ['REDIS_HOST'])
 result_time_limit_ms = 10 * 12 * 31 * 24 * 60 * 60 * 1000
 broker_url="amqp://"+os.environ['RABBITMQ_URL']+"?timeout=15"
 print(broker_url)
-broker = RabbitmqBroker(url=broker_url)
+broker = RabbitmqBroker(url=broker_url, confirm_delivery=True, delivery_mode=2)
 
 broker.add_middleware(Results(backend=redis_backend, store_results=True, result_ttl=result_time_limit_ms))
 broker.add_middleware(MessageState(PostgresBackend(url=os.environ['REMOULADE_PG_URI']), state_ttl=result_time_limit_ms))

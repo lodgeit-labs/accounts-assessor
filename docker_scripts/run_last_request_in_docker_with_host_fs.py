@@ -1,9 +1,28 @@
 #!/usr/bin/env python3
 
+"""
+
+the crux of this script is in attaching to an existing stack, and spawning a new worker container with a given command.
+It also sets some debugging flags, and in doing so is duplicating some of the functionality of invoke_rpc.call_prolog.
+
+
+two modes of operation may be needed,
+1) spawning a new container
+2) execing in an existing container
+
+exec_in_worker.py will serve for execing in an existing container.
+
+this script will optionally server for spawning a new container, but it is not yet clear if that is needed. It basically has to doplicate some functionality of _run as well as docker-compose. Maybe _run can help it by saving some data alongside last.yml?
+Or maybe docker has a nice way to clone a container?
 
 
 
-import shlex, subprocess, logging
+
+
+"""
+
+
+import shlex, subprocess, logging, os
 try:
 	import click
 except:
@@ -28,14 +47,12 @@ def flatten_lists(x):
 
 
 sq = shlex.quote
-
-
+ss = shlex.split
 
 def co(cmd):
 	return subprocess.check_output(cmd, text=True, universal_newlines=True)
 def cc(cmd):
 	return subprocess.check_call(cmd, text=True, universal_newlines=True)
-ss = shlex.split
 
 
 def realpath(x):
@@ -46,15 +63,16 @@ def realpath(x):
 
 
 l = logging.getLogger()
-
-
 l.setLevel(logging.DEBUG)
 l.addHandler(logging.StreamHandler())
 
 
+
+
 @click.command(
 	help="""Run a request by attaching an internal-workers-hollow container to a deployed robust docker stack.""",
-	context_settings=dict(help_option_names=['-h', '--help'])
+	context_settings=dict(help_option_names=['-h', '--help'],
+						  show_default=True)
 	)
 
 @click.option('-pp', '--port_postfix', 			type=str, 	default='',
@@ -67,16 +85,19 @@ l.addHandler(logging.StreamHandler())
 	help="debug, default True.")
 
 @click.option('-r', '--request', 				type=str, 	default='/app/server_root/tmp/last_request',
-	help="the directory containing the request file(s), defaults to /tmp/last_request.")
+	help="the directory containing the request file(s).")
 
 @click.option('-s', '--script', 				type=str,
 	help="override what to run inside the container")
 
+@click.option('-dr', '--dry_run', type=bool, default=False, help="stop before invoking swipl")
 
 
 
-def run(port_postfix, server_public_url, debug, request, script):
-	cc(['./lib/xhost.py'])
+
+def run(port_postfix, server_public_url, debug, request, script, dry_run):
+	if os.environ.get('DISPLAY','') != '':
+		cc(['./lib/xhost.py'])
 	cc(['./lib/git_info.fish'])
 
 	HOME = realpath('~')
@@ -100,11 +121,12 @@ def run(port_postfix, server_public_url, debug, request, script):
 
 	if script == None:
 		script = f""" \
-					cd /app/server_root/; \
+					cd /app/server_root/tmp; \
 					env PYTHONUNBUFFERED=1  \
-					../sources/workers/invoke_rpc_cmdline.py \
+					/app/sources/workers/invoke_rpc_cmdline.py \
 					{DBG1} \
 					--halt true \
+					--dry_run {dry_run} \
 					-s "{server_public_url}" \
 					--prolog_flags "{DBG2},set_prolog_flag(services_server,'http://services:17788')" \
 					{sq(request)} \
@@ -129,6 +151,10 @@ def run(port_postfix, server_public_url, debug, request, script):
 			--env="ROBUST_ROL_ENABLE_CHECKS" \
 			--env="ENABLE_CONTEXT_TRACE_TRAIL" \
 			--env="ROBUST_ENABLE_NICETY_REPORTS" \
+			--env="REDIS_HOST" \
+			--env="RABBITMQ_URL" \
+			--env="REMOULADE_PG_URI" \
+
 	\
 			--env SECRET__CELERY_BROKER_URL="amqp://guest:guest@rabbitmq:5672//" \
 			--entrypoint bash

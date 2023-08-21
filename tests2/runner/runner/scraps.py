@@ -88,3 +88,19 @@ class ImmediateComputation(luigi.Task):
 
 	def output(self):
 		return luigi.LocalTarget(P(self.test['path']) / 'outputs')
+
+
+
+
+
+
+
+
+--
+
+
+#reports = self.reportlist_from_saved_responses_directory(results.path)
+def reportlist_from_saved_responses_directory(self, path):
+	return [{'fn' : f} for f in P(path).glob('*')]
+
+

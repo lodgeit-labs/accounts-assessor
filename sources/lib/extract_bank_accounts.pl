@@ -5,35 +5,51 @@
 */
 
  'extract bank accounts' :-
- 	*get_sheets_data(ic_ui:bank_statement_sheet, Bss),
- 	!maplist(!cf('extract bank account'), Bss).
+ 	maplist('extract bank accounts 2', [ic_ui:bank_statement_sheet, ic:bank_statement]).
 
- 'extract bank account'(Acc) :-
-	push_format('extract bank account from: ~w', [$>sheet_and_cell_string(Acc)]),
+
+ 'extract bank accounts 2'(Type) :-
+ 	*get_sheets_data(Type, Bs),
+ 	!maplist(!cf('extract bank statement'(Type)), Bs).
+
+
+ 'extract bank statement'(Type, Acc) :-
+ 	push_format('extract bank statement from: ~w', [$>sheet_and_cell_string(Acc)]),
 	!doc_new_uri(bank_account, Uri),
 	!result_add_property(l:bank_account, Uri),
 
 	atom_string(Account_Currency, $>rpv(Acc, bs:account_currency)),
 	assertion(atom(Account_Currency)),
+	ct(currency(Account_Currency)),
 	!doc_add(Uri, l:currency, Account_Currency),
 	!doc_add(Uri, l:source, Acc),
+	!doc_add(Uri, l:source_type, Type),
 
 	rpv(Acc, bs:items, Raw_items_list0),
 	doc_list_items(Raw_items_list0, Raw_items0),
-	length(Raw_items0, L),
-	(	L < 1
-	->	throw_string('bank statement must specify opening balance')
-	;	true),
-	[First_row|Raw_items1] = Raw_items0,
-	check_first_row(First_row),
-	%gtrace,
+
+	(	Type == ic_ui:bank_statement_sheet
+	->	(
+			length(Raw_items0, L),
+			(	L < 1
+			->	throw_string('bank statement must specify opening balance')
+			;	true),
+			[First_row|Raw_items1] = Raw_items0,
+			check_first_row(First_row)
+		)
+	;	Raw_items1 = Raw_items0)
+	,
+
 	!doc_add(Uri, l:raw_items, Raw_items1),
 
-	(	opv(First_row, bs:bank_balance, Opening_balance_number)
+	(	(	Type == ic_ui:bank_statement_sheet
+		->	opv(First_row, bs:bank_balance, Opening_balance_number)
+		;	opv(Acc, bs:opening_balance, Opening_balance_number))
 	->	(	is_numeric(Opening_balance_number)
 		->	true
 		;	throw_string('opening balance: number expected'))
 	;	Opening_balance_number = 0),
+
 	(	{Opening_balance_number = 0}
 	->	true
 	;	(
@@ -47,9 +63,10 @@
 	!doc_add_value(Uri, l:opening_balance, Opening_balance),
 
 	atom_string(Account_Name, $>rpv(Acc, bs:account_name)),
-	(atom(Account_Name)->true;throw_string('account_name: atom expected')),
 	!doc_add(Uri, l:name, Account_Name),
 	pop_context.
+
+
 
  check_first_row(First_row) :-
 	(	(

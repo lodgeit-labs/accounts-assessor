@@ -68,7 +68,7 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	),
 
 
-	(	current_prolog_flag(disable_graceful_resume_on_unexpected_error, true)
+	(	flag('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', true)
 	->	(
 			call(Item_goal),
 			pop_context,
@@ -273,7 +273,7 @@ take statement/source transaction and generate a list of plain transactios.
 
 
 	coord_vec(Coord_Ours_Converted, Converted_Vector_Ours),
-	/* in case of an empty vector, the unit was lost, so fill it back in */
+	/* in case of an empty vector, the unit name was lost, so fill it back in */
 	result_property(l:report_currency, Report_Currency0),
 	(	Report_Currency0 = [Report_Currency]
 	->	Coord_Ours_Converted = coord(Report_Currency, _)

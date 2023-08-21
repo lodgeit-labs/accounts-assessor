@@ -52,7 +52,9 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
-      CSHARP_SERVICES_URL:
+      FLASK_DEBUG:
+      FLASK_ENV:
+      WATCHMEDO:
     #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by copying the dev one
     #  REQUIREMENTS_FILE: requirements.txt
     volumes:
@@ -79,17 +81,19 @@ services:
       - AGRAPH_SUPER_PASSWORD
 
 
-  workers:
+  workers: # at this point, it should be called worker
     image: koo5/workers${PP}:latest
     environment:
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
       SERVICES_URL:
+      CSHARP_SERVICES_URL:
       RABBITMQ_URL:
       REMOULADE_PG_URI:
       REMOULADE_API:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
+      WATCHMEDO:
     volumes:
       - tmp:/app/server_root/tmp
       - cache:/app/cache
@@ -100,23 +104,12 @@ services:
     networks:
       - backend
     depends_on:
+      # workers don't have a good way to healthcheck. So instead of sequencing other containers after workers, we sequence workers after everything else. Theres a small risk of a deadlock if we run frontend with no parallelism (only makes sense for debugging) and somebody comes along and makes a request just before the healthcheck is about to make a request. And users running synchronous requests could experience timeouts when the stack is starting up.
       services:
         condition: service_healthy
       remoulade-api:
         condition: service_healthy
-      frontend: # workers don't have a good way to healthcheck. So instead of sequencing other containers after workers, we sequence workers after everything else. Theres a small risk of a deadlock if we run frontend with no parallelism (only makes sense for debugging) and somebody comes along and makes a request just before the healthcheck is about to make a request. And users running synchronous requests could experience timeouts when the stack is starting up.
-        condition: service_healthy
-    deploy:
-      replicas: 2
-      placement:
-        constraints: [node.role == manager]
-      restart_policy:
-        condition: any
-    secrets:
-      - AGRAPH_SUPER_USER
-      - AGRAPH_SUPER_PASSWORD
-    depends_on:
-      services:
+      frontend: 
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -124,14 +117,24 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-      remoulade-api:
-        condition: service_healthy
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+    secrets:
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
 
 
   services:
     image: koo5/services${PP}:latest
     environment:
       RABBITMQ_URL:
+      FLASK_DEBUG:
+      FLASK_ENV:
+      WATCHMEDO:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -234,6 +237,7 @@ services:
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - rabbitmq:/var/lib/rabbitmq
+      - ./rabbitmq/stuff.conf:/etc/rabbitmq/conf.d/20-stuff.conf
     healthcheck:
         test: rabbitmq-diagnostics -q status && rabbitmq-diagnostics -q check_local_alarms
 
@@ -243,10 +247,13 @@ services:
     networks:
       - backend
     hostnet_ports:
-      - 5432
+      - 5433
     volumes:
       - 'postgresql_data:/bitnami/postgresql'
+#    command: ["postgres", "-c", "max_connections=2000", "-c", "shared_buffers=2048MB"]
     environment:
+#     - PGDATA=/bitnami/postgresql
+      - POSTGRESQL_EXTRA_FLAGS=-c max_connections=2000 -c shared_buffers=2048MB -c port=5433
       - ALLOW_EMPTY_PASSWORD=yes
       - POSTGRESQL_POSTGRES_PASSWORD=""
       - POSTGRESQL_DATABASE=remoulade
@@ -256,8 +263,8 @@ services:
       restart_policy:
         condition: any
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready --dbname=remoulade --username=remoulade --timeout=100 --port=5432 --host=127.0.0.1"]
-      interval: 15s
+      test: ["CMD-SHELL", "pg_isready --dbname=remoulade --username=remoulade --timeout=100 --port=5433 --host=127.0.0.1"]
+      interval: 30s
       timeout: 5s
       retries: 5
 
@@ -272,6 +279,7 @@ services:
     environment:
       SUPERBOWL_WEBSERVER_PORT: 1238
       REMOULADE_BACKEND_LOCATION: http://127.0.0.1:5005
+      WATCHMEDO:
     deploy:
       replicas: 1
       restart_policy:
@@ -294,6 +302,9 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
+      FLASK_DEBUG:
+      FLASK_ENV:
+      WATCHMEDO:
     deploy:
       replicas: 1
       restart_policy:

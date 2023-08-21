@@ -1,0 +1,2 @@
+curl  --trace-time --trace-ascii - --retry-connrefused  --retry-delay 3 --retry 2 -L -S --fail --max-time 20  --connect-timeout 10 github.com
+

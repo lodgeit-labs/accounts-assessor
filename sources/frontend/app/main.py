@@ -17,11 +17,14 @@ from fastapi.responses import RedirectResponse
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
+
+
 templates = Jinja2Templates(directory="templates")
 
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
+import worker
 
 
 
@@ -127,13 +130,13 @@ def post(body: ChatRequest, request: Request):
 
 def json_prolog_rpc_call(request, msg, queue_name=None):
 	msg["client"] = request.client.host
-	return invoke_rpc.call_prolog.send_with_options(kwargs={'msg':msg}, queue_name=queue_name).result.get(block=True, timeout=1000 * 1000)
+	return worker.call_remote_rpc_job(msg, queue_name).result.get(block=True, timeout=1000 * 1000)
 
 
 
 
-def tmp_file_url(server_url, tmp_dir_name, fn):
-	return server_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
+def tmp_file_url(public_url, tmp_dir_name, fn):
+	return public_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
 
 
 
@@ -141,8 +144,8 @@ def tmp_file_url(server_url, tmp_dir_name, fn):
 async def views_limbo(request: Request, job_id: str):
 	job = await get_task(job_id)
 	if job is not None:
-		if job['status'] == 'Success' and 'reports' in job['result'].get('result',{}):
-			return RedirectResponse(find_report_by_key(job['result']['result']['reports'], 'task_directory'))
+		if job['status'] == 'Success' and 'reports' in job['result']:
+			return RedirectResponse(find_report_by_key(job['result']['reports'], 'task_directory'))
 		else:
 			# it turns out that failures are not permanent
 			return templates.TemplateResponse("job.html", {"request": request, "job_id": job_id, "json": json.dumps(job, indent=4, sort_keys=True), "refresh": (job['status'] not in [ 'Success']), 'status': job['status']})
@@ -155,11 +158,16 @@ async def get_task(id: str):
 	if not r.ok:
 		return None
 	message = r.json()
-	if message['actor_name'] not in ["call_prolog_calculator2"]:
+	if message['actor_name'] not in ["local_calculator"]:
 		return None
-	message['result'] = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id).json()
+
+	# a dict with either result or error key (i think...)
+	result = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id, params={'max_size':'99999999'})
+	logger.info('result: %s' % result.text)
+	message['result'] = result.json()
+
 	if 'result' in message['result']:
-		message['result']['result'] = json.loads(message['result']['result'])
+		message['result'] = json.loads(message['result']['result'])
 	return message
 
 
@@ -183,8 +191,8 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 		with open(fn, 'wb') as f:
 			f.write(r.content)
 
-		return process_request(request_tmp_directory_name, [fn], 'rdf', 'job_handle')	
-		
+		return process_request(request_tmp_directory_name)
+
 	
 
 
@@ -192,44 +200,32 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
 	
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
-	
-	files = filter(None, [file1, file2])
-	
-	files2=[] # list of local paths of uploaded files
-	for file in files:
+
+	for file in filter(None, [file1, file2]):
 		logger.info('uploaded: %s' % file)
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
-		files2.append(uploaded)
-		
-	return process_request(request_tmp_directory_name, files2, request_format, requested_output_format)
+
+	return process_request(request_tmp_directory_name, requested_output_format)
 
 
 
 
-def process_request(request_tmp_directory_name, files, request_format, requested_output_format):
-	files = list(filter(None, map(convert_request_file, files)))
-	
-	server_url=os.environ['PUBLIC_URL']
-	job = call_prolog_calculator.call_prolog_calculator(
-		request_tmp_directory_name=request_tmp_directory_name,
-		server_url=server_url,
-		request_files=files,
-		request_format = request_format,
-		final_result_tmp_directory_name = None,
-		final_result_tmp_directory_path = None,
+def process_request(request_directory, requested_output_format = 'job_handle'):
+	public_url=os.environ['PUBLIC_URL']
+
+	job = worker.trigger_remote_calculator_job(
+		request_directory=request_directory,
+		public_url=public_url,
 	)
 
-	logger.info('job.message_id: %s' % job.message_id)
-	final_result_tmp_directory_name = job.message_id
 	logger.info('requested_output_format: %s' % requested_output_format)
 
-	if requested_output_format in ['immediate_xml', 'immediate_json_reports_list']:
-		reports = job.result.get(block=True, timeout=1000 * 1000)
-		if requested_output_format == 'immediate_xml':
+	if requested_output_format == 'immediate_xml':
+			reports = job.result.get(block=True, timeout=1000 * 1000)
 			return RedirectResponse(find_report_by_key(reports['reports'], 'response'))
-		else:
+	elif requested_output_format == 'immediate_json_reports_list':
+			reports = job.result.get(block=True, timeout=1000 * 1000)
 			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory') + '/000000_response.json.json')
-
 	elif requested_output_format == 'job_handle':
 		return JSONResponse(
 		{
@@ -238,15 +234,15 @@ def process_request(request_tmp_directory_name, files, request_format, requested
 			[{
 				"title": "job URL",
 				"key": "job_tmp_url",
-				"val":{"url": tmp_file_url(server_url, final_result_tmp_directory_name, '')}},
+				"val":{"url": tmp_file_url(public_url, job.message_id, '')}},
 			{
 				"title": "job API URL",
 				"key": "job_api_url",
-				"val":{"url": server_url + '/api/job/' + final_result_tmp_directory_name}},
+				"val":{"url": public_url + '/api/job/' + job.message_id}},
 			{
 				"title": "job view URL",
 				"key": "job_view_url",
-				"val":{"url": server_url + '/view/job/' + final_result_tmp_directory_name}},
+				"val":{"url": public_url + '/view/job/' + job.message_id}},
 			]
 		})
 	else:
@@ -260,22 +256,6 @@ def save_uploaded_file(tmp_directory_path, src):
 		shutil.copyfileobj(src.file, dest_fd)
 	return dest
 
-
-def convert_request_file(file):
-	if file == 'custom_job_metadata.json':
-		return None
-	if file.lower().endswith('.xlsx'):
-		to_be_processed = file + '.n3'
-		convert_excel_to_rdf(file, to_be_processed)
-		return to_be_processed
-	return file
-
-
-def convert_excel_to_rdf(uploaded, to_be_processed):
-	"""run a POST request to csharp-services to convert the file"""
-	logger.info('extract sheets: %s' % uploaded)
-	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": "ic_ui:investment_calculator_sheets", "input_fn": uploaded, "output_fn": to_be_processed}).raise_for_status()
-	
 
 
 

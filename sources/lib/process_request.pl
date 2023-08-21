@@ -16,29 +16,31 @@
 :- locale_create(Locale, "en_AU.utf8", []), set_locale(Locale).
 
 
- process_request_rpc_calculator(Dict) :-
-	set_unique_tmp_directory_name(loc(tmp_directory_name, Dict.result_tmp_directory_name)),
+ process_request_rpc_calculator(Params) :-
+	set_unique_tmp_directory_name(loc(tmp_directory_name, Params.result_tmp_directory_name)),
 	doc_init,
-	nicety(init_doc_dump_server),
+	%init_doc_dump_server,
 	context_trace_init_trail_0,
-	'='(Request_uri, $>atom_string(<$, Dict.request_uri)),
+	'='(Request_uri, $>atom_string(<$, Params.request_uri)),
 	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),
 	'='(Request_data_uri, $>atomic_list_concat([Request_data_uri_base, 'request'])),
-	'='(Result_uri, $>atomic_list_concat([Dict.rdf_namespace_base, 'results/', Dict.result_tmp_directory_name])),
+	'='(Result_uri, $>atomic_list_concat([Params.rdf_namespace_base, 'results/', Params.result_tmp_directory_name])),
 	'='(Result_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
 
-	maplist(doc_add(Result_uri, l:rdf_explorer_base), Dict.rdf_explorer_bases),
+	maplist(doc_add(Result_uri, l:rdf_explorer_base), Params.rdf_explorer_bases),
 	doc_add(Request_uri, rdf:type, l:'Request'),
 	doc_add(Request_uri, l:has_result, Result_uri),
 	doc_add(Request_uri, l:has_request_data, Request_data_uri),
 	doc_add(Result_uri, rdf:type, l:'Result'),
 	doc_add(Result_uri, l:has_result_data_uri_base, Result_data_uri_base),
-	doc_add(Result_uri, l:has_job_handle, Dict.final_result_tmp_directory_name),
-	set_server_public_url(Dict.server_url),
+	doc_add(Result_uri, l:has_job_handle, Params.final_result_tmp_directory_name),
+	doc_add(Request_data_uri, l:request_tmp_directory_name, Params.request_tmp_directory_name),
+
+	set_server_public_url(Params.public_url),
 
 	findall(
 		loc(absolute_path, P),
-		member(P, Dict.request_files),
+		member(P, Params.request_files),
 		Request_Files
 	),
 
@@ -49,7 +51,7 @@
 	'make task_directory report entry',
 	'make task_directory report entry 2',
 
-	findall(x, process_request(Dict.request_format, Request_data_uri_base, Request_Files2), Solutions),
+	findall(x, process_request(Params.request_format, Request_data_uri_base, Request_Files2), Solutions),
 	length(Solutions, Solutions_len),
 	(	Solutions_len #= 0
 	->	json_write(current_output, err{error:m{message:'no solutions'}})
@@ -58,13 +60,13 @@
 	->	json_write(current_output, err{warning:m{message:'multiple solutions'}})
 	;	true),
 
-	((cf(make_zip)->true;true)).
+	true.%((cf(make_zip)->true;true)).
 
 
- flag_default(disable_graceful_resume_on_unexpected_error, false).
+ flag_default('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', false).
 
  process_request(Request_format, Request_data_uri_base, File_Paths) :-
-	(	current_prolog_flag(disable_graceful_resume_on_unexpected_error, true)
+	(	flag('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', true)
 	->	(
 			process_multifile_request(Request_format, Request_data_uri_base, File_Paths),
 			Exception = none
@@ -88,7 +90,7 @@
 	!cf(make_alerts_report(Alerts_html)),
 
 	nicety(!cf(make_doc_dump_report)),
-	(!cf(make_context_trace_report)),
+	nicety(!cf(make_context_trace_report)),
 
 	!cf(json_report_entries(Files3)),
 	Json_Out = _{alerts:Alerts3, reports:Files3},
@@ -175,7 +177,7 @@
 
 
  make_context_trace_report :-
-	get_context_trace(Trace0),
+	!cf(get_context_trace(Trace0)),
 	ct("reverse context_trace", reverse(Trace0,Trace)),
 	ct("maplist(make_context_trace_report2...", maplist(make_context_trace_report2,Trace, Html)),
 	ct("add_report_page_with_body(context_trace...", add_report_page_with_body(11, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html)).
@@ -424,12 +426,6 @@
 	format(' -->'),
 	write(Output_Xml_String).
 
-
-/* http uri parameter -> prolog flag */
- maybe_supress_generating_unique_taxonomy_urls(Options2) :-
-	(	member(relativeurls='1', Options2)
-	->	set_flag(prepare_unique_taxonomy_url, false)
-	;	true).
 
  response_file_name(Request_File_Name, Response_File_Name) :-
 	(	replace_request_with_response(Request_File_Name, Response_File_Name)

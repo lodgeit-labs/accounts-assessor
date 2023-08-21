@@ -6,6 +6,6 @@ FLASK_DEBUG=1 \
 PYTHONUNBUFFERED=1 \
 RABBITMQ_URL='localhost:5672' \
 REDIS_HOST='redis://localhost' \
-REMOULADE_PG_URI='postgresql://remoulade@localhost:5432/remoulade' \
+REMOULADE_PG_URI='postgresql://remoulade@localhost:5433/remoulade' \
 ./start.sh
 

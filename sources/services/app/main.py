@@ -12,7 +12,7 @@ from pydantic import BaseModel
 app = FastAPI()
 
 
-import account_hierarchy
+from . import account_hierarchy
 
 
 @app.post("/arelle_extract")

@@ -1,14 +1,17 @@
 #!/usr/bin/env fish
-sudo echo "i'm root!"; or begin; echo "root level setup skipped"; exit 0; end
-
-
 function _; or status --is-interactive; or exit 1; end
-
-
 set DIR (dirname (readlink -m (status --current-filename)));cd "$DIR"
 
 
+sudo echo "i'm root!"; or begin; echo "root level setup skipped"; exit 0; end
+
+
+
+
 sudo apt install -y python3 python3-pip python3-venv ;_
+
+# for building python packages
+sudo apt install -y libcurl4-openssl-dev ;_
 
 # for nice building/deployment UI
 sudo apt install -y tmux ;_

@@ -36,6 +36,9 @@ RUN apt-get install -y git python3 python3-dev python3-pip python3-wheel libcurl
 ARG uid=1000
 ARG gid=1000
 RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
+RUN chown -vR myuser:myuser /home/myuser
+RUN ls -thrlsa /home/myuser/
+
 
 ENV PATH=$PATH:/home/myuser/.local/bin
 

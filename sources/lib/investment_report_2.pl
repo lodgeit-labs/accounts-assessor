@@ -36,7 +36,7 @@
 	atomic_list_concat(['investment_report', Filename_Suffix], Json_Filename),
 
 	Call = investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Title_Text_short, Json_Filename),
-	(	current_prolog_flag(disable_graceful_resume_on_unexpected_error, true)
+	(	flag('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', true)
 	->	call(Call)
 	;	catch_with_backtrace(
 			call(Call),
