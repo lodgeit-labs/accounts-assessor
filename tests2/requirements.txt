@@ -6,7 +6,7 @@
 #
 agraph-python==101.0.11
     # via -r requirements.in
-certifi==2022.12.7
+certifi==2023.7.22
     # via requests
 charset-normalizer==3.0.1
     # via requests
