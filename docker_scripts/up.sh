@@ -8,4 +8,5 @@ function _old_fish_prompt; end; # https://github.com/python/cpython/issues/93858
 set VENV_PATH ~/.local/robust/$DIR/venv
 . $VENV_PATH/bin/activate.fish ;_
 python3 setup.py develop ;_
+./init_configs.sh
 PYTHONUNBUFFERED=true ./up.py $argv
