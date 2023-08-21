@@ -1,11 +1,11 @@
 #!/usr/bin/env fish
+function _; or status --is-interactive; or exit 1; end
+set DIR (dirname (readlink -m (status --current-filename)));cd "$DIR"
+
+
 sudo echo "i'm root!"; or begin; echo "root level setup skipped"; exit 0; end
 
 
-function _; or status --is-interactive; or exit 1; end
-
-
-set DIR (dirname (readlink -m (status --current-filename)));cd "$DIR"
 
 
 sudo apt install -y python3 python3-pip python3-venv ;_
