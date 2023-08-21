@@ -237,8 +237,7 @@ services:
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - rabbitmq:/var/lib/rabbitmq
-    environment:
-      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS="-rabbit consumer_timeout 9999999999"
+      - ./rabbitmq/stuff.conf:/etc/rabbitmq/conf.d/20-stuff.conf
     healthcheck:
         test: rabbitmq-diagnostics -q status && rabbitmq-diagnostics -q check_local_alarms
 

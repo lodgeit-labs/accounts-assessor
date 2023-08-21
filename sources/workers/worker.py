@@ -26,7 +26,7 @@ def call_remote_rpc_job(msg, queue='default'):
 	return local_rpc.send_with_options(kwargs={'msg':msg}, queue_name=queue).result.get(block=True, timeout=1000 * 1000)
 
 @remoulade.actor(alternative_queues=["health"])
-def local_rpc(msg, options):
+def local_rpc(msg, options=None):
 	return invoke_rpc.call_prolog(msg, options)
 
 def trigger_remote_calculator_job(**kwargs):
