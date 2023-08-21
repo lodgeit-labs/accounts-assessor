@@ -2,6 +2,8 @@
 
 
 import os
+import shlex
+
 import invoke_rpc
 from fs_utils import files_in_dir
 from tasking import remoulade
@@ -54,7 +56,7 @@ def run_last_request_outside_of_docker(self):
 	you should also have `services` running on the host (it doesnt matter that it's simultaneously running in docker), because they have to access files by the paths that `workers` sends them.
 	"""
 	tmp_volume_data_path = '/var/lib/docker/volumes/robust_tmp/_data/'
-	os.system('sudo chmod -R o+rX '+tmp_volume_data_path)
+	os.system('sudo chmod -R o+rX '+shlex.quote(tmp_volume_data_path))
 	last_request_host_path = tmp_volume_data_path + os.path.split(os.readlink(tmp_volume_data_path+'last_request'))[-1]
 	local_calculator(last_request_host_path)
 
