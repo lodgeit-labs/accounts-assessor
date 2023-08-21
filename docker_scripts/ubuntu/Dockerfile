@@ -1,6 +1,4 @@
-FROM ubuntu:jammy-20230522
-
- #ubuntu:22.04
+FROM ubuntu:22.04
 
 
 #RUN cat /etc/apt/sources.list
