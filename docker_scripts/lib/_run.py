@@ -76,9 +76,17 @@ def tmuxer(tmux_session_name, terminal_cmd):
 
 	while True:
 		x=tmux_stuff.get()
-		logging.getLogger('tmuxer').debug(f"""tmux_session.new_window(window_name={x['window_name']}, window_shell={x['window_shell']})""")
-		print(f"""ppp tmux_session.new_window(window_name={x['window_name']}, window_shell={x['window_shell']})""")
-		tmux_session.new_window(window_name=x['window_name'], window_shell=x['window_shell'])		
+		try:
+			tmux_session_new_window(tmux_session=tmux_session, window_name=x['window_name'], window_shell=x['window_shell'])
+		except:
+			pass
+
+
+@logger.catch
+def tmux_session_new_window(tmux_session, window_name, window_shell):
+	print(f"""ppp tmux_session.new_window(window_name={window_name}, window_shell={window_shell})""")
+	logging.getLogger('tmuxer').debug(f"""tmux_session.new_window(window_name={window_name}, window_shell={window_shell})""")
+	tmux_session.new_window(window_name=window_name, window_shell=window_shell)
 
 
 @click.group()
