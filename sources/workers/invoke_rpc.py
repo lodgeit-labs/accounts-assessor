@@ -147,7 +147,7 @@ def call_prolog(
 
 
 	logging.getLogger().warn('invoke_rpc: cmd:')
-	env = os.environ.copy() | dict([(k,str(v)) for k,v in config.items()])
+	env = os.environ.copy() | dict([(k,str(v)) for k,v in options.items()])
 	logging.getLogger().warn('env: ' + env_string(env))
 	logging.getLogger().warn('cmd: ' + shlex.join(cmd))
 
