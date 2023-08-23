@@ -89,7 +89,7 @@ def call_prolog(
 		halt=True,
 		pipe_rpc_json_to_swipl_stdin=False,
 		dry_run=False,
-		MPROF_OUTPUT_PATH=get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name'] if 'result_tmp_directory_name' in msg['params']) + '/mem_prof.txt' else None,
+		MPROF_OUTPUT_PATH=get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']+'/mem_prof.txt') if 'result_tmp_directory_name' in msg['params'] else None,
 	)
 
 	with open(sources('config/worker_config.json'), 'r') as c:
