@@ -223,7 +223,9 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	# 	e['DISPLAY']' = os.environ.get('DISPLAY', '')
 
 	if choices['develop']:
-		pass
+		e['FLASK_DEBUG'] = '1'
+		e['FLASK_ENV'] = 'development'
+		e['WATCHMEDO'] = 'true'
 	else:
 		e['FLASK_DEBUG'] = '0'
 		e['FLASK_ENV'] = 'production'
