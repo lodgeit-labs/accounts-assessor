@@ -45,12 +45,6 @@ def call_prolog_calculator(**kwargs):
 	except Exception as e:
 		print(e)
 
-	# write call info txt:
-	with open(os.path.join(result_tmp_path, 'rpc_call_info.txt'), 'w') as info:
-		info.write('request:\n')
-		info.write(str(msg))
-		info.write('\n')
-
 	# copy repo status txt to result dir
 	shutil.copyfile(
 		os.path.abspath(git('sources/static/git_info.txt')),
@@ -81,6 +75,8 @@ def call_prolog(
 	if options is None:
 		options = {}
 
+	result_tmp_path = get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']) if 'result_tmp_directory_name' in msg['params'] else None
+
 	default_options = dict(
 		dev_runner_options=[],
 		prolog_flags='true',
@@ -88,7 +84,8 @@ def call_prolog(
 		prolog_debug=True,
 		halt=True,
 		pipe_rpc_json_to_swipl_stdin=False,
-		dry_run=False
+		dry_run=False,
+		MPROF_OUTPUT_PATH=result_tmp_path + '/mem_prof.txt' if result_tmp_path else None,
 	)
 
 	with open(sources('config/worker_config.json'), 'r') as c:
@@ -101,6 +98,17 @@ def call_prolog(
 
 	sys.stdout.flush()
 	sys.stderr.flush()
+
+	# write call info txt:
+
+	ROBUST_CALL_INFO_TXT_PATH = result_tmp_path+'/rpc_call_info.txt' if result_tmp_path else '/tmp/robust_rpc_call_info.txt'
+	with open(ROBUST_CALL_INFO_TXT_PATH, 'w') as info_fd:
+		info_fd.write('options:\n')
+		info_fd.write(json.dumps(options, indent=4))
+		info_fd.write('\nrequest:\n')
+		info_fd.write(json.dumps(msg, indent=4))
+		info_fd.write('\n')
+
 
 	# construct the command line
 
@@ -139,7 +147,7 @@ def call_prolog(
 
 
 	logging.getLogger().warn('invoke_rpc: cmd:')
-	env = os.environ.copy() | dict([(k,str(v)) for k,v in config.items()])
+	env = os.environ.copy() | dict([(k,str(v)) for k,v in options.items()])
 	logging.getLogger().warn('env: ' + env_string(env))
 	logging.getLogger().warn('cmd: ' + shlex.join(cmd))
 

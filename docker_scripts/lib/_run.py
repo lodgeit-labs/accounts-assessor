@@ -10,9 +10,31 @@ import queue
 import libtmux
 
 
-l = logging.getLogger()
-l.setLevel(logging.DEBUG)
-l.addHandler(logging.StreamHandler())
+#l = logging.getLogger()
+#l.setLevel(logging.DEBUG)
+#l.addHandler(logging.StreamHandler())
+
+from loguru import logger
+
+logger.debug("That's it, beautiful and simple logging!")
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        # Get corresponding Loguru level if it exists.
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
+
+        # Find caller from where originated the logged message.
+        frame, depth = sys._getframe(6), 6
+        while frame and frame.f_code.co_filename == logging.__file__:
+            frame = frame.f_back
+            depth += 1
+
+        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+
+logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+logger.add("/tmp/robust_run.log", backtrace=True, diagnose=True, enqueue=True)
 
 
 sq = shlex.quote
@@ -54,7 +76,17 @@ def tmuxer(tmux_session_name, terminal_cmd):
 
 	while True:
 		x=tmux_stuff.get()
-		tmux_session.new_window(window_name=x['window_name'], window_shell=x['window_shell'])		
+		try:
+			tmux_session_new_window(tmux_session=tmux_session, window_name=x['window_name'], window_shell=x['window_shell'])
+		except:
+			pass
+
+
+@logger.catch
+def tmux_session_new_window(tmux_session, window_name, window_shell):
+	print(f"""ppp tmux_session.new_window(window_name={window_name}, window_shell={window_shell})""")
+	logging.getLogger('tmuxer').debug(f"""tmux_session.new_window(window_name={window_name}, window_shell={window_shell})""")
+	tmux_session.new_window(window_name=window_name, window_shell=window_shell)
 
 
 @click.group()
@@ -191,7 +223,9 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeo
 	# 	e['DISPLAY']' = os.environ.get('DISPLAY', '')
 
 	if choices['develop']:
-		pass
+		e['FLASK_DEBUG'] = '1'
+		e['FLASK_ENV'] = 'development'
+		e['WATCHMEDO'] = 'true'
 	else:
 		e['FLASK_DEBUG'] = '0'
 		e['FLASK_ENV'] = 'production'
@@ -267,12 +301,13 @@ def logtail(compose_events_cmd):
 	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 	for line in io.TextIOWrapper(proc.stdout, encoding="utf-8"):
 		if 'container start' in line or 'container die' in line:
-			print(line)
+			print('logtail: ' + line)
+			logging.getLogger('logtail').debug('logtail: ' + line)
 		if 'container start' in line:
 			s = line.split()
 			container_id = s[4]
 			line_quoted = shlex.quote(line)
-			tmux_stuff.put({'window_name':container_id[:5], 'window_shell':f'echo {line_quoted}; docker logs -f ' + container_id + ' | cat; cat'})
+			tmux_stuff.put({'window_name':container_id[:5], 'window_shell':f'echo {line_quoted}; docker logs -f ' + container_id + ' | cat; echo "end."; cat'})
 	# we kinda might rather want docker-compose -f ../generated_stack_files/last.yml -p robust logs -f <service name>
 	# but as it is, this does pop up a new tmux window when a container is restarted etc, and brings it to the front, and there's always a bit of the old log and then the new, which is nice. Does it ever happen that the log stops being printed while a container is running (with `docker logs`)?
 
@@ -529,8 +564,8 @@ def task(name, dir, cmd):
 
 	cmd = 'stdbuf -oL -eL ' + cmd
 	intro = '\n\ncd ' + shlex.quote(dir) + '\n' + shlex.quote(cmd) + '\n...'
-	stdo = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_out', mode='w+')
-	stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err', mode='w+')
+	stdo = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_out_', mode='w+')
+	stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err_', mode='w+')
 	files += [stde, stdo]
 	tailcmd = 'tail -f '+ stdo.name + ' ' + stde.name
 	tmux_stuff.put({'window_name':name[:5], 'window_shell':tailcmd})
@@ -567,7 +602,7 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 
 	def svc(service_name, dir, cmd, dockerfile):
 		if service_name not in omit_images:
-			return task(service_name, dir, (cmd + ' -f "{dockerfile}" . ').format(
+			return task(service_name + '_build', dir, (cmd + ' -f "{dockerfile}" . ').format(
 				port_postfix=port_postfix,
 				service_name=service_name,
 				dockerfile=dockerfile
@@ -577,7 +612,7 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 	dbptks = f'docker build {pull} -t "koo5/{{service_name}}'
 	dbtks = 'docker build -t "koo5/{service_name}'
 
-	ubuntu = task('ubuntu', 'ubuntu', f'docker build {pull} -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
+	ubuntu = task('ubuntu' + '_build', 'ubuntu', f'docker build {pull} -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
 
 	svc('apache', 		  'apache', 						dbptks+'{port_postfix}"', 	"Dockerfile")
 	svc('agraph', 		  'agraph', 						dbptks+'{port_postfix}"', 	"Dockerfile")
