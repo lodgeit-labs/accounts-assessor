@@ -11,7 +11,7 @@ def convert_request_files(files):
 def convert_request_file(file):
 	logging.getLogger().info('convert_request_file: %s' % file)
 
-	if file.endswith('/custom_job_metadata.json'):
+	if file.endswith('/request.json'):
 		return None # effectively hide the file from further processing
 	if file.lower().endswith('.xlsx'):
 		converted_dir = PurePath('/'.join(PurePath(file).parts[:-1] + ('converted',)))
