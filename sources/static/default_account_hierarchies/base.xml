@@ -39,32 +39,28 @@
 		</Equity>
 
 		<Comprehensive_Income role="Comprehensive_Income" normal_side="credit">
+
+			<Currency_Movement role="Currency_Movement"/>
+
+
 			<Revenue role="Revenue">
 				<Income/>
 				<Other_Income>
 					<Interest_Income/>
-					<Interest_Earned/>
-					<Exchange_Gain/>
 				</Other_Income>
-				<Currency_Movement role="Currency_Movement"/>
 			</Revenue>
 
 			<Expenses role="Expenses" normal_side="debit">
 				<Bank_Charges/>
 				<Accounting_Fees/>
-				<Forex_Loss/>
 				<Interest_Expenses/>
 				<Purchases/>
 				<Other_Expenses/>
 			</Expenses>
 
-			<Gains role="Gains">
+			<Gains/-Losses" role="Gains">
 				<Transfer_Clearing_Account/>			
-				<Other_Gain/>
 			</Gains>
-
-			<Losses normal_side="debit">	
-			</Losses>
 
 		</Comprehensive_Income>
 	</Accounts>
