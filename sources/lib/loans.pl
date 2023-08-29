@@ -177,6 +177,7 @@ loan_agr_record(Agreement, Record) :-
 
 loan_agr_record2(Agreement, Purpose, Record) :-
 	loan_agr_computation_opening_balance(Agreement, false),
+	
 	loan_agr_principal_amount(Agreement, Principal_Amount),
 	loan_agr_repayments(Agreement, Repayments_A),
 
@@ -195,6 +196,7 @@ loan_agr_record2(Agreement, Purpose, Record) :-
 loan_agr_record2(Agreement, Purpose, Record) :-
 	loan_agr_computation_opening_balance(Agreement, Computation_Opening_Balance),
 	Computation_Opening_Balance \= false,
+	
 	loan_agr_computation_year(Agreement, Computation_Year),
 	loan_agr_year_days(Agreement, Computation_Year, Computation_Day, _),
 	loan_agr_repayments(Agreement, Repayments_A),
@@ -416,7 +418,7 @@ loan_agr_summary(Agreement, Summary) :-
 			format(user_error, ': ob: ~q  cb: ~q  ir: ~q  i: ~q  rep: ~q~n', [Opening_Balance, Closing_Balance, Interest_Rate, Interest_Amount, Repayment_Amount])
 		),_),
 
-	/* deconestruct the input term */
+	/* deconstruct the input term */
 
 	loan_agr_computation_year(Agreement, Summary_Number),
 
