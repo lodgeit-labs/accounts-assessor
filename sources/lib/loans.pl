@@ -26,6 +26,13 @@
 % Source: https://www.ato.gov.au/rates/division-7a---benchmark-interest-rate/
 % -------------------------------------------------------------------
 
+
+
+
+
+benchmark_interest_rate(Day, 4.77) :- day_between(date(2022,7,1), date(2023,7,1), Day).
+benchmark_interest_rate(Day, 4.52) :- day_between(date(2021,7,1), date(2022,7,1), Day).
+benchmark_interest_rate(Day, 4.52) :- day_between(date(2020,7,1), date(2021,7,1), Day).
 benchmark_interest_rate(Day, 5.37) :- day_between(date(2019,7,1), date(2020,7,1), Day).
 benchmark_interest_rate(Day, 5.20) :- day_between(date(2018,7,1), date(2019,7,1), Day).
 benchmark_interest_rate(Day, 5.30) :- day_between(date(2017,7,1), date(2018,7,1), Day).
