@@ -13,8 +13,10 @@
 	% need to handle empty repayments/repayment, needs to be tested
 	findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
 	atom_number(ComputationYear, NIncomeYear),
-	convert_xpath_results(
+	convert_loan_inputs(
+		% inputs
 		CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
+		% converted inputs
 		NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
 	loan_agr_summary(loan_agreement(
 		% loan_agr_contract_number:
@@ -29,6 +31,7 @@
 		NTerm,
 		% loan_agr_computation_year
 		NComputationYear,
+		
 		NOpeningBalance,
 		% loan_agr_repayments (list):
 		NLoanRepayments),
@@ -73,23 +76,18 @@
 
 	% read the schema file
 	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
-	% if the xml response is valid then reply the response, otherwise reply an error message
-	(	validate_xml(Path, LoanResponseXSD, [])
-	->	(
-			add_report_file(0,'result', 'result', Url)
-		)
-	;	add_alert(error, "Validation failed for xml loan response.")).
-   
+	!validate_xml(Path, LoanResponseXSD, []),
+	add_report_file(0,'result', 'result', Url).   
 
 % ===================================================================
 % Various helper predicates
 % ===================================================================
 
 % -------------------------------------------------------------------
-% convert_xpath_results/14 
+% convert_loan_inputs/14 
 % -------------------------------------------------------------------
 
- convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
+ convert_loan_inputs(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
 		      NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments
 ) :-
 	generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDate, NLoanRepayments),
@@ -100,6 +98,8 @@
 	;	NPrincipalAmount = -1),
 	atom_number(Term, NTerm).
 
+
+
  generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDay, NLoanRepayments) :-
 	generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear),
 	parse_date_into_absolute_days(LodgementDate, NLodgementDay),
@@ -108,6 +108,10 @@
  generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear) :-
 	atom_number(CreationIncomeYear, CreationIncomeYearNumber),
 	absolute_day(date(CreationIncomeYearNumber, 7, 1), NCreationIncomeYear).
+
+
+
+ % convert a list of loan_repayment terms with textual dates and values into a list of loan_repayment terms with absolute days and numeric values
 
  generate_absolute_day(loan_repayments, [], []).
 
