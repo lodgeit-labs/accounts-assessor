@@ -58,7 +58,7 @@
 				<Other_Expenses/>
 			</Expenses>
 
-			<Gains/-Losses" role="Gains">
+			<account name="Gains/-Losses" role="Gains">
 				<Transfer_Clearing_Account/>			
 			</Gains>
 
