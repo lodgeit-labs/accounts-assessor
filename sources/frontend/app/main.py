@@ -213,9 +213,15 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 def process_request(request_directory, requested_output_format = 'job_handle'):
 	public_url=os.environ['PUBLIC_URL']
 
+	request_json = os.path.join(request_directory, 'request.json')
+	if os.path.exists(request_json):
+		with open(request_json) as f:
+			options = json.load(f).get('worker_options', {})
+
 	job = worker.trigger_remote_calculator_job(
 		request_directory=request_directory,
 		public_url=public_url,
+		options=options
 	)
 
 	logger.info('requested_output_format: %s' % requested_output_format)

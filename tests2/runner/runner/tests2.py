@@ -45,7 +45,7 @@ class TestPrepare(luigi.Task):
 		request_files_dir: pathlib.Path = P(self.test['path']) / 'inputs'
 		request_files_dir.mkdir(parents=True, exist_ok=True)
 		inputs = self.copy_inputs(request_files_dir)
-		inputs.append(self.write_custom_job_metadata(request_files_dir))
+		inputs.append(self.write_job_json(request_files_dir))
 		with self.output().open('w') as out:
 			json.dump(inputs, out, indent=4, sort_keys=True, cls=MyJSONEncoder)
 
@@ -64,12 +64,19 @@ class TestPrepare(luigi.Task):
 		return files
 
 
-	def write_custom_job_metadata(self, request_files_dir):
-		data = dict(self.test)
-		fn = request_files_dir / 'custom_job_metadata.json'
+	def write_job_json(self, request_files_dir):
+		data = dict(
+			custom_job_metadata = dict(self.test),
+			worker_options = self.test.worker_options
+		)
+		fn = request_files_dir / 'request.json'
 		with open(fn, 'w') as fp:
 			json.dump(data, fp, indent=4)
 		return fn
+
+
+	def write_custom_job_metadata(self, request_files_dir):
+		data = dict(self.test)
 
 
 	def output(self):

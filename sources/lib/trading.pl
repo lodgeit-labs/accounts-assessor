@@ -180,8 +180,10 @@ unrealized_gains_reduction_txs(Description, Transaction_Day, Trading_Account_Id,
 			Historical_Without_Currency_Movement = [coord(
 				without_movement_after(
 					without_currency_movement_against_since(
+						%Goods_Unit, Purchase_Currency, Report_Currency, Transaction_Day
 						Goods_Unit, Purchase_Currency, Report_Currency, Purchase_Date
 					), 
+					%Transaction_Day
 					Before_Start
 				),
 				Goods_Debit)
