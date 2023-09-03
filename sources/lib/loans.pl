@@ -19,42 +19,53 @@
 % entries to the balance sheet when it is in error.
 
 % The formulas in this program are completely specified by the examples and rules set
-% forth in https://www.ato.gov.au/business/private-company-benefits---division-7a-dividends/in-detail/division-7a---loans/ .
+% forth in https://www.ato.gov.au/business/private-company-benefits---division-7a-dividends/in-detail/division-7a---loans/
+
+% ato calculator: https://www.ato.gov.au/calculators-and-tools/division-7a-calculator-and-decision-tool/
+/* 
+Income year of loan: 2013-14 means our income year 2014
+We are only concerned with unsecured loans here
+ 
+
+%issues:
+%https://github.com/lodgeit-labs/accounts-assessor/issues/12
+
+
+% -------------------------------------------------------------------
+
 
 % Benchmark interest rates
 % These rates apply to private companies with an income year ending 30 June.
 % Source: https://www.ato.gov.au/rates/division-7a---benchmark-interest-rate/
-% -------------------------------------------------------------------
+benchmark_interest_rate(Day, 4.77) :- benchmark_interest_rate_day_in_income_year(2023).
+benchmark_interest_rate(Day, 4.52) :- benchmark_interest_rate_day_in_income_year(2022).
+benchmark_interest_rate(Day, 4.52) :- benchmark_interest_rate_day_in_income_year(2021).
+benchmark_interest_rate(Day, 5.37) :- benchmark_interest_rate_day_in_income_year(2020).
+benchmark_interest_rate(Day, 5.20) :- benchmark_interest_rate_day_in_income_year(2019).
+benchmark_interest_rate(Day, 5.30) :- benchmark_interest_rate_day_in_income_year(2018).
+benchmark_interest_rate(Day, 5.40) :- benchmark_interest_rate_day_in_income_year(2017).
+benchmark_interest_rate(Day, 5.45) :- benchmark_interest_rate_day_in_income_year(2016).
+benchmark_interest_rate(Day, 5.95) :- benchmark_interest_rate_day_in_income_year(2015).
+benchmark_interest_rate(Day, 6.20) :- benchmark_interest_rate_day_in_income_year(2014).
+benchmark_interest_rate(Day, 7.05) :- benchmark_interest_rate_day_in_income_year(2013).
+benchmark_interest_rate(Day, 7.80) :- benchmark_interest_rate_day_in_income_year(2012).
+benchmark_interest_rate(Day, 7.40) :- benchmark_interest_rate_day_in_income_year(2011).
+benchmark_interest_rate(Day, 5.75) :- benchmark_interest_rate_day_in_income_year(2010).
+benchmark_interest_rate(Day, 9.45) :- benchmark_interest_rate_day_in_income_year(2009).
+benchmark_interest_rate(Day, 8.05) :- benchmark_interest_rate_day_in_income_year(2008).
+benchmark_interest_rate(Day, 7.55) :- benchmark_interest_rate_day_in_income_year(2007).
+benchmark_interest_rate(Day, 7.3) :-  benchmark_interest_rate_day_in_income_year(2006).
+benchmark_interest_rate(Day, 7.05) :- benchmark_interest_rate_day_in_income_year(2005).
+benchmark_interest_rate(Day, 6.55) :- benchmark_interest_rate_day_in_income_year(2004).
+benchmark_interest_rate(Day, 6.3) :-  benchmark_interest_rate_day_in_income_year(2003).
+benchmark_interest_rate(Day, 6.8) :-  benchmark_interest_rate_day_in_income_year(2002).
+benchmark_interest_rate(Day, 7.8) :-  benchmark_interest_rate_day_in_income_year(2001).
+benchmark_interest_rate(Day, 6.5) :-  benchmark_interest_rate_day_in_income_year(2000).
+benchmark_interest_rate(Day, 6.7) :-  benchmark_interest_rate_day_in_income_year(1999).
 
-
-
-
-
-benchmark_interest_rate(Day, 4.77) :- day_between(date(2022,7,1), date(2023,7,1), Day).
-benchmark_interest_rate(Day, 4.52) :- day_between(date(2021,7,1), date(2022,7,1), Day).
-benchmark_interest_rate(Day, 4.52) :- day_between(date(2020,7,1), date(2021,7,1), Day).
-benchmark_interest_rate(Day, 5.37) :- day_between(date(2019,7,1), date(2020,7,1), Day).
-benchmark_interest_rate(Day, 5.20) :- day_between(date(2018,7,1), date(2019,7,1), Day).
-benchmark_interest_rate(Day, 5.30) :- day_between(date(2017,7,1), date(2018,7,1), Day).
-benchmark_interest_rate(Day, 5.40) :- day_between(date(2016,7,1), date(2017,7,1), Day).
-benchmark_interest_rate(Day, 5.45) :- day_between(date(2015,7,1), date(2016,7,1), Day).
-benchmark_interest_rate(Day, 5.95) :- day_between(date(2014,7,1), date(2015,7,1), Day).
-benchmark_interest_rate(Day, 6.20) :- day_between(date(2013,7,1), date(2014,7,1), Day).
-benchmark_interest_rate(Day, 7.05) :- day_between(date(2012,7,1), date(2013,7,1), Day).
-benchmark_interest_rate(Day, 7.80) :- day_between(date(2011,7,1), date(2012,7,1), Day).
-benchmark_interest_rate(Day, 7.40) :- day_between(date(2010,7,1), date(2011,7,1), Day).
-benchmark_interest_rate(Day, 5.75) :- day_between(date(2009,7,1), date(2010,7,1), Day).
-benchmark_interest_rate(Day, 9.45) :- day_between(date(2008,7,1), date(2009,7,1), Day).
-benchmark_interest_rate(Day, 8.05) :- day_between(date(2007,7,1), date(2008,7,1), Day).
-benchmark_interest_rate(Day, 7.55) :- day_between(date(2006,7,1), date(2007,7,1), Day).
-benchmark_interest_rate(Day, 7.3) :- day_between(date(2005,7,1), date(2006,7,1), Day).
-benchmark_interest_rate(Day, 7.05) :- day_between(date(2004,7,1), date(2005,7,1), Day).
-benchmark_interest_rate(Day, 6.55) :- day_between(date(2003,7,1), date(2004,7,1), Day).
-benchmark_interest_rate(Day, 6.3) :- day_between(date(2002,7,1), date(2003,7,1), Day).
-benchmark_interest_rate(Day, 6.8) :- day_between(date(2001,7,1), date(2002,7,1), Day).
-benchmark_interest_rate(Day, 7.8) :- day_between(date(2000,7,1), date(2001,7,1), Day).
-benchmark_interest_rate(Day, 6.5) :- day_between(date(1999,7,1), date(2000,7,1), Day).
-benchmark_interest_rate(Day, 6.7) :- day_between(date(1998,7,1), date(1999,7,1), Day).
+benchmark_interest_rate_day_in_income_year(Day, Year) :- 
+	Previous_year #= Year - 1,
+	day_between(date(Previous_year,7,1), date(Year,7,1), Day).
 
 % Predicates for asserting the fields of a loan repayment
 
@@ -68,19 +79,35 @@ loan_rep_amount(loan_repayment(_, Amount), Amount).
 
 % An identifier for a given loan agreement
 loan_agr_contract_number(loan_agreement(Contract_Number, _, _, _, _, _, _, _), Contract_Number).
+
 % The principal amount of the loan agreement
 loan_agr_principal_amount(loan_agreement(_, Principal_Amount, _, _, _, _, _, _), Principal_Amount).
+
 % The lodgement day of the whole agreement
+/*
+ seems to actually be:
+Enter the lodgment day, which is the earlier of the due date for lodgment and the date of lodgment for the private company's tax return for the 2016-17 income year - enter a date in the format dd/mm/yyyy *
+this seems to be relevant if we're computing the minimum yearly repayment for the first year of the loan agreement.
+
+For the first year of the loan:
+    The minimum yearly repayment is calculated using the amount of the amalgamated loan, which is the sum of the amounts of the constituent loans that have not been repaid before the lodgment day of the private company for the year of income in which the amalgamated loan is made.
+    Making repayments before the lodgment day will reduce the minimum yearly repayment required for this year, and will contribute towards meeting your minimum yearly repayment.
+*/
 loan_agr_lodgement_day(loan_agreement(_, _, Lodgement_Day, _, _, _, _, _), Lodgement_Day).
+
 % The first absolute day of the first income year after the agreement is made
 loan_agr_begin_day(loan_agreement(_, _, _, Begin_Day, _, _, _, _), Begin_Day).
+
 % The term of the loan agreement in years
 loan_agr_term(loan_agreement(_, _, _, _, Term, _, _, _), Term).
+
 % The income year for which the computations will be done
 loan_agr_computation_year(loan_agreement(_, _, _, _, _, Computation_Year, _, _), Computation_Year).
+
 % If this field is false, the computations will start from the day of the loan agreement.
 % Otherwise this will be the opening balance of the computations.
 loan_agr_computation_opening_balance(loan_agreement(_, _, _, _, _, _, Computation_Opening_Balance, _), Computation_Opening_Balance).
+
 % A chronologically ordered list of loan agreement repayments. The latter repayments
 % where the account balance is negative are ignored.
 loan_agr_repayments(loan_agreement(_, _, _, _, _, _, _, Repayments), Repayments).
@@ -336,6 +363,7 @@ loan_agr_min_yearly_repayment(Agreement, Current_Year_Num, Min_Yearly_Rep) :-
 	loan_agr_term(Agreement, Term),
 	Remaining_Term is Term - Current_Year_Num,
 	benchmark_interest_rate(Year_Begin_Day, Benchmark_Interest_Rate),
+	% https://www.ato.gov.au/uploadedImages/Content/Images/40557-3.gif
 	Min_Yearly_Rep is Balance * Benchmark_Interest_Rate /
 		(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))).
 
@@ -395,6 +423,11 @@ loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
 % A predicate for generating the summary records of a given loan agreement.
 
 loan_agr_summary(Agreement, Summary) :-
+
+	% debug printout
+	findall(_,
+		(
+			loan_agr_repayments(Agreement, Repayments)
 
 	% debug printout
 	findall(_,

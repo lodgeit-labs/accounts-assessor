@@ -1,5 +1,9 @@
 
  process_request_loan(Request_File, DOM) :-
+
+	% spurious startDate and endDate in the request xml are ignored.
+	% they are not used in the computation of the loan summary
+
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
 	(xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3)->true;true),

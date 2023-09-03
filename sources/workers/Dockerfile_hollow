@@ -20,7 +20,7 @@ RUN     apt-get install -y \
         libtcmalloc-minimal4
 
 
-RUN apt-get install -y libpq-dev #for remoulade
+RUN apt-get install -y libpq-dev libtcmalloc-minimal4
 #RUN rm -rf /var/lib/apt/lists/*
 
 
