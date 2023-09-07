@@ -330,19 +330,28 @@
                   // 1-up view
 
                   var downloadUrl = data['@microsoft.graph.downloadUrl'];
-                  if (downloadUrl && data['name'].match(/\.xlsx$/i)) {
-
-
+                  if (downloadUrl && data['name'].match(/\.xlsx$/i)) 
+                  {
 
                     // prevent XSS
                     downloadUrl = downloadUrl.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
                     downloadUrl = encodeURI(downloadUrl);
 
                       $("<div><form action=\"/reference\" method=\"POST\">" +
-                              //' <input type="hidden" name="fileurl" value="' + downloadUrl + '"/>' +
                               'URL:<input type="text" name="fileurl" value="' + downloadUrl + '"/>' +
-                              " <button>invoke robust IC</button>" +
-                              "</form></div><br>").appendTo('#od-items');
+                              '<label for="endpoint">Choose endpoint:</label><select name="endpoint" id="endpoint"></select>' +
+                              '<button>invoke robust IC</button>' +
+                              '</form></div><br>').appendTo('#od-items');
+
+                      const endpoints = {
+                        'ic_ui:investment_calculator_sheets':'Investment Calculator',
+                        'depr_ui:depreciation_calculator_sheets':'Depreciation Calculator',
+                        'hp_ui:hirepurchase_calculator_sheets':'Hire Purchase Calculator',
+                        'div7a_ui:sheets':'Division 7A Calculator'
+                      }
+
+                      $.each(endpoints, function(uri,text) {
+                      $('#endpoint').append(new Option(text,uri));
 
                   }
 
@@ -350,7 +359,6 @@
                     addClass("item").
                     addClass("oneup").
                     appendTo("#od-items");
-
 
                   if (downloadUrl) {
                     tile.click(function(){window.open(downloadUrl, "Download");});
