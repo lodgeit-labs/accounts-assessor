@@ -46,7 +46,7 @@ def local_calculator(
 			public_url = public_url
 		)
 	)
-	#update_last_request_symlink(msg)
+	update_last_request_symlink(request_directory)
 	return invoke_rpc.call_prolog_calculator(msg=msg, options=options)
 
 
