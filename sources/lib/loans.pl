@@ -215,6 +215,7 @@ loan_agr_record2(Agreement, Purpose, Record) :-
 	;	loan_agr_lodgement_day(Agreement, Lodgement_Day)),
 	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, Repayment_Before_Lodgement, Repayments_B),
 
+	/* Principal_Amount is never used if Computation_Opening_Balance is false */
 	Current_Balance is Principal_Amount - Repayment_Before_Lodgement,
 	loan_agr_record_aux(Agreement, Record, Current_Balance, Begin_Day, Repayments_B).
 

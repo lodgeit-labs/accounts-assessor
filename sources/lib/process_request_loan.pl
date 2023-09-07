@@ -1,7 +1,35 @@
 
+ process_request_loan_rdf :-
+	ct(
+		"is this a Div7A Calculator query?",
+		?get_optional_singleton_sheet_data(div7a_ui:sheet, Loan)
+	),
+	!doc(Loan, div7a:income_year_of_loan_creation, CreationIncomeYearNumber),
+	absolute_day(date(CreationIncomeYearNumber, 7, 1), NCreationIncomeYear),
+	
+    !doc(Loan, div7a:full_term_of_loan_in_years, Term),
+
+	/* exactly one of PrincipalAmount or OpeningBalance must be provided */ 
+
+    !doc(Loan, div7a:principal_amount_of_loan, Amount),
+
+
+
+
+    absolute_days($>!doc(Loan, div7a:lodgement_day_of_private_company), LodgementDate),
+    !doc(Loan, div7a:income_year_of_computation, ComputationYear),
+    maplist(convert_loan_rdf_repayments, $>!doc_list_items($>!doc(Loan, div7a:repayments)), Repayments), 
+
+
+ convert_loan_rdf_repayments(I, loan_repayment(Days,  Value)) :-
+ 	absolute_days($>!doc_value(I, div7a_repayment:date), Days),
+ 	$>!doc_value(I, div7a_repayment:value, Value).
+ 
+
+
  process_request_loan(Request_File, DOM) :-
 
-	% spurious startDate and endDate in the request xml are ignored.
+	% startDate and endDate in the request xml are ignored.
 	% they are not used in the computation of the loan summary
 
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
