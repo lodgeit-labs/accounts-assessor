@@ -16,6 +16,7 @@
 @prefix rb: <https://rdf.lodgeit.net.au/v1/robust#> .
 @prefix account_taxonomies: <https://rdf.lodgeit.net.au/v1/account_taxonomies#> .
 
+@prefix div7a: <https://rdf.lodgeit.net.au/v1/calcs/div7a#> .
 @prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
 @prefix ic: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
 @prefix hp: <https://rdf.lodgeit.net.au/v1/calcs/hp#> .

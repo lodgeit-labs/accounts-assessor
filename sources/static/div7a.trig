@@ -1,0 +1,69 @@
+#  _______
+#< div7a >
+# -------
+#        \   ^__^
+#         \  (oo)\_______
+#            (__)\       )\/\
+#                ||----w |
+#                ||     ||
+
+div7a:sheets
+	a excel:sheet_set;
+	excel:sheets
+	(
+		div7a:sheet
+	).
+
+
+div7a:example_sheetset
+	a excel:template_sheet_set;
+	excel:is_listed_by_hardcoding true;
+	excel:has_sheet_instances (
+
+		[	excel:sheet_instance_has_sheet_type div7a:sheet;
+			excel:sheet_instance_has_sheet_data div7a:example_data]
+).
+
+
+      <field name="/>
+      <field name="Full term of loan in years" value="7"/>
+      <field name="Principal amount of loan" value="50000.00"/>
+      <field name="Lodgment day of private company" value="2015-05-15"/>
+      <field name="Income year of computation" value="2015"/>
+    </loanAgreement>
+    <repayments>
+      <repayment date="2014-08-31" value="20000.00"/>
+      <repayment date="2015-05-30" value="8000.00"/>
+    </repayments>
+
+
+
+div7a:example_data
+	a excel:template_instance_example;
+	div7a:income_year_of_loan_creation" [rdf:value "2014"];
+
+
+	div7a:repayments [rdf:value (
+		[
+			div7a:date [rdf:value "2014-08-31"^^xsd:date];
+			div7a:value [rdf:value "20000.00"^^xsd:decimal]
+		])];
+
+
+													  ]
+											   [
+
+											   ]
+
+	)].
+
+ic:currency [rdf:value "AUD"];
+ic:from [rdf:value "2019-07-01T00:00:00.0"^^xsd:dateTime];
+ic:to [rdf:value "2020-01-01T00:00:00.0"^^xsd:dateTime];
+ic:cost_or_market [rdf:value ic:cost];
+ic:pricing_method [rdf:value ic:lifo];
+ic_ui:account_taxonomies [rdf:value (
+	[account_taxonomies:url [rdf:value account_taxonomies:base]]
+	[account_taxonomies:url [rdf:value account_taxonomies:investments]]
+	[account_taxonomies:url [rdf:value account_taxonomies:livestock]]
+)].
