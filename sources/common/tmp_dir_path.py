@@ -69,6 +69,6 @@ def update_last_request_symlink(request_tmp_directory_name):
 	])
 	subprocess.call([
 		'/bin/mv',
-		symlink_path
+		symlink_path,
 		get_tmp_directory_absolute_path('last_request')
 	])

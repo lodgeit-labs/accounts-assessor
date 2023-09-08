@@ -11,6 +11,7 @@ from pathlib import Path as P
 import sys,os
 from urllib.parse import urlparse
 
+from luigi.parameter import _DictParamEncoder
 from runner.utils import *
 
 #print(sys.path)
@@ -54,10 +55,10 @@ class TestPrepare(luigi.Task):
 		files = []
 		input_file: pathlib.Path
 		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('request/*'))):
+			x = None
 			if str(input_file).endswith('/request.xml'):
-				with open(input_file) as f:
-					x = Xml2rdf().xml2rdf(input_file, request_files_dir)
-			else:
+				x = Xml2rdf().xml2rdf(input_file, request_files_dir)
+			if x is None:
 				x = request_files_dir / input_file.name
 				shutil.copyfile(input_file, x)
 			files.append(x)
@@ -67,11 +68,11 @@ class TestPrepare(luigi.Task):
 	def write_job_json(self, request_files_dir):
 		data = dict(
 			custom_job_metadata = dict(self.test),
-			worker_options = self.test.worker_options
+			worker_options = dict(self.test['worker_options'])
 		)
 		fn = request_files_dir / 'request.json'
 		with open(fn, 'w') as fp:
-			json.dump(data, fp, indent=4)
+			json.dump(data, fp, indent=4, cls=_DictParamEncoder)
 		return fn
 
 
@@ -306,7 +307,9 @@ class Permutations(luigi.Task):
 					'robust_server_url': self.robust_server_url,
 					'suite': str(self.suite),
 					'dir': str(dir),
-					'debug': debug,
+					'worker_options': {
+						'prolog_debug': debug,
+					},
 					'path':
 						str(
 							self.session /
