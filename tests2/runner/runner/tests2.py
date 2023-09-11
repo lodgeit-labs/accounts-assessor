@@ -173,7 +173,8 @@ class TestResult(luigi.Task):
 
 		start = TestStart(self.test, request_files)
 		yield start
-		handle = start.output().read()
+		with start.output().open() as fd:
+			handle = fd.read() 
 		with self.output().temporary_path() as tmp:
 			while True:
 				logging.getLogger('robust').info('...')
@@ -379,8 +380,8 @@ class Permutations(luigi.Task):
 	def required_evaluations(self):
 		for dir in self.robust_testcase_dirs():
 			for debug in ([False, True] if self.debug is None else [self.debug]):
-
-				requested_output_format = 'job_handle' if debug else 'immediate_xml'
+				
+				requested_output_format = 'immediate_xml' if P(self.suite / dir / 'response.json').exists() else 'job_handle' 
 
 				yield {
 					'robust_server_url': self.robust_server_url,

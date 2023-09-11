@@ -23,12 +23,14 @@
 
 % ato calculator: https://www.ato.gov.au/calculators-and-tools/division-7a-calculator-and-decision-tool/
 /* 
-Income year of loan: 2013-14 means our income year 2014
-We are only concerned with unsecured loans here
- 
+Income year of loan: 2013-14 means our income year 2014.
 
-%issues:
-%https://github.com/lodgeit-labs/accounts-assessor/issues/12
+We are only concerned with unsecured loans here.
+*/
+
+% issues:
+% https://github.com/lodgeit-labs/accounts-assessor/issues?q=is%3Aissue+is%3Aopen+div7a
+
 
 
 % -------------------------------------------------------------------
@@ -37,31 +39,31 @@ We are only concerned with unsecured loans here
 % Benchmark interest rates
 % These rates apply to private companies with an income year ending 30 June.
 % Source: https://www.ato.gov.au/rates/division-7a---benchmark-interest-rate/
-benchmark_interest_rate(Day, 4.77) :- benchmark_interest_rate_day_in_income_year(2023).
-benchmark_interest_rate(Day, 4.52) :- benchmark_interest_rate_day_in_income_year(2022).
-benchmark_interest_rate(Day, 4.52) :- benchmark_interest_rate_day_in_income_year(2021).
-benchmark_interest_rate(Day, 5.37) :- benchmark_interest_rate_day_in_income_year(2020).
-benchmark_interest_rate(Day, 5.20) :- benchmark_interest_rate_day_in_income_year(2019).
-benchmark_interest_rate(Day, 5.30) :- benchmark_interest_rate_day_in_income_year(2018).
-benchmark_interest_rate(Day, 5.40) :- benchmark_interest_rate_day_in_income_year(2017).
-benchmark_interest_rate(Day, 5.45) :- benchmark_interest_rate_day_in_income_year(2016).
-benchmark_interest_rate(Day, 5.95) :- benchmark_interest_rate_day_in_income_year(2015).
-benchmark_interest_rate(Day, 6.20) :- benchmark_interest_rate_day_in_income_year(2014).
-benchmark_interest_rate(Day, 7.05) :- benchmark_interest_rate_day_in_income_year(2013).
-benchmark_interest_rate(Day, 7.80) :- benchmark_interest_rate_day_in_income_year(2012).
-benchmark_interest_rate(Day, 7.40) :- benchmark_interest_rate_day_in_income_year(2011).
-benchmark_interest_rate(Day, 5.75) :- benchmark_interest_rate_day_in_income_year(2010).
-benchmark_interest_rate(Day, 9.45) :- benchmark_interest_rate_day_in_income_year(2009).
-benchmark_interest_rate(Day, 8.05) :- benchmark_interest_rate_day_in_income_year(2008).
-benchmark_interest_rate(Day, 7.55) :- benchmark_interest_rate_day_in_income_year(2007).
-benchmark_interest_rate(Day, 7.3) :-  benchmark_interest_rate_day_in_income_year(2006).
-benchmark_interest_rate(Day, 7.05) :- benchmark_interest_rate_day_in_income_year(2005).
-benchmark_interest_rate(Day, 6.55) :- benchmark_interest_rate_day_in_income_year(2004).
-benchmark_interest_rate(Day, 6.3) :-  benchmark_interest_rate_day_in_income_year(2003).
-benchmark_interest_rate(Day, 6.8) :-  benchmark_interest_rate_day_in_income_year(2002).
-benchmark_interest_rate(Day, 7.8) :-  benchmark_interest_rate_day_in_income_year(2001).
-benchmark_interest_rate(Day, 6.5) :-  benchmark_interest_rate_day_in_income_year(2000).
-benchmark_interest_rate(Day, 6.7) :-  benchmark_interest_rate_day_in_income_year(1999).
+benchmark_interest_rate(Day, 4.77) :- benchmark_interest_rate_day_in_income_year(Day, 2023).
+benchmark_interest_rate(Day, 4.52) :- benchmark_interest_rate_day_in_income_year(Day, 2022).
+benchmark_interest_rate(Day, 4.52) :- benchmark_interest_rate_day_in_income_year(Day, 2021).
+benchmark_interest_rate(Day, 5.37) :- benchmark_interest_rate_day_in_income_year(Day, 2020).
+benchmark_interest_rate(Day, 5.20) :- benchmark_interest_rate_day_in_income_year(Day, 2019).
+benchmark_interest_rate(Day, 5.30) :- benchmark_interest_rate_day_in_income_year(Day, 2018).
+benchmark_interest_rate(Day, 5.40) :- benchmark_interest_rate_day_in_income_year(Day, 2017).
+benchmark_interest_rate(Day, 5.45) :- benchmark_interest_rate_day_in_income_year(Day, 2016).
+benchmark_interest_rate(Day, 5.95) :- benchmark_interest_rate_day_in_income_year(Day, 2015).
+benchmark_interest_rate(Day, 6.20) :- benchmark_interest_rate_day_in_income_year(Day, 2014).
+benchmark_interest_rate(Day, 7.05) :- benchmark_interest_rate_day_in_income_year(Day, 2013).
+benchmark_interest_rate(Day, 7.80) :- benchmark_interest_rate_day_in_income_year(Day, 2012).
+benchmark_interest_rate(Day, 7.40) :- benchmark_interest_rate_day_in_income_year(Day, 2011).
+benchmark_interest_rate(Day, 5.75) :- benchmark_interest_rate_day_in_income_year(Day, 2010).
+benchmark_interest_rate(Day, 9.45) :- benchmark_interest_rate_day_in_income_year(Day, 2009).
+benchmark_interest_rate(Day, 8.05) :- benchmark_interest_rate_day_in_income_year(Day, 2008).
+benchmark_interest_rate(Day, 7.55) :- benchmark_interest_rate_day_in_income_year(Day, 2007).
+benchmark_interest_rate(Day, 7.3) :-  benchmark_interest_rate_day_in_income_year(Day, 2006).
+benchmark_interest_rate(Day, 7.05) :- benchmark_interest_rate_day_in_income_year(Day, 2005).
+benchmark_interest_rate(Day, 6.55) :- benchmark_interest_rate_day_in_income_year(Day, 2004).
+benchmark_interest_rate(Day, 6.3) :-  benchmark_interest_rate_day_in_income_year(Day, 2003).
+benchmark_interest_rate(Day, 6.8) :-  benchmark_interest_rate_day_in_income_year(Day, 2002).
+benchmark_interest_rate(Day, 7.8) :-  benchmark_interest_rate_day_in_income_year(Day, 2001).
+benchmark_interest_rate(Day, 6.5) :-  benchmark_interest_rate_day_in_income_year(Day, 2000).
+benchmark_interest_rate(Day, 6.7) :-  benchmark_interest_rate_day_in_income_year(Day, 1999).
 
 benchmark_interest_rate_day_in_income_year(Day, Year) :- 
 	Previous_year #= Year - 1,
@@ -424,11 +426,6 @@ loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
 % A predicate for generating the summary records of a given loan agreement.
 
 loan_agr_summary(Agreement, Summary) :-
-
-	% debug printout
-	findall(_,
-		(
-			loan_agr_repayments(Agreement, Repayments)
 
 	% debug printout
 	findall(_,

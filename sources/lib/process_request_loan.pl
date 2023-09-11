@@ -23,7 +23,7 @@
 	absolute_days($>!doc(Loan, div7a:lodgement_day_of_private_company), NLodgementDate),
 	
     !doc(Loan, div7a:income_year_of_computation, ComputationYearNumber),
-    calculate_computation_year2(ComputationYearNumber, CreationIncomeYearNumber, NComputationYearIdx)
+    calculate_computation_year2(ComputationYearNumber, CreationIncomeYearNumber, NComputationYearIdx),
     maplist(convert_loan_rdf_repayments, $>!doc_list_items($>!doc(Loan, div7a:repayments)), Repayments),
 
 	loan_agr_summary(loan_agreement(
@@ -46,14 +46,14 @@
 		% output:
 		Summary),
     
-	div7a_rdf_result(Summary).
+	div7a_rdf_result(ComputationYearNumber, Summary).
 	
-div7a_rdf_result(Summary) :-
+div7a_rdf_result(ComputationYearNumber, Summary) :-
     
     Summary = loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
     
 	Row = _{
-		income_year: IncomeYear,
+		income_year: ComputationYearNumber,
 		opening_balance: OpeningBalance,
 		interest_rate: InterestRate,
 		min_yearly_repayment: MinYearlyRepayment,
@@ -77,8 +77,11 @@ div7a_rdf_result(Summary) :-
 	],
 	
 	Table_Json = _{title_short: "Div7A", title: "Division 7A", rows: [Row], columns: Cols},
-	!add_result_sheets_report($>result_sheets_graph).
-    	
+	!table_html([], Table_Json, Table_Html),
+   	!page_with_table_html(Title_Text, Table_Html, Html).
+   	!add_report_page(0, Title_Text, Html, loc(file_name,'summary.html'), 'summary.html').
+
+	%!add_result_sheets_report($>doc_default_graph)... this will require an on-the-fly conversion from table json to rdf templates + data.
      
 
 
