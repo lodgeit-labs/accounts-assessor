@@ -1,3 +1,5 @@
+from lxml import etree
+import xmldiff
 import requests
 import datetime
 import logging
@@ -196,26 +198,41 @@ class TestResult(luigi.Task):
 
 
 class TestEvaluateImmediateXml(luigi.Task):
+
 	priority = 100
 	test = luigi.parameter.DictParameter()
+
 	def requires(self):
 		return TestResultImmediateXml(self.test)
 
 
 	def run(self):
+
+		def done(delta):
+			with self.output()['evaluation'].open('w') as out:
+				json.dump({'test':dict(self.test), 'job': status, 'delta':delta}, out, indent=4, sort_keys=True)
+
 		with open(P(self.input()['response'].path)) as fd:
 			status = json.load(fd)
+
+		with open(os.path.abspath(P(self.test['suite']) / self.test['dir'] / 'response.json')) as fd:
+			expected_status = json.load(fd)
+
+		if status != expected_status:
+			return done([f'status({status}) != expected_status({expected_status})'])
+
 		if status == 200:
-			with open(P(self.input()['result_xml'].path)) as fd:
-				result_xml = json.load(fd)
+			#with open() as fd:
 
+			result_fn = P(self.input()['result_xml'].path)
+			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'result.xml'
 
+			# diff_trees()
+			diff = xmldiff.main.diff_files('file1.xml', 'file2.xml', formatter=xmldiff.formatting.XMLFormatter())
 
+			done(diff)
 
-		delta = []
-
-		with self.output()['evaluation'].open('w') as out:
-			json.dump({'test':dict(self.test), 'job': status, 'delta':delta}, out, indent=4, sort_keys=True)
+		done([])
 
 
 

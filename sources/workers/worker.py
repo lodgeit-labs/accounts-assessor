@@ -8,7 +8,7 @@ import invoke_rpc
 from fs_utils import files_in_dir
 from tasking import remoulade
 from misc import convert_request_files
-from tmp_dir_path import get_tmp_directory_absolute_path
+from tmp_dir_path import get_tmp_directory_absolute_path, update_last_request_symlink
 
 """
 We have two main ways of invoking prolog:

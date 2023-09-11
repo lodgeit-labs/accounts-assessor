@@ -16,9 +16,10 @@ RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[
 
 EXPOSE 7788
 RUN mkdir -p /app/server_root/tmp
+RUN chown myuser:myuser /app/server_root/tmp
+USER myuser
 VOLUME /app/server_root/tmp
 VOLUME /app/sources/
-USER myuser
 
 
 ENV FLASK_ENV=development

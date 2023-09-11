@@ -36,6 +36,7 @@
 		</repayments>
 		<!-- this testcase has a missing repayment for 2016-2017.
 		but it also has opening balance set, (for 2017-2018), so we don't care about anything before that. Not sure how we should handle it if opening balance wasn't provided.
+		In that case, the repayments list would be understood to be a full list, and calculation would happen normally, starting with loan creation year.
 		-->
 		<!-- 
 

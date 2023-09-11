@@ -217,6 +217,8 @@ def process_request(request_directory, requested_output_format = 'job_handle'):
 	if os.path.exists(request_json):
 		with open(request_json) as f:
 			options = json.load(f).get('worker_options', {})
+	else:
+		options = None
 
 	job = worker.trigger_remote_calculator_job(
 		request_directory=request_directory,

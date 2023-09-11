@@ -10,7 +10,8 @@
 	
     !doc(Loan, div7a:full_term_of_loan_in_years, Term),
 
-	/* exactly one of PrincipalAmount or OpeningBalance must be provided */ 
+	/* exactly one of PrincipalAmount or OpeningBalance must be provided */
+	/* or we can loosen this, and ignore principal if both are provided */ 
 	(	doc(Loan, div7a:principal_amount_of_loan, Amount)
 	->	(	doc(Loan, div7a:opening_balance, OB)
 		->	throw_string('both principal amount and opening balance provided')
@@ -95,7 +96,9 @@ div7a_rdf_result(Summary) :-
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
 	(xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3)->true;true),
-	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDate), _E4),
+	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgement day of private company', @value=LodgementDate), _E4)
+	->	true
+	;	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDate), _E4b)),
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of computation', @value=ComputationYear), _E5),
 	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Opening balance of computation', @value=OB), _E6)
 	->	OpeningBalance = OB
