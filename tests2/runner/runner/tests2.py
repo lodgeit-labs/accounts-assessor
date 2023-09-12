@@ -245,7 +245,7 @@ class TestEvaluateImmediateXml(luigi.Task):
 			#with open() as fd:
 
 			result_fn = P(self.test['path']) / response['result']
-			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'result.xml'
+			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'response.xml'
 
 			# diff_trees()
 			diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
