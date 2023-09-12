@@ -78,8 +78,8 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	
 	Table_Json = _{title_short: "Div7A", title: "Division 7A", rows: [Row], columns: Cols},
 	!table_html([], Table_Json, Table_Html),
-   	!page_with_table_html(Title_Text, Table_Html, Html).
-   	!add_report_page(0, Title_Text, Html, loc(file_name,'summary.html'), 'summary.html').
+   	!page_with_table_html('Div7A', Table_Html, Html),
+   	!add_report_page(0, 'Div7A', Html, loc(file_name,'summary.html'), 'summary.html').
 
 	%!add_result_sheets_report($>doc_default_graph)... this will require an on-the-fly conversion from table json to rdf templates + data.
      

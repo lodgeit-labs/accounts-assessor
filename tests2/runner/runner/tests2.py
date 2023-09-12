@@ -1,5 +1,7 @@
+from luigi.freezing import FrozenOrderedDict
 from lxml import etree
 import xmldiff
+from xmldiff import main as xmldiffmain, formatting
 import requests
 import datetime
 import logging
@@ -9,7 +11,7 @@ import luigi
 import json
 import glob
 import pathlib
-from pathlib import Path as P
+from pathlib import Path as P, PurePath
 import sys,os
 from urllib.parse import urlparse
 
@@ -24,7 +26,24 @@ from fs_utils import directory_files, find_report_by_key
 import fs_utils
 from robust_sdk.xml2rdf import Xml2rdf
 from common import robust_tests_folder
+from json import JSONEncoder
 
+
+class MyJSONEncoder(JSONEncoder):
+	def default(self, o):
+		if isinstance(o, PurePath):
+			return o.__fspath__()
+
+		if isinstance(o, FrozenOrderedDict):
+			return o.get_wrapped()
+
+		return super().default(o)
+
+
+
+
+def json_dump(obj, f):
+	json.dump(obj, f, indent=4, sort_keys=True, cls=MyJSONEncoder)
 
 
 
@@ -50,7 +69,7 @@ class TestPrepare(luigi.Task):
 		inputs = self.copy_inputs(request_files_dir)
 		inputs.append(self.write_job_json(request_files_dir))
 		with self.output().open('w') as out:
-			json.dump(inputs, out, indent=4, sort_keys=True, cls=MyJSONEncoder)
+			json_dump(inputs, out)
 
 
 	def copy_inputs(self, request_files_dir):
@@ -74,7 +93,7 @@ class TestPrepare(luigi.Task):
 		)
 		fn = request_files_dir / 'request.json'
 		with open(fn, 'w') as fp:
-			json.dump(data, fp, indent=4, cls=_DictParamEncoder)
+			json_dump(data, fp)
 		return fn
 
 
@@ -99,7 +118,7 @@ def make_request(test, request_files):
 		files['file' + str(idx+1)] = open(request_files[idx])
 	return requests.post(
 			url + '/upload',
-			params={'request_format':request_format},
+			params={'request_format':request_format, 'requested_output_format': test['requested_output_format']},
 			files=files
 	)
 
@@ -140,24 +159,20 @@ class TestResultImmediateXml(luigi.Task):
 
 		resp = make_request(self.test, request_files)
 
-		P(self.output()['outputs']).mkdir(parents=True, exist_ok=True)
-
-		with self.output()['response'].temporary_path() as response_fn:
-			with open(response_fn, 'w') as response_fd:
-				json.dump(resp.status_code, response_fd)
+		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'result.xml')
+		result_xml.makedirs()
 
 		if resp.ok:
-			with self.output()['result_xml'].temporary_path() as result_xml_fn:
+			with result_xml.temporary_path() as result_xml_fn:
 				with open(result_xml_fn, 'w') as result_xml_fd:
 					result_xml_fd.write(resp.text)
 
-	def output(self):
-		return dict(
-			response   = luigi.LocalTarget(P(self.test['path']) / 'response.json'),
-			outputs    = luigi.LocalTarget(P(self.test['path']) / 'outputs'),
-			result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'result.xml')
-		)
+		with self.output().temporary_path() as response_fn:
+			with open(response_fn, 'w') as response_fd:
+				json_dump({'status':resp.status_code, 'result':'outputs/result.xml'}, response_fd)
 
+	def output(self):
+		return luigi.LocalTarget(P(self.test['path']) / 'response.json')
 
 
 
@@ -182,7 +197,7 @@ class TestResult(luigi.Task):
 
 				job = requests.get(handle).json()
 				with open(tmp, 'w') as out:
-					json.dump(job, out, indent=4, sort_keys=True)
+					json_dump(job, out)
 
 				if job['status'] in [ "Failure", 'Success']:
 					break
@@ -211,13 +226,15 @@ class TestEvaluateImmediateXml(luigi.Task):
 
 		def done(delta):
 			with self.output()['evaluation'].open('w') as out:
-				json.dump({'test':dict(self.test), 'job': status, 'delta':delta}, out, indent=4, sort_keys=True)
+				json_dump({'test':dict(self.test), 'job': status, 'delta':delta}, out)
 
-		with open(P(self.input()['response'].path)) as fd:
-			status = json.load(fd)
+		with open(P(self.input().path)) as fd:
+			response = json.load(fd)
+		status = response['status']
 
 		with open(os.path.abspath(P(self.test['suite']) / self.test['dir'] / 'response.json')) as fd:
-			expected_status = json.load(fd)
+			expected_response = json.load(fd)
+		expected_status = expected_response['status']
 
 		if status != expected_status:
 			return done([f'status({status}) != expected_status({expected_status})'])
@@ -225,15 +242,23 @@ class TestEvaluateImmediateXml(luigi.Task):
 		if status == 200:
 			#with open() as fd:
 
-			result_fn = P(self.input()['result_xml'].path)
-			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'result.xml'
+			result_fn = P(self.test['path']) / response['result']
+			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'response.xml'
 
 			# diff_trees()
-			diff = xmldiff.main.diff_files('file1.xml', 'file2.xml', formatter=xmldiff.formatting.XMLFormatter())
+			diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
 
 			done(diff)
 
 		done([])
+
+	def output(self):
+		return {
+			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
+			'outputs':luigi.LocalTarget(P(self.test['path']) / 'outputs')
+		}
+
+
 
 
 
@@ -259,7 +284,7 @@ class TestEvaluate(luigi.Task):
 
 		def done():
 			with self.output()['evaluation'].open('w') as out:
-				json.dump({'test':dict(self.test), 'job': job, 'delta':delta}, out, indent=4, sort_keys=True)
+				json_dump({'test':dict(self.test), 'job': job, 'delta':delta}, out)
 
 
 		# directory where we'll download reports that we want to analyze
@@ -402,7 +427,7 @@ class Permutations(luigi.Task):
 
 	def run(self):
 		with self.output().open('w') as out:
-			json.dump(list(self.required_evaluations()), out, indent=4, sort_keys=True)
+			json_dump(list(self.required_evaluations()), out)
 	def output(self):
 		return luigi.LocalTarget(self.session / 'permutations.json')
 
@@ -454,7 +479,7 @@ class Summary(luigi.Task):
 				with eval.output()['evaluation'].open() as e:
 					evaluation = json.load(e)
 				summary.append(evaluation)
-			json.dump(summary, out, indent=4, sort_keys=True)
+			json_dump(summary, out)
 
 
 	def output(self):
