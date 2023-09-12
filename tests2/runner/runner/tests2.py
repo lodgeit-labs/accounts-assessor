@@ -158,6 +158,7 @@ class TestResultImmediateXml(luigi.Task):
 			request_files = json.load(request_files_f)
 
 		resp = make_request(self.test, request_files)
+		job = {'status': resp.status_code}
 
 		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'result.xml')
 		result_xml.makedirs()
@@ -166,10 +167,11 @@ class TestResultImmediateXml(luigi.Task):
 			with result_xml.temporary_path() as result_xml_fn:
 				with open(result_xml_fn, 'w') as result_xml_fd:
 					result_xml_fd.write(resp.text)
+			job['result'] = 'outputs/result.xml'
 
 		with self.output().temporary_path() as response_fn:
 			with open(response_fn, 'w') as response_fd:
-				json_dump({'status':resp.status_code, 'result':'outputs/result.xml'}, response_fd)
+				json_dump(job, response_fd)
 
 	def output(self):
 		return luigi.LocalTarget(P(self.test['path']) / 'response.json')
@@ -243,7 +245,7 @@ class TestEvaluateImmediateXml(luigi.Task):
 			#with open() as fd:
 
 			result_fn = P(self.test['path']) / response['result']
-			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'response.xml'
+			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'result.xml'
 
 			# diff_trees()
 			diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
