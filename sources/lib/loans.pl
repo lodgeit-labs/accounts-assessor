@@ -77,6 +77,12 @@ loan_rep_day(loan_repayment(Day, _), Day).
 % income year (?).
 loan_rep_amount(loan_repayment(_, Amount), Amount).
 
+
+
+
+
+
+
 % Predicates for asserting the fields of a loan agreement
 
 % An identifier for a given loan agreement
@@ -103,7 +109,7 @@ loan_agr_begin_day(loan_agreement(_, _, _, Begin_Day, _, _, _, _), Begin_Day).
 % The term of the loan agreement in years
 loan_agr_term(loan_agreement(_, _, _, _, Term, _, _, _), Term).
 
-% The income year for which the computations will be done
+% The income year for which the computations will be done. Starting at zero for the first possible year of computation (which is the year following the loan creation) 
 loan_agr_computation_year(loan_agreement(_, _, _, _, _, Computation_Year, _, _), Computation_Year).
 
 % If this field is false, the computations will start from the day of the loan agreement.
@@ -113,6 +119,11 @@ loan_agr_computation_opening_balance(loan_agreement(_, _, _, _, _, _, Computatio
 % A chronologically ordered list of loan agreement repayments. The latter repayments
 % where the account balance is negative are ignored.
 loan_agr_repayments(loan_agreement(_, _, _, _, _, _, _, Repayments), Repayments).
+
+
+
+
+
 
 % Predicates for asserting the fields of a loan record
 
@@ -427,35 +438,13 @@ loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
 
 loan_agr_summary(Agreement, Summary) :-
 
-	% debug printout
-	findall(_,
-		(
-			loan_agr_record(Agreement, Record),
-
-			loan_rec_number(Record, Record_Number),
-
-			loan_rec_opening_day(Record, O),
-			loan_rec_closing_day(Record, C),
-			gregorian_date(O, Od),
-			gregorian_date(C, Cd),
-			loan_rec_opening_balance(Record, Opening_Balance),
-			loan_rec_closing_balance(Record, Closing_Balance),
-
-			loan_rec_interest_rate(Record, Interest_Rate),
-			loan_rec_interest_amount(Record, Interest_Amount),
-			loan_rec_repayment_amount(Record, Repayment_Amount),
-
-			format(user_error, '~q: ~q - ~q (~q - ~q):~n', [Record_Number, Od, Cd, O, C]),
-			format(user_error, ': ob: ~q  cb: ~q  ir: ~q  i: ~q  rep: ~q~n', [Opening_Balance, Closing_Balance, Interest_Rate, Interest_Amount, Repayment_Amount])
-		),_),
-
+	findall(Record, loan_agr_record(Agreement, Record), Recs),
+	loan_recs_table(Recs),
+	
 	/* deconstruct the input term */
-
 	loan_agr_computation_year(Agreement, Summary_Number),
-
 	/* computations */
-
-	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _),
+	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _End_Day),
 	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
 	loan_agr_year_opening_balance(Agreement, Summary_Number, interest, Opening_Balance),
 	loan_agr_year_closing_balance(Agreement, Summary_Number, Closing_Balance),
@@ -465,7 +454,7 @@ loan_agr_summary(Agreement, Summary) :-
 	loan_agr_total_principal(Agreement, Summary_Number, Total_Principal),
 	loan_agr_repayment_shortfall(Agreement, Summary_Number, Repayment_Shortfall),
 
-	/* assert the fields of the final and only loan summary(result) */
+	/* assert the fields of the final and only loan summary(result). */
 	loan_sum_number(Summary, Summary_Number),
 	loan_sum_interest_rate(Summary, Interest_Rate),
 	loan_sum_opening_balance(Summary, Opening_Balance),
@@ -476,3 +465,51 @@ loan_agr_summary(Agreement, Summary) :-
 	loan_sum_total_principal(Summary, Total_Principal),
 	loan_sum_repayment_shortfall(Summary, Repayment_Shortfall).
 
+
+
+ loan_recs_table(Recs) :-
+    
+    maplist(loan_rec_row, Recs, Rows),
+	Cols = [
+		column{id:loan_rec_number, title:"number", options:_{help:'Records are indexed in chronological order, starting with 1'}},
+		column{id:loan_rec_opening_day, title:"opening_day", options:_{help:"The opening day of the given record's period"}},
+		column{id:loan_rec_closing_day, title:"closing_day", options:_{help:"The closing day of the given record's period"}},
+		column{id:loan_rec_opening_balance, title:"opening_balance", options:_{help:'The balance of the payment at the beginning of the given period'}},
+		column{id:loan_rec_interest_rate, title:"interest_rate", options:_{help:'The interest rate being applied to the opening balance'}},
+		column{id:loan_rec_interest_amount, title:"interest_amount", options:_{help:'The calculated interest since the last payment/beginning of year'}},
+		column{id:loan_rec_repayment_amount, title:"repayment_amount", options:_{help:'The amount being paid towards the good in the given period'}},
+		column{id:loan_rec_closing_balance, title:"closing_balance", options:_{help:'The balance of the payment at the end of the given period'}}
+	],
+	
+	Table_Json = _{title_short: "loan records", title: "loan records", rows: Rows, columns: Cols},
+	!table_html([], Table_Json, Table_Html),
+   	!page_with_table_html('loan_records', Table_Html, Html),
+   	!add_report_page(0, 'loan_records', Html, loc(file_name,'loan_records.html'), 'loan_records.html').
+
+			
+
+ loan_rec_row(Record, Row) :-
+	loan_rec_number(Record, Record_Number),
+	loan_rec_opening_balance(Record, Opening_Balance),
+	loan_rec_interest_rate(Record, Interest_Rate),
+	loan_rec_interest_amount(Record, Interest_Amount),
+	loan_rec_repayment_amount(Record, Repayment_Amount),
+	loan_rec_closing_balance(Record, Closing_Balance),
+	loan_rec_opening_day(Record, O),
+	loan_rec_closing_day(Record, C),
+	gregorian_date(O, Opening_Day),
+	gregorian_date(C, Closing_Day),
+	
+	Row = _{
+		loan_rec_number: Record_Number,
+		loan_rec_opening_balance: Opening_Balance,
+		loan_rec_interest_rate: Interest_Rate,
+		loan_rec_interest_amount: Interest_Amount,
+		loan_rec_repayment_amount: Repayment_Amount,
+		loan_rec_closing_balance: Closing_Balance,
+		loan_rec_opening_day: Opening_Day,
+		loan_rec_closing_day: Closing_Day
+	},
+
+	format(user_error, '~q: ~q - ~q (~q - ~q):~n', [Record_Number, Opening_Day, Closing_Day, O, C]),
+	format(user_error, ': ob: ~q  cb: ~q  ir: ~q  i: ~q  rep: ~q~n', [Opening_Balance, Closing_Balance, Interest_Rate, Interest_Amount, Repayment_Amount]).	

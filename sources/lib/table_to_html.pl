@@ -94,8 +94,11 @@ highlight_totals([tr(Row)], [tr([style="background-color:#DDDDEE; font-weight:bo
  column_title(Dict, Prefix, Header_value) :-
 	column{title: Column_title, options: Options} :< Dict,
 	(	(Prefix = "" -> true ; get_dict(hide_group_prefix, Options, true))
-	->	Header_value = Column_title
-	;	atomics_to_string([Prefix, Column_title], " ", Header_value)).
+	->	Header_value0 = Column_title
+	;	atomics_to_string([Prefix, Column_title], " ", Header_value0)),
+	(	get_dict(help, Options, Help)
+	->	atomics_to_string([Header_value0, '<small>(', Help, ')</small>'], " ", Header_value)
+	;	Header_value = Header_value0).
 
  group_prefix(Prefix, Group_title, Group_prefix) :-
 	(	Prefix = ""

@@ -17,6 +17,9 @@
 @prefix account_taxonomies: <https://rdf.lodgeit.net.au/v1/account_taxonomies#> .
 
 @prefix div7a: <https://rdf.lodgeit.net.au/v1/calcs/div7a#> .
+@prefix div7a_ui: <https://rdf.lodgeit.net.au/v1/calcs/div7a/ui#> .
+@prefix div7a_repayment: <https://rdf.lodgeit.net.au/v1/calcs/div7a/repayment#> .
+@prefix div7a: <https://rdf.lodgeit.net.au/v1/calcs/div7a#> .
 @prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
 @prefix ic: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
 @prefix hp: <https://rdf.lodgeit.net.au/v1/calcs/hp#> .
@@ -19900,10 +19903,10 @@ div7a_ui:example_sheetset
 div7a_ui:example_data
 	a excel:template_instance_example;
 	div7a:income_year_of_loan_creation [rdf:value "2014"^^xsd:decimal];
-	div7a:full_term_of_loan_in_years [rdf:value "7"^^xsd:decimal]
-	div7a:principal_amount_of_loan [rdf:value "10000"^^xsd:decimal]
-	div7a:lodgement_day_of_private_company [rdf:value "2014-07-01"^^xsd:date]
-	div7a:income_year_of_computation [rdf:value "2015"^^xsd:decimal]
+	div7a:full_term_of_loan_in_years [rdf:value "7"^^xsd:decimal];
+	div7a:principal_amount_of_loan [rdf:value "10000"^^xsd:decimal];
+	div7a:lodgement_day_of_private_company [rdf:value "2014-07-01"^^xsd:date];
+	div7a:income_year_of_computation [rdf:value "2015"^^xsd:decimal];
 	div7a:repayments [rdf:value (
 		[
 			div7a:date [rdf:value "2014-08-31"^^xsd:date];
@@ -19913,7 +19916,7 @@ div7a_ui:example_data
 			div7a:date [rdf:value "2015-05-30"^^xsd:date];
 			div7a:value [rdf:value "8000.00"^^xsd:decimal]
 		]
-	);
+	)].
 
 div7a_ui:loan
 	excel:position [excel:col "A"; excel:row "3"];

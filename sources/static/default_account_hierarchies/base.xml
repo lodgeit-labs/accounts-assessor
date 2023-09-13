@@ -60,7 +60,7 @@
 
 			<account name="Gains/-Losses" role="Gains">
 				<Transfer_Clearing_Account/>			
-			</Gains>
+			</account>
 
 		</Comprehensive_Income>
 	</Accounts>
