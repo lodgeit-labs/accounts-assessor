@@ -147,19 +147,27 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	LoanResponseXML
 ) :-
 	% populate loan response xml
-	atomic_list_concat([
-	   '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
-	   '<IncomeYear>', IncomeYear, '</IncomeYear>\n',
-	   '<OpeningBalance>', OpeningBalance, '</OpeningBalance>\n',
-	   '<InterestRate>', InterestRate, '</InterestRate>\n',
-	   '<MinYearlyRepayment>', MinYearlyRepayment, '</MinYearlyRepayment>\n',
-	   '<TotalRepayment>', TotalRepayment, '</TotalRepayment>\n',
-	   '<RepaymentShortfall>', RepaymentShortfall, '</RepaymentShortfall>\n',
-	   '<TotalInterest>', TotalInterest, '</TotalInterest>\n',
-	   '<TotalPrincipal>', TotalPrincipal, '</TotalPrincipal>\n',
-	   '<ClosingBalance>', ClosingBalance, '</ClosingBalance>\n',
-	   '</LoanSummary>\n'],
-   LoanResponseXML).
+	format(LoanResponseXML,
+'<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n\c
+   <IncomeYear>~f8</IncomeYear>\n\c
+   <OpeningBalance>~f8</OpeningBalance>\n\c
+   <InterestRate>~f8</InterestRate>\n\c
+   <MinYearlyRepayment>~f8</MinYearlyRepayment>\n\c
+   <TotalRepayment>~f8</TotalRepayment>\n\c
+   <RepaymentShortfall>~f8</RepaymentShortfall>\n\c
+   <TotalInterest>~f8</TotalInterest>\n\c
+   <TotalPrincipal>~f8</TotalPrincipal>\n\c
+   <ClosingBalance>~f8</ClosingBalance>\n\c
+</LoanSummary>\n',
+	   [IncomeYear,
+        OpeningBalance,
+        InterestRate,
+        MinYearlyRepayment,
+        TotalRepayment,
+        RepaymentShortfall,
+        TotalInterest,
+        TotalPrincipal,
+        ClosingBalance]).
 
  display_xml_loan_response(IncomeYear, LoanSummary) :-
 	xml_loan_response(IncomeYear, LoanSummary, LoanResponseXML),
