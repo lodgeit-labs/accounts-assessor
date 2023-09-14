@@ -1040,6 +1040,17 @@ ic_ui:report_details
 		[excel:property ic:cost_or_market; excel:type excel:uri]
 		[excel:property ic:pricing_method; excel:type excel:uri]
 		[excel:property ic_ui:account_taxonomies; excel:template ic_ui:account_taxonomies]
+		[excel:property ic_ui:job_notes; excel:template ic_ui:job_notes]
+	).
+
+ic_ui:job_notes
+	excel:position [excel:col "C"; excel:row "2"];
+	excel:title "job notes";
+	excel:cardinality excel:multi;
+	excel:class ic_ui:job_note;
+	excel:fields (
+		[	excel:property ic_ui:note;
+			excel:type xsd:string]
 	).
 
 ic:pricing_method rdfs:range ic:Pricing_method.
