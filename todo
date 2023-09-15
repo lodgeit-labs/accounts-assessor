@@ -1,17 +1,28 @@
-win10 commit job notes
+OO - saved xlsx - getting "not enough units to sell", is this due to discrepancy in reading unit names? Trimming perhaps?
+risera report at market value - some issue with reading unit_values sheet, missing actual values
+
+
+
+
+
+
+
+
 risera works in ue
+
+
+
+
 
 do jobs take long time in jj? compare configs with ue.
 
 
 
 
+
+
 <account name="Investment Gains/-Losses" parent_role="Gains" role="Trading_Accounts!Investment Gains/-Losses"/>
 &^ action_verbs sheet needs to be adjusted.
-
-
-
-
 
 
 
@@ -239,6 +250,8 @@ cell data reading/writing, data types:
 
 
 http://lorenae.github.io/qb4olap/
+
+
 
 
 
