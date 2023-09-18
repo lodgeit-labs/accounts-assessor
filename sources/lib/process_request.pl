@@ -174,7 +174,7 @@
 			Msg = Msg1
 		)
 	),
-	format(string(Str ),'~w~n~n~w~n~n~w~q~n',[Context_str, $>stringize(Msg), Bstr, Stacktrace_str]).
+	format(string(Str ),'context:~n~w~n~n message:~n~w~n~n backtrace:~n~w~n~n stacktrace:~n~q~n~n',[Context_str, $>stringize(Msg), Bstr, Stacktrace_str]).
 
 
  make_context_trace_report :-
