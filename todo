@@ -1,53 +1,20 @@
-OO - saved xlsx - getting "not enough units to sell", is this due to discrepancy in reading unit names? Trimming perhaps?
-risera report at market value - some issue with reading unit_values sheet, missing actual values
-
-
-
-
-
-
-
-
-risera works in ue
-
-
-
-
-
-do jobs take long time in jj? compare configs with ue.
-
-
-
-
-
-
 <account name="Investment Gains/-Losses" parent_role="Gains" role="Trading_Accounts!Investment Gains/-Losses"/>
 &^ action_verbs sheet needs to be adjusted.
 
 
-
-
-
-
-excel working
-at market
 div7a video -
     compare with ato calc
     show the input sheet
     walk through prolog code
 
 
-
-
-CSharpServices - differences in reading dates
-
-
-
-
 1) full video of usage
 
+
 2) endpoint tests automated again
-Financial_Investments vs FinancialInvestments...
+
+
+Financial_Investments vs FinancialInvestments...?
 
 
 
@@ -58,7 +25,8 @@ perf for 1000x size?
   procedural rewrite (py, c++)
 
 
-database?
+start using an actual database for users and data? But this would not bring true isolation without isolating untrusted code (swipl). Figure out a cloud provider where robust can spawn ephemeral worker VMs. Or docker containers?
+
 
 
 
