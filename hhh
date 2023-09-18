@@ -1,0 +1,82 @@
+scriptreplay -t /var/log/session/-koom-3814992-session.timing -B /var/log/session/-koom-3814992-session --maxdelay 0.5 --divisor 1
+Welcome to fish, the friendly interactive shell
+Type help for instructions on how to use fish
+[00:37:52] koom@jj /home/koom/repos/koo5/accounts-assessor/0/accounts-assessor (dev2023-08-28_11-13-59)  
+>> gs
+On branch dev2023-08-28_11-13-59
+Your branch is ahead of 'lodgeit/dev2023-08-28_11-13-59' by 2 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   sources/public_lib/lodgeit_solvers (new commits)
+
+no changes added to commit (use "git add" and/or "git commit -a")
+[00:37:52] koom@jj /home/koom/repos/koo5/accounts-assessor/0/accounts-assessor (dev2023-08-28_11-13-59)  
+>> dev2023-08-28_11-13-59^C
+[00:37:52] koom@jj /home/koom/repos/koo5/accounts-assessor/0/accounts-assessor (dev2023-08-28_11-13-59)  
+>> dev2023-08-28_11-13-59^C
+[00:37:52] koom@jj /home/koom/repos/koo5/accounts-assessor/0/accounts-assessor (dev2023-08-28_11-13-59)  
+>> git submodule update --remote --merge
+Merge made by the 'ort' strategy.
+Submodule path 'sdk': merged in '3a59018c2bd919375ad689b8b590aa9884d14dc0'
+Merge made by the 'ort' strategy.
+ data/IC example 1.xlsx | Bin 0 -> 80082 bytes
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 data/IC example 1.xlsx
+Submodule path 'sources/CsharpServices': merged in '5cda4b1800c4cc57842bf0dccdf29df57a78218b'
+Already up to date.
+Submodule path 'sources/common/libs/remoulade': merged in 'b4064bad52d0bcc990aa3c620b97132c5f5b787a'
+Merge made by the 'ort' strategy.
+ research/json-ld/test1/package-lock.json |  12 +-
+ research/pyco9/my-app/package-lock.json  | 656 ++++++++++++++++++++-----------
+ research/pyco9/my-app/package.json       |   2 +-
+ 3 files changed, 433 insertions(+), 237 deletions(-)
+Submodule path 'sources/public_lib/lodgeit_solvers': merged in '8f812e27342ccf4e9d1ce22a100baebe90cd053c'
+Already up to date.
+Submodule path 'sources/super-bowl': merged in '75fb8ed90215c9fe9e2ea9435e1e995ecb90217c'
+[00:38:17] koom@jj /home/koom/repos/koo5/accounts-assessor/0/accounts-assessor (dev2023-08-28_11-13-59)  
+
+
+
+
+
+
+
+
+
+
+>> gsh d8764fbb4e012f4313c5559bb50e089df0087869
+commit d8764fbb4e012f4313c5559bb50e089df0087869 (HEAD -> dev2023-08-28_11-13-59)
+Merge: 6140f06c f298abea
+Author: Jindrich Kolman <kolman.jindrich@gmail.com>
+Date:   Tue Sep 19 00:37:37 2023 +0200
+
+    Merge remote-tracking branch 'lodgeit/dev2023-08-28_11-13-59' into dev2023-08-28_11-13-59
+
+(venv) [00:42:34] koom@jj /home/koom/repos/koo5/accounts-assessor/0/accounts-assessor/docker_scripts (dev2023-08-28_11-13-59)  
+>> gsh f298abea
+commit f298abeaabe85f34a404c37e05d8423e6a25bcf7 (lodgeit/dev2023-08-28_11-13-59)
+Author: Jindrich Kolman <kolman.jindrich@gmail.com>
+Date:   Mon Sep 18 18:29:41 2023 +0200
+
+    ..
+
+diff --git a/sources/public_lib/lodgeit_solvers b/sources/public_lib/lodgeit_solvers
+index ee8c55d6..d3f4fd71 160000
+--- a/sources/public_lib/lodgeit_solvers
++++ b/sources/public_lib/lodgeit_solvers
+@@ -1 +1 @@
+-Subproject commit ee8c55d6a0e1401be2cdcd95d6cff2f328545561
++Subproject commit d3f4fd712ea6ed8670c4510bb43d18221e1938b9
+(venv) [00:42:55] koom@jj /home/koom/repos/koo5/accounts-assessor/0/accounts-assessor/docker_scripts (dev2023-08-28_11-13-59)  
+>> 
+
+
+
+
+
+
+
+

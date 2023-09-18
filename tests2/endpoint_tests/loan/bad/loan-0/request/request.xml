@@ -31,72 +31,7 @@
       <repayment date="2014-08-31" value="20000.00"/>
       <repayment date="2015-05-30" value="8000.00"/>
     </repayments>
-	
-	
-<!--
 
-Minimum yearly repayment met.
-
-Minimum yearly repayment
-
-$5,365.00
-
-Benchmark interest rate
-
-5.95%
-
-Opening balance:
-
-Date: 30/06/2014
-
-Balance: $50,000.00
-
-Days: 61
-
-Interest: $497.19
-
-Payments
-
-Date: 31/08/2014
-
-Amount: $20,000.00
-
-Balance: $30,000.00
-
-Days: 272
-
-Interest: $1,330.19
-
-Date: 30/05/2015
-
-Amount: $8,000.00
-
-Balance: $22,000.00
-
-Days: 32
-
-Interest: $114.76
-
-Total repayments
-
-$28,000.00
-
-Total interest
-
-$1,942.14
-
-Total principal
-
-$26,057.86
-
-Closing balance
-
-Date: 30/06/2015
-
-Balance: $23,942.14
-
--->	
-	
 	
   </loanDetails>
 </reports>

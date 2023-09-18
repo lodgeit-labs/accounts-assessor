@@ -16,6 +16,10 @@
 @prefix rb: <https://rdf.lodgeit.net.au/v1/robust#> .
 @prefix account_taxonomies: <https://rdf.lodgeit.net.au/v1/account_taxonomies#> .
 
+@prefix div7a: <https://rdf.lodgeit.net.au/v1/calcs/div7a#> .
+@prefix div7a_ui: <https://rdf.lodgeit.net.au/v1/calcs/div7a/ui#> .
+@prefix div7a_repayment: <https://rdf.lodgeit.net.au/v1/calcs/div7a/repayment#> .
+@prefix div7a: <https://rdf.lodgeit.net.au/v1/calcs/div7a#> .
 @prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
 @prefix ic: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
 @prefix hp: <https://rdf.lodgeit.net.au/v1/calcs/hp#> .
@@ -1036,6 +1040,17 @@ ic_ui:report_details
 		[excel:property ic:cost_or_market; excel:type excel:uri]
 		[excel:property ic:pricing_method; excel:type excel:uri]
 		[excel:property ic_ui:account_taxonomies; excel:template ic_ui:account_taxonomies]
+		[excel:property ic_ui:job_notes; excel:template ic_ui:job_notes]
+	).
+
+ic_ui:job_notes
+	excel:position [excel:col "C"; excel:row "2"];
+	excel:title "job notes";
+	excel:cardinality excel:multi;
+	excel:class ic_ui:job_note;
+	excel:fields (
+		[	excel:property ic_ui:note;
+			excel:type xsd:string]
 	).
 
 ic:pricing_method rdfs:range ic:Pricing_method.
@@ -19853,3 +19868,89 @@ ic_ui:investment_calculator_example_1
                      ] ;
                     excel:sheet_instance_has_sheet_type ic_ui:unit_values_sheet
              ] ) .
+
+
+
+
+
+
+
+
+
+#  _______
+#< div7a >
+# -------
+#        \   ^__^
+#         \  (oo)\_______
+#            (__)\       )\/\
+#                ||----w |
+#                ||     ||
+
+div7a_ui:sheets
+	a excel:sheet_set ;
+	excel:sheets
+		(
+			div7a_ui:sheet
+		).
+
+
+div7a_ui:sheet 
+	a excel:sheet_type;
+	excel:name_prefix "div7a";
+	excel:root div7a_ui:loan.
+
+
+div7a_ui:example_sheetset
+	a excel:template_sheet_set ;
+#	excel:is_listed_by_hardcoding true ;
+	excel:has_sheet_instances
+		(
+			[
+				excel:sheet_instance_has_sheet_type div7a_ui:sheet;
+				excel:sheet_instance_has_sheet_data div7a_ui:example_data
+			]
+		).
+
+div7a_ui:example_data
+	a excel:template_instance_example;
+	div7a:income_year_of_loan_creation [rdf:value "2014"^^xsd:decimal];
+	div7a:full_term_of_loan_in_years [rdf:value "7"^^xsd:decimal];
+	div7a:principal_amount_of_loan [rdf:value "10000"^^xsd:decimal];
+	div7a:lodgement_day_of_private_company [rdf:value "2014-07-01"^^xsd:date];
+	div7a:income_year_of_computation [rdf:value "2015"^^xsd:decimal];
+	div7a:repayments [rdf:value (
+		[
+			div7a:date [rdf:value "2014-08-31"^^xsd:date];
+			div7a:value [rdf:value "20000.00"^^xsd:decimal]
+		]
+		[
+			div7a:date [rdf:value "2015-05-30"^^xsd:date];
+			div7a:value [rdf:value "8000.00"^^xsd:decimal]
+		]
+	)].
+
+div7a_ui:loan
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:title "Div7A";
+	excel:cardinality excel:single;
+	excel:class div7a:bank_statement;
+	excel:fields (
+		[excel:property div7a:income_year_of_loan_creation; excel:type xsd:decimal]
+		[excel:property div7a:full_term_of_loan_in_years; excel:type xsd:decimal]
+		[excel:property div7a:principal_amount_of_loan; excel:type xsd:decimal]
+		[excel:property div7a:lodgement_day_of_private_company; excel:type xsd:date]
+		[excel:property div7a:income_year_of_computation; excel:type xsd:decimal]
+		[excel:property div7a:repayments; excel:template div7a_ui:repayments]
+	).
+
+div7a_ui:repayments
+	excel:position [excel:col "A"; excel:row "10"];
+	excel:title "Items";
+	excel:cardinality excel:multi;
+	excel:class div7a:repayments;
+	excel:fields (
+		[excel:property div7a_repayment:date; excel:type xsd:dateTime]
+		[excel:property div7a_repayment:value; excel:type xsd:decimal]
+	).
+
+

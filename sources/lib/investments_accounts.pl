@@ -27,6 +27,7 @@ return all units that appear in s_transactions with an action type that specifie
 */
 
  financialInvestments_accounts_ui_names(Names) :-
+	/* find all counteraccounts of action verbs that have a trading account */
 	findall(
 		A,
 		(

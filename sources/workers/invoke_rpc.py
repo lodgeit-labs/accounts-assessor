@@ -131,7 +131,9 @@ def call_prolog(
 
 
 	input = json.dumps(msg)
-	goal = ",make,utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
+
+	#goal = ",make,utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
+	goal = ",utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
 	cmd = flatten_lists([
 		#'/usr/bin/time',
 		#	'-v',

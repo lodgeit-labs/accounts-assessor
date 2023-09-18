@@ -1,9 +1,107 @@
 
+ process_request_loan_rdf :-
+	ct(
+		"is this a Div7A Calculator query?",
+		?get_optional_singleton_sheet_data(div7a_ui:sheet, Loan)
+	),
+	
+	!doc(Loan, div7a:income_year_of_loan_creation, CreationIncomeYearNumber),
+	absolute_day(date(CreationIncomeYearNumber, 7, 1), NCreationIncomeYear),
+	
+    !doc(Loan, div7a:full_term_of_loan_in_years, Term),
+
+	/* exactly one of PrincipalAmount or OpeningBalance must be provided */
+	/* or we can loosen this, and ignore principal if both are provided */ 
+	(	doc(Loan, div7a:principal_amount_of_loan, Amount)
+	->	(	doc(Loan, div7a:opening_balance, OB)
+		->	throw_string('both principal amount and opening balance provided')
+		;	OB = false)
+	;	(	doc(Loan, div7a:opening_balance, OB)
+		->	Amount = false
+		;	throw_string('no principal amount and no opening balance provided'))),
+
+	absolute_days($>!doc(Loan, div7a:lodgement_day_of_private_company), NLodgementDate),
+	
+    !doc(Loan, div7a:income_year_of_computation, ComputationYearNumber),
+    calculate_computation_year2(ComputationYearNumber, CreationIncomeYearNumber, NComputationYearIdx),
+    maplist(convert_loan_rdf_repayments, $>!doc_list_items($>!doc(Loan, div7a:repayments)), Repayments),
+
+	loan_agr_summary(loan_agreement(
+		% loan_agr_contract_number:
+		0,
+		% loan_agr_principal_amount:
+		Amount,
+		% loan_agr_lodgement_day:
+		NLodgementDate,
+		% loan_agr_begin_day:
+		NCreationIncomeYear,
+		% loan_agr_term (length in years):
+		Term,
+		% loan_agr_computation_year
+		NComputationYearIdx,
+		
+		OB,
+		% loan_agr_repayments (list):
+		Repayments),
+		% output:
+		Summary),
+    
+	div7a_rdf_result(ComputationYearNumber, Summary).
+	
+div7a_rdf_result(ComputationYearNumber, Summary) :-
+    
+    Summary = loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
+    
+	Row = _{
+		income_year: ComputationYearNumber,
+		opening_balance: OpeningBalance,
+		interest_rate: InterestRate,
+		min_yearly_repayment: MinYearlyRepayment,
+		total_repayment: TotalRepayment,
+		repayment_shortfall: RepaymentShortfall,
+		total_interest: TotalInterest,
+		total_principal: TotalPrincipal,
+		closing_balance: ClosingBalance
+	},
+
+	Cols = [
+		column{id:income_year, title:"income year", options:_{}},
+		column{id:opening_balance, title:"opening balance", options:_{}},
+		column{id:interest_rate, title:"interest rate", options:_{}},
+		column{id:min_yearly_repayment, title:"min yearly repayment", options:_{}},
+		column{id:total_repayment, title:"total repayment", options:_{}},
+		column{id:repayment_shortfall, title:"repayment shortfall", options:_{}},
+		column{id:total_interest, title:"total interest", options:_{}},
+		column{id:total_principal, title:"total principal", options:_{}},
+		column{id:closing_balance, title:"closing balance", options:_{}}
+	],
+	
+	Table_Json = _{title_short: "Div7A", title: "Division 7A", rows: [Row], columns: Cols},
+	!table_html([], Table_Json, Table_Html),
+   	!page_with_table_html('Div7A', Table_Html, Html),
+   	!add_report_page(0, 'Div7A', Html, loc(file_name,'summary.html'), 'summary.html').
+
+	%!add_result_sheets_report($>doc_default_graph)... this will require an on-the-fly conversion from table json to rdf templates + data.
+     
+
+
+ convert_loan_rdf_repayments(I, loan_repayment(Days,  Value)) :-
+ 	absolute_days($>!doc_value(I, div7a_repayment:date), Days),
+ 	$>!doc_value(I, div7a_repayment:value, Value).
+ 
+
+
  process_request_loan(Request_File, DOM) :-
+
+	% startDate and endDate in the request xml are ignored.
+	% they are not used in the computation of the loan summary
+
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
 	(xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3)->true;true),
-	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDate), _E4),
+	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgement day of private company', @value=LodgementDate), _E4)
+	->	true
+	;	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDate), _E4b)),
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of computation', @value=ComputationYear), _E5),
 	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Opening balance of computation', @value=OB), _E6)
 	->	OpeningBalance = OB
@@ -13,8 +111,10 @@
 	% need to handle empty repayments/repayment, needs to be tested
 	findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
 	atom_number(ComputationYear, NIncomeYear),
-	convert_xpath_results(
+	convert_loan_inputs(
+		% inputs
 		CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
+		% converted inputs
 		NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
 	loan_agr_summary(loan_agreement(
 		% loan_agr_contract_number:
@@ -29,6 +129,7 @@
 		NTerm,
 		% loan_agr_computation_year
 		NComputationYear,
+		
 		NOpeningBalance,
 		% loan_agr_repayments (list):
 		NLoanRepayments),
@@ -46,19 +147,27 @@
 	LoanResponseXML
 ) :-
 	% populate loan response xml
-	atomic_list_concat([
-	   '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n',
-	   '<IncomeYear>', IncomeYear, '</IncomeYear>\n',
-	   '<OpeningBalance>', OpeningBalance, '</OpeningBalance>\n',
-	   '<InterestRate>', InterestRate, '</InterestRate>\n',
-	   '<MinYearlyRepayment>', MinYearlyRepayment, '</MinYearlyRepayment>\n',
-	   '<TotalRepayment>', TotalRepayment, '</TotalRepayment>\n',
-	   '<RepaymentShortfall>', RepaymentShortfall, '</RepaymentShortfall>\n',
-	   '<TotalInterest>', TotalInterest, '</TotalInterest>\n',
-	   '<TotalPrincipal>', TotalPrincipal, '</TotalPrincipal>\n',
-	   '<ClosingBalance>', ClosingBalance, '</ClosingBalance>\n',
-	   '</LoanSummary>\n'],
-   LoanResponseXML).
+	format(LoanResponseXML,
+'<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n\c
+   <IncomeYear>~f8</IncomeYear>\n\c
+   <OpeningBalance>~f8</OpeningBalance>\n\c
+   <InterestRate>~f8</InterestRate>\n\c
+   <MinYearlyRepayment>~f8</MinYearlyRepayment>\n\c
+   <TotalRepayment>~f8</TotalRepayment>\n\c
+   <RepaymentShortfall>~f8</RepaymentShortfall>\n\c
+   <TotalInterest>~f8</TotalInterest>\n\c
+   <TotalPrincipal>~f8</TotalPrincipal>\n\c
+   <ClosingBalance>~f8</ClosingBalance>\n\c
+</LoanSummary>\n',
+	   [IncomeYear,
+        OpeningBalance,
+        InterestRate,
+        MinYearlyRepayment,
+        TotalRepayment,
+        RepaymentShortfall,
+        TotalInterest,
+        TotalPrincipal,
+        ClosingBalance]).
 
  display_xml_loan_response(IncomeYear, LoanSummary) :-
 	xml_loan_response(IncomeYear, LoanSummary, LoanResponseXML),
@@ -73,23 +182,18 @@
 
 	% read the schema file
 	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
-	% if the xml response is valid then reply the response, otherwise reply an error message
-	(	validate_xml(Path, LoanResponseXSD, [])
-	->	(
-			add_report_file(0,'result', 'result', Url)
-		)
-	;	add_alert(error, "Validation failed for xml loan response.")).
-   
+	!validate_xml(Path, LoanResponseXSD, []),
+	add_report_file(0,'result', 'result', Url).   
 
 % ===================================================================
 % Various helper predicates
 % ===================================================================
 
 % -------------------------------------------------------------------
-% convert_xpath_results/14 
+% convert_loan_inputs/14 
 % -------------------------------------------------------------------
 
- convert_xpath_results(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
+ convert_loan_inputs(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
 		      NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments
 ) :-
 	generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDate, NLoanRepayments),
@@ -100,6 +204,8 @@
 	;	NPrincipalAmount = -1),
 	atom_number(Term, NTerm).
 
+
+
  generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDay, NLoanRepayments) :-
 	generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear),
 	parse_date_into_absolute_days(LodgementDate, NLodgementDay),
@@ -108,6 +214,10 @@
  generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear) :-
 	atom_number(CreationIncomeYear, CreationIncomeYearNumber),
 	absolute_day(date(CreationIncomeYearNumber, 7, 1), NCreationIncomeYear).
+
+
+
+ % convert a list of loan_repayment terms with textual dates and values into a list of loan_repayment terms with absolute days and numeric values
 
  generate_absolute_day(loan_repayments, [], []).
 
@@ -136,4 +246,7 @@
  calculate_computation_year(ComputationYear, CreationIncomeYear, NComputationYear) :-
 	atom_number(ComputationYear, NCY),
 	atom_number(CreationIncomeYear, NCIY),
+	calculate_computation_year2(NCY, NCIY, NComputationYear).
+
+calculate_computation_year2(NCY, NCIY, NComputationYear) :-
 	NComputationYear is NCY - NCIY - 1.

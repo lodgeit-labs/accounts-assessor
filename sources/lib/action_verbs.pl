@@ -20,10 +20,22 @@
 		(av:gst_payable_account, l:has_gst_payable_account)
 	]),
 
+	/* account specifiers would have to be resolved here, but then in other places, we'd have to start expecting account uris as opposed to names everywhere downstream, like in ensure_financial_investments_accounts_exist or anywhere where l:has_counteraccount etc is used */ 
+	/*maplist(optional_account(Item, Uri), [
+	]),*/
+
 	optional_decimal(Item, Uri, (av:gst_rate_percent, l:has_gst_rate)),
 	pop_context.
 
+/*
+optional_account(Old_item,New_item,(Src,Dst)) :-
+	(	doc(Old_item, Src, Str)
+	->	(	find_account_by_specification(Str, [], Account),
+			doc_add(New_item, Dst, Account))
+	;	true).
+*/
 
+/* if Old_item has Src, convert it to atom, and add it to New_item as Dst */
 optional_atom(Old_item,New_item,(Src,Dst)) :-
 	(	doc_value(Old_item, Src, Str)
 	->	(	atom_string(Atom, Str),

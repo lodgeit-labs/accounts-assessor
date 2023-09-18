@@ -59,14 +59,12 @@ def ln(target, source):
 	subprocess.call(xxx1)
 
 
-def update_last_request_symlink(msg):
+def update_last_request_symlink(request_tmp_directory_name):
+	""" first create a symlink safely in our own directory, and then move it to the right place. """
+	symlink_path = get_tmp_directory_absolute_path(request_tmp_directory_name) + '/last_request'
 	subprocess.call([
 		'/bin/ln', '-s',
-		msg['params']['request_tmp_directory_name'],
-		msg['params']['request_tmp_directory_name'] + '/last_request',
+		request_tmp_directory_name,
+		symlink_path
 	])
-	subprocess.call([
-		'/bin/mv',
-		msg['params']['request_tmp_directory_name'] + '/last_request',
-		get_tmp_directory_absolute_path('last_request')
-	])
+	os.rename(symlink_path,	get_tmp_directory_absolute_path('last_request'))

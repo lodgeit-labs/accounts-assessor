@@ -301,7 +301,7 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 
 
  extract_exchange_rates1(Exchange_Rates) :-
- 	!get_sheet_data(ic:unit_valueses, X),
+ 	!get_sheet_data(ic_ui:unit_values_sheet, X),
 
 	(	(
 			doc(X, excel:has_unknown_fields, Fields0),

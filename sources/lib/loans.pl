@@ -19,35 +19,55 @@
 % entries to the balance sheet when it is in error.
 
 % The formulas in this program are completely specified by the examples and rules set
-% forth in https://www.ato.gov.au/business/private-company-benefits---division-7a-dividends/in-detail/division-7a---loans/ .
+% forth in https://www.ato.gov.au/business/private-company-benefits---division-7a-dividends/in-detail/division-7a---loans/
+
+% ato calculator: https://www.ato.gov.au/calculators-and-tools/division-7a-calculator-and-decision-tool/
+/* 
+Income year of loan: 2013-14 means our income year 2014.
+
+We are only concerned with unsecured loans here.
+*/
+
+% issues:
+% https://github.com/lodgeit-labs/accounts-assessor/issues?q=is%3Aissue+is%3Aopen+div7a
+
+
+
+% -------------------------------------------------------------------
+
 
 % Benchmark interest rates
 % These rates apply to private companies with an income year ending 30 June.
 % Source: https://www.ato.gov.au/rates/division-7a---benchmark-interest-rate/
-% -------------------------------------------------------------------
+benchmark_interest_rate(Day, 4.77) :- benchmark_interest_rate_day_in_income_year(Day, 2023).
+benchmark_interest_rate(Day, 4.52) :- benchmark_interest_rate_day_in_income_year(Day, 2022).
+benchmark_interest_rate(Day, 4.52) :- benchmark_interest_rate_day_in_income_year(Day, 2021).
+benchmark_interest_rate(Day, 5.37) :- benchmark_interest_rate_day_in_income_year(Day, 2020).
+benchmark_interest_rate(Day, 5.20) :- benchmark_interest_rate_day_in_income_year(Day, 2019).
+benchmark_interest_rate(Day, 5.30) :- benchmark_interest_rate_day_in_income_year(Day, 2018).
+benchmark_interest_rate(Day, 5.40) :- benchmark_interest_rate_day_in_income_year(Day, 2017).
+benchmark_interest_rate(Day, 5.45) :- benchmark_interest_rate_day_in_income_year(Day, 2016).
+benchmark_interest_rate(Day, 5.95) :- benchmark_interest_rate_day_in_income_year(Day, 2015).
+benchmark_interest_rate(Day, 6.20) :- benchmark_interest_rate_day_in_income_year(Day, 2014).
+benchmark_interest_rate(Day, 7.05) :- benchmark_interest_rate_day_in_income_year(Day, 2013).
+benchmark_interest_rate(Day, 7.80) :- benchmark_interest_rate_day_in_income_year(Day, 2012).
+benchmark_interest_rate(Day, 7.40) :- benchmark_interest_rate_day_in_income_year(Day, 2011).
+benchmark_interest_rate(Day, 5.75) :- benchmark_interest_rate_day_in_income_year(Day, 2010).
+benchmark_interest_rate(Day, 9.45) :- benchmark_interest_rate_day_in_income_year(Day, 2009).
+benchmark_interest_rate(Day, 8.05) :- benchmark_interest_rate_day_in_income_year(Day, 2008).
+benchmark_interest_rate(Day, 7.55) :- benchmark_interest_rate_day_in_income_year(Day, 2007).
+benchmark_interest_rate(Day, 7.3) :-  benchmark_interest_rate_day_in_income_year(Day, 2006).
+benchmark_interest_rate(Day, 7.05) :- benchmark_interest_rate_day_in_income_year(Day, 2005).
+benchmark_interest_rate(Day, 6.55) :- benchmark_interest_rate_day_in_income_year(Day, 2004).
+benchmark_interest_rate(Day, 6.3) :-  benchmark_interest_rate_day_in_income_year(Day, 2003).
+benchmark_interest_rate(Day, 6.8) :-  benchmark_interest_rate_day_in_income_year(Day, 2002).
+benchmark_interest_rate(Day, 7.8) :-  benchmark_interest_rate_day_in_income_year(Day, 2001).
+benchmark_interest_rate(Day, 6.5) :-  benchmark_interest_rate_day_in_income_year(Day, 2000).
+benchmark_interest_rate(Day, 6.7) :-  benchmark_interest_rate_day_in_income_year(Day, 1999).
 
-benchmark_interest_rate(Day, 5.37) :- day_between(date(2019,7,1), date(2020,7,1), Day).
-benchmark_interest_rate(Day, 5.20) :- day_between(date(2018,7,1), date(2019,7,1), Day).
-benchmark_interest_rate(Day, 5.30) :- day_between(date(2017,7,1), date(2018,7,1), Day).
-benchmark_interest_rate(Day, 5.40) :- day_between(date(2016,7,1), date(2017,7,1), Day).
-benchmark_interest_rate(Day, 5.45) :- day_between(date(2015,7,1), date(2016,7,1), Day).
-benchmark_interest_rate(Day, 5.95) :- day_between(date(2014,7,1), date(2015,7,1), Day).
-benchmark_interest_rate(Day, 6.20) :- day_between(date(2013,7,1), date(2014,7,1), Day).
-benchmark_interest_rate(Day, 7.05) :- day_between(date(2012,7,1), date(2013,7,1), Day).
-benchmark_interest_rate(Day, 7.80) :- day_between(date(2011,7,1), date(2012,7,1), Day).
-benchmark_interest_rate(Day, 7.40) :- day_between(date(2010,7,1), date(2011,7,1), Day).
-benchmark_interest_rate(Day, 5.75) :- day_between(date(2009,7,1), date(2010,7,1), Day).
-benchmark_interest_rate(Day, 9.45) :- day_between(date(2008,7,1), date(2009,7,1), Day).
-benchmark_interest_rate(Day, 8.05) :- day_between(date(2007,7,1), date(2008,7,1), Day).
-benchmark_interest_rate(Day, 7.55) :- day_between(date(2006,7,1), date(2007,7,1), Day).
-benchmark_interest_rate(Day, 7.3) :- day_between(date(2005,7,1), date(2006,7,1), Day).
-benchmark_interest_rate(Day, 7.05) :- day_between(date(2004,7,1), date(2005,7,1), Day).
-benchmark_interest_rate(Day, 6.55) :- day_between(date(2003,7,1), date(2004,7,1), Day).
-benchmark_interest_rate(Day, 6.3) :- day_between(date(2002,7,1), date(2003,7,1), Day).
-benchmark_interest_rate(Day, 6.8) :- day_between(date(2001,7,1), date(2002,7,1), Day).
-benchmark_interest_rate(Day, 7.8) :- day_between(date(2000,7,1), date(2001,7,1), Day).
-benchmark_interest_rate(Day, 6.5) :- day_between(date(1999,7,1), date(2000,7,1), Day).
-benchmark_interest_rate(Day, 6.7) :- day_between(date(1998,7,1), date(1999,7,1), Day).
+benchmark_interest_rate_day_in_income_year(Day, Year) :- 
+	Previous_year #= Year - 1,
+	day_between(date(Previous_year,7,1), date(Year,7,1), Day).
 
 % Predicates for asserting the fields of a loan repayment
 
@@ -57,26 +77,53 @@ loan_rep_day(loan_repayment(Day, _), Day).
 % income year (?).
 loan_rep_amount(loan_repayment(_, Amount), Amount).
 
+
+
+
+
+
+
 % Predicates for asserting the fields of a loan agreement
 
 % An identifier for a given loan agreement
 loan_agr_contract_number(loan_agreement(Contract_Number, _, _, _, _, _, _, _), Contract_Number).
+
 % The principal amount of the loan agreement
 loan_agr_principal_amount(loan_agreement(_, Principal_Amount, _, _, _, _, _, _), Principal_Amount).
+
 % The lodgement day of the whole agreement
+/*
+ seems to actually be:
+Enter the lodgment day, which is the earlier of the due date for lodgment and the date of lodgment for the private company's tax return for the 2016-17 income year - enter a date in the format dd/mm/yyyy *
+this seems to be relevant if we're computing the minimum yearly repayment for the first year of the loan agreement.
+
+For the first year of the loan:
+    The minimum yearly repayment is calculated using the amount of the amalgamated loan, which is the sum of the amounts of the constituent loans that have not been repaid before the lodgment day of the private company for the year of income in which the amalgamated loan is made.
+    Making repayments before the lodgment day will reduce the minimum yearly repayment required for this year, and will contribute towards meeting your minimum yearly repayment.
+*/
 loan_agr_lodgement_day(loan_agreement(_, _, Lodgement_Day, _, _, _, _, _), Lodgement_Day).
+
 % The first absolute day of the first income year after the agreement is made
 loan_agr_begin_day(loan_agreement(_, _, _, Begin_Day, _, _, _, _), Begin_Day).
+
 % The term of the loan agreement in years
 loan_agr_term(loan_agreement(_, _, _, _, Term, _, _, _), Term).
-% The income year for which the computations will be done
+
+% The income year for which the computations will be done. Starting at zero for the first possible year of computation (which is the year following the loan creation) 
 loan_agr_computation_year(loan_agreement(_, _, _, _, _, Computation_Year, _, _), Computation_Year).
+
 % If this field is false, the computations will start from the day of the loan agreement.
 % Otherwise this will be the opening balance of the computations.
 loan_agr_computation_opening_balance(loan_agreement(_, _, _, _, _, _, Computation_Opening_Balance, _), Computation_Opening_Balance).
+
 % A chronologically ordered list of loan agreement repayments. The latter repayments
 % where the account balance is negative are ignored.
 loan_agr_repayments(loan_agreement(_, _, _, _, _, _, _, Repayments), Repayments).
+
+
+
+
+
 
 % Predicates for asserting the fields of a loan record
 
@@ -170,6 +217,7 @@ loan_agr_record(Agreement, Record) :-
 
 loan_agr_record2(Agreement, Purpose, Record) :-
 	loan_agr_computation_opening_balance(Agreement, false),
+	
 	loan_agr_principal_amount(Agreement, Principal_Amount),
 	loan_agr_repayments(Agreement, Repayments_A),
 
@@ -180,6 +228,7 @@ loan_agr_record2(Agreement, Purpose, Record) :-
 	;	loan_agr_lodgement_day(Agreement, Lodgement_Day)),
 	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, Repayment_Before_Lodgement, Repayments_B),
 
+	/* Principal_Amount is never used if Computation_Opening_Balance is false */
 	Current_Balance is Principal_Amount - Repayment_Before_Lodgement,
 	loan_agr_record_aux(Agreement, Record, Current_Balance, Begin_Day, Repayments_B).
 
@@ -188,6 +237,7 @@ loan_agr_record2(Agreement, Purpose, Record) :-
 loan_agr_record2(Agreement, Purpose, Record) :-
 	loan_agr_computation_opening_balance(Agreement, Computation_Opening_Balance),
 	Computation_Opening_Balance \= false,
+	
 	loan_agr_computation_year(Agreement, Computation_Year),
 	loan_agr_year_days(Agreement, Computation_Year, Computation_Day, _),
 	loan_agr_repayments(Agreement, Repayments_A),
@@ -327,6 +377,7 @@ loan_agr_min_yearly_repayment(Agreement, Current_Year_Num, Min_Yearly_Rep) :-
 	loan_agr_term(Agreement, Term),
 	Remaining_Term is Term - Current_Year_Num,
 	benchmark_interest_rate(Year_Begin_Day, Benchmark_Interest_Rate),
+	% https://www.ato.gov.au/uploadedImages/Content/Images/40557-3.gif
 	Min_Yearly_Rep is Balance * Benchmark_Interest_Rate /
 		(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))).
 
@@ -387,35 +438,13 @@ loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
 
 loan_agr_summary(Agreement, Summary) :-
 
-	% debug printout
-	findall(_,
-		(
-			loan_agr_record(Agreement, Record),
-
-			loan_rec_number(Record, Record_Number),
-
-			loan_rec_opening_day(Record, O),
-			loan_rec_closing_day(Record, C),
-			gregorian_date(O, Od),
-			gregorian_date(C, Cd),
-			loan_rec_opening_balance(Record, Opening_Balance),
-			loan_rec_closing_balance(Record, Closing_Balance),
-
-			loan_rec_interest_rate(Record, Interest_Rate),
-			loan_rec_interest_amount(Record, Interest_Amount),
-			loan_rec_repayment_amount(Record, Repayment_Amount),
-
-			format(user_error, '~q: ~q - ~q (~q - ~q):~n', [Record_Number, Od, Cd, O, C]),
-			format(user_error, ': ob: ~q  cb: ~q  ir: ~q  i: ~q  rep: ~q~n', [Opening_Balance, Closing_Balance, Interest_Rate, Interest_Amount, Repayment_Amount])
-		),_),
-
-	/* deconestruct the input term */
-
+	findall(Record, loan_agr_record(Agreement, Record), Recs),
+	loan_recs_table(Recs),
+	
+	/* deconstruct the input term */
 	loan_agr_computation_year(Agreement, Summary_Number),
-
 	/* computations */
-
-	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _),
+	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _End_Day),
 	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
 	loan_agr_year_opening_balance(Agreement, Summary_Number, interest, Opening_Balance),
 	loan_agr_year_closing_balance(Agreement, Summary_Number, Closing_Balance),
@@ -425,7 +454,7 @@ loan_agr_summary(Agreement, Summary) :-
 	loan_agr_total_principal(Agreement, Summary_Number, Total_Principal),
 	loan_agr_repayment_shortfall(Agreement, Summary_Number, Repayment_Shortfall),
 
-	/* assert the fields of the final and only loan summary(result) */
+	/* assert the fields of the final and only loan summary(result). */
 	loan_sum_number(Summary, Summary_Number),
 	loan_sum_interest_rate(Summary, Interest_Rate),
 	loan_sum_opening_balance(Summary, Opening_Balance),
@@ -436,3 +465,51 @@ loan_agr_summary(Agreement, Summary) :-
 	loan_sum_total_principal(Summary, Total_Principal),
 	loan_sum_repayment_shortfall(Summary, Repayment_Shortfall).
 
+
+
+ loan_recs_table(Recs) :-
+    
+    maplist(loan_rec_row, Recs, Rows),
+	Cols = [
+		column{id:loan_rec_number, title:"number", options:_{help:'Records are indexed in chronological order, starting with 1'}},
+		column{id:loan_rec_opening_day, title:"opening_day", options:_{help:"The opening day of the given record's period"}},
+		column{id:loan_rec_closing_day, title:"closing_day", options:_{help:"The closing day of the given record's period"}},
+		column{id:loan_rec_opening_balance, title:"opening_balance", options:_{help:'The balance of the payment at the beginning of the given period'}},
+		column{id:loan_rec_interest_rate, title:"interest_rate", options:_{help:'The interest rate being applied to the opening balance'}},
+		column{id:loan_rec_interest_amount, title:"interest_amount", options:_{help:'The calculated interest since the last payment/beginning of year'}},
+		column{id:loan_rec_repayment_amount, title:"repayment_amount", options:_{help:'The amount being paid towards the good in the given period'}},
+		column{id:loan_rec_closing_balance, title:"closing_balance", options:_{help:'The balance of the payment at the end of the given period'}}
+	],
+	
+	Table_Json = _{title_short: "loan records", title: "loan records", rows: Rows, columns: Cols},
+	!table_html([], Table_Json, Table_Html),
+   	!page_with_table_html('loan_records', Table_Html, Html),
+   	!add_report_page(0, 'loan_records', Html, loc(file_name,'loan_records.html'), 'loan_records.html').
+
+			
+
+ loan_rec_row(Record, Row) :-
+	loan_rec_number(Record, Record_Number),
+	loan_rec_opening_balance(Record, Opening_Balance),
+	loan_rec_interest_rate(Record, Interest_Rate),
+	loan_rec_interest_amount(Record, Interest_Amount),
+	loan_rec_repayment_amount(Record, Repayment_Amount),
+	loan_rec_closing_balance(Record, Closing_Balance),
+	loan_rec_opening_day(Record, O),
+	loan_rec_closing_day(Record, C),
+	gregorian_date(O, Opening_Day),
+	gregorian_date(C, Closing_Day),
+	
+	Row = _{
+		loan_rec_number: Record_Number,
+		loan_rec_opening_balance: Opening_Balance,
+		loan_rec_interest_rate: Interest_Rate,
+		loan_rec_interest_amount: Interest_Amount,
+		loan_rec_repayment_amount: Repayment_Amount,
+		loan_rec_closing_balance: Closing_Balance,
+		loan_rec_opening_day: Opening_Day,
+		loan_rec_closing_day: Closing_Day
+	},
+
+	format(user_error, '~q: ~q - ~q (~q - ~q):~n', [Record_Number, Opening_Day, Closing_Day, O, C]),
+	format(user_error, ': ob: ~q  cb: ~q  ir: ~q  i: ~q  rep: ~q~n', [Opening_Balance, Closing_Balance, Interest_Rate, Interest_Amount, Repayment_Amount]).	

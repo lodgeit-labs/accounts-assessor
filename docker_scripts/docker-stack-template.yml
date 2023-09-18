@@ -237,7 +237,8 @@ services:
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - rabbitmq:/var/lib/rabbitmq
-      - ./rabbitmq/stuff.conf:/etc/rabbitmq/conf.d/20-stuff.conf
+      - "${PWD}/rabbitmq/stuff.conf:/etc/rabbitmq/conf.d/30-stuff.conf"
+
     healthcheck:
         test: rabbitmq-diagnostics -q status && rabbitmq-diagnostics -q check_local_alarms
 
