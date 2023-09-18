@@ -1,5 +1,5 @@
 from luigi.freezing import FrozenOrderedDict
-from lxml import etree
+#from defusedxml.ElementTree import parse 
 import xmldiff
 from xmldiff import main as xmldiffmain, formatting
 import requests
