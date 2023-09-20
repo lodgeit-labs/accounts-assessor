@@ -278,7 +278,12 @@ loan_agr_record2(Agreement, Purpose, Record) :-
 	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, _Repayment_Before_Lodgement, Repayments_B),
 
 	/* this will yield records one after another (right?) */
-	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day, Repayments_B).
+	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, 
+	
+	/* this doesn't make any sense, cutting off all repayments before Computation_Day */  
+	Computation_Day,
+	 
+	Repayments_B).
 
 
 % Asserts the necessary relations to get the first record given the current balance and day
