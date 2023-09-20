@@ -116,7 +116,7 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 		CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
 		% converted inputs
 		NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
-	loan_agr_summary(loan_agreement(
+	!loan_agr_summary(loan_agreement(
 		% loan_agr_contract_number:
 		0,
 		% loan_agr_principal_amount:
