@@ -224,30 +224,6 @@ check1(Current_Day, Year_Days) :-
 	;	Year_Days = 365),
 
 
-% Asserts the necessary relations to get the first record given the current balance and day
-
-loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_A) :-
-	Current_Acc_Interest = 0,
-	Current_Accumulated_Repayment_Amount = 0,
-	loan_agr_term(Agreement, Term),
-	loan_agr_begin_day(Agreement, Begin_Day),
-	gregorian_date(Begin_Day, Begin_Date),
-	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_A, Repayments_B),
-	loan_reps_after(Current_Day, Repayments_B, [Repayments_Hd|Repayments_Tl]),
-	Current_Record_Number = 0,
-	next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
-	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount)
-	New_Acc_Rep is Current_Accumulated_Repayment_Amount + Current_Rep_Amount,
-	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
-	Next_Balance is Current_Balance - Current_Rep_Amount,
-	loan_rec_closing_balance(Next_Record, Next_Balance),
-	(
-		Record = Next_Record
-	;
-		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)
-	).
-
-
 
 
 
@@ -305,6 +281,30 @@ loan_agr_record2(Agreement, Purpose, Record) :-
 	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day, Repayments_B).
 
 
+% Asserts the necessary relations to get the first record given the current balance and day
+
+loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_A) :-
+	Current_Acc_Interest = 0,
+	Current_Accumulated_Repayment_Amount = 0,
+	loan_agr_term(Agreement, Term),
+	loan_agr_begin_day(Agreement, Begin_Day),
+	gregorian_date(Begin_Day, Begin_Date),
+	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_A, Repayments_B),
+	loan_reps_after(Current_Day, Repayments_B, [Repayments_Hd|Repayments_Tl]),
+	Current_Record_Number = 0,
+	next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount)
+	New_Acc_Rep is Current_Accumulated_Repayment_Amount + Current_Rep_Amount,
+	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
+	Next_Balance is Current_Balance - Current_Rep_Amount,
+	loan_rec_closing_balance(Next_Record, Next_Balance),
+	(
+		Record = Next_Record
+	;
+		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)
+	).
+
+
 
 
 
@@ -319,6 +319,27 @@ Relates a loan record to all that follow it, afaict
 Seeems to relate records to repayments, but the Repayments list already contains 0-amount sentinels for year beginnings.
 Accumulates Current_Accumulated_Repayment_Amount of one year.  
 */
+
+
+% Relates a loan record to one that follows it, in the case that it is a year-end record
+
+loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, _Current_Acc_Rep, Record) :-
+	/* in case the repayment is just a sentinel */
+	Current_Rep_Amount #= 0,
+
+	next_loan_record0(Repayments_Hd, Current_Record, Interest_Amount, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
+	
+	Next_Acc_Rep = 0,
+	Next_Acc_Interest = 0,
+	Next_Balance is Current_Balance + Current_Acc_Interest + Interest_Amount,
+	loan_rec_closing_balance(Next_Record, Next_Balance),
+	(
+		Record = Next_Record
+	;
+		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, Next_Acc_Rep, Record)
+	).
+
 
 % Relates a loan record to one that follows it, in the case that it is not a year-end record
 
@@ -336,26 +357,6 @@ loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Inter
 		Record = Next_Record
 	;
 		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)
-	).
-
-% Relates a loan record to one that follows it, in the case that it is a year-end record
-
-
-loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, _Current_Acc_Rep, Record) :-
-	/* in case the repayment is just a sentinel */
-	Current_Rep_Amount #= 0,
-
-	next_loan_record0(Repayments_Hd, Current_Record, Interest_Amount, Next_Record),
-	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
-	
-	Next_Acc_Rep = 0,
-	Next_Acc_Interest = 0,
-	Next_Balance is Current_Balance + Current_Acc_Interest + Interest_Amount,
-	loan_rec_closing_balance(Next_Record, Next_Balance),
-	(
-		Record = Next_Record
-	;
-		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, Next_Acc_Rep, Record)
 	).
 
 
