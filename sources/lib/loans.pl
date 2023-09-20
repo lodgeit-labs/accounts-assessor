@@ -437,7 +437,7 @@ loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
 % A predicate for generating the summary records of a given loan agreement.
 
 loan_agr_summary(Agreement, Summary) :-
-
+gtrace,
 	findall(Record, loan_agr_record(Agreement, Record), Recs),
 	loan_recs_table(Recs),
 	
