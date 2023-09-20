@@ -178,20 +178,24 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	"""
 	# todo, we should probably instead implement this as a part of "preprocessing" the uploaded content, that is, there'd be a "reference" type of "uploaded file", and the referenced url should then also be retrieved in a unified way along with retrieving for example xbrl taxonomies referenced by xbrl files.
 
-	# is this a onedrive url? 
-	if urllib.parse.urlparse(fileurl).netloc.endswith("db.files.1drv.com"):
+	# is this a onedrive url?
+	url = urllib.parse.urlparse(fileurl)
+	netloc = url.netloc
+	logger.info('/reference url: %s' % url)
+	logger.info('netloc: %s' % netloc)
 
-		# get the file
-		r = requests.get(fileurl)
-		
-		request_tmp_directory_name, request_tmp_directory_path = create_tmp()
-		
-		# save r into request_tmp_directory_path
-		fn = request_tmp_directory_path + '/file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
-		with open(fn, 'wb') as f:
-			f.write(r.content)
+	#if not netloc.endswith("db.files.1drv.com"):
+	#	return {"error": "only onedrive urls are supported at this time"}
 
-		return process_request(request_tmp_directory_name)
+	r = requests.get(fileurl)
+	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
+	
+	# save r into request_tmp_directory_path
+	fn = request_tmp_directory_path + '/file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
+	with open(fn, 'wb') as f:
+		f.write(r.content)
+
+	return process_request(request_tmp_directory_name)
 
 	
 
