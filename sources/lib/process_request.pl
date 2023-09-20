@@ -67,7 +67,8 @@
  flag_default('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', false).
 
  process_request(Request_format, Request_data_uri_base, File_Paths) :-
-	(	flag('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', true)
+ 
+	(	env_bool('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', true)
 	->	(
 			process_multifile_request(Request_format, Request_data_uri_base, File_Paths),
 			Exception = none

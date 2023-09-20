@@ -68,7 +68,7 @@ call preprocess_s_transaction on each item of the S_Transactions list and do som
 	),
 
 
-	(	flag('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', true)
+	(	env_bool('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', true)
 	->	(
 			call(Item_goal),
 			pop_context,
