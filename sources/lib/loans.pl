@@ -290,6 +290,7 @@ loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_
 	loan_agr_begin_day(Agreement, Begin_Day),
 	gregorian_date(Begin_Day, Begin_Date),
 	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_A, Repayments_B),
+	make_repayments_with_sentinels_report(Begin_Date, Term, Repayments_B),
 	loan_reps_after(Current_Day, Repayments_B, [Repayments_Hd|Repayments_Tl]),
 	Current_Record_Number = 0,
 	next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
@@ -303,9 +304,6 @@ loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_
 	;
 		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)
 	).
-
-
-
 
 
 
@@ -400,6 +398,14 @@ loan_reps_before_lodgement(_, Total_Repayment, [], Total_Repayment, []).
 
 % Insert a repayment into a chronologically ordered list of repayments
 
+
+/* 
+ So yeah the following two preds look like they can be significantly simplified, but we can do that after all tests are passing.
+ loan_reps_insert_repayment could be replaced with calling sort with a predicate that compares the days of the repayments.(?)
+  Inserted should be called Sorted if anything.
+loan_reps_insert_sentinels can just come up with a simple list of sentinels and let the sort predicate sort it.  
+ */
+
 loan_reps_insert_repayment(New_Repayment, [], [New_Repayment]).
 
 loan_reps_insert_repayment(New_Repayment, [Repayments_Hd|Repayments_Tl], Inserted) :-
@@ -415,6 +421,10 @@ loan_reps_insert_repayment(New_Repayment, [Repayments_Hd|Repayments_Tl], Inserte
 	loan_reps_insert_repayment(New_Repayment, Repayments_Tl, Inserted_Tl),
 	Inserted = [Repayments_Hd|Inserted_Tl].
 
+
+
+
+
 % Insert payments of zero at year-beginnings to enable proper interest accumulation
 
 loan_reps_insert_sentinels(_, 0, Repayments, Repayments).
@@ -426,6 +436,10 @@ loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
 	date_add(Begin_Date, date(1, 0, 0), New_Begin_Date),
 	New_Year_Count is Year_Count - 1,
 	loan_reps_insert_sentinels(New_Begin_Date, New_Year_Count, New_Repayments, Inserted).
+
+
+
+
 
 % Get the loan repayments on or after a given day
 
@@ -614,3 +628,37 @@ gtrace,
 
 	format(user_error, '~q: ~q - ~q (~q - ~q):~n', [Record_Number, Opening_Day, Closing_Day, O, C]),
 	format(user_error, ': ob: ~q  cb: ~q  ir: ~q  i: ~q  rep: ~q~n', [Opening_Balance, Closing_Balance, Interest_Rate, Interest_Amount, Repayment_Amount]).	
+
+
+
+
+
+
+
+
+
+make_repayments_with_sentinels_report(Begin_Date, Term, Repayments) :-
+    maplist(loan_repayment_row, Repayments, Rows),
+	Cols = [
+		column{id:date, title:"date", options:_{}},
+		column{id:amount, title:"amount", options:_{help:"0 for sentinel."}}
+	],
+	
+	Table_Json = _{title_short: "repayment records", title: "repayment records", rows: Rows, columns: Cols},
+	!table_html([], Table_Json, Table_Html),
+   	!page_with_table_html('repayment_records', Table_Html, Html),
+   	!add_report_page(0, 'repayments', Html, loc(file_name,'repayments.html'), 'repayments.html').
+
+			
+
+ loan_repayment_row(Record, Row) :-
+	loan_rep_day(Record, Day),
+	loan_rep_amount(Record, Amount),
+	
+	gregorian_date(Day, Date),
+	
+	Row = _{
+		date: Date,
+		amount: Amoount
+	}.
+	
