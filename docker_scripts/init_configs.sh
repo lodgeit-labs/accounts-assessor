@@ -6,7 +6,7 @@ set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
 
 cd ..
 cp -r secrets_example secrets ;_
-cp -r sources/config_example sources/config ;_
+cp -r sources/config_example/production sources/config ;_
 
 
 
