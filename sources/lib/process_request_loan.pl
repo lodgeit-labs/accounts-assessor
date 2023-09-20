@@ -146,10 +146,13 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
 	LoanResponseXML
 ) :-
-	% populate loan response xml
-	format(LoanResponseXML,
+
+ground(x(IncomeYear, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)),
+var(LoanResponseXML),
+
+	format(string(LoanResponseXML),
 '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n\c
-   <IncomeYear>~f8</IncomeYear>\n\c
+   <IncomeYear>~q</IncomeYear>\n\c
    <OpeningBalance>~f8</OpeningBalance>\n\c
    <InterestRate>~f8</InterestRate>\n\c
    <MinYearlyRepayment>~f8</MinYearlyRepayment>\n\c
@@ -168,6 +171,8 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
         TotalInterest,
         TotalPrincipal,
         ClosingBalance]).
+
+
 
  display_xml_loan_response(IncomeYear, LoanSummary) :-
 	xml_loan_response(IncomeYear, LoanSummary, LoanResponseXML),

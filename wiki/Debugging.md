@@ -81,6 +81,13 @@ gtrace is enabled by running 'guitracer'. Robust does this if 'have_display' suc
 take care of prolog 'debug' flag. This is set by '--debug' parameter on swipl command line. It's set to true when running requests on the command line (`invoke_rpc_cmdline.py`), but not when running in the webserver. 
 	
 if 'guitracer' was previously invoked, 'gtrace' will kick in when the repl catches an uncaught exception. Unfortunately, 'process_request' catches exceptions to produce alerts and return response to client instead. This means that normal exceptions (not thrown with `throw_string`) in Robust code dont cause gtrace to run - unless you set the debugging flag 'disable_graceful_resume_on_unexpected_error'. But it could be done with prolog_exception_hook, which we already use anyway.
+- not exactly, prolog_exception_hook runs every time any exception is thrown, and you get a lot of that for example when using guitracer. But it would be handy to be able to set a flag to run guitracer in the exception hook.
+
+guitracer - remember to disable "cluster variables" in settings
+- can we make this permanent?
+see config_example/debug/worker_config.json for also setting "dev_runner_options": ["--toplevel", "true"],
+this makes it possible to get guitracer once an exceptions propagates all the way up. But you then have to killall -9 swipl.
+
 
 ```Failed to connect to X-server at `:0.0 ```: This is a permission error, because docker is running under different user. Run `xhost +local:docker` to fix this for a session.
 
