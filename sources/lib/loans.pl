@@ -172,50 +172,96 @@ loan_sum_closing_balance(loan_summary(_, _, _, _, _, _, _, _, Closing_Balance), 
 % allows Prolog to systematically find all the loan records corresponding to a given
 % loan agreement.
 
-% Asserts the necessary relations to get from one loan record to the next
 
-loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record) :-
+
+
+
+
+% Asserts the necessary relations to get from one loan record to the next
+/* create a record that spans from the current day to the next repayment day.
+ records the repayment amount of that repayment in the record.
+ */
+
+next_loan_record(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record) :-
+
 	loan_rep_day(Repayments_Hd, Next_Day),
-	benchmark_interest_rate(Current_Day, Interest_Rate),
 	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
 	Next_Record_Number is Current_Record_Number + 1,
-	loan_rec_number(Next_Record, Next_Record_Number),
-	loan_rec_opening_day(Next_Record, Current_Day), loan_rec_closing_day(Next_Record, Next_Day),
+
+	
+	/* number of days for calculating interest */
 	Interest_Period is Next_Day - Current_Day,
+	
+
+	/* this must assume that the record only spans a single year, which i guess should be always true.
+	 So, the Next_Day_Year should always equal the record start date year i think. */
 	gregorian_date(Next_Day, date(Next_Day_Year,_,_)),
 	(	leap_year(Next_Day_Year)
 	->	Year_Days = 366
 	;	Year_Days = 365),
+	!check1(Current_Day, Year_Days),
+
+
+	benchmark_interest_rate(Current_Day, Interest_Rate),
 	Interest_Amount is Current_Balance * (Interest_Rate/100) * Interest_Period / Year_Days,
-	loan_rec_opening_balance(Next_Record, Current_Balance),
-	loan_rec_interest_rate(Next_Record, Interest_Rate),
-	loan_rec_interest_amount(Next_Record, Interest_Amount),
-	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount).
+
+
+		
+	loan_rec_number(			Next_Record, Next_Record_Number),
+	loan_rec_opening_day(		Next_Record, Current_Day),
+	loan_rec_closing_day(		Next_Record, Next_Day),
+	loan_rec_opening_balance(	Next_Record, Current_Balance),
+	loan_rec_interest_rate(		Next_Record, Interest_Rate),
+	loan_rec_interest_amount(	Next_Record, Interest_Amount),
+	loan_rec_repayment_amount(	Next_Record, Current_Rep_Amount).
+	
+	
+
+check1(Current_Day, Year_Days) :-
+	gregorian_date(Current_Day, date(Current_Day_Year,_,_)),
+	(	leap_year(Current_Day_Year)
+	->	Year_Days = 366
+	;	Year_Days = 365),
+
 
 % Asserts the necessary relations to get the first record given the current balance and day
 
 loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_A) :-
 	Current_Acc_Interest = 0,
-	Current_Acc_Rep = 0,
+	Current_Accumulated_Repayment_Amount = 0,
 	loan_agr_term(Agreement, Term),
 	loan_agr_begin_day(Agreement, Begin_Day),
 	gregorian_date(Begin_Day, Begin_Date),
 	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_A, Repayments_B),
 	loan_reps_after(Current_Day, Repayments_B, [Repayments_Hd|Repayments_Tl]),
 	Current_Record_Number = 0,
-	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
-	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
+	next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount)
+	New_Acc_Rep is Current_Accumulated_Repayment_Amount + Current_Rep_Amount,
 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
 	Next_Balance is Current_Balance - Current_Rep_Amount,
 	loan_rec_closing_balance(Next_Record, Next_Balance),
-	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
+	(
+		Record = Next_Record
+	;
+		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)
+	).
 
-% Relates a loan agreement to one of its records
+
+
+
+
+
+
+
+% Relates a loan agreement to one of its records. This is the entry point to the whole calculation.
 
 loan_agr_record(Agreement, Record) :-
 	loan_agr_record2(Agreement, interest, Record).
 
 loan_agr_record2(Agreement, Purpose, Record) :-
+
+	/* this is the case when we have loan principal amount */
 	loan_agr_computation_opening_balance(Agreement, false),
 	
 	loan_agr_principal_amount(Agreement, Principal_Amount),
@@ -226,11 +272,16 @@ loan_agr_record2(Agreement, Purpose, Record) :-
 	(	Purpose = interest
 	->	Lodgement_Day = Begin_Day
 	;	loan_agr_lodgement_day(Agreement, Lodgement_Day)),
+	
+	/* starting from loan principal amount, Repayment_Before_Lodgement simply decreases the opening balance at loan year lodgement day */
 	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, Repayment_Before_Lodgement, Repayments_B),
 
 	/* Principal_Amount is never used if Computation_Opening_Balance is false */
 	Current_Balance is Principal_Amount - Repayment_Before_Lodgement,
+
+	/* this will yield records one after another (right?) */
 	loan_agr_record_aux(Agreement, Record, Current_Balance, Begin_Day, Repayments_B).
+
 
 % Relates a loan agreement to one of its records starting from the given balance at the given day
 
@@ -246,37 +297,80 @@ loan_agr_record2(Agreement, Purpose, Record) :-
 	(	Purpose = interest
 	->	Lodgement_Day = Begin_Day
 	;	loan_agr_lodgement_day(Agreement, Lodgement_Day)),
-	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, _, Repayments_B),
+	
+	/* we have opening balance at lodgement day, so we ignore repayments before lodgement day */
+	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, _Repayment_Before_Lodgement, Repayments_B),
 
+	/* this will yield records one after another (right?) */
 	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day, Repayments_B).
+
+
+
+
+
+
+
+
+
+
+
+/*
+Relates a loan record to all that follow it, afaict
+Seeems to relate records to repayments, but the Repayments list already contains 0-amount sentinels for year beginnings.
+Accumulates Current_Accumulated_Repayment_Amount of one year.  
+*/
 
 % Relates a loan record to one that follows it, in the case that it is not a year-end record
 
-loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Acc_Rep, Record) :-
-	loan_rec_number(Current_Record, Current_Record_Number),
-	loan_rec_closing_day(Current_Record, Current_Day),
-	loan_rec_closing_balance(Current_Record, Current_Balance),
-	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
-	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
+loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Accumulated_Repayment_Amount, Record) :-
+	Current_Rep_Amount #> 0,
+	
+	next_loan_record0(Repayments_Hd, Current_Record, Interest_Amount, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
+	
+	New_Acc_Rep is Current_Accumulated_Repayment_Amount + Current_Rep_Amount,
 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
 	Next_Balance is Current_Balance - Current_Rep_Amount, Next_Balance >= 0,
 	loan_rec_closing_balance(Next_Record, Next_Balance),
-	Current_Rep_Amount > 0,
-	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
+	(
+		Record = Next_Record
+	;
+		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)
+	).
 
 % Relates a loan record to one that follows it, in the case that it is a year-end record
 
+
 loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, _Current_Acc_Rep, Record) :-
-	loan_rec_number(Current_Record, Current_Record_Number),
-	loan_rec_closing_day(Current_Record, Current_Day),
-	loan_rec_closing_balance(Current_Record, Current_Balance),
-	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
+	/* in case the repayment is just a sentinel */
+	Current_Rep_Amount #= 0,
+
+	next_loan_record0(Repayments_Hd, Current_Record, Interest_Amount, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
+	
 	Next_Acc_Rep = 0,
 	Next_Acc_Interest = 0,
 	Next_Balance is Current_Balance + Current_Acc_Interest + Interest_Amount,
 	loan_rec_closing_balance(Next_Record, Next_Balance),
-	Current_Rep_Amount = 0,
-	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, Next_Acc_Rep, Record)).
+	(
+		Record = Next_Record
+	;
+		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, Next_Acc_Rep, Record)
+	).
+
+
+
+next_loan_record0(Repayments_Hd, Current_Record, Interest_Amount, Next_Record) :-
+
+	loan_rec_number(			Current_Record, Current_Record_Number),
+	loan_rec_closing_day(		Current_Record, Current_Day),
+	loan_rec_closing_balance(	Current_Record, Current_Balance),
+	
+	next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record).
+
+
+
+/*This adds up the amounts of repayments before lodgement day, and returns the rest of repayments.*/
 
 % If a loan repayment was made before lodgement day, just add its amount to the total
 % repayment and forget it.
@@ -296,6 +390,12 @@ loan_reps_before_lodgement(Lodgement_Day, Total_Repayment, Repayments, Total_Rep
 	Day >= Lodgement_Day.
 
 loan_reps_before_lodgement(_, Total_Repayment, [], Total_Repayment, []).
+
+
+
+
+
+
 
 % Insert a repayment into a chronologically ordered list of repayments
 
