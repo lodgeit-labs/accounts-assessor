@@ -220,11 +220,11 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 
 	r = process_request(request_tmp_directory_name)
 
-	jv = find_report_by_key(reports['reports'], 'job_view_url')
+	jv = find_report_by_key(r.content['reports'], 'job_view_url')
 	if jv is not None:
 		return RedirectResponse(jv)
 
-	return r	
+	return r
 
 	
 
