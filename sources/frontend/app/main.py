@@ -164,10 +164,13 @@ async def get_task(id: str):
 	# a dict with either result or error key (i think...)
 	result = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id, params={'max_size':'99999999'})
 	logger.info('result: %s' % result.text)
-	message['result'] = result.json()
+	result = result.json()
 
-	if 'result' in message['result']:
+	if 'result' in result:
 		message['result'] = json.loads(message['result']['result'])
+	else:
+		message['result'] = None
+		
 	return message
 
 
@@ -178,13 +181,15 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	"""
 	# todo, we should probably instead implement this as a part of "preprocessing" the uploaded content, that is, there'd be a "reference" type of "uploaded file", and the referenced url should then also be retrieved in a unified way along with retrieving for example xbrl taxonomies referenced by xbrl files.
 
-	# is this a onedrive url?
 	url = urllib.parse.urlparse(fileurl)
 	netloc = url.netloc
 	logger.info('/reference url: ' + str(url))
 	logger.info('netloc: ' + str(netloc))
 
-	#if not netloc.endswith("db.files.1drv.com"):
+	# is this a onedrive url? 5dd1qg.dm.files.1drv.com
+	#if not netloc.endswith(        "db.files.1drv.com"):
+	
+	#if not netloc.endswith(".files.1drv.com"):
 	#	return {"error": "only onedrive urls are supported at this time"}
 
 	r = requests.get(fileurl)
