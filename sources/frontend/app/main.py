@@ -155,12 +155,14 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 				with open(f) as f2:
 					mem_txt += f2.read()
 
-			logger.info(mem_txt)
+			#logger.info(mem_txt)
 			mem_data = []
-
-			for line in mem_txt.splitlines():
+			
+			
+			mmm = mem_txt.splitlines()
+			for line in mmm:
 				if line.startswith('MEM '):
-					logger.info(line)
+					#logger.info(line)
 					mem = float(line.split()[1])
 					ts = float(line.split()[2])
 					mem_data.append(dict(x=ts*1000,y=mem))

@@ -24,39 +24,46 @@
     <h1>{{status}}</h1>
     
     <pre>{{json}}</pre>
+
+
+    <div>
+    <!--<div class="chart-container" style="position: relative; height:40vh; width:80vw"> -->
+        <canvas id="mem_chart"></canvas>
+        <!--</div> -->
+        </div>
     
     
-    <canvas id="mem_chart" style="width:100%"></canvas>
-
-
-    <script>
-
-document.addEventListener("DOMContentLoaded", function() {
-            const data = {{mem_data|tojson}};
-            const chart = new Chart(
-                document.getElementById('mem_chart'),
-                {
-                    type: 'scatter',
-                    data: {datasets: [ {label:'worker memory usage (MiB)', data: data  } ] },
-                    options: {
-                        animation: false,
-                        scales: {
-                            x: {
-                                
-                                type: 'time',
-                                parsing: false
+        <script>
+    
+    document.addEventListener("DOMContentLoaded", function() {
+                const data = {{mem_data|tojson}};
+                const chart = new Chart(
+                    document.getElementById('mem_chart'),
+                    {
+                        type: 'scatter',
+                        data: {datasets: [ {label:'worker memory usage (MiB)', data: data  } ] },
+                        options: {
+                            //responsive: true,
+                            animation: false,
+                            scales: {
+                                x: {
+                                    
+                                    type: 'time',
+                                    parsing: false
+                                }
                             }
                         }
                     }
-                }
-            );
-});
-
-    </script>
-
-    <br/>
-    <small><a href="{{server_info_url}}">Server info</a></small>
-
-
-</body>
-</html>
+                );
+    });
+    
+        </script>
+    
+        <br/>
+        <footer>
+        <small><a href="{{server_info_url}}">Server info</a></small>
+        </footer>
+    
+    
+    </body>
+    </html>
