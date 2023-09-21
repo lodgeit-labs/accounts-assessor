@@ -306,6 +306,9 @@ loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Inter
 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
 	loan_rec_closing_balance(Current_Record, Current_Balance),
 	Next_Balance is Current_Balance - Current_Rep_Amount,
+	
+	
+	% this check is necessary because the last record may have a negative balance, and we don't want to assert a record with a negative balance.
 	Next_Balance >= 0, 
 	
 	
@@ -401,15 +404,31 @@ loan_reps_before_lodgement(_, Total_Repayment, [], Total_Repayment, []).
 
 
 
-% Insert a repayment into a chronologically ordered list of repayments
-
 
 /* 
- So yeah the following two preds look like they can be significantly simplified, but we can do that after all tests are passing.
+the following two preds look like they can be significantly simplified, but we can do that after all tests are passing.
  loan_reps_insert_repayment could be replaced with calling sort with a predicate that compares the days of the repayments.(?)
   Inserted should be called Sorted if anything.
 loan_reps_insert_sentinels can just come up with a simple list of sentinels and let the sort predicate sort it.  
  */
+
+
+% Insert payments of zero at year-beginnings to enable proper interest accumulation
+
+loan_reps_insert_sentinels(_, 0, Repayments, Repayments).
+%loan_reps_insert_sentinels(_, -1, Repayments, Repayments).
+
+loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
+	Year_Count > 0,
+%	Year_Count > -1,
+	absolute_day(Begin_Date, Begin_Day),
+	loan_reps_insert_repayment(loan_repayment(Begin_Day, 0), Repayments, New_Repayments),
+	date_add(Begin_Date, date(1, 0, 0), New_Begin_Date),
+	New_Year_Count is Year_Count - 1,
+	loan_reps_insert_sentinels(New_Begin_Date, New_Year_Count, New_Repayments, Inserted).
+
+
+% Insert a repayment into a chronologically ordered list of repayments
 
 loan_reps_insert_repayment(New_Repayment, [], [New_Repayment]).
 
@@ -425,22 +444,6 @@ loan_reps_insert_repayment(New_Repayment, [Repayments_Hd|Repayments_Tl], Inserte
 	Hd_Day < New_Day,
 	loan_reps_insert_repayment(New_Repayment, Repayments_Tl, Inserted_Tl),
 	Inserted = [Repayments_Hd|Inserted_Tl].
-
-
-
-
-
-% Insert payments of zero at year-beginnings to enable proper interest accumulation
-
-loan_reps_insert_sentinels(_, 0, Repayments, Repayments).
-
-loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
-	Year_Count > 0,
-	absolute_day(Begin_Date, Begin_Day),
-	loan_reps_insert_repayment(loan_repayment(Begin_Day, 0), Repayments, New_Repayments),
-	date_add(Begin_Date, date(1, 0, 0), New_Begin_Date),
-	New_Year_Count is Year_Count - 1,
-	loan_reps_insert_sentinels(New_Begin_Date, New_Year_Count, New_Repayments, Inserted).
 
 
 
@@ -483,6 +486,9 @@ loan_agr_year_opening_balance(Agreement, Year_Num, Purpose, Opening_Balance) :-
 loan_agr_year_closing_balance(Agreement, Year_Num, Closing_Balance) :-
 	loan_agr_year_days(Agreement, Year_Num, _, Year_End_Day),
 	loan_agr_record(Agreement, Year_Record),
+	
+	/* this seems off, we're looking for a sentinel, but a sentinel is only inserted for beginning of year. */ 
+	
 	loan_rec_repayment_amount(Year_Record, 0),
 	loan_rec_closing_day(Year_Record, Year_End_Day),
 	loan_rec_closing_balance(Year_Record, Closing_Balance).
@@ -557,7 +563,7 @@ loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
 % A predicate for generating the summary records of a given loan agreement.
 
 loan_agr_summary(Agreement, Summary) :-
-gtrace,
+%gtrace,
 	findall(Record, loan_agr_record(Agreement, Record), Recs),
 	loan_recs_table(Recs),
 	
