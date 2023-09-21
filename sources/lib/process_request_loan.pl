@@ -116,26 +116,39 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 		CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
 		% converted inputs
 		NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
-	!loan_agr_summary(loan_agreement(
-		% loan_agr_contract_number:
-		0,
-		% loan_agr_principal_amount:
-		NPrincipalAmount,
-		% loan_agr_lodgement_day:
-		NLodgementDate,
-		% loan_agr_begin_day:
-		NCreationIncomeYear,
-		% loan_agr_term (length in years):
-		NTerm,
-		% loan_agr_computation_year
-		NComputationYear,
+	
+	(	loan_agr_summary(loan_agreement(
+			% loan_agr_contract_number:
+			0,
+			% loan_agr_principal_amount:
+			NPrincipalAmount,
+			% loan_agr_lodgement_day:
+			NLodgementDate,
+			% loan_agr_begin_day:
+			NCreationIncomeYear,
+			% loan_agr_term (length in years):
+			NTerm,
+			% loan_agr_computation_year
+			NComputationYear,
+			
+			NOpeningBalance,
+			% loan_agr_repayments (list):
+			NLoanRepayments),
+			% output:
+			Summary)
+	->	display_xml_loan_response(NIncomeYear, Summary)
+	;
+		(
+			LoanResponseXML = "<error>calculation failed</error>",		
 		
-		NOpeningBalance,
-		% loan_agr_repayments (list):
-		NLoanRepayments),
-		% output:
-		Summary),
-	display_xml_loan_response(NIncomeYear, Summary).
+			report_file_path(loc(file_name, 'response.xml'), Url, Path, _),
+			loc(absolute_path, Raw) = Path,
+			open(Raw, write, XMLStream),
+			write(XMLStream, LoanResponseXML),
+			close(XMLStream),
+			add_report_file(0,'result', 'result', Url)
+		)
+	).		
    
 % -------------------------------------------------------------------
 % display_xml_loan_response/3
@@ -188,7 +201,7 @@ var(LoanResponseXML),
 	% read the schema file
 	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
 	!validate_xml(Path, LoanResponseXSD, []),
-	add_report_file(0,'result', 'result', Url).   
+	add_report_file(0,'result', 'result', Url).
 
 % ===================================================================
 % Various helper predicates
