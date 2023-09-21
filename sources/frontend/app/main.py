@@ -181,8 +181,8 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	# is this a onedrive url?
 	url = urllib.parse.urlparse(fileurl)
 	netloc = url.netloc
-	logger.info('/reference url: %s' % url)
-	logger.info('netloc: %s' % netloc)
+	logger.info('/reference url: ' + str(url))
+	logger.info('netloc: ' + str(netloc))
 
 	#if not netloc.endswith("db.files.1drv.com"):
 	#	return {"error": "only onedrive urls are supported at this time"}
