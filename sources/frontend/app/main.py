@@ -5,7 +5,7 @@ import datetime
 import ntpath
 import shutil
 import re
-
+from pathlib import Path as P
 import requests
 
 from typing import Optional, Any, List, Annotated
@@ -32,7 +32,7 @@ from agraph import agc
 import invoke_rpc
 from tasking import remoulade
 from fs_utils import directory_files, find_report_by_key
-from tmp_dir_path import create_tmp
+from tmp_dir_path import create_tmp, get_tmp_directory_absolute_path
 import call_prolog_calculator
 import logging
 
@@ -141,14 +141,21 @@ def tmp_file_url(public_url, tmp_dir_name, fn):
 
 
 @app.get("/view/job/{job_id}", response_class=HTMLResponse)
-async def views_limbo(request: Request, job_id: str):
+async def views_limbo(request: Request, job_id: str, redir:bool=True):
 	job = await get_task(job_id)
 	if job is not None:
-		if job['status'] == 'Success' and 'reports' in job['result']:
+		if redir and job['status'] == 'Success' and 'reports' in job['result']:
 			return RedirectResponse(find_report_by_key(job['result']['reports'], 'task_directory'))
 		else:
+			mem = ''
+			for f in P(get_tmp_directory_absolute_path(job['message_id'])).glob('*/mem_prof.txt'):
+				with open(f) as f2:
+					mem += f2.read()
+
+			server_info_url = os.environ['PUBLIC_URL'] + '/static/git_info.txt'
+			
 			# it turns out that failures are not permanent
-			return templates.TemplateResponse("job.html", {"request": request, "job_id": job_id, "json": json.dumps(job, indent=4, sort_keys=True), "refresh": (job['status'] not in [ 'Success']), 'status': job['status']})
+			return templates.TemplateResponse("job.html", {"server_info": server_info_url, "mem": mem, "request": request, "job_id": job_id, "json": json.dumps(job, indent=4, sort_keys=True), "refresh": (job['status'] not in [ 'Success']), 'status': job['status']})
 
 
 
@@ -161,15 +168,25 @@ async def get_task(id: str):
 	if message['actor_name'] not in ["local_calculator"]:
 		return None
 
+	#'2012-05-29T19:30:03.283Z'
+	#"2023-09-21T10:16:44.571279+00:00",
+	import dateutil.parser
+	
+	enqueued_datetime = dateutil.parser.parse(message['enqueued_datetime'])
+	end_datetime = message.get('end_datetime', None)
+	if end_datetime is not None:
+		end_datetime = dateutil.parser.parse(end_datetime)
+		message['duration'] = str(end_datetime - enqueued_datetime)
+
 	# a dict with either result or error key (i think...)
 	result = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id, params={'max_size':'99999999'})
 	logger.info('result: %s' % result.text)
 	result = result.json()
 
 	if 'result' in result:
-		message['result'] = json.loads(message['result']['result'])
+		message['result'] = json.loads(result['result'])
 	else:
-		message['result'] = None
+		message['result'] = {}
 		
 	return message
 
@@ -219,6 +236,13 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 
 
 
+def job_tmp_url(job):
+	public_url = os.environ['PUBLIC_URL']
+	return tmp_file_url(public_url, job.message_id, '')
+
+
+
+
 def process_request(request_directory, requested_output_format = 'job_handle'):
 	public_url=os.environ['PUBLIC_URL']
 
@@ -251,7 +275,7 @@ def process_request(request_directory, requested_output_format = 'job_handle'):
 			[{
 				"title": "job URL",
 				"key": "job_tmp_url",
-				"val":{"url": tmp_file_url(public_url, job.message_id, '')}},
+				"val":{"url": job_tmp_url(job)}},
 			{
 				"title": "job API URL",
 				"key": "job_api_url",

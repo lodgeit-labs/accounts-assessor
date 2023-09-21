@@ -4,9 +4,33 @@
 {% if refresh %}
     <meta http-equiv="refresh" content="5">
 {% endif %}
+    <style>
+        .upside-down {
+        -ms-transform: rotate(180deg);
+        -webkit-transform: rotate(180deg);
+        transform: rotate(180deg);
+        }
+    </style>
+    
 </head>
 <body>
-    <h1>Job {{job_id}} status {{status}}</h1>
+    
+    Job {{job_id}}
+    
+    <h1>{{status}}</h1>
+    
     <pre>{{json}}</pre>
+    
+    memory profile:
+    <div>
+    <small>
+        {{mem}}
+    </small>
+    </div>
+    <br/>
+    
+    <br/>
+    <small><a href="{{server_info_url}}">Server info</a></small>
+
 </body>
 </html>
