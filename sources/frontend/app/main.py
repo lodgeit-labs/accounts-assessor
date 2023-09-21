@@ -141,21 +141,35 @@ def tmp_file_url(public_url, tmp_dir_name, fn):
 
 
 @app.get("/view/job/{job_id}", response_class=HTMLResponse)
-async def views_limbo(request: Request, job_id: str, redir:bool=True):
+async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 	job = await get_task(job_id)
 	if job is not None:
-		if redir and job['status'] == 'Success' and 'reports' in job['result']:
+		if redirect and job['status'] == 'Success' and 'reports' in job['result']:
 			return RedirectResponse(find_report_by_key(job['result']['reports'], 'task_directory'))
 		else:
-			mem = ''
+			mem_txt = ''
 			for f in P(get_tmp_directory_absolute_path(job['message_id'])).glob('*/mem_prof.txt'):
+				if str(f).endswith('/completed/mem_prof.txt'):
+					continue
+				logger.info('f: %s' % f)
 				with open(f) as f2:
-					mem += f2.read()
+					mem_txt += f2.read()
+
+			logger.info(mem_txt)
+			mem_data = []
+
+			for line in mem_txt.splitlines():
+				if line.startswith('MEM '):
+					logger.info(line)
+					mem = float(line.split()[1])
+					ts = float(line.split()[2])
+					mem_data.append(dict(x=ts*1000,y=mem))
+
 
 			server_info_url = os.environ['PUBLIC_URL'] + '/static/git_info.txt'
-			
+
 			# it turns out that failures are not permanent
-			return templates.TemplateResponse("job.html", {"server_info": server_info_url, "mem": mem, "request": request, "job_id": job_id, "json": json.dumps(job, indent=4, sort_keys=True), "refresh": (job['status'] not in [ 'Success']), 'status': job['status']})
+			return templates.TemplateResponse("job.html", {"server_info": server_info_url, "mem_txt": mem_txt, "mem_data":mem_data, "request": request, "job_id": job_id, "json": json.dumps(job, indent=4, sort_keys=True), "refresh": (job['status'] not in [ 'Success']), 'status': job['status']})
 
 
 
@@ -218,7 +232,7 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	with open(fn, 'wb') as f:
 		f.write(r.content)
 
-	r = process_request(request_tmp_directory_name)
+	r = process_request(request_tmp_directory_name)[1]
 
 	jv = find_report_by_key(r.content['reports'], 'job_view_url')
 	if jv is not None:
@@ -238,7 +252,7 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 		logger.info('uploaded: %s' % file)
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
 
-	return process_request(request_tmp_directory_name, requested_output_format)
+	return process_request(request_tmp_directory_name, requested_output_format)[0]
 
 
 
@@ -270,29 +284,29 @@ def process_request(request_directory, requested_output_format = 'job_handle'):
 
 	if requested_output_format == 'immediate_xml':
 			reports = job.result.get(block=True, timeout=1000 * 1000)
-			return RedirectResponse(find_report_by_key(reports['reports'], 'result'))
+			return RedirectResponse(find_report_by_key(reports['reports'], 'result')), None
 	elif requested_output_format == 'immediate_json_reports_list':
 			reports = job.result.get(block=True, timeout=1000 * 1000)
-			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory') + '/000000_response.json.json')
+			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory') + '/000000_response.json.json'), None
 	elif requested_output_format == 'job_handle':
-		return JSONResponse(
-		{
+		jsn = {
 			"alerts": ["job scheduled."],
 			"reports":
-			[{
-				"title": "job URL",
-				"key": "job_tmp_url",
-				"val":{"url": job_tmp_url(job)}},
-			{
-				"title": "job API URL",
-				"key": "job_api_url",
-				"val":{"url": public_url + '/api/job/' + job.message_id}},
-			{
-				"title": "job view URL",
-				"key": "job_view_url",
-				"val":{"url": public_url + '/view/job/' + job.message_id}},
-			]
-		})
+				[{
+					"title": "job URL",
+					"key": "job_tmp_url",
+					"val": {"url": job_tmp_url(job)}},
+					{
+						"title": "job API URL",
+						"key": "job_api_url",
+						"val": {"url": public_url + '/api/job/' + job.message_id}},
+					{
+						"title": "job view URL",
+						"key": "job_view_url",
+						"val": {"url": public_url + '/view/job/' + job.message_id}},
+				]
+		}
+		return JSONResponse(jsn), jsn
 	else:
 		raise Exception('unexpected requested_output_format')
 
