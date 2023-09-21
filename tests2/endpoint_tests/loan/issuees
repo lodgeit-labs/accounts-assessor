@@ -1,0 +1,17 @@
+http://jj.internal:8877/tmp/1695151827.3973653.37.15.1D58C77x10596/000001_loan_records.html demonstrates two problems:
+1) record 2 should show that interest is added to the outstanding one dollar, closing_balance seems wrong
+2) no more records are generated after 
+
+
+
+http://jj.internal:8877/tmp/f1c99c27-d650-434b-894e-5e1207bf00ef/1695151827.3973653.37.9.1D58C77x10572/000000_loan_records.html
+record 4, 2015-07-01 is closing date of 14-15 period?
+
+
+
+
+
+how to make the code accept an overpayment?
+
+
+is it the case that at least one payment is expected / assumed, each year? That'd explain why a 7-year-termed loan is cut off after ~7 records maybe?
