@@ -116,26 +116,39 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 		CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
 		% converted inputs
 		NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
-	loan_agr_summary(loan_agreement(
-		% loan_agr_contract_number:
-		0,
-		% loan_agr_principal_amount:
-		NPrincipalAmount,
-		% loan_agr_lodgement_day:
-		NLodgementDate,
-		% loan_agr_begin_day:
-		NCreationIncomeYear,
-		% loan_agr_term (length in years):
-		NTerm,
-		% loan_agr_computation_year
-		NComputationYear,
+	
+	(	loan_agr_summary(loan_agreement(
+			% loan_agr_contract_number:
+			0,
+			% loan_agr_principal_amount:
+			NPrincipalAmount,
+			% loan_agr_lodgement_day:
+			NLodgementDate,
+			% loan_agr_begin_day:
+			NCreationIncomeYear,
+			% loan_agr_term (length in years):
+			NTerm,
+			% loan_agr_computation_year
+			NComputationYear,
+			
+			NOpeningBalance,
+			% loan_agr_repayments (list):
+			NLoanRepayments),
+			% output:
+			Summary)
+	->	display_xml_loan_response(NIncomeYear, Summary)
+	;
+		(
+			LoanResponseXML = "<error>calculation failed</error>",		
 		
-		NOpeningBalance,
-		% loan_agr_repayments (list):
-		NLoanRepayments),
-		% output:
-		Summary),
-	display_xml_loan_response(NIncomeYear, Summary).
+			report_file_path(loc(file_name, 'response.xml'), Url, Path, _),
+			loc(absolute_path, Raw) = Path,
+			open(Raw, write, XMLStream),
+			write(XMLStream, LoanResponseXML),
+			close(XMLStream),
+			add_report_file(0,'result', 'result', Url)
+		)
+	).		
    
 % -------------------------------------------------------------------
 % display_xml_loan_response/3
@@ -146,10 +159,13 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
 	LoanResponseXML
 ) :-
-	% populate loan response xml
-	format(LoanResponseXML,
+
+ground(x(IncomeYear, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)),
+var(LoanResponseXML),
+
+	format(string(LoanResponseXML),
 '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n\c
-   <IncomeYear>~f8</IncomeYear>\n\c
+   <IncomeYear>~q</IncomeYear>\n\c
    <OpeningBalance>~f8</OpeningBalance>\n\c
    <InterestRate>~f8</InterestRate>\n\c
    <MinYearlyRepayment>~f8</MinYearlyRepayment>\n\c
@@ -169,6 +185,8 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
         TotalPrincipal,
         ClosingBalance]).
 
+
+
  display_xml_loan_response(IncomeYear, LoanSummary) :-
 	xml_loan_response(IncomeYear, LoanSummary, LoanResponseXML),
 
@@ -183,7 +201,7 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	% read the schema file
 	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
 	!validate_xml(Path, LoanResponseXSD, []),
-	add_report_file(0,'result', 'result', Url).   
+	add_report_file(0,'result', 'result', Url).
 
 % ===================================================================
 % Various helper predicates

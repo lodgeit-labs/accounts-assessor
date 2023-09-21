@@ -4,9 +4,66 @@
 {% if refresh %}
     <meta http-equiv="refresh" content="5">
 {% endif %}
+    <style>
+        .upside-down {
+        -ms-transform: rotate(180deg);
+        -webkit-transform: rotate(180deg);
+        transform: rotate(180deg);
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.2.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.min.js"></script>
+    
 </head>
 <body>
-    <h1>Job {{job_id}} status {{status}}</h1>
+    
+    Job {{job_id}}
+    
+    <h1>{{status}}</h1>
+    
     <pre>{{json}}</pre>
-</body>
-</html>
+
+
+    <div>
+    <!--<div class="chart-container" style="position: relative; height:40vh; width:80vw"> -->
+        <canvas id="mem_chart"></canvas>
+        <!--</div> -->
+        </div>
+    
+    
+        <script>
+    
+    document.addEventListener("DOMContentLoaded", function() {
+                const data = {{mem_data|tojson}};
+                const chart = new Chart(
+                    document.getElementById('mem_chart'),
+                    {
+                        type: 'scatter',
+                        data: {datasets: [ {label:'worker memory usage (MiB)', data: data  } ] },
+                        options: {
+                            //responsive: true,
+                            animation: false,
+                            scales: {
+                                x: {
+                                    
+                                    type: 'time',
+                                    parsing: false
+                                }
+                            }
+                        }
+                    }
+                );
+    });
+    
+        </script>
+    
+        <br/>
+        <footer>
+        <small><a href="{{server_info_url}}">Server info</a></small>
+        </footer>
+    
+    
+    </body>
+    </html>

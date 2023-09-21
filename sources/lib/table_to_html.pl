@@ -97,7 +97,7 @@ highlight_totals([tr(Row)], [tr([style="background-color:#DDDDEE; font-weight:bo
 	->	Header_value0 = Column_title
 	;	atomics_to_string([Prefix, Column_title], " ", Header_value0)),
 	(	get_dict(help, Options, Help)
-	->	atomics_to_string([Header_value0, '<small>(', Help, ')</small>'], " ", Header_value)
+	->	Header_value = [Header_value0, br([]), small(Help)]
 	;	Header_value = Header_value0).
 
  group_prefix(Prefix, Group_title, Group_prefix) :-

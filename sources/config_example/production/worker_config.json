@@ -1,6 +1,9 @@
 {
+	"ENABLE_CONTEXT_TRACE_TRAIL": false,
+    "dev_runner_options": [],  
     "prolog_debug" : false,
 	"GTRACE_ON_OWN_EXCEPTIONS" : false,
 	"DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR" : false,
-	"ROBUST_ENABLE_NICETY_REPORTS": false
+	"ROBUST_ENABLE_NICETY_REPORTS": true,
+	"x":"x"
 }

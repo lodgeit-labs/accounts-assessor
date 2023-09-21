@@ -119,7 +119,7 @@ VOLUME /app/cache
 
 VOLUME /app/sources/
 VOLUME /app/tests/
-VOLUME /root/.config/swi-prolog/xpce/
+#VOLUME /root/.config/swi-prolog/xpce/
 RUN chown myuser:myuser /app/server_root/
 USER myuser
 COPY init_prolog.sh .

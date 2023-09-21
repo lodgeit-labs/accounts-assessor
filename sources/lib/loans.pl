@@ -172,50 +172,22 @@ loan_sum_closing_balance(loan_summary(_, _, _, _, _, _, _, _, Closing_Balance), 
 % allows Prolog to systematically find all the loan records corresponding to a given
 % loan agreement.
 
-% Asserts the necessary relations to get from one loan record to the next
 
-loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record) :-
-	loan_rep_day(Repayments_Hd, Next_Day),
-	benchmark_interest_rate(Current_Day, Interest_Rate),
-	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
-	Next_Record_Number is Current_Record_Number + 1,
-	loan_rec_number(Next_Record, Next_Record_Number),
-	loan_rec_opening_day(Next_Record, Current_Day), loan_rec_closing_day(Next_Record, Next_Day),
-	Interest_Period is Next_Day - Current_Day,
-	gregorian_date(Next_Day, date(Next_Day_Year,_,_)),
-	(	leap_year(Next_Day_Year)
-	->	Year_Days = 366
-	;	Year_Days = 365),
-	Interest_Amount is Current_Balance * (Interest_Rate/100) * Interest_Period / Year_Days,
-	loan_rec_opening_balance(Next_Record, Current_Balance),
-	loan_rec_interest_rate(Next_Record, Interest_Rate),
-	loan_rec_interest_amount(Next_Record, Interest_Amount),
-	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount).
 
-% Asserts the necessary relations to get the first record given the current balance and day
 
-loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_A) :-
-	Current_Acc_Interest = 0,
-	Current_Acc_Rep = 0,
-	loan_agr_term(Agreement, Term),
-	loan_agr_begin_day(Agreement, Begin_Day),
-	gregorian_date(Begin_Day, Begin_Date),
-	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_A, Repayments_B),
-	loan_reps_after(Current_Day, Repayments_B, [Repayments_Hd|Repayments_Tl]),
-	Current_Record_Number = 0,
-	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
-	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
-	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
-	Next_Balance is Current_Balance - Current_Rep_Amount,
-	loan_rec_closing_balance(Next_Record, Next_Balance),
-	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
 
-% Relates a loan agreement to one of its records
+
+
+
+
+% Relates a loan agreement to one of its records. This is the entry point to the whole calculation.
 
 loan_agr_record(Agreement, Record) :-
 	loan_agr_record2(Agreement, interest, Record).
 
 loan_agr_record2(Agreement, Purpose, Record) :-
+
+	/* this is the case when we have loan principal amount */
 	loan_agr_computation_opening_balance(Agreement, false),
 	
 	loan_agr_principal_amount(Agreement, Principal_Amount),
@@ -226,11 +198,16 @@ loan_agr_record2(Agreement, Purpose, Record) :-
 	(	Purpose = interest
 	->	Lodgement_Day = Begin_Day
 	;	loan_agr_lodgement_day(Agreement, Lodgement_Day)),
+	
+	/* starting from loan principal amount, Repayment_Before_Lodgement simply decreases the opening balance at loan year lodgement day */
 	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, Repayment_Before_Lodgement, Repayments_B),
 
 	/* Principal_Amount is never used if Computation_Opening_Balance is false */
 	Current_Balance is Principal_Amount - Repayment_Before_Lodgement,
+
+	/* this will yield records one after another (right?) */
 	loan_agr_record_aux(Agreement, Record, Current_Balance, Begin_Day, Repayments_B).
+
 
 % Relates a loan agreement to one of its records starting from the given balance at the given day
 
@@ -239,44 +216,168 @@ loan_agr_record2(Agreement, Purpose, Record) :-
 	Computation_Opening_Balance \= false,
 	
 	loan_agr_computation_year(Agreement, Computation_Year),
-	loan_agr_year_days(Agreement, Computation_Year, Computation_Day, _),
+	loan_agr_year_days(Agreement, Computation_Year, Computation_Year_Start_Day, _),
 	loan_agr_repayments(Agreement, Repayments_A),
 
 	loan_agr_begin_day(Agreement, Begin_Day),
 	(	Purpose = interest
 	->	Lodgement_Day = Begin_Day
 	;	loan_agr_lodgement_day(Agreement, Lodgement_Day)),
-	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, _, Repayments_B),
+	
+	/* we have opening balance at lodgement day, so we ignore repayments before lodgement day */
+	loan_reps_before_lodgement(Lodgement_Day, 0, Repayments_A, _Repayment_Before_Lodgement, Repayments_B),
 
-	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, Computation_Day, Repayments_B).
+	/* this will yield records one after another (right?) */
+	loan_agr_record_aux(Agreement, Record, Computation_Opening_Balance, 
+	
+	Computation_Year_Start_Day,
+	 
+	Repayments_B).
 
-% Relates a loan record to one that follows it, in the case that it is not a year-end record
 
-loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Acc_Rep, Record) :-
-	loan_rec_number(Current_Record, Current_Record_Number),
-	loan_rec_closing_day(Current_Record, Current_Day),
-	loan_rec_closing_balance(Current_Record, Current_Balance),
-	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
-	New_Acc_Rep is Current_Acc_Rep + Current_Rep_Amount,
+% Asserts the necessary relations to get the first record given the current balance and day
+
+loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_A) :-
+	Current_Acc_Interest = 0,
+	Current_Accumulated_Repayment_Amount = 0,
+	loan_agr_term(Agreement, Term),
+	loan_agr_begin_day(Agreement, Begin_Day),
+	gregorian_date(Begin_Day, Begin_Date),
+	loan_reps_insert_sentinels(Begin_Date, Term, Repayments_A, Repayments_B),
+	make_repayments_with_sentinels_report(Repayments_B),
+	loan_reps_after(Current_Day, Repayments_B, [Repayments_Hd|Repayments_Tl]),
+	Current_Record_Number = 0,
+	next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
+	New_Acc_Rep is Current_Accumulated_Repayment_Amount + Current_Rep_Amount,
 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
-	Next_Balance is Current_Balance - Current_Rep_Amount, Next_Balance >= 0,
+	Next_Balance is Current_Balance - Current_Rep_Amount,
 	loan_rec_closing_balance(Next_Record, Next_Balance),
-	Current_Rep_Amount > 0,
-	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)).
+	(
+		Record = Next_Record
+	;
+		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)
+	).
+
+
+
+
+
+
+
+
+/*
+Relates a loan record to all that follow it, afaict
+Seeems to relate records to repayments, but the Repayments list already contains 0-amount sentinels for year beginnings.
+Accumulates Current_Accumulated_Repayment_Amount of one year.  
+*/
+
 
 % Relates a loan record to one that follows it, in the case that it is a year-end record
 
 loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, _Current_Acc_Rep, Record) :-
-	loan_rec_number(Current_Record, Current_Record_Number),
-	loan_rec_closing_day(Current_Record, Current_Day),
-	loan_rec_closing_balance(Current_Record, Current_Balance),
-	loan_rec_aux(Repayments_Hd, Current_Rep_Amount, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
+	/* in case the repayment is just a sentinel */
+
+	next_loan_record0(Repayments_Hd, Current_Record, Interest_Amount, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
+	Current_Rep_Amount = 0,
+	
 	Next_Acc_Rep = 0,
 	Next_Acc_Interest = 0,
+	loan_rec_closing_balance(Current_Record, Current_Balance),
 	Next_Balance is Current_Balance + Current_Acc_Interest + Interest_Amount,
 	loan_rec_closing_balance(Next_Record, Next_Balance),
-	Current_Rep_Amount = 0,
-	(Record = Next_Record; loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, Next_Acc_Rep, Record)).
+	(
+		Record = Next_Record
+	;
+		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, Next_Acc_Rep, Record)
+	).
+
+
+% Relates a loan record to one that follows it, in the case that it is not a year-end record
+
+loan_rec_record(Current_Record, [Repayments_Hd|Repayments_Tl], Current_Acc_Interest, Current_Accumulated_Repayment_Amount, Record) :-
+	
+	next_loan_record0(Repayments_Hd, Current_Record, Interest_Amount, Next_Record),
+	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
+	Current_Rep_Amount > 0,
+	
+	New_Acc_Rep is Current_Accumulated_Repayment_Amount + Current_Rep_Amount,
+	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
+	loan_rec_closing_balance(Current_Record, Current_Balance),
+	Next_Balance is Current_Balance - Current_Rep_Amount,
+	
+	
+	% this check is necessary because the last record may have a negative balance, and we don't want to assert a record with a negative balance.
+	Next_Balance >= 0, 
+	
+	
+	loan_rec_closing_balance(Next_Record, Next_Balance),
+	(
+		Record = Next_Record
+	;
+		loan_rec_record(Next_Record, Repayments_Tl, Next_Acc_Interest, New_Acc_Rep, Record)
+	).
+
+
+
+next_loan_record0(Repayments_Hd, Current_Record, Interest_Amount, Next_Record) :-
+
+	loan_rec_number(			Current_Record, Current_Record_Number),
+	loan_rec_closing_day(		Current_Record, Current_Day),
+	loan_rec_closing_balance(	Current_Record, Current_Balance),
+	
+	next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record).
+
+
+
+
+
+
+
+
+% Asserts the necessary relations to get from one loan record to the next
+/* create a record that spans from the current day to the next repayment day.
+ records the repayment amount of that repayment in the record.
+ */
+
+next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record) :-
+
+	loan_rep_day(Repayments_Hd, Next_Day),
+	loan_rep_amount(Repayments_Hd, Current_Rep_Amount),
+	Next_Record_Number is Current_Record_Number + 1,
+
+	
+	/* number of days for calculating interest */
+	Interest_Period is Next_Day - Current_Day,
+	
+
+	/* this must assume that the record only spans a single year, which i guess should be always true.
+	 So, the Next_Day_Year should always equal the record start date year i think. */
+	gregorian_date(Next_Day, date(Next_Day_Year,_,_)),
+	(	leap_year(Next_Day_Year)
+	->	Year_Days = 366
+	;	Year_Days = 365),
+
+	benchmark_interest_rate(Current_Day, Interest_Rate),
+	Interest_Amount is Current_Balance * (Interest_Rate/100) * Interest_Period / Year_Days,
+
+		
+	loan_rec_number(			Next_Record, Next_Record_Number),
+	loan_rec_opening_day(		Next_Record, Current_Day),
+	loan_rec_closing_day(		Next_Record, Next_Day),
+	loan_rec_opening_balance(	Next_Record, Current_Balance),
+	loan_rec_interest_rate(		Next_Record, Interest_Rate),
+	loan_rec_interest_amount(	Next_Record, Interest_Amount),
+	loan_rec_repayment_amount(	Next_Record, Current_Rep_Amount).
+	
+	
+
+
+
+
+
+/*This adds up the amounts of repayments before lodgement day, and returns the rest of repayments.*/
 
 % If a loan repayment was made before lodgement day, just add its amount to the total
 % repayment and forget it.
@@ -297,6 +398,36 @@ loan_reps_before_lodgement(Lodgement_Day, Total_Repayment, Repayments, Total_Rep
 
 loan_reps_before_lodgement(_, Total_Repayment, [], Total_Repayment, []).
 
+
+
+
+
+
+
+
+/* 
+the following two preds look like they can be significantly simplified, but we can do that after all tests are passing.
+ loan_reps_insert_repayment could be replaced with calling sort with a predicate that compares the days of the repayments.(?)
+  Inserted should be called Sorted if anything.
+loan_reps_insert_sentinels can just come up with a simple list of sentinels and let the sort predicate sort it.  
+ */
+
+
+% Insert payments of zero at year-beginnings to enable proper interest accumulation
+
+loan_reps_insert_sentinels(_, 0, Repayments, Repayments).
+%loan_reps_insert_sentinels(_, -1, Repayments, Repayments).
+
+loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
+	Year_Count > 0,
+%	Year_Count > -1,
+	absolute_day(Begin_Date, Begin_Day),
+	loan_reps_insert_repayment(loan_repayment(Begin_Day, 0), Repayments, New_Repayments),
+	date_add(Begin_Date, date(1, 0, 0), New_Begin_Date),
+	New_Year_Count is Year_Count - 1,
+	loan_reps_insert_sentinels(New_Begin_Date, New_Year_Count, New_Repayments, Inserted).
+
+
 % Insert a repayment into a chronologically ordered list of repayments
 
 loan_reps_insert_repayment(New_Repayment, [], [New_Repayment]).
@@ -314,17 +445,9 @@ loan_reps_insert_repayment(New_Repayment, [Repayments_Hd|Repayments_Tl], Inserte
 	loan_reps_insert_repayment(New_Repayment, Repayments_Tl, Inserted_Tl),
 	Inserted = [Repayments_Hd|Inserted_Tl].
 
-% Insert payments of zero at year-beginnings to enable proper interest accumulation
 
-loan_reps_insert_sentinels(_, 0, Repayments, Repayments).
 
-loan_reps_insert_sentinels(Begin_Date, Year_Count, Repayments, Inserted) :-
-	Year_Count > 0,
-	absolute_day(Begin_Date, Begin_Day),
-	loan_reps_insert_repayment(loan_repayment(Begin_Day, 0), Repayments, New_Repayments),
-	date_add(Begin_Date, date(1, 0, 0), New_Begin_Date),
-	New_Year_Count is Year_Count - 1,
-	loan_reps_insert_sentinels(New_Begin_Date, New_Year_Count, New_Repayments, Inserted).
+
 
 % Get the loan repayments on or after a given day
 
@@ -363,6 +486,9 @@ loan_agr_year_opening_balance(Agreement, Year_Num, Purpose, Opening_Balance) :-
 loan_agr_year_closing_balance(Agreement, Year_Num, Closing_Balance) :-
 	loan_agr_year_days(Agreement, Year_Num, _, Year_End_Day),
 	loan_agr_record(Agreement, Year_Record),
+	
+	/* this seems off, we're looking for a sentinel, but a sentinel is only inserted for beginning of year. */ 
+	
 	loan_rec_repayment_amount(Year_Record, 0),
 	loan_rec_closing_day(Year_Record, Year_End_Day),
 	loan_rec_closing_balance(Year_Record, Closing_Balance).
@@ -437,7 +563,7 @@ loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
 % A predicate for generating the summary records of a given loan agreement.
 
 loan_agr_summary(Agreement, Summary) :-
-
+%gtrace,
 	findall(Record, loan_agr_record(Agreement, Record), Recs),
 	loan_recs_table(Recs),
 	
@@ -513,3 +639,37 @@ loan_agr_summary(Agreement, Summary) :-
 
 	format(user_error, '~q: ~q - ~q (~q - ~q):~n', [Record_Number, Opening_Day, Closing_Day, O, C]),
 	format(user_error, ': ob: ~q  cb: ~q  ir: ~q  i: ~q  rep: ~q~n', [Opening_Balance, Closing_Balance, Interest_Rate, Interest_Amount, Repayment_Amount]).	
+
+
+
+
+
+
+
+
+
+make_repayments_with_sentinels_report(Repayments) :-
+    maplist(loan_repayment_row, Repayments, Rows),
+	Cols = [
+		column{id:date, title:"date", options:_{}},
+		column{id:amount, title:"amount", options:_{help:"0 for sentinel."}}
+	],
+	
+	Table_Json = _{title_short: "repayment records", title: "repayment records", rows: Rows, columns: Cols},
+	!table_html([], Table_Json, Table_Html),
+   	!page_with_table_html('repayment_records', Table_Html, Html),
+   	!add_report_page(0, 'repayments', Html, loc(file_name,'repayments.html'), 'repayments.html').
+
+			
+
+ loan_repayment_row(Record, Row) :-
+	loan_rep_day(Record, Day),
+	loan_rep_amount(Record, Amount),
+	
+	gregorian_date(Day, Date),
+	
+	Row = _{
+		date: Date,
+		amount: Amount
+	}.
+	
