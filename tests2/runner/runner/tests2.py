@@ -1,5 +1,5 @@
 from luigi.freezing import FrozenOrderedDict
-#from defusedxml.ElementTree import parse 
+from defusedxml.ElementTree import parse as xmlparse 
 import xmldiff
 from xmldiff import main as xmldiffmain, formatting
 import requests
@@ -245,11 +245,25 @@ class TestEvaluateImmediateXml(luigi.Task):
 			#with open() as fd:
 
 			result_fn = P(self.test['path']) / response['result']
+			result = xmlparse(result_fn).getroot()
 			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'response.xml'
+			expected = xmlparse(expected_fn).getroot()
 
 			# diff_trees()
 			diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
 
+			if diff:
+
+				shortfall = expected.find("./LoanSummary/RepaymentShortfall")
+				if shortfall is not None:
+					shortfall = shortfall.text
+				
+				diff.append(dict(
+					type='div7a',
+					failed=result.tag == 'error',
+					expected_shortfall=shortfall
+				))
+								
 			done(diff)
 
 		done([])
@@ -482,6 +496,8 @@ class Summary(luigi.Task):
 					evaluation = json.load(e)
 				summary.append(evaluation)
 			json_dump(summary, out)
+
+			#RepaymentShortfall
 
 
 	def output(self):
