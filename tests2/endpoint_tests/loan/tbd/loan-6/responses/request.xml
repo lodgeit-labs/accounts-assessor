@@ -36,7 +36,7 @@
 			<field name="Income year of loan creation" value="2016" />
 			<field name="Full term of loan in years" value="4" />
 			<field name="Principal amount of loan" value="10000" />
-			<field name="Lodgment day of private company" value="2017-05-15" />
+			<field name="Lodgement day of private company" value="2017-05-15" />
 			<field name="Income year of computation" value="2017" />
 		</loanAgreement>
 		<!-- There must be exactly one repayments element in a loandetails element. -->

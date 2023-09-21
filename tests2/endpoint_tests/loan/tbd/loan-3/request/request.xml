@@ -26,7 +26,7 @@
 			<field name="Income year of loan creation" value="2016" />
 			<field name="Full term of loan in years" value="4" />
 			<field name="Principal amount of loan" value="75000" />
-			<field name="Lodgment day of private company" value="2017-05-15" />
+			<field name="Lodgement day of private company" value="2017-05-15" />
 			<field name="Income year of computation" value="2018" />
 			<field name="Opening balance of computation" value="10000" />
 		</loanAgreement>

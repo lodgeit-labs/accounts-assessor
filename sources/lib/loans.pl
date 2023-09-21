@@ -94,12 +94,12 @@ loan_agr_principal_amount(loan_agreement(_, Principal_Amount, _, _, _, _, _, _),
 % The lodgement day of the whole agreement
 /*
  seems to actually be:
-Enter the lodgment day, which is the earlier of the due date for lodgment and the date of lodgment for the private company's tax return for the 2016-17 income year - enter a date in the format dd/mm/yyyy *
+Enter the Lodgement day, which is the earlier of the due date for Lodgement and the date of Lodgement for the private company's tax return for the 2016-17 income year - enter a date in the format dd/mm/yyyy *
 this seems to be relevant if we're computing the minimum yearly repayment for the first year of the loan agreement.
 
 For the first year of the loan:
-    The minimum yearly repayment is calculated using the amount of the amalgamated loan, which is the sum of the amounts of the constituent loans that have not been repaid before the lodgment day of the private company for the year of income in which the amalgamated loan is made.
-    Making repayments before the lodgment day will reduce the minimum yearly repayment required for this year, and will contribute towards meeting your minimum yearly repayment.
+    The minimum yearly repayment is calculated using the amount of the amalgamated loan, which is the sum of the amounts of the constituent loans that have not been repaid before the Lodgement day of the private company for the year of income in which the amalgamated loan is made.
+    Making repayments before the Lodgement day will reduce the minimum yearly repayment required for this year, and will contribute towards meeting your minimum yearly repayment.
 */
 loan_agr_lodgement_day(loan_agreement(_, _, Lodgement_Day, _, _, _, _, _), Lodgement_Day).
 
