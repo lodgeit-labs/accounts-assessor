@@ -191,6 +191,7 @@ async def get_task(id: str):
 	return message
 
 
+
 @app.post("/reference")
 def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	"""
@@ -217,7 +218,13 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	with open(fn, 'wb') as f:
 		f.write(r.content)
 
-	return process_request(request_tmp_directory_name)
+	r = process_request(request_tmp_directory_name)
+
+	jv = find_report_by_key(reports['reports'], 'job_view_url')
+	if jv is not None:
+		return RedirectResponse(jv)
+
+	return r	
 
 	
 
