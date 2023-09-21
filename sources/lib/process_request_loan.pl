@@ -96,16 +96,28 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	% startDate and endDate in the request xml are ignored.
 	% they are not used in the computation of the loan summary
 
+	/* for example 2014 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
+
+	/* for example 5 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
+
+	/* for example 100000, or left undefined if opening balance is specified */
 	(xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Principal amount of loan', @value=PrincipalAmount), _E3)->true;true),
-	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgement day of private company', @value=LodgementDate), _E4)
-	->	true
+
+	/* for example 2014-07-01 */
+	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgement day of private company', @value=LodgementDateStr), _E4)
+	->	parse_date(LodgementDateStr, LodgementDate)
 	;	(
-		true
+			LodgementDateYear is CreationIncomeYear,
+			LodgementDate = date(LodgementDateYear, 7, 1)
 		)
 	),
+
+	/* for example 2018 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of computation', @value=ComputationYear), _E5),
+
+	/* opening balance is understood to be for the year of computation. Therefore, if term is 2 or more years, lodgement date can be ignored, which should be equivalent to setting it to 1 July of the year of after loan creation. */
 	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Opening balance of computation', @value=OB), _E6)
 	->	OpeningBalance = OB
 	;	OpeningBalance = -1),
@@ -142,7 +154,7 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	->	display_xml_loan_response(NIncomeYear, Summary)
 	;
 		(
-			LoanResponseXML = "<error>calculation failed</error>",		
+			LoanResponseXML = "<error>calculation failed</error>\n",
 		
 			report_file_path(loc(file_name, 'response.xml'), Url, Path, _),
 			loc(absolute_path, Raw) = Path,
@@ -229,7 +241,7 @@ var(LoanResponseXML),
 
  generate_absolute_days(CreationIncomeYear, LodgementDate, LoanRepayments, NCreationIncomeYear, NLodgementDay, NLoanRepayments) :-
 	generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear),
-	parse_date_into_absolute_days(LodgementDate, NLodgementDay),
+	absolute_day(LodgementDate, NLodgementDay),
 	generate_absolute_day(loan_repayments, LoanRepayments, NLoanRepayments).
      
  generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear) :-
