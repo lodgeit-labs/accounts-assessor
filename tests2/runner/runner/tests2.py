@@ -250,9 +250,10 @@ class TestEvaluateImmediateXml(luigi.Task):
 			expected = xmlparse(expected_fn).getroot()
 
 			# diff_trees()
-			diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
-
-			if diff:
+			diff = []
+			xml_diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
+			if xml_diff:
+				diff.append(xml_diff)
 
 				shortfall = expected.find("./LoanSummary/RepaymentShortfall")
 				if shortfall is not None:
@@ -264,7 +265,7 @@ class TestEvaluateImmediateXml(luigi.Task):
 					expected_shortfall=shortfall
 				))
 								
-			done(diff)
+			done([diff])
 
 		done([])
 
