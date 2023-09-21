@@ -9,7 +9,7 @@ from pathlib import Path as P
 import requests
 
 from typing import Optional, Any, List, Annotated
-from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form
+from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -238,7 +238,7 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 
 	jv = find_report_by_key(r['reports'], 'job_view_url')
 	if jv is not None:
-		return RedirectResponse(jv)
+		return RedirectResponse(jv, status_code=status.HTTP_303_SEE_OTHER)
 
 	return r
 
