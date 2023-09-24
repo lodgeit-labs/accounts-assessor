@@ -39,35 +39,43 @@ We are only concerned with unsecured loans here.
 % Benchmark interest rates
 % These rates apply to private companies with an income year ending 30 June.
 % Source: https://www.ato.gov.au/rates/division-7a---benchmark-interest-rate/
-benchmark_interest_rate(Day, 4.77) :- benchmark_interest_rate_day_in_income_year(Day, 2023).
-benchmark_interest_rate(Day, 4.52) :- benchmark_interest_rate_day_in_income_year(Day, 2022).
-benchmark_interest_rate(Day, 4.52) :- benchmark_interest_rate_day_in_income_year(Day, 2021).
-benchmark_interest_rate(Day, 5.37) :- benchmark_interest_rate_day_in_income_year(Day, 2020).
-benchmark_interest_rate(Day, 5.20) :- benchmark_interest_rate_day_in_income_year(Day, 2019).
-benchmark_interest_rate(Day, 5.30) :- benchmark_interest_rate_day_in_income_year(Day, 2018).
-benchmark_interest_rate(Day, 5.40) :- benchmark_interest_rate_day_in_income_year(Day, 2017).
-benchmark_interest_rate(Day, 5.45) :- benchmark_interest_rate_day_in_income_year(Day, 2016).
-benchmark_interest_rate(Day, 5.95) :- benchmark_interest_rate_day_in_income_year(Day, 2015).
-benchmark_interest_rate(Day, 6.20) :- benchmark_interest_rate_day_in_income_year(Day, 2014).
-benchmark_interest_rate(Day, 7.05) :- benchmark_interest_rate_day_in_income_year(Day, 2013).
-benchmark_interest_rate(Day, 7.80) :- benchmark_interest_rate_day_in_income_year(Day, 2012).
-benchmark_interest_rate(Day, 7.40) :- benchmark_interest_rate_day_in_income_year(Day, 2011).
-benchmark_interest_rate(Day, 5.75) :- benchmark_interest_rate_day_in_income_year(Day, 2010).
-benchmark_interest_rate(Day, 9.45) :- benchmark_interest_rate_day_in_income_year(Day, 2009).
-benchmark_interest_rate(Day, 8.05) :- benchmark_interest_rate_day_in_income_year(Day, 2008).
-benchmark_interest_rate(Day, 7.55) :- benchmark_interest_rate_day_in_income_year(Day, 2007).
-benchmark_interest_rate(Day, 7.3) :-  benchmark_interest_rate_day_in_income_year(Day, 2006).
-benchmark_interest_rate(Day, 7.05) :- benchmark_interest_rate_day_in_income_year(Day, 2005).
-benchmark_interest_rate(Day, 6.55) :- benchmark_interest_rate_day_in_income_year(Day, 2004).
-benchmark_interest_rate(Day, 6.3) :-  benchmark_interest_rate_day_in_income_year(Day, 2003).
-benchmark_interest_rate(Day, 6.8) :-  benchmark_interest_rate_day_in_income_year(Day, 2002).
-benchmark_interest_rate(Day, 7.8) :-  benchmark_interest_rate_day_in_income_year(Day, 2001).
-benchmark_interest_rate(Day, 6.5) :-  benchmark_interest_rate_day_in_income_year(Day, 2000).
-benchmark_interest_rate(Day, 6.7) :-  benchmark_interest_rate_day_in_income_year(Day, 1999).
+benchmark_interest_rate(Day, 4.77, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2023, Days).
+benchmark_interest_rate(Day, 4.52, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2022, Days).
+benchmark_interest_rate(Day, 4.52, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2021, Days).
+benchmark_interest_rate(Day, 5.37, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2020, Days).
+benchmark_interest_rate(Day, 5.20, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2019, Days).
+benchmark_interest_rate(Day, 5.30, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2018, Days).
+benchmark_interest_rate(Day, 5.40, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2017, Days).
+benchmark_interest_rate(Day, 5.45, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2016, Days).
+benchmark_interest_rate(Day, 5.95, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2015, Days).
+benchmark_interest_rate(Day, 6.20, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2014, Days).
+benchmark_interest_rate(Day, 7.05, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2013, Days).
+benchmark_interest_rate(Day, 7.80, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2012, Days).
+benchmark_interest_rate(Day, 7.40, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2011, Days).
+benchmark_interest_rate(Day, 5.75, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2010, Days).
+benchmark_interest_rate(Day, 9.45, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2009, Days).
+benchmark_interest_rate(Day, 8.05, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2008, Days).
+benchmark_interest_rate(Day, 7.55, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2007, Days).
+benchmark_interest_rate(Day, 7.3,  Days) :- benchmark_interest_rate_day_in_income_year(Day, 2006, Days).
+benchmark_interest_rate(Day, 7.05, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2005, Days).
+benchmark_interest_rate(Day, 6.55, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2004, Days).
+benchmark_interest_rate(Day, 6.3,  Days) :- benchmark_interest_rate_day_in_income_year(Day, 2003, Days).
+benchmark_interest_rate(Day, 6.8,  Days) :- benchmark_interest_rate_day_in_income_year(Day, 2002, Days).
+benchmark_interest_rate(Day, 7.8,  Days) :- benchmark_interest_rate_day_in_income_year(Day, 2001, Days).
+benchmark_interest_rate(Day, 6.5,  Days) :- benchmark_interest_rate_day_in_income_year(Day, 2000, Days).
+benchmark_interest_rate(Day, 6.7,  Days) :- benchmark_interest_rate_day_in_income_year(Day, 1999, Days).
 
-benchmark_interest_rate_day_in_income_year(Day, Year) :- 
+benchmark_interest_rate_day_in_income_year(Day, Year, Days) :-
 	Previous_year #= Year - 1,
-	day_between(date(Previous_year,7,1), date(Year,7,1), Day).
+	D1 = date(Previous_year,7,1),
+	D2 = date(Year,7,1),
+
+	day_between(D1, D2, Day),
+
+	absolute_day(D1, Days1),
+	absolute_day(D2, Days2),
+	Days is Days2 - Days1.
+
 
 % Predicates for asserting the fields of a loan repayment
 
@@ -113,7 +121,7 @@ loan_agr_term(loan_agreement(_, _, _, _, Term, _, _, _), Term).
 loan_agr_computation_year(loan_agreement(_, _, _, _, _, Computation_Year, _, _), Computation_Year).
 
 % If this field is false, the computations will start from the day of the loan agreement.
-% Otherwise this will be the opening balance of the computations.
+% Otherwise this will be the opening balance of the computations at computation year.
 loan_agr_computation_opening_balance(loan_agreement(_, _, _, _, _, _, Computation_Opening_Balance, _), Computation_Opening_Balance).
 
 % A chronologically ordered list of loan agreement repayments. The latter repayments
@@ -351,9 +359,11 @@ next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Bala
 	/* number of days for calculating interest */
 	Interest_Period is Next_Day - Current_Day,
 	
-
 	/* this must assume that the record only spans a single year, which i guess should be always true.
-	 So, the Next_Day_Year should always equal the record start date year i think. */
+	 So, the Next_Day_Year should always equal the record start date year i think.
+
+	 but this is wrong because leap years are defined for calendar years, not for income years.
+	 */
 	gregorian_date(Next_Day, date(Next_Day_Year,_,_)),
 	(	leap_year(Next_Day_Year)
 	->	Year_Days = 366
@@ -465,10 +475,15 @@ loan_reps_after(Day, [Repayments_Hd | Repayments_Tl], New_Repayments) :-
 % Computes the start and end day of a given income year with respect to the given loan
 % agreement.
 
+/* for a loan created in income year 2014-15, this will return 01/07/2015 and 01/07/2016 for Year_Num 0. */
 loan_agr_year_days(Agreement, Year_Num, Year_Start_Day, Year_End_Day) :-
+
+	% The first absolute day of the first income year after the agreement is made
 	loan_agr_begin_day(Agreement, Begin_Day),
 	gregorian_date(Begin_Day, Begin_Date),
+
 	date_add(Begin_Date, date(Year_Num, 0, 0), Year_Start_Date),
+
 	absolute_day(Year_Start_Date, Year_Start_Day),
 	date_add(Year_Start_Date, date(1, 0, 0), Year_End_Date),
 	absolute_day(Year_End_Date, Year_End_Day).
@@ -567,30 +582,31 @@ loan_agr_summary(Agreement, Summary) :-
 	findall(Record, loan_agr_record(Agreement, Record), Recs),
 	loan_recs_table(Recs),
 	
-	/* deconstruct the input term */
-	loan_agr_computation_year(Agreement, Summary_Number),
 	/* computations */
+
+	loan_agr_computation_year(		Agreement, Summary_Number),
+	loan_agr_year_opening_balance(	Agreement, Summary_Number, interest, Opening_Balance),
+	loan_agr_year_closing_balance(	Agreement, Summary_Number, Closing_Balance),
+	loan_agr_min_yearly_repayment(	Agreement, Summary_Number, Min_Yearly_Repayment),
+	loan_agr_total_repayment(		Agreement, Summary_Number, Total_Repayment),
+	loan_agr_total_interest(		Agreement, Summary_Number, Total_Interest),
+	loan_agr_total_principal(		Agreement, Summary_Number, Total_Principal),
+	loan_agr_repayment_shortfall(	Agreement, Summary_Number, Repayment_Shortfall),
+
+
 	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _End_Day),
 	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
-	loan_agr_year_opening_balance(Agreement, Summary_Number, interest, Opening_Balance),
-	loan_agr_year_closing_balance(Agreement, Summary_Number, Closing_Balance),
-	loan_agr_min_yearly_repayment(Agreement, Summary_Number, Min_Yearly_Repayment),
-	loan_agr_total_repayment(Agreement, Summary_Number, Total_Repayment),
-	loan_agr_total_interest(Agreement, Summary_Number, Total_Interest),
-	loan_agr_total_principal(Agreement, Summary_Number, Total_Principal),
-	loan_agr_repayment_shortfall(Agreement, Summary_Number, Repayment_Shortfall),
 
 	/* assert the fields of the final and only loan summary(result). */
-	loan_sum_number(Summary, Summary_Number),
-	loan_sum_interest_rate(Summary, Interest_Rate),
-	loan_sum_opening_balance(Summary, Opening_Balance),
-	loan_sum_closing_balance(Summary, Closing_Balance),
-	loan_sum_min_yearly_repayment(Summary, Min_Yearly_Repayment),
-	loan_sum_total_repayment(Summary, Total_Repayment),
-	loan_sum_total_interest(Summary, Total_Interest),
-	loan_sum_total_principal(Summary, Total_Principal),
-	loan_sum_repayment_shortfall(Summary, Repayment_Shortfall).
-
+	loan_sum_number(				Summary, Summary_Number),
+	loan_sum_interest_rate(			Summary, Interest_Rate),
+	loan_sum_opening_balance(		Summary, Opening_Balance),
+	loan_sum_closing_balance(		Summary, Closing_Balance),
+	loan_sum_min_yearly_repayment(	Summary, Min_Yearly_Repayment),
+	loan_sum_total_repayment(		Summary, Total_Repayment),
+	loan_sum_total_interest(		Summary, Total_Interest),
+	loan_sum_total_principal(		Summary, Total_Principal),
+	loan_sum_repayment_shortfall(	Summary, Repayment_Shortfall).
 
 
  loan_recs_table(Recs) :-
@@ -672,4 +688,265 @@ make_repayments_with_sentinels_report(Repayments) :-
 		date: Date,
 		amount: Amount
 	}.
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+div7a_new_points(Agreement) :-
+
+
+	loan_agr_computation_year(Agreement, Comp_Year_0Idx),
+
+
+
+
+	/* report Interest_Rate for calculation year */
+	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _End_Day),
+	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
+	loan_sum_interest_rate(Summary, Interest_Rate),
+
+
+
+loan_agr_year_opening_balance(	Agreement, Comp_Year_0Idx, interest, Opening_Balance),
+loan_agr_year_closing_balance(	Agreement, Comp_Year_0Idx, Closing_Balance),
+loan_agr_min_yearly_repayment(	Agreement, Comp_Year_0Idx, Min_Yearly_Repayment),
+loan_agr_total_repayment(		Agreement, Comp_Year_0Idx, Total_Repayment),
+loan_agr_total_interest(		Agreement, Comp_Year_0Idx, Total_Interest),
+loan_agr_total_principal(		Agreement, Comp_Year_0Idx, Total_Principal),
+loan_agr_repayment_shortfall(	Agreement, Comp_Year_0Idx, Repayment_Shortfall),
+
+
+
+loan_agr_year_opening_balance(	Points, Comp_Year_0Idx, Opening_Balance) :-
+	findall(P,
+		(
+
+			member(P, Points),
+
+
+	true.
+
+loan_agr_year_closing_balance(	Points, Comp_Year_0Idx, Closing_Balance) :-
+
+	true.
+
+loan_agr_min_yearly_repayment(	Points, Comp_Year_0Idx, Min_Yearly_Repayment) :-
+	given by opening balance of calculation year and benchmark interest rate.
+
+	true.
+
+loan_agr_total_repayment(		Points, Comp_Year_0Idx, Total_Repayment) :-
+	year_points(Points, Points2),
+	findall(
+		Repayment,
+		member(point(_,repayment,_), Points2)
+		Repayments
+	),
+	sum_repayments_list(Repayments, Total_Repayment),
+	true.
+
+loan_agr_total_interest(		Points, Comp_Year_0Idx, Total_Interest) :-
+
+	true.
+
+loan_agr_total_principal(		Points, Comp_Year_0Idx, Total_Principal) :-
+
+	true.
+
+loan_agr_repayment_shortfall(	Points, Comp_Year_0Idx, Repayment_Shortfall) :-
+
+	true.
+
+
+
+
+
+%div7a_new_points(p(Day, opening_balance, Ob), Next) :-
+
+
+
+/*
+a computation for income year 2006 with opening balance starts like:
+ p(1/7/2005, checkpoint, Balance)
+
+
+* checkpoint
+* interest
+* repayment
+
+*/
+div7a_new_points(Loan, Prev_Points, New_Points) :-
+	last(Prev_Points, Prev_Point),
+	Prev_Point = p(Prev_Point_Day, _, _, _),
+	day_div7a_income_year(Prev_Point_Day, Y),
+
+	(	first_repayment_of_income_year_Y_not_seen_yet(Loan, Prev_Points, Y, R)
+	->	(
+			R = repayment(_, Day, _),
+			Repayment_Point = p(Day, repayment, R),
+			interest_accrual_since_last_point_to_current_date(Prev_Points, Day, Accrual_Point),
+			Next = [Accrual_Point, Repayment_Point]
+		)
+	;	/*
+			no more repayments this income year
+		*/
+		(
+			interest_accrual_since_last_point_to_current_date(Prev_Points, Day, Accrual_Point),
+			Next = [Accrual_Point, Repayment_Point]
+
+		)
+	).
+
+first_repayment_of_income_year_Y_not_seen_yet(Loan, Prev, Y, R) :-
+	first_repayment_not_seen_yet(Loan, Prev, R),
+	repayment_date(R, date(Y,_,_)).
+
+first_repayment_not_seen_yet(Loan, Prev, R) :-
+	repayment_not_seen_yet(Loan, Prev, R),
+	!.
+
+repayment_not_seen_yet(Loan, Prev, R) :-
+	member(R, $>div7a_repayments(Loan)),
+	\+member(p(_,repayment,R), Prev).
+
+
+div7a_new_points(Start, Next) :-
+
+
+div7a_new_points(Start, Next) :-
+
+
+
+
+
+
+
+
+
+/* given a list of points that starts with opening_balance, apply repayments and interest accruals and return ending balance */
+balance([p(_,opening_balance,Starting_Amount)|T], Balance_Out) :-
+	balance(Starting_Amount, T, Balance_Out).
+
+balance(Balance_In, [P|T], Balance_Out) :-
+	P = p(_,interest_accrual,Amount)
+	{Balance_With_P_Applied = Balance_In + Amount},
+	balance(Balance_With_P_Applied, T, Balance_Out).
+
+balance(Balance_In, [P|T], Balance_Out) :-
+	P = p(_,repayment,Amount)
+	{Balance_With_P_Applied = Balance_In - Amount},
+	balance(Balance_With_P_Applied, T, Balance_Out).
+
+
+
+
+/*
+given a point list In, repeatedly apply div7a_new_points to the last element, until the last element of the result is end.
+*/
+div7a_records(In, Out) :-
+	last(In, Start),
+	Start = p(_,_,_,Balance),
+	(	Balance > 0,
+	->	(
+			div7a_new_points(Start, New),
+			(	New = end
+			->	Out = [In | New]
+			;	(
+					flatten([In,New], Current),
+					div7a_records(Current, Out)
+				)
+			)
+		)
+	;	Out = In
+	).
+
+
+
+
+
+
+
+
+
+interest_accrual_since_last_point_to_current_date(Prev, Current_Day, p(Current_Day, accrual, Amount)) :-
+	last(Prev, p(Prev_Point_Day, _, _, _)),
+	interest_accrual_since_A_to_B(Prev, Prev_Point_Day, Current_Day).
+
+interest_accrual_since_A_to_B(Prev, Prev_Point_Day, Current_Day, Amount) :-
+	balance(Prev, Prev_Balance),
+	Interest_Period is Current_Day - Prev_Point_Day,
+	benchmark_interest_rate(Current_Day, Interest_Rate, Income_Year_Days),
+	Interest_Amount is Prev_Balance * (Interest_Rate/100) * Interest_Period / Income_Year_Days,
+
+
+
+income_year_days(
+	absolute_day(Income_Year_Start_Date, Income_Year_Start_Day),
+	absolute_day(Income_Year_End_Date, Income_Year_End_Day),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*========================-*/
+scraps
+
+
+
+/*
+div7a_records(Start, [Start,Next|Records_Tail]) :-
+	Start = p(_,_,_,Balance),
+	(	Balance > 0,
+	->	(
+			div7a_new_points(Start, Next),
+			(	Next = end
+			->	Records_Tail = []
+			;	(
+					last(Next, Last_Element_Of_Next),
+					div7a_records(Last_Element_Of_Next, Records_Tail)
+
+				)
+			)
+		)
+	;	Records_Tail = []
+	).
+*/
