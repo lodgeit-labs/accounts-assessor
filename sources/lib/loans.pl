@@ -258,7 +258,7 @@ loan_agr_record_aux(Agreement, Record, Current_Balance, Current_Day, Repayments_
 	next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Balance, Interest_Amount, Next_Record),
 	loan_rec_repayment_amount(Next_Record, Current_Rep_Amount),
 	New_Acc_Rep is Current_Accumulated_Repayment_Amount + Current_Rep_Amount,
-	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
+ 	Next_Acc_Interest is Current_Acc_Interest + Interest_Amount,
 	Next_Balance is Current_Balance - Current_Rep_Amount,
 	loan_rec_closing_balance(Next_Record, Next_Balance),
 	(
@@ -721,38 +721,59 @@ make_repayments_with_sentinels_report(Repayments) :-
 
 
 
-div7a_new_points(Agreement) :-
-
+div7a(Agreement, Summary) :-
 
 	loan_agr_computation_year(Agreement, Comp_Year_0Idx),
-
-
-
 
 	/* report Interest_Rate for calculation year */
 	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _End_Day),
 	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
 	loan_sum_interest_rate(Summary, Interest_Rate),
 
+	div7a_records([p(1/7/2005, checkpoint, Balance)], Records),
+
+	div7a_year_opening_balance(	Agreement, Comp_Year_0Idx, Opening_Balance),
+	div7a_year_closing_balance(	Agreement, Comp_Year_0Idx, Closing_Balance),
+	div7a_min_yearly_repayment(	Agreement, Comp_Year_0Idx, Min_Yearly_Repayment),
+	div7a_total_repayment(		Agreement, Comp_Year_0Idx, Total_Repayment),
+	div7a_total_interest(		Agreement, Comp_Year_0Idx, Total_Interest),
+	div7a_total_principal(		Agreement, Comp_Year_0Idx, Total_Principal),
+	div7a_repayment_shortfall(	Agreement, Comp_Year_0Idx, Repayment_Shortfall),
 
 
-loan_agr_year_opening_balance(	Agreement, Comp_Year_0Idx, interest, Opening_Balance),
-loan_agr_year_closing_balance(	Agreement, Comp_Year_0Idx, Closing_Balance),
-loan_agr_min_yearly_repayment(	Agreement, Comp_Year_0Idx, Min_Yearly_Repayment),
-loan_agr_total_repayment(		Agreement, Comp_Year_0Idx, Total_Repayment),
-loan_agr_total_interest(		Agreement, Comp_Year_0Idx, Total_Interest),
-loan_agr_total_principal(		Agreement, Comp_Year_0Idx, Total_Principal),
-loan_agr_repayment_shortfall(	Agreement, Comp_Year_0Idx, Repayment_Shortfall),
+
+/*
+given a point list In, repeatedly apply div7a_new_points to the last element, until the last element of the result is end.
+*/
+div7a_records(In, Out) :-
+	last(In, Start),
+	Start = p(_,_,_,Balance),
+	(	Balance > 0,
+	->	(
+			div7a_new_points(Start, New),
+			(	New = end
+			->	Out = [In | New]
+			;	(
+					flatten([In,New], Current),
+					div7a_records(Current, Out)
+				)
+			)
+		)
+	;	Out = In
+	).
+
+
+
 
 
 
 loan_agr_year_opening_balance(	Points, Comp_Year_0Idx, Opening_Balance) :-
 	findall(P,
 		(
-
 			member(P, Points),
-
-
+	% date(Prev_Year/7/1)?
+	%
+	%
 	true.
 
 loan_agr_year_closing_balance(	Points, Comp_Year_0Idx, Closing_Balance) :-
@@ -806,8 +827,8 @@ a computation for income year 2006 with opening balance starts like:
 */
 div7a_new_points(Loan, Prev_Points, New_Points) :-
 	last(Prev_Points, Prev_Point),
-	Prev_Point = p(Prev_Point_Day, _, _, _),
-	day_div7a_income_year(Prev_Point_Day, Y),
+	div7a_new_point_year(Prev_Point, Y),
+
 
 	(	first_repayment_of_income_year_Y_not_seen_yet(Loan, Prev_Points, Y, R)
 	->	(
@@ -820,11 +841,24 @@ div7a_new_points(Loan, Prev_Points, New_Points) :-
 			no more repayments this income year
 		*/
 		(
-			interest_accrual_since_last_point_to_current_date(Prev_Points, Day, Accrual_Point),
-			Next = [Accrual_Point, Repayment_Point]
-
+			interest_accrual_since_last_point_to_current_date(Prev_Points, date(Y,6,30), Accrual_Point),
+			Next = [Accrual_Point]
 		)
 	).
+
+
+
+div7a_new_point_year(Prev_Point, Y) :-
+	Prev_Point = p(Prev_Point_Day, Prev_Point_Type, _, _),
+	gregorian_date(Prev_Point_Day, Prev_Point_Date),
+
+	(	(Prev_Point_Type = accrual, Prev_Point_Date = date(_Y,6,30))
+	->	(
+			New_Income_Year_Start_Day is Prev_Point_Day + 1,
+			day_div7a_income_year(New_Income_Year_Start_Day, Y)
+		)
+	;	day_div7a_income_year(Prev_Point_Day, Y).
+
 
 first_repayment_of_income_year_Y_not_seen_yet(Loan, Prev, Y, R) :-
 	first_repayment_not_seen_yet(Loan, Prev, R),
@@ -837,15 +871,6 @@ first_repayment_not_seen_yet(Loan, Prev, R) :-
 repayment_not_seen_yet(Loan, Prev, R) :-
 	member(R, $>div7a_repayments(Loan)),
 	\+member(p(_,repayment,R), Prev).
-
-
-div7a_new_points(Start, Next) :-
-
-
-div7a_new_points(Start, Next) :-
-
-
-
 
 
 
@@ -869,29 +894,6 @@ balance(Balance_In, [P|T], Balance_Out) :-
 
 
 
-/*
-given a point list In, repeatedly apply div7a_new_points to the last element, until the last element of the result is end.
-*/
-div7a_records(In, Out) :-
-	last(In, Start),
-	Start = p(_,_,_,Balance),
-	(	Balance > 0,
-	->	(
-			div7a_new_points(Start, New),
-			(	New = end
-			->	Out = [In | New]
-			;	(
-					flatten([In,New], Current),
-					div7a_records(Current, Out)
-				)
-			)
-		)
-	;	Out = In
-	).
-
-
-
-
 
 
 
@@ -902,9 +904,11 @@ interest_accrual_since_last_point_to_current_date(Prev, Current_Day, p(Current_D
 	interest_accrual_since_A_to_B(Prev, Prev_Point_Day, Current_Day).
 
 interest_accrual_since_A_to_B(Prev, Prev_Point_Day, Current_Day, Amount) :-
+
 	balance(Prev, Prev_Balance),
 	Interest_Period is Current_Day - Prev_Point_Day,
 	benchmark_interest_rate(Current_Day, Interest_Rate, Income_Year_Days),
+
 	Interest_Amount is Prev_Balance * (Interest_Rate/100) * Interest_Period / Income_Year_Days,
 
 
