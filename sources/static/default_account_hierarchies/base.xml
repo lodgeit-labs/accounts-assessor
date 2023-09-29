@@ -1,12 +1,15 @@
 <?xml version="1.0" ?>
 <accountHierarchy>
-	<!-- top-level account has to explicitly specify where it attaches -->
+
+	<!-- "Accounts" is the top-level account in the hierarchy -->
+	<!-- the top-level account in accountHierarchy has to explicitly specify what it is a child of, thus the parent_role="root" -->
+
 	<Accounts parent_role="root" normal_side="debit">
 		<Net_Assets role="Net_Assets">
 			<Assets>
 				<Current_Assets role="Current_Assets">
 					<Cash_and_Cash_Equivalents role="Cash_and_Cash_Equivalents">
-						<Banks role="Banks"/>
+						<account name="Banks" role="Banks"/>
 					</Cash_and_Cash_Equivalents>
 				</Current_Assets>
 				<Non_Current_Assets role="Non_Current_Assets">
@@ -59,7 +62,7 @@
 			</Expenses>
 
 			<account name="Gains/-Losses" role="Gains">
-				<Transfer_Clearing_Account/>			
+				<Transfer_Clearing_Account/>
 			</account>
 
 		</Comprehensive_Income>
