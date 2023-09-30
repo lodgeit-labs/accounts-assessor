@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<LoanSummary>
+	<IncomeYear>1999</IncomeYear>
+	<OpeningBalance>298</OpeningBalance>
+	<InterestRate>6.7</InterestRate>
+	<MinYearlyRepayment>318.00</MinYearlyRepayment>
+	<TotalRepayment>0</TotalRepayment>
+	<RepaymentShortfall>318.0</RepaymentShortfall>
+	<TotalInterest>19.97</TotalInterest>
+	<TotalPrincipal>0</TotalPrincipal>
+	<ClosingBalance>298.00</ClosingBalance>
+</LoanSummary>
