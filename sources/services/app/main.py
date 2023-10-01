@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, subprocess, logging
 import urllib.parse
 import json
 import datetime
@@ -8,6 +8,9 @@ from typing import Optional, Any
 from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+import requests
+
+log = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -74,3 +77,18 @@ def xml_xsd_validator(xml: str, xsd:str):
 		response['error_type'] = str(type(e))
 		response['result'] = 'error'
 	return JSONResponse(response)
+
+
+@app.post('/fetch_remote_file')
+def fetch_remote_file(tmp_dir_path: str, url: str):
+	path = tmp_dir_path / 'remote_files'
+	path.mkdir(exist_ok=True)
+	path = path / str(len(glob.glob(path + '/*')))
+
+	proc = subprocess.run(['wget', url], cwd=path, stdout=PIPE, stderr=subprocess.STDOUT, text=True)
+	files = path.glob('*')
+
+	if len(files) == 1:
+		return JSONResponse(dict(result = 'ok', file_name=str(path / files[0])))
+	else:
+		return JSONResponse(dict(result = 'error', error_message = proc.stdout))
