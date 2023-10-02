@@ -1,4 +1,4 @@
-import os, sys, subprocess, logging
+import os, sys, logging
 import urllib.parse
 import json
 import datetime
@@ -8,7 +8,9 @@ from typing import Optional, Any
 from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-import requests
+import requests, glob
+from pathlib import Path as P
+
 
 log = logging.getLogger(__name__)
 
@@ -81,14 +83,27 @@ def xml_xsd_validator(xml: str, xsd:str):
 
 @app.post('/fetch_remote_file')
 def fetch_remote_file(tmp_dir_path: str, url: str):
-	path = tmp_dir_path / 'remote_files'
+	path = P(tmp_dir_path) / 'remote_files'
 	path.mkdir(exist_ok=True)
-	path = path / str(len(glob.glob(path + '/*')))
 
-	proc = subprocess.run(['wget', url], cwd=path, stdout=PIPE, stderr=subprocess.STDOUT, text=True)
-	files = path.glob('*')
+
+	existing_items = list(path.glob('*'))
+	log.debug(existing_items)
+
+
+	existing_items_count = len(existing_items)
+	path = path / str(existing_items_count)
+	log.debug(path)
+
+	path.mkdir(exist_ok=True)
+	log.debug(url)
+	proc = subprocess.run(['wget', url], cwd=path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+	files = list(path.glob('*'))
 
 	if len(files) == 1:
-		return JSONResponse(dict(result = 'ok', file_name=str(path / files[0])))
+		r = dict(result = 'ok', file_path=str(path / files[0]))
 	else:
-		return JSONResponse(dict(result = 'error', error_message = proc.stdout))
+		r = dict(result = 'error', error_message = proc.stdout)
+
+	log.info(r)
+	return JSONResponse(r)
