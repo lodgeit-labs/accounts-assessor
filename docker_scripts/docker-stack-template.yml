@@ -161,6 +161,7 @@ services:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
       - "../sources/static/:/App/data/"
+      - "/home/myuser/.dotnet"
     networks:
       - backend
     hostnet_ports:
