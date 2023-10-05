@@ -84,7 +84,7 @@ def xml_xsd_validator(xml: str, xsd:str):
 @app.post('/fetch_remote_file')
 def fetch_remote_file(tmp_dir_path: str, url: str):
 	log.debug(url)
-	
+
 	url = correct_onedrive_url(url)
 
 	path = P(tmp_dir_path) / 'remote_files'

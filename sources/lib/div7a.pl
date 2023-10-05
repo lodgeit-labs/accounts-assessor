@@ -1,30 +1,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 div7a(Agreement, Summary) :-
 
 	/*

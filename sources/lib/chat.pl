@@ -1,22 +1,27 @@
-:- module(chat, [chat_response/4, chat_preprocess/4, history_json_to_tuples/2, match_response_with_last_question/3]).
+:- module(chat, [do_chat/2, chat_response/4, chat_preprocess/4, history_json_to_tuples/2, match_response_with_last_question/3]).
 
 /*
 swipl version 8 required.
 */
 
 /*
-curl -vv --request POST --header "Content-Type: application/json" --data '{"current_state":[]}' http://dev-node.uksouth.cloudapp.azure.com:7778/residency
-*/
+example interaction:
 
-/* The original nomenclature is by now a bit confusing. 
+>> curl -L -S --fail --header 'Content-Type: application/json' --data '{"type":"residency","current_state":[]}' http://localhost:7788/chat
+{"result":{"question":"Do you live in Australia?","state":[{"question_id":1,"response":-1}]}}⏎
+*/
+/*
+ The original nomenclature is by now a bit confusing.
 "state" is a list of {question_id, response} objects, would be better called history.
 "question id" is the state of the FSM.
 */
 
 /*TODO: 
-add more tests
+revive tests, add more tests
+
 sbe question ids start at 0, residency at 1, change sbe
-alternative framework: https://www.d3web.de/Wiki.jsp?page=Bike%20Diagnosis
+
+in case of complete failure, alternative framework: https://www.d3web.de/Wiki.jsp?page=Bike%20Diagnosis
 */
 
 
@@ -49,25 +54,16 @@ match_response_with_last_question(In, In.current_state, 0).
 
 
 
-/*
-example interaction:
 
-koom@koom-KVM ~/l/src> curl -d '{"current_state":[]}' -H "Content-Type: application/json" -X POST  http://localhost:7777/sbe
-{
-  "question":"Are you a Sole trader, Partnership, Company or Trust?",
-  "state": [ {"question_id":0, "response":-1} ]
-}
+do_chat(Dict, Response) :-
+	Type = Dict.get(type),
+	do_chat2(Type, Dict, Response).
 
-koom@koom-KVM ~/l/src> curl -d '{"current_state":[{"response": -1, "question_id": 0}],"response":1}' -H "Content-Type: application/json" -X POST  http://localhost:7777/sbe
-{
-  "question":"Did you operate a business for all of the income year?",
-  "state": [
-    {"question_id":0, "response":1},
-    {"question_id":1, "response":-1}
-  ]
-}
+do_chat2("sbe", Dict, r{result:Result}) :-
+	sbe:sbe_step(Dict, Result).
 
-or:
- {'status': 'error'}
-...
-*/
+do_chat2("residency", Dict, r{result:Result}) :-
+	residency:residency_step(Dict, Result).
+
+
+
