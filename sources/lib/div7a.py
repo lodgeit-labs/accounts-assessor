@@ -39,7 +39,44 @@ def test1():
 
 def div7a(records):
 	records = insert_interest_accrual_records(records)
+	sanity_checks(records)
 
+	# assign each interest accrual record its interest rate
+
+	for r in records:
+		if r.type == interest_accrual:
+			r.info['rate'] = benchmark_rate(r.date.year)
+
+	# for each interest accrual record, calculate the interest accrued since the last interest accrual record
+
+	for i in range(len(records) + 1):
+		add_interest_accrual_days(records, i)
+
+	for i in range(len(records) + 1):
+
+		if records[i].type == interest_accrual:
+			records[i].info['amount'] = interest_accrued(records, i)
+
+
+def add_interest_accrual_days(records, i):
+	r = records[i]
+
+	# going backwards from current record,
+	# find the previous interest accrual record
+
+	prev_date = None
+
+	for j in range(i-1, -1, -1):
+		if records[j].type in ['interest_accrual', 'opening_balance', 'loan_start']:
+			prev_date = records[j].date
+			break
+	if prev_date is None:
+		raise Exception('No previous interest accrual record')
+
+	r.info['days'] = days_diff(r.date, prev_date)
+	r.info['rate'] = benchmark_rate(r.date.year)
+
+def sanity_checks(records):
 	# sanity checks:
 	
 	# - no two interest accruals on the same day:
@@ -58,6 +95,7 @@ def div7a(records):
 			raise Exception('Opening balance is not positive')
 	
 	# - opening balance is not on the same date or preceded by anything other than loan start:
+
 	for i in range(len(records)):
 		if records[i].type == opening_balance:
 			if i > 0 and records[i-1].type != loan_start:
@@ -65,11 +103,15 @@ def div7a(records):
 			if i > 0 and records[i-1].date == records[i].date:
 				raise Exception('Opening balance is on the same date as something else')
 		
-		
-	
 	# - one loan start, not preceded by anything
 
-	
+	if records[0].type != loan_start:
+		raise Exception('Loan start is not the first record')
+	for i in range(1, len(records)):
+		if records[i].type == loan_start:
+			raise Exception('More than one loan start')
+
+
 
 def insert_interest_accrual_records(records):
 	# insert year-end interest accrual records for the length of the loan
