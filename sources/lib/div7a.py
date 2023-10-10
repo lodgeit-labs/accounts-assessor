@@ -53,9 +53,35 @@ def div7a(records):
 		add_interest_accrual_days(records, i)
 
 	for i in range(len(records) + 1):
+		add_balances_and_accruals(records, i)
 
-		if records[i].type == interest_accrual:
-			records[i].info['amount'] = interest_accrued(records, i)
+
+def add_balances_and_accruals(records, i):
+	r = records[i]
+
+	# the final balance of the previous record, is the balance of the period between the previous record and this one, is this record's start balance
+
+	if i == 0:
+		if r.type =! 'loan_start':
+			raise Exception('First record is not loan start')
+
+		if 'principal' in r.info:
+			r.final_balance = r.info['principal']
+		else:
+			r.final_balance = None
+		return
+
+	if records[i].type == opening_balance:
+		r.final_balance = r.info['amount']
+		return
+
+	if records[i].type == repayment:
+		r.final_balance = prev_balance balance(records, i-1) - records[i].info['amount']
+
+	if records[i].type == interest_accrual:
+		return balance(records, i-1) + interest_accrued(records, i-1)
+
+	raise Exception('Unknown record type')
 
 
 def add_interest_accrual_days(records, i):

@@ -81,3 +81,12 @@ div7a_to_loan_results(Records, Comp_Year_0Idx, Summary) :-
 	loan_sum_total_principal(		Summary, Total_Principal),
 	loan_sum_closing_balance(		Summary, Closing_Balance).
 
+
+
+def interest_accrued(records, i):
+	r = records[i]
+	return r.info['days'] * r.info['rate'] * balance(records, i) / 365
+
+def balance(records, i):
+	# balance at the end of the day of the record
+	# (i.e. before the next record)
