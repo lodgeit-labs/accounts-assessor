@@ -6,7 +6,7 @@ def test1():
   		r(date(2019,6,30), opening_balance, {'amount':1000}),
 
 	]
-	div7a(records)
+	print(div7a(records))
 
 
 
