@@ -3,50 +3,28 @@ def r(date, type, info):
 	return type(date, info)
 
 
-class loan_start:
-	def __init__(self, date, info):
+class Record:
+	def __init__(self, date, type, info):
 		self.date = date
 		self.info = info
 	def __repr__(self):
-		return 'loan_start({})'.format(self.info)
+		return f'{self.date}:{self.__class__.__name__}({self.info})'
 	def __eq__(self, other):
 		return self.date == other.date and self.__class__ == other.__class__ and self.info == other.info
 	def __lt__(self, other):
 		return (self.date, record_sorting[self.__class__]) < (other.date, record_sorting[other.__class__])
+
+class loan_start(Record):
+	pass
 
 class opening_balance:
-	def __init__(self, date, info):
-		self.date = date
-		self.info = info
-	def __repr__(self):
-		return 'opening_balance({})'.format(self.info)
-	def __eq__(self, other):
-		return self.date == other.date and self.__class__ == other.__class__ and self.info == other.info
-	def __lt__(self, other):
-		return (self.date, record_sorting[self.__class__]) < (other.date, record_sorting[other.__class__])
+	pass
 
 class interest_accrual:
-	def __init__(self, date, info):
-		self.date = date
-		self.info = info
-	def __repr__(self):
-		return 'interest_accrual({})'.format(self.info)
-	def __eq__(self, other):
-		return self.date == other.date and self.__class__ == other.__class__ and self.info == other.info
-	def __lt__(self, other):
-		return (self.date, record_sorting[self.__class__]) < (other.date, record_sorting[other.__class__])
+	pass
 
 class repayment:
-	def __init__(self, date, info):
-		self.date = date
-		self.info = info
-	def __repr__(self):
-		return 'repayment({})'.format(self.info)
-	def __eq__(self, other):
-		return self.date == other.date and self.__class__ == other.__class__ and self.info == other.info
-	def __lt__(self, other):
-		return (self.date, record_sorting[self.__class__]) < (other.date, record_sorting[other.__class__])
-
+	pass
 
 
 record_sorting = {
