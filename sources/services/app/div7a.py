@@ -1,41 +1,5 @@
-
-loan_start = 0
-opening_balance = 1
-interest_accrual = 2
-repayment = 3
-
-
-
-
-def insert_record(records, record):
-	records = records[:] + [record]
-	return sort_records(records)
-
-def sort_records(records):
-	
-	# sort by date, then by type (so that interest accruals come before repayments)
-	records = sorted(records, key=lambda r: (r.date, r.type))
-	
-	# make sure there is only one interest accrual record per day
-	records2 = []
-	for r in records:
-		if len(records2) == 0:
-			records2.append(r)
-		elif records2[-1].type == interest_accrual and r.type == interest_accrual and records2[-1].date == r.date:
-			pass
-		else:
-			records2.append(r)
-	return records2
-
-
-
-def test1():
-	records = [
-		r(date(2014,6,30), loan_start, {'term':7}),
-  		r(date(2019,6,30), opening_balance, {'amount':1000}),
-		
-	]
-	div7a(records, [])
+from div7a_records import *
+from datetime import date
 
 def div7a(records):
 	records = insert_interest_accrual_records(records)
@@ -53,7 +17,7 @@ def div7a(records):
 		add_interest_accrual_days(records, i)
 
 	for i in range(len(records) + 1):
-		add_balances_and_accruals(records, i)
+		add_balance_and_accrual(records, i)
 
 
 def add_balances_and_accruals(records, i):
@@ -61,27 +25,42 @@ def add_balances_and_accruals(records, i):
 
 	# the final balance of the previous record, is the balance of the period between the previous record and this one, is this record's start balance
 
+	# some records trivially have a final balance
+
 	if i == 0:
-		if r.type =! 'loan_start':
-			raise Exception('First record is not loan start')
-
-		if 'principal' in r.info:
-			r.final_balance = r.info['principal']
+		if r.type == loan_start:
+			if 'principal' in r.info:
+				r.final_balance = r.info['principal']
+			else:
+				r.final_balance = None
+			return
 		else:
-			r.final_balance = None
-		return
-
-	if records[i].type == opening_balance:
+			raise Exception('First record is not loan start')
+	elif records[i].type == opening_balance:
 		r.final_balance = r.info['amount']
 		return
 
+
+	# for others, we have to reference the previous record's final balance
+
+	if i == 0:
+		prev_balance = None
+	else:
+		prev_balance = records[i-1].final_balance
+
+	# calculate the new balance
+
 	if records[i].type == repayment:
-		r.final_balance = prev_balance balance(records, i-1) - records[i].info['amount']
+		r.final_balance = prev_balance - r.info['amount']
 
-	if records[i].type == interest_accrual:
-		return balance(records, i-1) + interest_accrued(records, i-1)
+	elif records[i].type == interest_accrual:
+		r.final_balance = prev_balance + interest_accrued(prev_balance, r)
 
-	raise Exception('Unknown record type')
+	else:
+		raise Exception('Unknown record type')
+
+def interest_accrued(prev_balance, r):
+	return r.info['days'] * r.info['rate'] * prev_balance / 365
 
 
 def add_interest_accrual_days(records, i):
@@ -108,12 +87,12 @@ def sanity_checks(records):
 	# - no two interest accruals on the same day:
 	
 	for i in range(len(records) - 1):
-		if records[i].type == interest_accrual and records[i+1].type == interest_accrual and records[i].date == records[i+1].date:
+		if records[i].__class__ == interest_accrual and records[i+1].__class__ == interest_accrual and records[i].date == records[i+1].date:
 			raise Exception('Two interest accruals on the same day')
 		
 	# - zero or one opening balance:
 	
-	opening_balance_records = [r for r in records if r.type == opening_balance]
+	opening_balance_records = [r for r in records if r.__class__ == opening_balance]
 	if len(opening_balance_records) > 1:
 		raise Exception('More than one opening balance')
 	if len(opening_balance_records) == 1:
@@ -123,8 +102,8 @@ def sanity_checks(records):
 	# - opening balance is not on the same date or preceded by anything other than loan start:
 
 	for i in range(len(records)):
-		if records[i].type == opening_balance:
-			if i > 0 and records[i-1].type != loan_start:
+		if records[i].__class__ == opening_balance:
+			if i > 0 and records[i-1].__class__ != loan_start:
 				raise Exception('Opening balance is not preceded by loan start')
 			if i > 0 and records[i-1].date == records[i].date:
 				raise Exception('Opening balance is on the same date as something else')
@@ -145,48 +124,14 @@ def insert_interest_accrual_records(records):
 	loan_start_record = records[0]
 	loan_start_year = loan_start_record.date.year
 
-	for year in range(start=loan_start_year + 1, stop=loan_start_year + 1 + loan_start_record.info.term):
-		records = insert_record(records, r(date(year, 6, 30), 'interest_accrual', {}))
+	for year in range(loan_start_year + 1, loan_start_year + 1 + loan_start_record.info['term']):
+		records = insert_record(records, r(date(year, 6, 30), interest_accrual, {}))
 
 	# insert interest accrual records before each repayment
 
 	for record in records:
-		if record.type == repayment:
-			records = insert_record(records, r(record.date, 'interest_accrual', {}))
-	
-	
-	
-	
+		if record.__class__ == repayment:
+			records = insert_record(records, r(record.date, interest_accrual, {}))
 
+	return records
 
-
-
-
-'rate': benchmark_rate(year)
-[D, end],
-
-
-
-	# start with records corresponding to repayments
-
-
-
-#
-#
-# def div7a_records_continue(l):
-# 	if balance(l) <= 0:
-# 		return
-#
-# 	either first unseen repayment or year end, whicever comes first
-# 	def unseen repa;ments:
-# 		for i in entries:
-# 			if i['type'] == 'repayment' and not i['seen']:
-# 				return
-#
-
-
-
-
-
-
-# todo try corner cases with repayment on the same date as opening balance
