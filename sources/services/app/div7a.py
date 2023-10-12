@@ -52,7 +52,87 @@ def div7a(records):
 	annotate_repayments_with_myr_relevance(records)
 
 	records = add_myr_checks(records)
+	annotate_myr_checks_with_myr_requirement(records)
 
+	return records
+
+
+
+
+
+
+def annotate_myr_checks_with_myr_requirement(records):
+	"""
+		https://www.ato.gov.au/uploadedImages/Content/Images/40557-3.gif
+	"""
+
+	for i in range(len(records)):
+		r = records[i]
+		if r.__class__ == myr_check:
+
+			if r.income_year == loan_start.income_year + 1:
+				previous_income_year_final_balance = get_loan_start_year_final_balance_for_myr_calc(records)
+			else:
+				previous_income_year_final_balance = get_last_record_of_previous_income_year(records, i).final_balance
+
+			cybir = benchmark_rate(r.date.income_year)
+			remaining_term = get_remaining_term(records, r)
+			r.info['myr_required'] = (previous_income_year_final_balance * cybir / 365) / (1-(1/(1+cybir))**remaining_term)
+			#(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))). % -?
+
+			if r.info['myr_required'] < r.info['total_repaid_for_myr_calc']:
+				r.info['excess'] = r.info['total_repaid_for_myr_calc'] - r.info['myr_required']
+			elif r.info['myr_required'] > r.info['total_repaid_for_myr_calc']:
+				r.info['shortfall'] = r.info['myr_required'] - r.info['total_repaid_for_myr_calc']
+
+
+def get_loan_start_year_final_balance_for_myr_calc(records):
+	loan_start_record = get_loan_start_record(records)
+	repaid_in_first_year_after_loan_start_before_lodgement_day = sum([r.info['amount'] for r in records if r.__class__ == repayment and r.info['counts_towards_myr_calc_loan_start_principal']])
+	return (
+		loan_start_record.info['principal'] -
+		repaid_in_first_year_after_loan_start_before_lodgement_day)
+
+
+def get_last_record_of_previous_income_year(records, i):
+	r = records[i]
+	for j in range(i-1, -1, -1):
+		if records[j].date.income_year != r.date.income_year:
+			break
+	return records[j].final_balance
+
+
+def get_remaining_term(records, r):
+	"""tests needed"""
+	loan_start_record = get_loan_start_record(records)
+	return loan_start_record.info['term'] - (r.date.income_year - loan_start_record.date.income_year) + 1
+
+
+def get_loan_start_record(records):
+	return [r for r in records if r.__class__ == loan_start][0]
+
+def add_myr_checks(records):
+
+	myr_checks = []
+
+	for income_year in income_years_of_loan(records):
+
+		records = records_in_income_year(records, income_year)
+		repayments = [r for r in records if r.__class__ == repayment]
+
+		repayments_total = sum([r.info['amount'] for r in repayments])
+		repayments_towards_myr_total = sum([r.info['amount'] for r in repayments if r.info['counts_towards_myr']])
+
+		myr_checks.append(r(
+			date(income_year, 6, 30),
+			myr_check,
+			{
+				'total_repaid_for_myr_calc': repayments_towards_myr_total,
+				'total_repaid': repayments_total,}
+		))
+
+	records = sort_records(records + myr_checks)
+	propagate_final_balances(records)
 	return records
 
 
@@ -65,27 +145,10 @@ def annotate_repayments_with_myr_relevance(records):
 				raise Exception('if we recorded any repayments that occured the first year after loan start, then we need to know the lodgement day')
 			# todo test repayment *at* lodgement day. What's the legal position?
 			r.info['counts_towards_myr'] = (r.date > lodgement_day)
+			if not r.info['counts_towards_myr']:
+				r.info['counts_towards_myr_calc_loan_start_principal'] = True
 		else:
 			r.info['counts_towards_myr'] = True
-
-
-
-def add_myr_checks(records):
-
-	myr_checks = []
-
-	for income_year in income_years_of_loan(records):
-		records = records_in_income_year(records, income_year)
-		repayments = [r for r in records if r.__class__ == repayment]
-		repayments_towards_myr_total = sum([r.info['amount'] for r in repayments if r.info['counts_towards_myr']])
-		myr_checks.append(r(date(income_year, 6, 30), myr_check, {'total_repaid': repayments_towards_myr_total}))
-
-	return sort_records(records + myr_checks)
-
-
-
-
-
 
 
 

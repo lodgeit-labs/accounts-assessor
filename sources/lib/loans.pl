@@ -519,8 +519,9 @@ loan_agr_min_yearly_repayment(Agreement, Current_Year_Num, Min_Yearly_Rep) :-
 	Remaining_Term is Term - Current_Year_Num,
 	benchmark_interest_rate(Year_Begin_Day, Benchmark_Interest_Rate),
 	% https://www.ato.gov.au/uploadedImages/Content/Images/40557-3.gif
-	Min_Yearly_Rep is Balance * Benchmark_Interest_Rate /
-		(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))).
+	Min_Yearly_Rep is
+		(Balance * Benchmark_Interest_Rate) /
+		(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))). % -?
 
 % A predicate for generating the records of a loan agreement within a given period.
 
