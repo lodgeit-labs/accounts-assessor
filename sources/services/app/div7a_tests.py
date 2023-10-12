@@ -23,16 +23,15 @@ def test3():
 	print(div7a(records))
 
 
-
-
 # test1()
 # test2()
 # test3()
 
 
+# todo try:
+#  corner cases with repayment on the same date as opening balance
+#  opening balance on loan start date
+#  lodgement on loan start date
 
 
-
-
-
-# todo try corner cases with repayment on the same date as opening balance
+##  hmm, do we want to model accruals before opening balance? sorting is a problem here, as opening balance always comes first

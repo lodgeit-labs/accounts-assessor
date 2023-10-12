@@ -3,52 +3,81 @@ from collections import OrderedDict
 from div7a_records import *
 
 
-def div7a(input):
-	tables = OrderedDict({'input':input})
-	tables['with_interest_accrual_records'] = insert_interest_accrual_records(tables['input'])
-	sanity_checks(tables['with_interest_accrual_records'])
-	tables['with_interest_accrual_days'] = with_interest_accrual_days(tables['with_interest_accrual_records'])
-	tables['with_balance_and_accrual'] = with_balance_and_accrual(tables['with_interest_accrual_days'])
-
-	#annotate_repayments_with_myr_relevance(records)
-	#records = add_myr_checks(records)
-	#annotate_myr_checks_with_myr_requirement(records)
-
-	return tables
+def div7a(records):
+	records = insert_interest_accrual_records(records)
+	sanity_checks(records)
+	records = with_interest_accrual_days(records)
+	records = with_balance_and_accrual(records)
+	annotate_repayments_with_myr_relevance(records)
+	records = add_myr_checks(records)
+	annotate_myr_checks_with_myr_requirement(records)
+	return records
 
 
 
-def annotate_myr_checks_with_myr_requirement(records):
-	"""
-		https://www.ato.gov.au/uploadedImages/Content/Images/40557-3.gif
-	"""
+def insert_interest_accrual_records(records):
+
+	accruals = []
+
+	# insert year-end interest accrual records for the length of the loan
+
+	loan_start_record = records[0]
+	loan_start_year = loan_start_record.date.year
+
+	for year in range(loan_start_year + 1, loan_start_year + 1 + loan_start_record.info['term']):
+		accruals.append(r(date(year, 6, 30), interest_accrual, {}))
+
+	# insert interest accrual records before each repayment
+
+	for record in records:
+		if record.__class__ == repayment:
+			accruals.append(r(record.date, interest_accrual, {}))
+
+	# assign interest rates
+
+	for a in accruals:
+		a.info['rate'] = benchmark_rate(a.income_year)
+
+
+	return sort_records(records + accruals)
+
+
+
+def sanity_checks(records):
+	# sanity checks:
+
+	# - no two interest accruals on the same day:
+
+	for i in range(len(records) - 1):
+		if records[i].__class__ == interest_accrual and records[i+1].__class__ == interest_accrual and records[i].date == records[i+1].date:
+			raise Exception('Two interest accruals on the same day')
+
+	# - zero or one opening balance:
+
+	opening_balance_records = [r for r in records if r.__class__ == opening_balance]
+	if len(opening_balance_records) > 1:
+		raise Exception('More than one opening balance')
+	if len(opening_balance_records) == 1:
+		if opening_balance_records[0].info['amount'] <= 0:
+			raise Exception('Opening balance is not positive')
+
+	# - opening balance cannot be before loan start:
 
 	for i in range(len(records)):
 		r = records[i]
-		if r.__class__ == myr_check:
+		if r.__class__ == opening_balance:
+			if get_loan_start_record(records).date < r.date:
+				raise Exception('opening balance cannot be before loan start')
 
-			if r.income_year == loan_start.income_year + 1:
-				previous_income_year_final_balance = get_loan_start_year_final_balance_for_myr_calc(records)
-			else:
-				previous_income_year_final_balance = get_last_record_of_previous_income_year(records, i).final_balance
+	# - one loan start, not preceded by anything
 
-			cybir = benchmark_rate(r.date.income_year)
-			remaining_term = get_remaining_term(records, r)
-			r.info['myr_required'] = (previous_income_year_final_balance * cybir / 365) / (1-(1/(1+cybir))**remaining_term)
-			#(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))). % -?
-
-			if r.info['myr_required'] < r.info['total_repaid_for_myr_calc']:
-				r.info['excess'] = r.info['total_repaid_for_myr_calc'] - r.info['myr_required']
-			elif r.info['myr_required'] > r.info['total_repaid_for_myr_calc']:
-				r.info['shortfall'] = r.info['myr_required'] - r.info['total_repaid_for_myr_calc']
+	if records[0].__class__ != loan_start:
+		raise Exception('Loan start is not the first record')
+	for i in range(1, len(records)):
+		if records[i].__class__ == loan_start:
+			raise Exception('More than one loan start')
 
 
-def get_loan_start_year_final_balance_for_myr_calc(records):
-	loan_start_record = get_loan_start_record(records)
-	repaid_in_first_year_after_loan_start_before_lodgement_day = sum([r.info['amount'] for r in records if r.__class__ == repayment and r.info['counts_towards_myr_calc_loan_start_principal']])
-	return (
-		loan_start_record.info['principal'] -
-		repaid_in_first_year_after_loan_start_before_lodgement_day)
 
 
 def get_last_record_of_previous_income_year(records, i):
@@ -210,70 +239,6 @@ def add_interest_accrual_days(records, i):
 def days_diff(d1, d2):
 	return (d1 - d2).days
 
-def sanity_checks(records):
-	# sanity checks:
-	
-	# - no two interest accruals on the same day:
-	
-	for i in range(len(records) - 1):
-		if records[i].__class__ == interest_accrual and records[i+1].__class__ == interest_accrual and records[i].date == records[i+1].date:
-			raise Exception('Two interest accruals on the same day')
-		
-	# - zero or one opening balance:
-	
-	opening_balance_records = [r for r in records if r.__class__ == opening_balance]
-	if len(opening_balance_records) > 1:
-		raise Exception('More than one opening balance')
-	if len(opening_balance_records) == 1:
-		if opening_balance_records[0].info['amount'] <= 0:
-			raise Exception('Opening balance is not positive')
-	
-	# # - opening balance is not on the same date or preceded by anything other than loan start:
-	#
-	# for i in range(len(records)):
-	# 	if records[i].__class__ == opening_balance:
-	# 		if i > 0 and records[i-1].__class__ != loan_start:
-	# 			raise Exception('Opening balance is not preceded by loan start')
-	# 		if i > 0 and records[i-1].date == records[i].date:
-	# 			raise Exception('Opening balance is on the same date as something else')
-		
-	# - one loan start, not preceded by anything
-
-	if records[0].__class__ != loan_start:
-		raise Exception('Loan start is not the first record')
-	for i in range(1, len(records)):
-		if records[i].__class__ == loan_start:
-			raise Exception('More than one loan start')
-
-
-
-def insert_interest_accrual_records(records):
-
-	accruals = []
-
-	# insert year-end interest accrual records for the length of the loan
-
-	loan_start_record = records[0]
-	loan_start_year = loan_start_record.date.year
-
-	for year in range(loan_start_year + 1, loan_start_year + 1 + loan_start_record.info['term']):
-		accruals.append(r(date(year, 6, 30), interest_accrual, {}))
-
-	# insert interest accrual records before each repayment
-
-	for record in records:
-		if record.__class__ == repayment:
-			accruals.append(r(record.date, interest_accrual, {}))
-
-	# assign interest rates
-
-	for a in accruals:
-		a.info['rate'] = benchmark_rate(a.income_year)
-
-
-	return sort_records(records + accruals)
-
-
 
 
 
@@ -285,4 +250,38 @@ def lodgement_day(records):
 			return r.date
 
 	return None
+
+
+
+def annotate_myr_checks_with_myr_requirement(records):
+	"""
+		https://www.ato.gov.au/uploadedImages/Content/Images/40557-3.gif
+	"""
+
+	for i in range(len(records)):
+		r = records[i]
+		if r.__class__ == myr_check:
+
+			if r.income_year == loan_start.income_year + 1:
+				previous_income_year_final_balance = get_loan_start_year_final_balance_for_myr_calc(records)
+			else:
+				previous_income_year_final_balance = get_last_record_of_previous_income_year(records, i).final_balance
+
+			cybir = benchmark_rate(r.date.income_year)
+			remaining_term = get_remaining_term(records, r)
+			r.info['myr_required'] = (previous_income_year_final_balance * cybir / 365) / (1-(1/(1+cybir))**remaining_term)
+			#(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))). % -?
+
+			if r.info['myr_required'] < r.info['total_repaid_for_myr_calc']:
+				r.info['excess'] = r.info['total_repaid_for_myr_calc'] - r.info['myr_required']
+			elif r.info['myr_required'] > r.info['total_repaid_for_myr_calc']:
+				r.info['shortfall'] = r.info['myr_required'] - r.info['total_repaid_for_myr_calc']
+
+
+def get_loan_start_year_final_balance_for_myr_calc(records):
+	loan_start_record = get_loan_start_record(records)
+	repaid_in_first_year_after_loan_start_before_lodgement_day = sum([r.info['amount'] for r in records if r.__class__ == repayment and r.info['counts_towards_myr_calc_loan_start_principal']])
+	return (
+		loan_start_record.info['principal'] -
+		repaid_in_first_year_after_loan_start_before_lodgement_day)
 
