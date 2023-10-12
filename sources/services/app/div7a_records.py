@@ -8,9 +8,14 @@ class Record:
 		self.date = date
 		self.info = info
 
-	@property
-	def income_year(self):
-		return self.date.year if self.date.month < 7 else self.date.year + 1
+    @property
+    def income_year(self) -> int:
+        """
+        Calculate the income year based on the date.
+    
+        The income year is determined by the year of the date. If the month of the date is less than 7, the income year is the same as the year of the date. Otherwise, the income year is the year of the date plus 1.
+        """
+        return self.date.year if self.date.month < 7 else self.date.year + 1
 	def __repr__(self):
 		return f'{self.date}:{self.__class__.__name__}({self.info})'
 	def __eq__(self, other):
@@ -41,6 +46,7 @@ record_sorting = {
 	interest_accrual: 2,
 	repayment: 3,
 	myr_check: 4,
+# todo test repayment *at* lodgement day. What's the legal position?
 	lodgement: 5
 }
 
