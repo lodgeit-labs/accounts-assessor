@@ -49,7 +49,70 @@ def div7a(records):
 	for i in range(len(records)):
 		add_balance_and_accrual(records, i)
 
+	records = add_myr_checks(records)
+
 	return records
+
+
+
+def lodgement_day(records):
+	# find the lodgement day, if any
+
+	for r in records:
+		if r.__class__ == lodgement:
+			return r.date
+
+	return None
+
+
+def add_myr_checks(records):
+
+	lodgement_day = lodgement_day(records)
+
+	for r in repayments(records):
+
+		if r.date.income_year == loan_start.income_year + 1:
+
+		if lodgement_day is None:
+			raise Exception('if we recorded any repayments that occured the first year after loan start, then we need to know the lodgement day')
+
+		r.info['counts_towards_myr'] = (r.date > lodgement_day)
+
+
+
+	for year in loan_years(records):
+		year_records = records_in_year(records, year)
+		year_repayments = [r for r in year_records if r.__class__ == repayment]
+		year_repayments_after_lodgement_day = [r for r in year_repayments if r.date > lodgement_day]
+
+
+
+		year_repayments_total = sum([r.info['amount'] for r in year_repayments if r.info['])
+
+
+
+
+
+
+
+
+
+
+	total_repaid_this_year = 0
+	year = records[0].date.year
+
+	for i in range(len(records)):
+		r = records[i]
+		if r.date.year != year:
+				records = insert_record(records, r(date(year, 6, 30), myr_check, {'total_repaid': total_repaid_this_year}))
+				year = r.date.year
+				total_repaid_this_year = 0
+
+		if r.__class__ == repayment:
+			total_repaid_this_year += r.info['amount']
+
+
+
 
 def opening_balance_record(records):
 	r = [r for r in records if r.type == opening_balance]

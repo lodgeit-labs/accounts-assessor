@@ -4,9 +4,13 @@ def r(date, type, info):
 
 
 class Record:
-	def __init__(self, date, type, info):
+	def __init__(self, date, info:dict):
 		self.date = date
 		self.info = info
+
+	@property
+	def income_year(self):
+		return self.date.year if self.date.month < 7 else self.date.year + 1
 	def __repr__(self):
 		return f'{self.date}:{self.__class__.__name__}({self.info})'
 	def __eq__(self, other):
@@ -23,6 +27,10 @@ class opening_balance:
 class interest_accrual:
 	pass
 
+class lodgement:
+	pass
+
+
 class repayment:
 	pass
 
@@ -32,6 +40,8 @@ record_sorting = {
 	opening_balance: 1,
 	interest_accrual: 2,
 	repayment: 3,
+	myr_check: 4,
+	lodgement: 5
 }
 
 
