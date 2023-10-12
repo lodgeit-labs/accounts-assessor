@@ -6,3 +6,4 @@ xmldiff
 simplejson
 PyYAML
 jupyter
+pandas

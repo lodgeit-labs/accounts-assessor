@@ -1,63 +1,20 @@
+from collections import OrderedDict
+
 from div7a_records import *
-from datetime import date
-
-def benchmark_rate(year):
-	rates = {
-		2023: 4.77,
-		2022: 4.52,
-		2021: 4.52,
-		2020: 5.37,
-		2019: 5.20,
-		2018: 5.30,
-		2017: 5.40,
-		2016: 5.45,
-		2015: 5.95,
-		2014: 6.20,
-		2013: 7.05,
-		2012: 7.80,
-		2011: 7.40,
-		2010: 5.75,
-		2009: 9.45,
-		2008: 8.05,
-		2007: 7.55,
-		2006: 7.3,
-		2005: 7.05,
-		2004: 6.55,
-		2003: 6.3,
-		2002: 6.8,
-		2001: 7.8,
-		2000: 6.5,
-		1999: 6.7,
-	}
-	return rates[year]
-
-def div7a(records):
-	records = insert_interest_accrual_records(records)
-	sanity_checks(records)
-
-	# assign each interest accrual record its interest rate
-
-	for r in records:
-		if r.__class__ == interest_accrual:
-			r.info['rate'] = benchmark_rate(r.date.year)
-
-	# for each interest accrual record, calculate the interest accrued since the last interest accrual record
-
-	for i in range(len(records)):
-		add_interest_accrual_days(records, i)
-
-	for i in range(len(records)):
-		add_balance_and_accrual(records, i)
-
-	annotate_repayments_with_myr_relevance(records)
-
-	records = add_myr_checks(records)
-	annotate_myr_checks_with_myr_requirement(records)
-
-	return records
 
 
+def div7a(input):
+	tables = OrderedDict({'input':input})
+	tables['with_interest_accrual_records'] = insert_interest_accrual_records(tables['input'])
+	sanity_checks(tables['with_interest_accrual_records'])
+	tables['with_interest_accrual_days'] = with_interest_accrual_days(tables['with_interest_accrual_records'])
+	tables['with_balance_and_accrual'] = with_balance_and_accrual(tables['with_interest_accrual_days'])
 
+	#annotate_repayments_with_myr_relevance(records)
+	#records = add_myr_checks(records)
+	#annotate_myr_checks_with_myr_requirement(records)
+
+	return tables
 
 
 
@@ -164,6 +121,15 @@ def opening_balance_record(records):
 		raise Exception('More than one opening balance record')
 
 
+
+def with_balance_and_accrual(records):
+	records = [r.copy() for r in records]
+
+	for i in range(len(records)):
+		add_balance_and_accrual(records, i)
+
+	return records
+
 def add_balance_and_accrual(records, i):
 	r = records[i]
 
@@ -204,13 +170,23 @@ def add_balance_and_accrual(records, i):
 			r.final_balance = prev_balance + interest_accrued(prev_balance, r)
 
 	else:
-		raise Exception('Unknown record type')
+		r.final_balance = prev_balance
 
 def interest_accrued(prev_balance, r):
 	return r.info['days'] * r.info['rate'] * prev_balance / 365
 
 
+def with_interest_accrual_days(records):
+	records = [r.copy() for r in records]
+
+	for i in range(len(records)):
+		add_interest_accrual_days(records, i)
+
+	return records
+
 def add_interest_accrual_days(records, i):
+	""" for each interest accrual record, calculate the interest accrued since the last interest accrual record """
+
 	r = records[i]
 
 	if r.__class__ != interest_accrual:
@@ -229,7 +205,6 @@ def add_interest_accrual_days(records, i):
 		raise Exception('No previous interest accrual record')
 
 	r.info['days'] = days_diff(r.date, prev_date)
-	r.info['rate'] = benchmark_rate(r.date.year)
 
 
 def days_diff(d1, d2):
@@ -273,21 +248,30 @@ def sanity_checks(records):
 
 
 def insert_interest_accrual_records(records):
+
+	accruals = []
+
 	# insert year-end interest accrual records for the length of the loan
 
 	loan_start_record = records[0]
 	loan_start_year = loan_start_record.date.year
 
 	for year in range(loan_start_year + 1, loan_start_year + 1 + loan_start_record.info['term']):
-		records = insert_record(records, r(date(year, 6, 30), interest_accrual, {}))
+		accruals.append(r(date(year, 6, 30), interest_accrual, {}))
 
 	# insert interest accrual records before each repayment
 
 	for record in records:
 		if record.__class__ == repayment:
-			records = insert_record(records, r(record.date, interest_accrual, {}))
+			accruals.append(r(record.date, interest_accrual, {}))
 
-	return records
+	# assign interest rates
+
+	for a in accruals:
+		a.info['rate'] = benchmark_rate(a.income_year)
+
+
+	return sort_records(records + accruals)
 
 
 

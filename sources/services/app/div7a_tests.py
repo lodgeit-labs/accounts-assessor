@@ -1,13 +1,10 @@
 from div7a import *
 
 def test1():
-	records = [
+	return div7a([
 		r(date(2014,6,30), loan_start, {'term':7}),
   		r(date(2019,6,30), opening_balance, {'amount':1000}),
-
-	]
-	print(div7a(records))
-
+	])
 
 def test2():
 	records = [
@@ -28,9 +25,9 @@ def test3():
 
 
 
-test1()
-test2()
-test3()
+# test1()
+# test2()
+# test3()
 
 
 
