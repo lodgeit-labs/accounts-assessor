@@ -162,9 +162,21 @@ def get_last_record_of_previous_income_year(records, i):
 
 
 def get_remaining_term(records, r):
-	"""tests needed"""
+	"""
+	remaining term is:
+		* loan term (1 to 7 years) 
+		minus 
+		* the number of years between:
+		(
+			* the end of the private company's income year in which the loan was made,
+			and
+			* the end of the private company's income year before 
+				the income year for which the minimum yearly repayment is being worked out.
+		)
+	"""
 	loan_start_record = get_loan_start_record(records)
-	return loan_start_record.info['term'] - (r.date.income_year - loan_start_record.date.income_year) + 1
+	loan_term_years = loan_start_record.info['term']
+	return loan_term_years - (r.date.income_year - loan_start_record.date.income_year)
 
 
 def get_loan_start_record(records):
