@@ -117,4 +117,3 @@ def correct_onedrive_url(url):
 		return 'https://api.onedrive.com/v1.0/shares/s!'+re.search(r'https://1drv.ms/u/s\!(.*?)\?.*', url).group(1)+'/root/content'
 	except:
 		return url
-
