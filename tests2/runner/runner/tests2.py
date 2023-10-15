@@ -29,6 +29,8 @@ from common import robust_tests_folder
 from json import JSONEncoder
 
 
+logger = logging.getLogger('robust')
+
 class MyJSONEncoder(JSONEncoder):
 	def default(self, o):
 		if isinstance(o, PurePath):
@@ -54,7 +56,14 @@ class Dummy(luigi.Task):
 		return False
 
 
-
+def symlink(source, target):
+	tmp = '/tmp/abcdefgrobusttestrunnerrrr'+str(os.getpid())
+	subprocess.call([
+		'/bin/ln', '-s',
+		target,
+		tmp
+	])
+	os.rename(tmp, source)
 
 
 
@@ -70,7 +79,7 @@ class TestPrepare(luigi.Task):
 		inputs.append(self.write_job_json(request_files_dir))
 		with self.output().open('w') as out:
 			json_dump(inputs, out)
-
+		symlink(P(self.test['path']) / 'testcase', (P(self.test['suite']) / self.test['dir']).absolute())
 
 	def copy_inputs(self, request_files_dir):
 		files = []
@@ -108,8 +117,8 @@ class TestPrepare(luigi.Task):
 
 def make_request(test, request_files):
 	url = test['robust_server_url']
-	logging.getLogger('robust').debug('')
-	logging.getLogger('robust').debug('querying ' + url)
+	logger.debug('')
+	logger.debug('querying ' + url)
 
 	request_format = 'xml' if any([str(i).lower().endswith('xml') for i in request_files]) else 'rdf'
 
@@ -134,7 +143,7 @@ class TestStart(luigi.Task):
 		resp = make_request(self.test, self.request_files)
 		if resp.ok:
 			handle = find_report_by_key(resp.json()['reports'], 'job_api_url')
-			logging.getLogger('robust').debug('handle: ' + handle)
+			logger.debug('handle: ' + handle)
 			with self.output().open('w') as o:
 				o.write(handle)
 		else:
@@ -194,7 +203,7 @@ class TestResult(luigi.Task):
 			handle = fd.read() 
 		with self.output().temporary_path() as tmp:
 			while True:
-				logging.getLogger('robust').info('...')
+				logger.info('...')
 				time.sleep(15)
 
 				job = requests.get(handle).json()
@@ -250,10 +259,12 @@ class TestEvaluateImmediateXml(luigi.Task):
 			expected = xmlparse(expected_fn).getroot()
 
 			# diff_trees()
-			diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
-
-			if diff:
-
+			diff = []
+			xml_diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
+			logger.info(xml_diff)
+			if xml_diff != "":
+				diff.append(xml_diff)
+				diff.append(xmldiffmain.diff_files(result_fn, expected_fn))
 				shortfall = expected.find("./LoanSummary/RepaymentShortfall")
 				if shortfall is not None:
 					shortfall = shortfall.text
@@ -264,9 +275,9 @@ class TestEvaluateImmediateXml(luigi.Task):
 					expected_shortfall=shortfall
 				))
 								
-			done(diff)
+			return done(diff)
 
-		done([])
+		return done([])
 
 	def output(self):
 		return {

@@ -19,7 +19,9 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 	doc_value(Taxonomy0, account_taxonomies:url, Taxonomy),
 	(	default_account_hierarchy(Taxonomy, Url)
 	->	true
-	;	Url = Taxonomy),
+	;	atom_string(Url, Taxonomy)
+	),
+	%;	Url = Taxonomy),
 	load_accountHierarchy_element(Url, AccountHierarchy),
 	extract_accounts_from_accountHierarchy_element(AccountHierarchy).
 
