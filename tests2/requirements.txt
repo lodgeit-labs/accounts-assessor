@@ -28,5 +28,5 @@ six==1.16.0
     #   fire
 termcolor==2.2.0
     # via fire
-urllib3==1.26.14
+urllib3==1.26.17
     # via requests
