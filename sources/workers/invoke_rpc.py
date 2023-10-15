@@ -78,7 +78,7 @@ def call_prolog(
 	result_tmp_path = get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']) if 'result_tmp_directory_name' in msg['params'] else None
 
 	default_options = dict(
-		dev_runner_options='',
+		dev_runner_options=[],
 		prolog_flags='true',
 		debug_loading=None,
 		prolog_debug=True,

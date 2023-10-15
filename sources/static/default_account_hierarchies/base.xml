@@ -1,69 +1,72 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='utf-8'?>
 <accountHierarchy>
-	<!-- top-level account has to explicitly specify where it attaches -->
-	<Accounts parent_role="root" normal_side="debit">
-		<Net_Assets role="Net_Assets">
-			<Assets>
-				<Current_Assets role="Current_Assets">
-					<Cash_and_Cash_Equivalents role="Cash_and_Cash_Equivalents">
-						<Banks role="Banks"/>
-					</Cash_and_Cash_Equivalents>
-				</Current_Assets>
-				<Non_Current_Assets role="Non_Current_Assets">
-				</Non_Current_Assets>
-			</Assets>
-			<Liabilities normal_side="credit">
-				<Non_Current_Liabilities>
-					<Non_Current_Loans/>
-				</Non_Current_Liabilities>
-				<Current_Liabilities>
-					<Current_Loans/>
-					<Gst>
-						<Gst_Receivable/>
-						<Gst_GstPayableReceivable/>
-					</Gst>
-				</Current_Liabilities>
-			</Liabilities>
-		</Net_Assets>
 
-		<Equity role="Equity" normal_side="credit">
-			<Share_Capital/>
-			<Retained_Earnings>
-				<Historical_Earnings role="Historical_Earnings">
-					<Bank_Opening_Balances/>
-				</Historical_Earnings>
-				<Current_Earnings role="Current_Earnings"/>
-			</Retained_Earnings>
-			<Capital_Introduced/>
-			<Drawings role="Drawings"/>
-		</Equity>
+	<!-- "Accounts" is the top-level account in the hierarchy -->
+	<!-- the top-level account in accountHierarchy has to explicitly specify what it is a child of, thus the parent_role="root" -->
 
-		<Comprehensive_Income role="Comprehensive_Income" normal_side="credit">
+	<account parent_role="root" normal_side="debit" name="Accounts">
+		<account role="Net_Assets" name="Net_Assets">
+			<account name="Thingies">
+				<account role="Current_Assets" name="Current_Assets">
+					<account role="Cash_and_Cash_Equivalents" name="Cash_and_Cash_Equivalents">
+						<account name="Banks" role="Banks" />
+					</account>
+				</account>
+				<account role="Non_Current_Assets" name="Non_Current_Assets">
+				</account>
+			</account>
+			<account normal_side="credit" name="Liabilities">
+				<account name="Non_Current_Liabilities">
+					<account name="Non_Current_Loans" />
+				</account>
+				<account name="Current_Liabilities">
+					<account name="Current_Loans" />
+					<account name="Gst">
+						<account name="Gst_Receivable" />
+						<account name="Gst_GstPayableReceivable" />
+					</account>
+				</account>
+			</account>
+		</account>
 
-			<Currency_Movement role="Currency_Movement"/>
+		<account role="Equity" normal_side="credit" name="Equity">
+			<account name="Share_Capital" />
+			<account name="Retained_Earnings">
+				<account role="Historical_Earnings" name="Historical_Earnings">
+					<account name="Bank_Opening_Balances" />
+				</account>
+				<account role="Current_Earnings" name="Current_Earnings" />
+			</account>
+			<account name="Capital_Introduced" />
+			<account role="Drawings" name="Drawings" />
+		</account>
+
+		<account role="Comprehensive_Income" normal_side="credit" name="Comprehensive_Income">
+
+			<account role="Currency_Movement" name="Currency_Movement" />
 
 
-			<Revenue role="Revenue">
-				<Income/>
-				<Other_Income>
-					<Interest_Income/>
-				</Other_Income>
-			</Revenue>
-
-			<Expenses role="Expenses" normal_side="debit">
-				<Bank_Charges/>
-				<Accounting_Fees/>
-				<Interest_Expenses/>
-				<Purchases/>
-				<Other_Expenses/>
-			</Expenses>
-
-			<account name="Gains/-Losses" role="Gains">
-				<Transfer_Clearing_Account/>			
+			<account role="Revenue" name="Revenue">
+				<account name="Income" />
+				<account name="Other_Income">
+					<account name="Interest_Income" />
+				</account>
 			</account>
 
-		</Comprehensive_Income>
-	</Accounts>
-	<Inventory parent_role="root" role="root!Inventory" normal_side="debit">
-	</Inventory>
+			<account role="Expenses" normal_side="debit" name="Expenses">
+				<account name="Bank_Charges" />
+				<account name="Accounting_Fees" />
+				<account name="Interest_Expenses" />
+				<account name="Purchases" />
+				<account name="Other_Expenses" />
+			</account>
+
+			<account name="Gains/-Losses" role="Gains">
+				<account name="Transfer_Clearing_Account" />
+			</account>
+
+		</account>
+	</account>
+	<account parent_role="root" role="root!Inventory" normal_side="debit" name="Inventory">
+	</account>
 </accountHierarchy>
