@@ -8,6 +8,8 @@ certifi==2023.7.22
     # via requests
 charset-normalizer==3.0.1
     # via requests
+defusedxml==0.7.1
+    # via -r requirements.in
 docutils==0.19
     # via python-daemon
 idna==3.4
@@ -15,23 +17,27 @@ idna==3.4
 lockfile==0.12.2
     # via python-daemon
 luigi==3.2.0
-    # via -r runner/requirements.in
+    # via -r requirements.in
+lxml==4.9.3
+    # via xmldiff
 python-daemon==2.3.2
     # via luigi
 python-dateutil==2.8.2
     # via luigi
 requests==2.31.0
-    # via -r runner/requirements.in
+    # via -r requirements.in
 six==1.16.0
     # via python-dateutil
 sqlalchemy==1.3.24
-    # via -r runner/requirements.in
+    # via -r requirements.in
 tenacity==8.2.2
     # via luigi
 tornado==6.3.3
     # via luigi
-urllib3==1.26.14
+urllib3==1.26.17
     # via requests
+xmldiff==2.6.3
+    # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
