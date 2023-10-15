@@ -6,7 +6,7 @@
 #
 agraph-python==101.0.11
     # via -r requirements.in
-certifi==2023.07.22
+certifi==2023.7.22
     # via requests
 charset-normalizer==3.0.1
     # via requests
@@ -26,5 +26,5 @@ six==1.16.0
     #   fire
 termcolor==2.2.0
     # via fire
-urllib3==1.26.14
+urllib3==1.26.17
     # via requests
