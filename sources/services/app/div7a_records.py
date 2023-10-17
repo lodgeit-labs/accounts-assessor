@@ -75,6 +75,7 @@ def sort_records(records):
 	for r in records:
 		if len(records2) == 0:
 			records2.append(r)
+		# collapse two adjacent interest accruals into one
 		elif records2[-1].__class__ == interest_accrual and r.__class__ == interest_accrual and records2[-1].date == r.date:
 			pass
 		else:

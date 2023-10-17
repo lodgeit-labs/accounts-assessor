@@ -1,17 +1,21 @@
 from div7a_records import *
 
 
+
 def insert_interest_accrual_records(records):
-
-	accruals = []
-
-	# insert year-end interest accrual records for each year of the loan
-
-	loan_start_record = records[0]
-	loan_start_year = loan_start_record.date.year
-
-	for year in range(loan_start_year + 1, loan_start_year + 1 + loan_start_record.info['term']):
-		accruals.append(r(date(year, 6, 30), interest_accrual, {}))
+	result = records[:]
+	
+	loan_start_record = get_loan_start_record(records)
+	loan_start_iy = loan_start_record.income_year
+	first_year = loan_start_iy + 1
+	loan_term = loan_start_record.info['term']
+	
+	# for each fiscal year of the loan
+	
+	# insert_at_end_of_day seems good wrt repayments, but what about opending_balance and lodgement?
+	
+	for iy in inclusive_range(first_year, first_year + loan_term):
+		insert_at_end_of_day(r(date(iy, 6, 30), interest_accrual, {'note':'for period until fiscal year end'}),result)
 
 	# insert interest accrual records before each repayment
 
@@ -24,9 +28,7 @@ def insert_interest_accrual_records(records):
 	for a in accruals:
 		a.info['rate'] = benchmark_rate(a.income_year)
 
-
 	return sort_records(records + accruals)
-
 
 
 def sanity_checks(records):
@@ -308,3 +310,9 @@ def get_loan_start_year_final_balance_for_myr_calc(records):
 			loan_start_record.info['principal'] -
 			repaid_in_first_year_after_loan_start_before_lodgement_day)
 
+
+
+
+
+def inclusive_range(start, end):
+	return range(start, end + 1)

@@ -15,6 +15,10 @@ The obvious but a bit more complex solution is inserting records at their exact 
 The best solution is to have a function that takes a list of records, and a new record, and returns a new list of records with the new record inserted at the right place. This function should be used everywhere where we insert records. This way, the order of records is always explicit, and we can always reason about it.  
 
 
+# an interesting observation is that repayments on the last day of income year always come before the final interest accrual for the income year. 
+
+
+
 
 
 
