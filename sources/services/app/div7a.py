@@ -18,6 +18,19 @@ The best solution is to have a function that takes a list of records, and a new 
 # an interesting observation is that repayments on the last day of income year always come before the final interest accrual for the income year. 
 
 
+consider this trivial example as an input to insert_interest_accrual_records:
+
+records = [
+	loan_start(date(2020, 6, 30), 10000, 5),
+	opening_balance(date(2021, 6, 30), 2000),
+]
+
+an iy-end accrual has to be inserted before the opening balance.  
+
+records = [
+	loan_start(date(2020, 6, 30), 10000, 5),
+	opening_balance(date(2021, 6, 30), 2000),
+]
 
 
 
@@ -30,27 +43,54 @@ pandas dataframe with columns. There is an option to output custom html. We will
 
 
 """
+from sortedcontainers import SortedList
 from div7a_impl import *
 
 
+
+
 def div7a(records):
+	# we begin with loan_start, optional opening_balance, possible lodgement day, and then repayments.
+	tables = [SortedList(records)]
+	# we insert accrual points for each income year, and for each repayment.
+	step(tables, insert_interest_accrual_records)
+	# we calculate the number of days of each accrual period
+	step(tables, with_interest_accrual_days)
+	# we propagate balance from start or from opening balance, adjusting for accruals and repayments
+	step(tables, with_balance_and_accrual)
+	
+	step(tables, annotate_repayments_with_myr_relevance)
+	
+	step(tables, with_myr_checks)
+	
+	step(tables, propagate_final_balances)
+	step(tables, annotate_myr_checks_with_myr_requirement)
 
-	tables = []
-	tables.append(records)
 
-	records = insert_interest_accrual_records(records)
-	tables.append(records)
-
-	sanity_checks(records)
-
-	records = with_interest_accrual_days(records)
-	tables.append(records)
-
-	records = with_balance_and_accrual(records)
-	annotate_repayments_with_myr_relevance(records)
-	tables.append(records)
-
-	#records = with_myr_checks(records)
-	#tables.append(records)
-
+	check_invariants(tables[-1])
 	return records
+
+
+def step(tables, f):
+	check_invariants(tables[-1])
+	t = tables[-1][:]
+	f(t)
+	tables.append(t)
+	if in_notebook():
+		from IPython.display import display, HTML
+		display(HTML(tables[-1].to_html()))
+
+
+def in_notebook():
+	"""
+	https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
+	"""
+	try:
+		from IPython import get_ipython
+		if 'IPKernelApp' not in get_ipython().config:  # pragma: no cover
+			return False
+	except ImportError:
+		return False
+	except AttributeError:
+		return False
+	return True

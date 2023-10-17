@@ -12,6 +12,11 @@ class Record:
 	date: date
 	info: dict
 
+	def __init__(self):
+		self.date = None
+		self.info = {}
+		self.final_balance = None
+	
 	@property
 	def income_year(self) -> int:
 		"""
@@ -54,9 +59,9 @@ record_sorting = {
 	opening_balance: 1,
 	interest_accrual: 2,
 	repayment: 3,
-	myr_check: 4,
-# todo test repayment *at* lodgement day. What's the legal position?
-	lodgement: 5
+	lodgement: 4,
+	# todo test repayment *at* lodgement day. What's the legal position?
+	myr_check: 5
 }
 
 
@@ -83,32 +88,4 @@ def sort_records(records):
 	return records2
 
 
-def benchmark_rate(year):
-	rates = {
-		2023: 4.77,
-		2022: 4.52,
-		2021: 4.52,
-		2020: 5.37,
-		2019: 5.20,
-		2018: 5.30,
-		2017: 5.40,
-		2016: 5.45,
-		2015: 5.95,
-		2014: 6.20,
-		2013: 7.05,
-		2012: 7.80,
-		2011: 7.40,
-		2010: 5.75,
-		2009: 9.45,
-		2008: 8.05,
-		2007: 7.55,
-		2006: 7.3,
-		2005: 7.05,
-		2004: 6.55,
-		2003: 6.3,
-		2002: 6.8,
-		2001: 7.8,
-		2000: 6.5,
-		1999: 6.7,
-	}
-	return rates[year]
+
