@@ -1,7 +1,7 @@
 from datetime import date
 
 
-def r(date, type, info):
+def record(date, type, info):
 	result = type()
 	result.date = date
 	result.info = info
@@ -16,12 +16,15 @@ class Record:
 		self.date = None
 		self.info = {}
 		self.final_balance = None
+		self.year = None
+		self.remaining_term = None
 
 	def copy(self):
 		result = self.__class__()
 		result.date = self.date
 		result.info = self.info.copy()
 		result.final_balance = self.final_balance
+		result.year = self.year
 		return result
 
 	@property
@@ -63,12 +66,13 @@ class lodgement(Record):
 
 record_sorting = {
 	loan_start: 0,
-	opening_balance: 1,
+	1: 1,
 	interest_accrual: 2,
 	repayment: 3,
 	lodgement: 4,
 	# todo test repayment *at* lodgement day. What's the legal position?
-	myr_check: 5
+	myr_check: 5,
+	opening_balance: 6,
 }
 
 

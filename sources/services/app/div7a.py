@@ -46,6 +46,13 @@ pandas dataframe with columns. There is an option to output custom html. We will
 import pandas as pd
 from sortedcontainers import SortedList
 from div7a_impl import *
+pd.set_option('display.max_rows', None)
+#pd.set_option('display.height', 1000)
+#pd.options.display.max_rows = 1000
+#https://github.com/quantopian/qgrid
+#https://discourse.jupyter.org/t/interactive-exploration-without-sacrificing-reproducibility/11522/3
+#https://discourse.jupyter.org/t/official-release-jupyterlab-tabular-data-editor-extension/5814
+
 
 
 
@@ -80,23 +87,39 @@ def step(tables, f):
 	t = SortedList(tables[-1][:])
 	f(t)
 	tables.append(t)
+
+	for r in t:
+		if r.year is None:
+			r.year = r.income_year - get_loan_start_record(t).income_year
+		if r.remaining_term is None:
+			r.remaining_term = get_remaining_term(t, r)
+	
 	if in_notebook():
 		from IPython.display import display, HTML
 		print(f.__name__)
-		display(df(tables[-1]), display_id=f.__name__)
+		display(HTML(df(tables[-1]).to_html(index=False, max_rows=1000)))
 
 
 def df(records):
 	dicts = []
 	for r in records:
-		info = dict(term='',note='',sorting='',rate='',amount='',days='',final_balance='')
+		info = dict(term='',note='',rate='',amount='',days='',sorting='',total_repaid_for_myr_calc='',total_repaid='',myr_required='',shortfall='',excess='',counts_towards_myr_principal='')
 		info.update(r.info)
-		del info['sorting']
-		dicts.append(dict(
+		d = dict(
+			rem=r.remaining_term,
+			year=r.year,
+			iy=r.income_year,
 			date=r.date,
 			type=r.__class__.__name__,
-			**info
-		))
+			final_balance=r.final_balance,
+			**info)
+
+		if d['final_balance'] == None:
+			d['final_balance'] = ''
+			
+		del d['sorting']
+		
+		dicts.append(d)
 
 	f = pd.DataFrame(dicts)
 

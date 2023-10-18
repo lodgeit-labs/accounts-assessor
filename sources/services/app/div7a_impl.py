@@ -81,7 +81,7 @@ def insert_interest_accrual_records(records):
 	loan_term = loan_start_record.info['term']
 	
 	for income_year in inclusive_range(first_year, first_year + loan_term):
-		records.add(r(
+		records.add(record(
 			date(income_year, 6, 30),
 			interest_accrual,
 			{
@@ -91,7 +91,7 @@ def insert_interest_accrual_records(records):
 			}))
 
 	for repayment in repayments(records):
-		records.add(r(
+		records.add(record(
 			repayment.date, 
 			interest_accrual,
 			{
@@ -128,31 +128,23 @@ def with_balance_and_accrual(records):
 	"""
 	the final balance of the previous record, is the balance of the period between the previous record and this one, is this record's start balance
 	"""
-
 	for i in range(len(records)):
 		r = records[i]
 	
-		# some records trivially have a final balance
-		
+		# some records trivially have a final balance	
 		if r.__class__ == loan_start:
 			r.final_balance = r.info.get('principal')
 			continue
-
 		if r.__class__ == opening_balance:
 			r.final_balance = r.info['amount']
 			continue
 	
-	
 		# for others, we have to reference the previous record's final balance
-	
 		if i != 0:
 			prev_balance = records[i-1].final_balance
-
 			# if we are going through the dummy records before opening balance, then there is no previous balance, and we cannot calculate anything
 			if prev_balance is not None:
-	
 				# calculate the new balance
-	
 				if r.__class__ == interest_accrual:
 					r.final_balance = prev_balance + interest_accrued(prev_balance, r)
 				elif r.__class__ == repayment:
@@ -180,23 +172,30 @@ def annotate_repayments_with_myr_relevance(records):
 
 
 
-
 def with_myr_checks(records):
 
 	myr_checks = []
 
 	for income_year in income_years_of_loan(records):
+		
+		# skip checks before opening balance:
+		if opening_balance_record(records).income_year >= income_year:
+			# no myr check for year of opening balance either. But this relies on the fact that opening balance is set on the last day of the preceding income year.
+			continue
+		
+		
 		repayments = [r for r in records_in_income_year(records, income_year) if r.__class__ == repayment]
 
 		repayments_total = sum([r.info['amount'] for r in repayments])
 		repayments_towards_myr_total = sum([r.info['amount'] for r in repayments if not r.info['counts_towards_myr_principal']])
 
-		myr_checks.append(r(
+		myr_checks.append(record(
 			date(income_year, 6, 30),
 			myr_check,
 			{
 				'total_repaid_for_myr_calc': repayments_towards_myr_total,
-				'total_repaid': repayments_total,}
+				'total_repaid': repayments_total
+			}
 		))
 
 	for r in myr_checks:
@@ -221,7 +220,7 @@ def evaluate_myr_checks(records):
 			else:
 				previous_income_year_final_balance = get_final_balance_of_previous_income_year(records, i)
 
-			br = benchmark_rate(r.date.income_year)
+			br = benchmark_rate(r.income_year)
 			remaining_term = get_remaining_term(records, r)
 			
 			r.info['myr_required'] = (previous_income_year_final_balance * br / 365) / (1-(1/(1+br))**remaining_term)
@@ -257,7 +256,7 @@ def get_remaining_term(records, r):
 	"""
 	loan_start_record = get_loan_start_record(records)
 	loan_term_years = loan_start_record.info['term']
-	return loan_term_years - (r.date.income_year - loan_start_record.date.income_year)
+	return loan_term_years - (r.income_year-1 - loan_start_record.income_year)
 
 
 def get_loan_start_record(records):
@@ -266,7 +265,7 @@ def get_loan_start_record(records):
 
 def income_years_of_loan(records):
 	loan_start_record = get_loan_start_record(records)
-	return range(loan_start_record.date.income_year + 1, loan_start_record.date.income_year + 1 + loan_start_record.info['term'])
+	return range(loan_start_record.income_year + 1, loan_start_record.income_year + 1 + loan_start_record.info['term'])
 
 
 
@@ -303,7 +302,7 @@ def repayments(records):
 
 
 def opening_balance_record(records):
-	r = [r for r in records if r.type == opening_balance]
+	r = [r for r in records if r.__class__ == opening_balance]
 	if len(r) == 0:
 		return None
 	elif len(r) == 1:
@@ -335,7 +334,12 @@ def lodgement_day(records):
 
 
 
+def records_in_income_year(records, income_year):
+	return [r for r in records if r.income_year == income_year]
+
+
+
 
 
 def inclusive_range(start, end, step=1):
-	return range(start, end + 1, step)
+	return range(start, end + step, step)
