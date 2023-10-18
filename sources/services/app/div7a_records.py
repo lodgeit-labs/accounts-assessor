@@ -70,8 +70,7 @@ class lodgement(Record):
 
 
 record_sorting = {
-	loan_start: 0,
-	1: 1,
+	loan_start: 1,
 	interest_accrual: 2,
 	repayment: 3,
 	lodgement: 4,

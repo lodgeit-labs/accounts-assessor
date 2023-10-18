@@ -75,25 +75,41 @@ def div7a_from_json(j):
 
 
 def div7a(records):
+	"""
+
+
+	fiscal_year_atlim
+	first_fiscal_year_atlim
 	
+
+
+
+
+	hmm i need to introduce the "opening_balance" as an explicit record even in the case that it's not user-provided.
+
+
+
+	Where a repayment is made before {the private company's lodgment day for the year in which the amalgamated loan is made}, the principal amount at 1 July of the first income year after the loan is made, is not the sum total of the constituent loans at 1 July. Rather, it is the sum of the constituent loans immediately before the lodgment day. For this purpose, payments made before lodgment day are taken to have been made in the year the amalgamated loan is made.
+
+
+
+	"""
 	# we begin with loan_start, optional opening_balance, possible lodgement day, and then repayments.
 	tables = [SortedList(records)]
 	step(tables, input)
-	
 	# we insert accrual points for each income year, and for each repayment.
 	step(tables, insert_interest_accrual_records)
 	# we calculate the number of days of each accrual period
 	step(tables, with_interest_accrual_days)
-	# we propagate balance from start or from opening balance, adjusting for accruals and repayments
+	# we propagate balance from start or from opening balance, adjusting for repayments
 	step(tables, with_balance_and_accrual)
-	
+	# first year repayments either fall before or after lodgement day, affecting minimum yearly repayment calculation
 	step(tables, annotate_repayments_with_myr_relevance)
-	
+	# insert minimum yearly repayment check records
 	step(tables, with_myr_checks)
-	
+	# was minimum yearly repayment met?
 	step(tables, evaluate_myr_checks)
-
-
+	# one final check
 	check_invariants(tables[-1])
 	return records
 
