@@ -47,7 +47,8 @@
 		Summary),
     
 	div7a_rdf_result(ComputationYearNumber, Summary).
-	
+
+
 div7a_rdf_result(ComputationYearNumber, Summary) :-
     
     Summary = loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
@@ -80,9 +81,8 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	!table_html([], Table_Json, Table_Html),
    	!page_with_table_html('Div7A', Table_Html, Html),
    	!add_report_page(0, 'Div7A', Html, loc(file_name,'summary.html'), 'summary.html').
-
 	%!add_result_sheets_report($>doc_default_graph)... this will require an on-the-fly conversion from table json to rdf templates + data.
-     
+
 
 
  convert_loan_rdf_repayments(I, loan_repayment(Days,  Value)) :-
@@ -94,10 +94,13 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
  process_request_loan(Request_File, DOM) :-
 
 	% startDate and endDate in the request xml are ignored.
-	% they are not used in the computation of the loan summary
+	% they are not used in the computation.
 
 	/* for example 2014 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
+
+	% yep, seems to be a loan request xml.
+	validate_xml2(Request_File, 'bases/Reports.xsd'),
 
 	/* for example 5 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
@@ -122,7 +125,6 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	->	OpeningBalance = OB
 	;	OpeningBalance = -1),
 
-	validate_xml2(Request_File, 'bases/Reports.xsd'),
 	% need to handle empty repayments/repayment, needs to be tested
 	findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
 	atom_number(ComputationYear, NIncomeYear),
@@ -131,8 +133,11 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 		CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
 		% converted inputs
 		NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
+
 	gtrace,
-	(	loan_agr_summary(loan_agreement(
+
+
+	LA = loan_agreement(
 			% loan_agr_contract_number:
 			0,
 			% loan_agr_principal_amount:
@@ -145,15 +150,18 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 			NTerm,
 			% loan_agr_computation_year
 			NComputationYear,
-			
+
 			NOpeningBalance,
 			% loan_agr_repayments (list):
 			NLoanRepayments),
-			% output:
-			Summary)
-	->	display_xml_loan_response(NIncomeYear, Summary)
-	;
-		(
+
+
+	(	(
+			%loan_agr_summary(LA, Summary)
+			loan_agr_summary_python(LA, Summary)
+		)
+	->	true
+	;	(
 			LoanResponseXML = "<error>calculation failed</error>\n",
 		
 			report_file_path(loc(file_name, 'response.xml'), Url, Path, _),
@@ -163,11 +171,31 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 			close(XMLStream),
 			add_report_file(0,'result', 'result', Url)
 		)
-	).		
-   
-% -------------------------------------------------------------------
-% display_xml_loan_response/3
-% -------------------------------------------------------------------
+	),
+	display_xml_loan_response(NIncomeYear, Summary)
+	.
+
+
+loan_agr_summary_python(LA, Summary) :-
+	LA = loan_agreement(
+			% loan_agr_contract_number:
+			0,
+			% loan_agr_principal_amount:
+			NPrincipalAmount,
+			% loan_agr_lodgement_day:
+			NLodgementDate,
+			% loan_agr_begin_day:
+			NCreationIncomeYear,
+			% loan_agr_term (length in years):
+			NTerm,
+			% loan_agr_computation_year
+			NComputationYear,
+			%
+			NOpeningBalance,
+			% loan_agr_repayments (list):
+			NLoanRepayments),
+
+
 
  xml_loan_response(
 	IncomeYear,
