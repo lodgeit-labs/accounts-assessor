@@ -2,8 +2,7 @@ from datetime import date
 
 
 def record(date, type, info):
-	result = type()
-	result.date = date
+	result = type(date)
 	result.info = info
 	return result
 
@@ -12,8 +11,8 @@ class Record:
 	date: date
 	info: dict
 
-	def __init__(self):
-		self.date = None
+	def __init__(self, date=None):
+		self.date = date
 		self.info = {}
 		self.final_balance = None
 		self.year = None
@@ -25,6 +24,7 @@ class Record:
 		result.info = self.info.copy()
 		result.final_balance = self.final_balance
 		result.year = self.year
+		result.remaining_term = self.remaining_term
 		return result
 
 	@property
@@ -49,9 +49,14 @@ class Record:
 		return (self.date, x, record_sorting[self.__class__]) < (other.date, 0, record_sorting[other.__class__])
 
 class loan_start(Record):
-	pass
+	def __init__(self, date, principal, term):
+		super().__init__(date)
+		self.info = dict(principal=principal, term=term)
+
 class opening_balance(Record):
-	pass
+	def __init__(self, date, amount):
+		super().__init__(date)
+		self.info = dict(amount=amount)
 class interest_accrual(Record):
 	pass
 class lodgement(Record):

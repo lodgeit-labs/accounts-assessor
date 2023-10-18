@@ -27,14 +27,6 @@ records = [
 
 an iy-end accrual has to be inserted before the opening balance.  
 
-records = [
-	loan_start(date(2020, 6, 30), 10000, 5),
-	opening_balance(date(2021, 6, 30), 2000),
-]
-
-
-
-
 # visualization:
 pandas dataframe with columns. There is an option to output custom html. We will need to generate html files. We can use the same html template for all of them, and just pass in the dataframes. We can also use the same css for all of them.
 
@@ -55,6 +47,28 @@ pd.set_option('display.max_rows', None)
 
 
 
+def div7a_from_json(j):
+
+	principal = j['principal']
+	if principal == -1:
+		principal = None
+
+	records = SortedList(loan_start(date(j['creation_income_year'], 6, 30), principal, j['term'])])
+		
+	ob = j['opening_balance']
+	if ob == -1:
+		pass
+	else:
+		records.add(opening_balance(date(j['computation_income_year'], 6, 30), ob))
+		
+	
+	
+	
+	
+
+	
+	
+	
 
 
 def div7a(records):
@@ -142,4 +156,5 @@ def in_notebook():
 
 
 def input(x):
+	"""dummy step"""
 	pass

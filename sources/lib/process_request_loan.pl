@@ -11,7 +11,7 @@
     !doc(Loan, div7a:full_term_of_loan_in_years, Term),
 
 	/* exactly one of PrincipalAmount or OpeningBalance must be provided */
-	/* or we can loosen this, and ignore principal if both are provided */ 
+	/* or we can loosen this requirement, and ignore principal if both are provided */ 
 	(	doc(Loan, div7a:principal_amount_of_loan, Amount)
 	->	(	doc(Loan, div7a:opening_balance, OB)
 		->	throw_string('both principal amount and opening balance provided')
@@ -137,28 +137,41 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	gtrace,
 
 
-	LA = loan_agreement(
-			% loan_agr_contract_number:
-			0,
-			% loan_agr_principal_amount:
-			NPrincipalAmount,
-			% loan_agr_lodgement_day:
-			NLodgementDate,
-			% loan_agr_begin_day:
-			NCreationIncomeYear,
-			% loan_agr_term (length in years):
-			NTerm,
-			% loan_agr_computation_year
-			NComputationYear,
-
-			NOpeningBalance,
-			% loan_agr_repayments (list):
-			NLoanRepayments),
 
 
 	(	(
-			%loan_agr_summary(LA, Summary)
-			loan_agr_summary_python(LA, Summary)
+%			loan_agr_summary(
+%				loan_agreement(
+%					% loan_agr_contract_number:
+%					0,
+%					% loan_agr_principal_amount:
+%					NPrincipalAmount,
+%					% loan_agr_lodgement_day:
+%					NLodgementDate,
+%					% loan_agr_begin_day:
+%					NCreationIncomeYear,
+%					% loan_agr_term (length in years):
+%					NTerm,
+%					% loan_agr_computation_year
+%					NComputationYear,
+%	
+%					NOpeningBalance,
+%					% loan_agr_repayments (list):
+%					NLoanRepayments
+%				),
+%				Summary
+%			)
+% ✀--------------------------------------------
+			(var(PrincipalAmount) -> PrincipalAmount = -1; true), 
+			loan_agr_summary_python(div7a{
+				term: Term,
+				principal_amount: PrincipalAmount,
+				lodgement_date: LodgementDate,
+				creation_income_year: CreationIncomeYear,
+				computation_income_year: ComputationYear,
+				opening_balance: OpeningBalance,
+				repayments: $>repayments_to_dict(LoanRepayments)
+			}, Summary)
 		)
 	->	true
 	;	(
@@ -194,41 +207,16 @@ loan_agr_summary_python(LA, Summary) :-
 			NOpeningBalance,
 			% loan_agr_repayments (list):
 			NLoanRepayments),
+	D = _{loan_agr_principal_amount:NPrincipalAmount,
+	      loan_agr_lodgement_day:NLodgementDate,
+	      loan_agr_begin_day:NCreationIncomeYear,
+	      loan_agr_term:NTerm,
+	      loan_agr_computation_year:NComputationYear,
+	      loan_agr_opening_balance:NOpeningBalance,
+	      loan_agr_repayments:NLoanRepayments},
 
 
-
- xml_loan_response(
-	IncomeYear,
-	loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
-	LoanResponseXML
-) :-
-
-ground(x(IncomeYear, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)),
-var(LoanResponseXML),
-
-	format(string(LoanResponseXML),
-'<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n\c
-   <IncomeYear>~q</IncomeYear>\n\c
-   <OpeningBalance>~f8</OpeningBalance>\n\c
-   <InterestRate>~f8</InterestRate>\n\c
-   <MinYearlyRepayment>~f8</MinYearlyRepayment>\n\c
-   <TotalRepayment>~f8</TotalRepayment>\n\c
-   <RepaymentShortfall>~f8</RepaymentShortfall>\n\c
-   <TotalInterest>~f8</TotalInterest>\n\c
-   <TotalPrincipal>~f8</TotalPrincipal>\n\c
-   <ClosingBalance>~f8</ClosingBalance>\n\c
-</LoanSummary>\n',
-	   [IncomeYear,
-        OpeningBalance,
-        InterestRate,
-        MinYearlyRepayment,
-        TotalRepayment,
-        RepaymentShortfall,
-        TotalInterest,
-        TotalPrincipal,
-        ClosingBalance]).
-
-
+ 
 
  display_xml_loan_response(IncomeYear, LoanSummary) :-
 	xml_loan_response(IncomeYear, LoanSummary, LoanResponseXML),
@@ -245,6 +233,43 @@ var(LoanResponseXML),
 	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
 	!validate_xml(Path, LoanResponseXSD, []),
 	add_report_file(0,'result', 'result', Url).
+
+
+
+xml_loan_response(
+	IncomeYear,
+	loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
+	LoanResponseXML
+) :-
+
+	ground(x(IncomeYear, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)),
+	var(LoanResponseXML),
+
+	format(string(LoanResponseXML),
+	
+'<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n\c
+   <IncomeYear>~q</IncomeYear>\n\c
+   <OpeningBalance>~f8</OpeningBalance>\n\c
+   <InterestRate>~f8</InterestRate>\n\c
+   <MinYearlyRepayment>~f8</MinYearlyRepayment>\n\c
+   <TotalRepayment>~f8</TotalRepayment>\n\c
+   <RepaymentShortfall>~f8</RepaymentShortfall>\n\c
+   <TotalInterest>~f8</TotalInterest>\n\c
+   <TotalPrincipal>~f8</TotalPrincipal>\n\c
+   <ClosingBalance>~f8</ClosingBalance>\n\c
+</LoanSummary>\n',
+
+   [IncomeYear,
+	OpeningBalance,
+	InterestRate,
+	MinYearlyRepayment,
+	TotalRepayment,
+	RepaymentShortfall,
+	TotalInterest,
+	TotalPrincipal,
+	ClosingBalance]).
+
+
 
 % ===================================================================
 % Various helper predicates
