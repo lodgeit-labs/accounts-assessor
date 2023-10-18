@@ -43,6 +43,7 @@ pandas dataframe with columns. There is an option to output custom html. We will
 
 
 """
+import pandas as pd
 from sortedcontainers import SortedList
 from div7a_impl import *
 
@@ -50,8 +51,11 @@ from div7a_impl import *
 
 
 def div7a(records):
+	
 	# we begin with loan_start, optional opening_balance, possible lodgement day, and then repayments.
 	tables = [SortedList(records)]
+	step(tables, input)
+	
 	# we insert accrual points for each income year, and for each repayment.
 	step(tables, insert_interest_accrual_records)
 	# we calculate the number of days of each accrual period
@@ -63,8 +67,7 @@ def div7a(records):
 	
 	step(tables, with_myr_checks)
 	
-	step(tables, propagate_final_balances)
-	step(tables, annotate_myr_checks_with_myr_requirement)
+	step(tables, evaluate_myr_checks)
 
 
 	check_invariants(tables[-1])
@@ -73,14 +76,33 @@ def div7a(records):
 
 def step(tables, f):
 	check_invariants(tables[-1])
-	t = tables[-1][:]
+	# a sliced SortedList is a list, duh. 
+	t = SortedList(tables[-1][:])
 	f(t)
 	tables.append(t)
 	if in_notebook():
 		from IPython.display import display, HTML
-		display(HTML(tables[-1].to_html()))
+		print(f.__name__)
+		display(df(tables[-1]), display_id=f.__name__)
 
 
+def df(records):
+	dicts = []
+	for r in records:
+		info = dict(term='',note='',sorting='',rate='',amount='',days='',final_balance='')
+		info.update(r.info)
+		del info['sorting']
+		dicts.append(dict(
+			date=r.date,
+			type=r.__class__.__name__,
+			**info
+		))
+
+	f = pd.DataFrame(dicts)
+
+	return f
+	
+	
 def in_notebook():
 	"""
 	https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
@@ -94,3 +116,7 @@ def in_notebook():
 	except AttributeError:
 		return False
 	return True
+
+
+def input(x):
+	pass

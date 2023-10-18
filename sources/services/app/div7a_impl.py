@@ -205,10 +205,12 @@ def with_myr_checks(records):
 
 
 
-def annotate_myr_checks_with_myr_requirement(records):
+def evaluate_myr_checks(records):
 	"""
 	https://www.ato.gov.au/uploadedImages/Content/Images/40557-3.gif
 	"""
+
+	loan_start = get_loan_start_record(records)
 
 	for i in range(len(records)):
 		r = records[i]
@@ -217,19 +219,26 @@ def annotate_myr_checks_with_myr_requirement(records):
 			if r.income_year == loan_start.income_year + 1:
 				previous_income_year_final_balance = get_loan_start_year_final_balance_for_myr_calc(records)
 			else:
-				previous_income_year_final_balance = get_last_record_of_previous_income_year(records, i).final_balance
+				previous_income_year_final_balance = get_final_balance_of_previous_income_year(records, i)
 
-			cybir = benchmark_rate(r.date.income_year)
+			br = benchmark_rate(r.date.income_year)
 			remaining_term = get_remaining_term(records, r)
-			r.info['myr_required'] = (previous_income_year_final_balance * cybir / 365) / (1-(1/(1+cybir))**remaining_term)
+			
+			r.info['myr_required'] = (previous_income_year_final_balance * br / 365) / (1-(1/(1+br))**remaining_term)
 			#(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))). % -?
 
 			if r.info['myr_required'] < r.info['total_repaid_for_myr_calc']:
 				r.info['excess'] = r.info['total_repaid_for_myr_calc'] - r.info['myr_required']
+			
 			elif r.info['myr_required'] > r.info['total_repaid_for_myr_calc']:
 				r.info['shortfall'] = r.info['myr_required'] - r.info['total_repaid_for_myr_calc']
 
 
+
+def get_loan_start_year_final_balance_for_myr_calc(records):
+	loan_start = get_loan_start_record(records)
+	repaid_in_first_year_before_lodgement_day = sum([r.info['amount'] for r in repayments(records) if r.info['counts_towards_myr_principal']])
+	return loan_start.info['principal'] - repaid_in_first_year_before_lodgement_day
 
 
 
@@ -259,12 +268,24 @@ def income_years_of_loan(records):
 	loan_start_record = get_loan_start_record(records)
 	return range(loan_start_record.date.income_year + 1, loan_start_record.date.income_year + 1 + loan_start_record.info['term'])
 
-def get_last_record_of_previous_income_year(records, i):
+
+
+
+def get_final_balance_of_previous_income_year(records, i):
 	r = records[i]
 	for j in range(i-1, -1, -1):
-		if records[j].income_year != r.income_year:
-			break
-	return records[j]
+		rj = records[j]
+		if rj.income_year != r.income_year and rj.final_balance is not None:
+			return rj.final_balance
+
+
+
+# def get_last_record_of_previous_income_year(records, i):
+# 	r = records[i]
+# 	for j in range(i-1, -1, -1):
+# 		if records[j].income_year != r.income_year:
+# 			break
+# 	return records[j]
 
 
 
@@ -313,13 +334,6 @@ def lodgement_day(records):
 	return None
 
 
-
-def get_loan_start_year_final_balance_for_myr_calc(records):
-	loan_start_record = get_loan_start_record(records)
-	repaid_in_first_year_after_loan_start_before_lodgement_day = sum([r.info['amount'] for r in records if r.__class__ == repayment and r.info['counts_towards_myr_calc_loan_start_principal']])
-	return (
-			loan_start_record.info['principal'] -
-			repaid_in_first_year_after_loan_start_before_lodgement_day)
 
 
 
