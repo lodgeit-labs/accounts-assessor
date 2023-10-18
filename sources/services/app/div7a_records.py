@@ -49,12 +49,12 @@ class Record:
 		return (self.date, x, record_sorting[self.__class__]) < (other.date, 0, record_sorting[other.__class__])
 
 class loan_start(Record):
-	def __init__(self, date, principal, term):
+	def __init__(self, date, principal=None, term=None):
 		super().__init__(date)
 		self.info = dict(principal=principal, term=term)
 
 class opening_balance(Record):
-	def __init__(self, date, amount):
+	def __init__(self, date, amount=None):
 		super().__init__(date)
 		self.info = dict(amount=amount)
 class interest_accrual(Record):

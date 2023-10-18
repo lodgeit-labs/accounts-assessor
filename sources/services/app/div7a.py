@@ -37,7 +37,10 @@ pandas dataframe with columns. There is an option to output custom html. We will
 """
 import pandas as pd
 from sortedcontainers import SortedList
-from div7a_impl import *
+
+from div7a_steps import *
+from div7a_checks import *
+
 pd.set_option('display.max_rows', None)
 #pd.set_option('display.height', 1000)
 #pd.options.display.max_rows = 1000
@@ -53,7 +56,7 @@ def div7a_from_json(j):
 	if principal == -1:
 		principal = None
 
-	records = SortedList(loan_start(date(j['creation_income_year'], 6, 30), principal, j['term'])])
+	records = SortedList(loan_start(date(j['creation_income_year'], 6, 30), principal, j['term']))
 		
 	ob = j['opening_balance']
 	if ob == -1:
@@ -117,12 +120,12 @@ def step(tables, f):
 def df(records):
 	dicts = []
 	for r in records:
-		info = dict(term='',note='',rate='',amount='',days='',sorting='',total_repaid_for_myr_calc='',total_repaid='',myr_required='',shortfall='',excess='',counts_towards_myr_principal='')
+		info = dict(term='',note='',rate='',amount='',days='',sorting='',interest_accrued='',total_repaid='',total_repaid_for_myr_calc='',counts_towards_myr_principal='',myr_required='',shortfall='',excess='')
 		info.update(r.info)
 		d = dict(
-			rem=r.remaining_term,
 			year=r.year,
-			iy=r.income_year,
+			remain=r.remaining_term,
+			fiscal=r.income_year,
 			date=r.date,
 			type=r.__class__.__name__,
 			final_balance=r.final_balance,
