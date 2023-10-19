@@ -13,6 +13,7 @@ def ensure_opening_balance_exists(records):
 		))
 
 
+
 def insert_interest_accrual_records(records):
 
 	loan_start_record = get_loan_start_record(records)

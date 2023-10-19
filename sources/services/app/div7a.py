@@ -52,20 +52,6 @@ def div7a_from_json(j):
 	return response
 
 def div7a(records):
-	"""
-1)
-
-	fiscal_year_atlim
-	first_fiscal_year_atlim
-	
-
-
-
-	Where a repayment is made before {the private company's lodgment day for the year in which the amalgamated loan is made}, the principal amount at 1 July of the first income year after the loan is made, is not the sum total of the constituent loans at 1 July. Rather, it is the sum of the constituent loans immediately before the lodgment day. For this purpose, payments made before lodgment day are taken to have been made in the year the amalgamated loan is made.
-
-
-
-	"""
 	# we begin with loan_start, optional opening_balance, possible lodgement day, and then repayments.
 	tables = [SortedList(records)]
 	step(tables, input)
