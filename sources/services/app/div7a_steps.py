@@ -1,5 +1,18 @@
 from div7a_impl import *
 
+def ensure_opening_balance_exists(records):
+	opening_balance = opening_balance_record(records)
+	if opening_balance is None:
+		loan_start = get_loan_start_record(records)
+		records.add(record(
+			date(loan_start.income_year, 6, 30),
+			opening_balance,
+			{
+				'amount': loan_start.info['principal']
+			}
+		))
+
+
 def insert_interest_accrual_records(records):
 
 	loan_start_record = get_loan_start_record(records)
@@ -42,7 +55,7 @@ def with_interest_accrual_days(records):
 		prev_event_date = None
 
 		for j in inclusive_range(i-1, 0, -1):
-			if records[j].__class__ in [interest_accrual, opening_balance, loan_start]:
+			if records[j].__class__ in [interest_accrual, opening_balance]:
 				prev_event_date = records[j].date
 				break
 
@@ -61,9 +74,6 @@ def with_balance_and_accrual(records):
 		r = records[i]
 
 		# some records trivially have a final balance
-		if r.__class__ == loan_start:
-			r.final_balance = r.info.get('principal')
-			continue
 		if r.__class__ == opening_balance:
 			r.final_balance = r.info['amount']
 			continue
@@ -89,6 +99,7 @@ def with_balance_and_accrual(records):
 
 def annotate_repayments_with_myr_relevance(records):
 	lodgement = get_lodgement(records)
+	loan_start = get_loan_start_record(records)
 	for r in repayments(records):
 		r.info['counts_towards_initial_balance'] = False
 		# but if this is the first year

@@ -104,11 +104,9 @@ def repayments(records):
 
 def opening_balance_record(records):
 	r = [r for r in records if r.__class__ == opening_balance]
-	if len(r) == 0:
-		return None
-	elif len(r) == 1:
+	if len(r) == 1:
 		return r[0]
-	else:
+	elif len(r) > 1:
 		raise Exception('More than one opening balance record')
 
 

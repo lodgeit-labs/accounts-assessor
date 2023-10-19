@@ -1,45 +1,10 @@
-
-"""
-# record order / sorting:
-
-the fact that we want to be able to have an interest accrual for year end, followed by lodgement date, or opening balance, or repayment, and another interest accrual, at the same date, shows that it's not possible to simply sort by date, then by type.
-
-copilot idea:
-
- we need to sort by date, then by type, then by order of insertion. so we need to keep track of the order of insertion. we can do this by adding a field to the record class, and incrementing it each time we insert a record.
-  - but this only shifts the problem revealing the issue of implicit ordering of records through the implementation details of the computations.
- - another form of this is optionally specifying something like "goes_after" and "goes_before" in some records, referencing other records. 
-
-The obvious but a bit more complex solution is inserting records at their exact places right when they are created. Also i don't like this this is still very much implicit / "trust me" situation.
-
-The best solution is to have a function that takes a list of records, and a new record, and returns a new list of records with the new record inserted at the right place. This function should be used everywhere where we insert records. This way, the order of records is always explicit, and we can always reason about it.  
-
-
-# an interesting observation is that repayments on the last day of income year always come before the final interest accrual for the income year. 
-
-
-consider this trivial example as an input to insert_interest_accrual_records:
-
-records = [
-	loan_start(date(2020, 6, 30), 10000, 5),
-	opening_balance(date(2021, 6, 30), 2000),
-]
-
-an iy-end accrual has to be inserted before the opening balance.  
-
-# visualization:
-pandas dataframe with columns. There is an option to output custom html. We will need to generate html files. We can use the same html template for all of them, and just pass in the dataframes. We can also use the same css for all of them.
-
-
-
-
-
-"""
-import pandas as pd
 from sortedcontainers import SortedList
-
+import pandas as pd
 from div7a_steps import *
 from div7a_checks import *
+
+
+
 
 pd.set_option('display.max_rows', None)
 #pd.set_option('display.height', 1000)
@@ -94,9 +59,6 @@ def div7a(records):
 	first_fiscal_year_atlim
 	
 
-2)
-	hmm i need to introduce the "opening_balance" as an explicit record even in the case that it's not user-provided.
-
 
 
 	Where a repayment is made before {the private company's lodgment day for the year in which the amalgamated loan is made}, the principal amount at 1 July of the first income year after the loan is made, is not the sum total of the constituent loans at 1 July. Rather, it is the sum of the constituent loans immediately before the lodgment day. For this purpose, payments made before lodgment day are taken to have been made in the year the amalgamated loan is made.
@@ -108,7 +70,7 @@ def div7a(records):
 	tables = [SortedList(records)]
 	step(tables, input)
 	# insert opening_balance record if it's not there
-
+	step(tables, ensure_opening_balance_exists)
 	# we insert accrual points for each income year, and for each repayment.
 	step(tables, insert_interest_accrual_records)
 	# we calculate the number of days of each accrual period
