@@ -1,4 +1,4 @@
-from div7a_impl import *
+from .div7a_impl import *
 
 
 def check_invariants(records):

@@ -57,7 +57,8 @@ class Dummy(luigi.Task):
 
 
 def symlink(source, target):
-	tmp = '/tmp/abcdefgrobusttestrunnerrrr'+str(os.getpid())
+	# fixme, gotta get a safe file name in source.parent 
+	tmp = source+str(os.getpid()) + "." + str(time.time())
 	subprocess.call([
 		'/bin/ln', '-s',
 		target,
@@ -79,7 +80,7 @@ class TestPrepare(luigi.Task):
 		inputs.append(self.write_job_json(request_files_dir))
 		with self.output().open('w') as out:
 			json_dump(inputs, out)
-		symlink(P(self.test['path']) / 'testcase', (P(self.test['suite']) / self.test['dir']).absolute())
+		#symlink(P(self.test['path']) / 'testcase', (P(self.test['suite']) / self.test['dir']).absolute())
 
 	def copy_inputs(self, request_files_dir):
 		files = []

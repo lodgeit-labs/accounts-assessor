@@ -1,4 +1,4 @@
-from div7a_impl import *
+from .div7a_impl import *
 
 def ensure_opening_balance_exists(records):
 	opening_balance = opening_balance_record(records)

@@ -10,7 +10,6 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import requests, glob
 from pathlib import Path as P
-import div7a
 import xmlschema
 
 
@@ -22,7 +21,7 @@ schemas = {}
 
 
 from . import account_hierarchy
-
+from . import div7a
 
 
 @app.post("/div7a")

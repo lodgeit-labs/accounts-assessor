@@ -1,4 +1,4 @@
-from div7a_records import *
+from .div7a_records import *
 
 
 

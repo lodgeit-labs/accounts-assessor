@@ -1,7 +1,7 @@
 from sortedcontainers import SortedList
 import pandas as pd
-from div7a_steps import *
-from div7a_checks import *
+from .div7a_steps import *
+from .div7a_checks import *
 
 
 
