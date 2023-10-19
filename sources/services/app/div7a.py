@@ -50,6 +50,7 @@ pd.set_option('display.max_rows', None)
 
 
 
+
 def div7a_from_json(j):
 
 	principal = j['principal']
@@ -64,27 +65,36 @@ def div7a_from_json(j):
 	else:
 		records.add(opening_balance(date(j['computation_income_year'], 6, 30), ob))
 		
-	
-	
-	
-	
+	for r in j['repayments']:
+		records.add(repayment(date(r['income_year'], r['month'], r['day']), r['amount']))
 
-	
-	
-	
+	records = div7a(records)[-1]
 
+	myr_info = get_myr_check_of_income_year(records, income_year).myr_info
+	ciy = j['computation_income_year']
+	response = dict(
+		income_year =ciy,
+		opening_balance = loan_agr_year_opening_balance(records, ciy),
+		interest_rate = benchmark_rate(ciy),
+		min_yearly_repayment = myr_info['myr_required'],
+		total_repayment = myr_info['total_repaid_for_myr_calc'],
+		repayment_shortfall = myr_info['shortfall'],
+		total_interest = total_interest_accrued(records, ciy),
+		total_principal = total_principal_paid(records, ciy),
+		closing_balance = closing_balance(records, ciy),
+	)
+
+	return response
 
 def div7a(records):
 	"""
-
+1)
 
 	fiscal_year_atlim
 	first_fiscal_year_atlim
 	
 
-
-
-
+2)
 	hmm i need to introduce the "opening_balance" as an explicit record even in the case that it's not user-provided.
 
 
@@ -97,6 +107,8 @@ def div7a(records):
 	# we begin with loan_start, optional opening_balance, possible lodgement day, and then repayments.
 	tables = [SortedList(records)]
 	step(tables, input)
+	# insert opening_balance record if it's not there
+
 	# we insert accrual points for each income year, and for each repayment.
 	step(tables, insert_interest_accrual_records)
 	# we calculate the number of days of each accrual period
@@ -136,8 +148,8 @@ def step(tables, f):
 def df(records):
 	dicts = []
 	for r in records:
-		info = dict(term='',note='',rate='',amount='',days='',sorting='',interest_accrued='',total_repaid='',total_repaid_for_myr_calc='',counts_towards_myr_principal='',myr_required='',shortfall='',excess='')
-		info.update(r.info)
+		info = dict(term='',note='',rate='',amount='',days='',sorting='',interest_accrued='',total_repaid='',total_repaid_for_myr_calc='',counts_towards_initial_balance='',myr_required='',shortfall='',excess='')
+		info.update(r.myr_info)
 		d = dict(
 			year=r.year,
 			remain=r.remaining_term,

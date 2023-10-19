@@ -170,13 +170,12 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 				creation_income_year: CreationIncomeYear,
 				computation_income_year: ComputationYear,
 				opening_balance: OpeningBalance,
-				repayments: $>repayments_to_dict(LoanRepayments)
+				repayments: $>repayments_to_json(LoanRepayments)
 			}, Summary)
 		)
 	->	true
 	;	(
 			LoanResponseXML = "<error>calculation failed</error>\n",
-		
 			report_file_path(loc(file_name, 'response.xml'), Url, Path, _),
 			loc(absolute_path, Raw) = Path,
 			open(Raw, write, XMLStream),
@@ -208,14 +207,22 @@ loan_agr_summary_python(LA, Summary) :-
 			% loan_agr_repayments (list):
 			NLoanRepayments),
 	D = _{loan_agr_principal_amount:NPrincipalAmount,
-	      loan_agr_lodgement_day:NLodgementDate,
-	      loan_agr_begin_day:NCreationIncomeYear,
-	      loan_agr_term:NTerm,
-	      loan_agr_computation_year:NComputationYear,
-	      loan_agr_opening_balance:NOpeningBalance,
-	      loan_agr_repayments:NLoanRepayments},
+		loan_agr_lodgement_day:NLodgementDate,
+		loan_agr_begin_day:NCreationIncomeYear,
+		loan_agr_term:NTerm,
+		loan_agr_computation_year:NComputationYear,
+		loan_agr_opening_balance:NOpeningBalance,
+		loan_agr_repayments:$>repayments_to_json(NLoanRepayments)},
+	services_rpc('div7a', D, Result),
 
 
+repayments_to_json(LoanRepayments, Json) :-
+	maplist(repayment_to_json, LoanRepayments, Json).
+
+
+repayment_to_json(Repayment, Json) :-
+	Repayment = loan_repayment(Date, Value),
+	Json = repayment{date:Date, value:Value}.
  
 
  display_xml_loan_response(IncomeYear, LoanSummary) :-

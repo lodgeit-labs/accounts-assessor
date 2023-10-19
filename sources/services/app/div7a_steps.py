@@ -7,6 +7,7 @@ def insert_interest_accrual_records(records):
 	first_year = loan_start_iy + 1
 	loan_term = loan_start_record.info['term']
 
+	# income year end accruals
 	for income_year in inclusive_range(first_year, first_year + loan_term):
 		records.add(record(
 			date(income_year, 6, 30),
@@ -17,6 +18,7 @@ def insert_interest_accrual_records(records):
 				'rate': benchmark_rate(income_year),
 			}))
 
+	# accruals before each repayment
 	for repayment in repayments(records):
 		records.add(record(
 			repayment.date,
@@ -86,19 +88,15 @@ def with_balance_and_accrual(records):
 
 
 def annotate_repayments_with_myr_relevance(records):
-
 	lodgement = get_lodgement(records)
-
 	for r in repayments(records):
-
-		# if this is the first year
+		r.info['counts_towards_initial_balance'] = False
+		# but if this is the first year
 		if r.income_year == loan_start.income_year + 1:
-
 			if lodgement is None:
 				raise Exception('if we recorded any repayments that occured the first year after loan start, then we need to know the lodgement day')
-
 			if r.date <= lodgement.date:
-				r.info['counts_towards_myr_principal'] = True
+				r.info['counts_towards_initial_balance'] = True
 
 
 
@@ -117,7 +115,7 @@ def with_myr_checks(records):
 		repayments = [r for r in records_in_income_year(records, income_year) if r.__class__ == repayment]
 
 		repayments_total = sum([r.info['amount'] for r in repayments])
-		repayments_towards_myr_total = sum([r.info['amount'] for r in repayments if not r.info['counts_towards_myr_principal']])
+		repayments_towards_myr_total = sum([r.info['amount'] for r in repayments if not r.info['counts_towards_initial_balance']])
 
 		myr_checks.append(record(
 			date(income_year, 6, 30),
@@ -161,4 +159,5 @@ def evaluate_myr_checks(records):
 
 			elif r.info['myr_required'] > r.info['total_repaid_for_myr_calc']:
 				r.info['shortfall'] = r.info['myr_required'] - r.info['total_repaid_for_myr_calc']
+
 

@@ -11,14 +11,23 @@ from pydantic import BaseModel
 import requests, glob
 from pathlib import Path as P
 import div7a
+import xmlschema
+
 
 log = logging.getLogger(__name__)
 
 app = FastAPI()
 
+schemas = {}
+
 
 from . import account_hierarchy
 
+
+
+@app.post("/div7a")
+def div7a(loan_summary: dict):
+	return div7a.div7a_from_json(loan_summary)
 
 @app.post("/arelle_extract")
 def arelle_extract(taxonomy_locator: str):
@@ -51,9 +60,6 @@ def shell(shell_request: ShellRequest):
 	return JSONResponse({'status':status,'stdout':stdout,'stderr':stderr})
 
 
-
-import xmlschema
-schemas = {}
 
 def parse_schema(xsd):
 	return xmlschema.XMLSchema(xsd)

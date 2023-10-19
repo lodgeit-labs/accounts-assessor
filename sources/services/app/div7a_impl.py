@@ -37,7 +37,7 @@ def benchmark_rate(year):
 
 def get_loan_start_year_final_balance_for_myr_calc(records):
 	loan_start = get_loan_start_record(records)
-	repaid_in_first_year_before_lodgement_day = sum([r.info['amount'] for r in repayments(records) if r.info['counts_towards_myr_principal']])
+	repaid_in_first_year_before_lodgement_day = sum([r.info['amount'] for r in repayments(records) if r.info['counts_towards_initial_balance']])
 	return loan_start.info['principal'] - repaid_in_first_year_before_lodgement_day
 
 
@@ -144,3 +144,38 @@ def records_in_income_year(records, income_year):
 
 def inclusive_range(start, end, step=1):
 	return range(start, end + step, step)
+
+
+
+
+def get_myr_check_of_income_year(records, income_year):
+	return one([r for r in records if r.income_year == income_year and r.__class__ == myr_check])
+
+
+
+def one(xs):
+	if len(xs) != 1:
+		raise Exception(f'Expected one element, but got {len(xs)}')
+	return xs[0]
+
+
+
+
+def total_interest_accrued(records, iy):
+	"""
+	Total interest accrued in the income year, that is, how much interest must be paid. (myr always exceeds interest)
+	"""
+	return sum([r.info['interest_accrued'] for r in records if r.income_year == iy and r.__class__ == interest_accrual])
+
+
+def total_principal_paid(records, iy):
+	"""how much of what was repaid this year, was principal?"""
+	total_paid = sum([r.info['amount'] for r in records if r.income_year == iy and r.__class__ == repayment]) # ? and not r.info['counts_towards_initial_balance']
+	total_interest = total_interest_accrued(records, iy)
+	return total_paid - total_interest
+
+
+def closing_balance(records, iy):
+	"""closing balance of this income year"""
+	return one([r.final_balance for r in records if r.income_year == iy])
+
