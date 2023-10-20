@@ -25,11 +25,12 @@ from . import div7a
 
 
 @app.post("/div7a")
-def div7a(loan_summary: dict):
+def post_div7a(loan_summary: dict):
+	log.warn(loan_summary)
 	return div7a.div7a_from_json(loan_summary)
 
 @app.post("/arelle_extract")
-def arelle_extract(taxonomy_locator: str):
+def post_arelle_extract(taxonomy_locator: str):
 	return account_hierarchy.ArelleController().run(taxonomy_locator)
 
 

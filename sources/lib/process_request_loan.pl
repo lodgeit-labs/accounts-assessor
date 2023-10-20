@@ -4,14 +4,14 @@
 		"is this a Div7A Calculator query?",
 		?get_optional_singleton_sheet_data(div7a_ui:sheet, Loan)
 	),
-	
+
 	!doc(Loan, div7a:income_year_of_loan_creation, CreationIncomeYearNumber),
 	absolute_day(date(CreationIncomeYearNumber, 7, 1), NCreationIncomeYear),
-	
+
     !doc(Loan, div7a:full_term_of_loan_in_years, Term),
 
 	/* exactly one of PrincipalAmount or OpeningBalance must be provided */
-	/* or we can loosen this requirement, and ignore principal if both are provided */ 
+	/* or we can loosen this requirement, and ignore principal if both are provided */
 	(	doc(Loan, div7a:principal_amount_of_loan, Amount)
 	->	(	doc(Loan, div7a:opening_balance, OB)
 		->	throw_string('both principal amount and opening balance provided')
@@ -21,7 +21,7 @@
 		;	throw_string('no principal amount and no opening balance provided'))),
 
 	absolute_days($>!doc(Loan, div7a:lodgement_day_of_private_company), NLodgementDate),
-	
+
     !doc(Loan, div7a:income_year_of_computation, ComputationYearNumber),
     calculate_computation_year2(ComputationYearNumber, CreationIncomeYearNumber, NComputationYearIdx),
     maplist(convert_loan_rdf_repayments, $>!doc_list_items($>!doc(Loan, div7a:repayments)), Repayments),
@@ -39,20 +39,20 @@
 		Term,
 		% loan_agr_computation_year
 		NComputationYearIdx,
-		
+
 		OB,
 		% loan_agr_repayments (list):
 		Repayments),
 		% output:
 		Summary),
-    
+
 	div7a_rdf_result(ComputationYearNumber, Summary).
 
 
 div7a_rdf_result(ComputationYearNumber, Summary) :-
-    
+
     Summary = loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
-    
+
 	Row = _{
 		income_year: ComputationYearNumber,
 		opening_balance: OpeningBalance,
@@ -76,7 +76,7 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 		column{id:total_principal, title:"total principal", options:_{}},
 		column{id:closing_balance, title:"closing balance", options:_{}}
 	],
-	
+
 	Table_Json = _{title_short: "Div7A", title: "Division 7A", rows: [Row], columns: Cols},
 	!table_html([], Table_Json, Table_Html),
    	!page_with_table_html('Div7A', Table_Html, Html),
@@ -88,7 +88,7 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
  convert_loan_rdf_repayments(I, loan_repayment(Days,  Value)) :-
  	absolute_days($>!doc_value(I, div7a_repayment:date), Days),
  	$>!doc_value(I, div7a_repayment:value, Value).
- 
+
 
 
  process_request_loan(Request_File, DOM) :-
@@ -128,18 +128,13 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	% need to handle empty repayments/repayment, needs to be tested
 	findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
 	atom_number(ComputationYear, NIncomeYear),
-	convert_loan_inputs(
-		% inputs
-		CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
-		% converted inputs
-		NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
-
-	gtrace,
-
-
-
 
 	(	(
+%			convert_loan_inputs(
+%				% inputs
+%				CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
+%				% converted inputs
+%				NCreationIncomeYear, NTerm, NPrincipalAmount, NLodgementDate, NComputationYear, NOpeningBalance, NLoanRepayments),
 %			loan_agr_summary(
 %				loan_agreement(
 %					% loan_agr_contract_number:
@@ -154,16 +149,17 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 %					NTerm,
 %					% loan_agr_computation_year
 %					NComputationYear,
-%	
+%
 %					NOpeningBalance,
 %					% loan_agr_repayments (list):
 %					NLoanRepayments
 %				),
 %				Summary
-%			)
+%			),
+%
 % ✀--------------------------------------------
-			(var(PrincipalAmount) -> PrincipalAmount = -1; true), 
-			loan_agr_summary_python(div7a{
+			(var(PrincipalAmount) -> PrincipalAmount = -1; true),
+			!loan_agr_summary_python(div7a{
 				term: Term,
 				principal_amount: PrincipalAmount,
 				lodgement_date: LodgementDate,
@@ -173,7 +169,7 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 				repayments: $>repayments_to_json(LoanRepayments)
 			}, Summary)
 		)
-	->	true
+	->	display_xml_loan_response(NIncomeYear, Summary)
 	;	(
 			LoanResponseXML = "<error>calculation failed</error>\n",
 			report_file_path(loc(file_name, 'response.xml'), Url, Path, _),
@@ -183,39 +179,25 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 			close(XMLStream),
 			add_report_file(0,'result', 'result', Url)
 		)
-	),
-	display_xml_loan_response(NIncomeYear, Summary)
+	)
 	.
 
 
 loan_agr_summary_python(LA, Summary) :-
-	LA = loan_agreement(
-			% loan_agr_contract_number:
-			0,
-			% loan_agr_principal_amount:
-			NPrincipalAmount,
-			% loan_agr_lodgement_day:
-			NLodgementDate,
-			% loan_agr_begin_day:
-			NCreationIncomeYear,
-			% loan_agr_term (length in years):
-			NTerm,
-			% loan_agr_computation_year
-			NComputationYear,
-			%
-			NOpeningBalance,
-			% loan_agr_repayments (list):
-			NLoanRepayments
-	),
-	D = _{loan_agr_principal_amount:NPrincipalAmount,
-		loan_agr_lodgement_day:NLodgementDate,
-		loan_agr_begin_day:NCreationIncomeYear,
-		loan_agr_term:NTerm,
-		loan_agr_computation_year:NComputationYear,
-		loan_agr_opening_balance:NOpeningBalance,
-		loan_agr_repayments: $>repayments_to_json(NLoanRepayments)
-	},
-	services_rpc('div7a', D, Result),
+	services_rpc('div7a', LA, R),
+	(	_{
+			opening_balance: OpeningBalance,
+			interest_rate: InterestRate,
+			min_yearly_repayment: MinYearlyRepayment,
+			total_repayment: TotalRepayment,
+			repayment_shortfall: RepaymentShortfall,
+			total_interest: TotalInterest,
+			total_principal: TotalPrincipal,
+			closing_balance: ClosingBalance
+		} :< R
+	->	true
+	;	throw_string(R)),
+    Summary = loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
 	gtrace.
 
 
