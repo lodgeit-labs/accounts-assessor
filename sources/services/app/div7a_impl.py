@@ -69,7 +69,14 @@ def get_loan_start_record(records):
 
 def income_years_of_loan(records):
 	loan_start_record = get_loan_start_record(records)
-	return range(loan_start_record.income_year + 1, loan_start_record.income_year + 1 + loan_start_record.info['term'])
+	first_year = loan_start_record.income_year + 1# "fiyaiyols"
+	loan_term = loan_start_record.info['term']
+
+	# income year end accruals
+	for income_year in inclusive_range(first_year, first_year + loan_term - 1):
+		if income_year > loan_start_record.info['calculation_year']:
+			return
+		yield income_year
 
 
 

@@ -16,17 +16,9 @@ def ensure_opening_balance_exists(records):
 
 def insert_interest_accrual_records(records):
 
-	loan_start_record = get_loan_start_record(records)
-	loan_start_iy = loan_start_record.income_year
-	first_year = loan_start_iy + 1
-	loan_term = loan_start_record.info['term']
-
 	# income year end accruals
-	for income_year in inclusive_range(first_year, first_year + loan_term):
-		
-		if income_year > loan_start_record.info['calculation_income_year'] + 1:
-			break
-			
+	for income_year in income_years_of_loan(records):
+				
 		records.add(record(
 			date(income_year, 6, 30),
 			interest_accrual,

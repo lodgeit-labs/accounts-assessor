@@ -86,3 +86,9 @@ record_sorting = {
 
 
 
+"""
+virtually speaking, wrt user input, reepayments are always situated between an opening balance (if there are repayments before opening balance, that's either to be ignored or we should warn about it, not sure, but it doesn't seem like something people would normally do), and if there are repayments after calculation year, idk, that's alright i guess, we can just ignore them, or warn about them, but it's not a problem.
+
+
+
+"""
