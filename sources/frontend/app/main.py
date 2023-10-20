@@ -13,8 +13,7 @@ from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, sta
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from fastapi.responses import RedirectResponse
-from fastapi.responses import HTMLResponse
+from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
 from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
 
@@ -276,8 +275,15 @@ def process_request(request_directory, requested_output_format = 'job_handle'):
 
 	logger.info('requested_output_format: %s' % requested_output_format)
 
+	# the immediate modes should be removed, they are only legacy excel plugin stuff
 	if requested_output_format == 'immediate_xml':
 			reports = job.result.get(block=True, timeout=1000 * 1000)
+			logger.info(str(reports))
+			# was this an error?
+			if reports['status'] == 'error':
+				#return JSONResponse(reports), reports
+				error_xml_text = '<internal_error>' + reports['message'] + '</internal_error>'
+				return PlainTextResponse(error_xml_text, status_code=500), error_xml_text
 			return RedirectResponse(find_report_by_key(reports['reports'], 'result')), None
 	elif requested_output_format == 'immediate_json_reports_list':
 			reports = job.result.get(block=True, timeout=1000 * 1000)

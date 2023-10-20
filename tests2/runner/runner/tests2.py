@@ -173,11 +173,11 @@ class TestResultImmediateXml(luigi.Task):
 		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'result.xml')
 		result_xml.makedirs()
 
-		if resp.ok:
-			with result_xml.temporary_path() as result_xml_fn:
-				with open(result_xml_fn, 'w') as result_xml_fd:
-					result_xml_fd.write(resp.text)
-			job['result'] = 'outputs/result.xml'
+		#if resp.ok:
+		with result_xml.temporary_path() as result_xml_fn:
+			with open(result_xml_fn, 'w') as result_xml_fd:
+				result_xml_fd.write(resp.text)
+		job['result'] = 'outputs/result.xml'
 
 		with self.output().temporary_path() as response_fn:
 			with open(response_fn, 'w') as response_fd:
