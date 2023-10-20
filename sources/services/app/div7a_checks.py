@@ -8,6 +8,17 @@ def check_invariants(records):
 
 	# sanity checks:
 
+	# - loan start is within benchmark rates range:
+	
+	# - calculation year is within benchmark rates range:
+	
+	# - lodgement day is after loan start:
+	
+	# - lodgement day year == loan start year + 1:
+	
+	# 
+
+
 	# - no two interest accruals on the same day:
 
 	for i in range(len(records) - 1):

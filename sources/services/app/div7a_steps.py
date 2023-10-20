@@ -23,6 +23,10 @@ def insert_interest_accrual_records(records):
 
 	# income year end accruals
 	for income_year in inclusive_range(first_year, first_year + loan_term):
+		
+		if income_year > loan_start_record.info['calculation_income_year'] + 1:
+			break
+			
 		records.add(record(
 			date(income_year, 6, 30),
 			interest_accrual,

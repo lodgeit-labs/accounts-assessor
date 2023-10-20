@@ -26,9 +26,9 @@ def div7a_from_json(j):
 	if principal == -1:
 		principal = None
 
-	records = SortedList([
-		loan_start(date(int(j['creation_income_year']), 6, 30), principal, int(j['term']))
-	])
+	loan_start_record = loan_start(date(int(j['creation_income_year']), 6, 30), principal, int(j['term']))
+	loan_start_record.info['calculation_income_year'] = ciy
+	records = SortedList([loan_start_record])
 		
 	ob = float(j['opening_balance'])
 	if ob == -1:

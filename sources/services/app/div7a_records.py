@@ -49,6 +49,9 @@ class Record:
 		return (self.date, x, record_sorting[self.__class__]) < (other.date, 0, record_sorting[other.__class__])
 
 class loan_start(Record):
+	"""
+	carries the principal and term of the loan, but these are invariants of the computation, there is no meaning to them being specified in a record inserted into a particular position in the records list. 
+	"""
 	def __init__(self, date, principal=None, term=None):
 		super().__init__(date)
 		self.info = dict(principal=principal, term=term)
@@ -70,6 +73,7 @@ class lodgement(Record):
 
 
 record_sorting = {
+	# calculation_start: 0,
 	loan_start: 1,
 	interest_accrual: 2,
 	repayment: 3,
@@ -77,6 +81,7 @@ record_sorting = {
 	# todo test repayment *at* lodgement day. What's the legal position?
 	myr_check: 5,
 	opening_balance: 6,
+	# calculation_end: 7,
 }
 
 
