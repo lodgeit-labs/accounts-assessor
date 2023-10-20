@@ -1,9 +1,13 @@
+import logging
+from datetime import datetime
+
 from sortedcontainers import SortedList
 import pandas as pd
 from .div7a_steps import *
 from .div7a_checks import *
 
 
+log = logging.getLogger(__name__)
 
 
 pd.set_option('display.max_rows', None)
@@ -15,30 +19,41 @@ pd.set_option('display.max_rows', None)
 
 
 
-
 def div7a_from_json(j):
-
-	principal = j['principal']
+	ciy = int(j['computation_income_year'])
+	
+	principal = float(j['principal_amount'])
 	if principal == -1:
 		principal = None
 
-	records = SortedList(loan_start(date(j['creation_income_year'], 6, 30), principal, j['term']))
+	records = SortedList([
+		loan_start(date(int(j['creation_income_year']), 6, 30), principal, int(j['term']))
+	])
 		
-	ob = j['opening_balance']
+	ob = float(j['opening_balance'])
 	if ob == -1:
 		pass
 	else:
-		records.add(opening_balance(date(j['computation_income_year'], 6, 30), ob))
+		records.add(opening_balance(date(ciy-1, 6, 30), ob))
 		
 	for r in j['repayments']:
-		records.add(repayment(date(r['income_year'], r['month'], r['day']), r['amount']))
+		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
+		records.add(repayment(d, {'amount':float(r['value'])}))
 
+	ld = j['lodgement_date']
+	if ld == -1:
+		pass
+	else:
+		lodgement_date = datetime.strptime(ld, '%Y-%m-%d').date()
+		records.add(lodgement(lodgement_date))
+
+	log.warn(records)
 	records = div7a(records)[-1]
 
-	myr_info = get_myr_check_of_income_year(records, income_year).myr_info
-	ciy = j['computation_income_year']
+	myr_info = get_myr_check_of_income_year(records, ciy).myr_info
+	
 	response = dict(
-		income_year =ciy,
+		income_year  =ciy,
 		opening_balance = loan_agr_year_opening_balance(records, ciy),
 		interest_rate = benchmark_rate(ciy),
 		min_yearly_repayment = myr_info['myr_required'],

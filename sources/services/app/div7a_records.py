@@ -11,9 +11,9 @@ class Record:
 	date: date
 	info: dict
 
-	def __init__(self, date=None):
+	def __init__(self, date=None, info=None):
 		self.date = date
-		self.info = {}
+		self.info = {} if info is None else info
 		self.final_balance = None
 		self.year = None
 		self.remaining_term = None

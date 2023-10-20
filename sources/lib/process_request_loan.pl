@@ -110,12 +110,8 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 
 	/* for example 2014-07-01 */
 	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgement day of private company', @value=LodgementDateStr), _E4)
-	->	parse_date(LodgementDateStr, LodgementDate)
-	;	(
-			LodgementDateYear is CreationIncomeYear,
-			LodgementDate = date(LodgementDateYear, 7, 1)
-		)
-	),
+	->	true
+	;	true),
 
 	/* for example 2018 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of computation', @value=ComputationYear), _E5),
@@ -130,6 +126,13 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 	atom_number(ComputationYear, NIncomeYear),
 
 	(	(
+%			(	ground(LodgementDateStr)
+%			->	parse_date(LodgementDateStr, LodgementDate)
+%			;	(
+%					LodgementDateYear is CreationIncomeYear,
+%					LodgementDate = date(LodgementDateYear, 7, 1)
+%				)
+%			),
 %			convert_loan_inputs(
 %				% inputs
 %				CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
@@ -159,10 +162,11 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 %
 % ✀--------------------------------------------
 			(var(PrincipalAmount) -> PrincipalAmount = -1; true),
+			(var(LodgementDateStr) -> LodgementDateStr = -1; true),
 			!loan_agr_summary_python(div7a{
 				term: Term,
 				principal_amount: PrincipalAmount,
-				lodgement_date: LodgementDate,
+				lodgement_date: LodgementDateStr,
 				creation_income_year: CreationIncomeYear,
 				computation_income_year: ComputationYear,
 				opening_balance: OpeningBalance,

@@ -72,12 +72,24 @@ def income_years_of_loan(records):
 
 
 def get_final_balance_of_previous_income_year(records, i):
+	"""
+	find final_balance_of_previous_income_year, given index of current record
+	"""
 	r = records[i]
 	for j in range(i-1, -1, -1):
 		rj = records[j]
 		if rj.income_year != r.income_year and rj.final_balance is not None:
 			return rj.final_balance
 
+
+
+def loan_agr_year_opening_balance(records, income_year):
+	i,_ = records_of_income_year(records, income_year)[0]
+	prev = i - 1
+	if prev < 0:
+		# prev = 0 # technically, this is correct, but we don't want to do this, because it's a weird notion that year 0 has any opening balance
+		raise Exception('not expected to be called on income year of loan creation')
+	return records[prev].final_balance
 
 
 # def get_last_record_of_previous_income_year(records, i):
@@ -97,7 +109,6 @@ def get_lodgement(records):
 
 def repayments(records):
 	return [r for r in records if r.__class__ == repayment]
-
 
 
 
@@ -133,8 +144,8 @@ def lodgement_day(records):
 
 
 
-def records_in_income_year(records, income_year):
-	return [r for r in records if r.income_year == income_year]
+def records_of_income_year(records, income_year):
+	return [(i,r) for i,r in enumerate(records) if r.income_year == income_year]
 
 
 
@@ -148,13 +159,6 @@ def inclusive_range(start, end, step=1):
 
 def get_myr_check_of_income_year(records, income_year):
 	return one([r for r in records if r.income_year == income_year and r.__class__ == myr_check])
-
-
-
-def one(xs):
-	if len(xs) != 1:
-		raise Exception(f'Expected one element, but got {len(xs)}')
-	return xs[0]
 
 
 
@@ -180,7 +184,17 @@ def closing_balance(records, iy):
 
 
 
-	"""
+
+
+def one(xs):
+	if len(xs) != 1:
+		raise Exception(f'Expected one element, but got {len(xs)}')
+	return xs[0]
+
+
+
+
+"""
 1)
 
 	fiscal_year_atlim
@@ -193,4 +207,4 @@ def closing_balance(records, iy):
 
 
 
-	"""
+"""

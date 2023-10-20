@@ -124,7 +124,7 @@ def with_myr_checks(records):
 			continue
 
 
-		repayments = [r for r in records_in_income_year(records, income_year) if r.__class__ == repayment]
+		repayments = [r for i,r in records_of_income_year(records, income_year) if r.__class__ == repayment]
 
 		repayments_total = sum([r.info['amount'] for r in repayments])
 		repayments_towards_myr_total = sum([r.info['amount'] for r in repayments if not r.info['counts_towards_initial_balance']])
