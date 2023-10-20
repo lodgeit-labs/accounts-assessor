@@ -205,15 +205,18 @@ loan_agr_summary_python(LA, Summary) :-
 			%
 			NOpeningBalance,
 			% loan_agr_repayments (list):
-			NLoanRepayments),
+			NLoanRepayments
+	),
 	D = _{loan_agr_principal_amount:NPrincipalAmount,
 		loan_agr_lodgement_day:NLodgementDate,
 		loan_agr_begin_day:NCreationIncomeYear,
 		loan_agr_term:NTerm,
 		loan_agr_computation_year:NComputationYear,
 		loan_agr_opening_balance:NOpeningBalance,
-		loan_agr_repayments:$>repayments_to_json(NLoanRepayments)},
+		loan_agr_repayments: $>repayments_to_json(NLoanRepayments)
+	},
 	services_rpc('div7a', D, Result),
+	gtrace.
 
 
 repayments_to_json(LoanRepayments, Json) :-
