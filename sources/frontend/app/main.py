@@ -258,13 +258,6 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 
 
 
-def job_tmp_url(job):
-	public_url = os.environ['PUBLIC_URL']
-	return tmp_file_url(public_url, job.message_id, '')
-
-
-
-
 def process_request(request_directory, requested_output_format = 'job_handle'):
 	public_url=os.environ['PUBLIC_URL']
 
@@ -334,6 +327,12 @@ def save_uploaded_file(tmp_directory_path, src):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
 	return PlainTextResponse(str(exc), status_code=400)
+
+
+
+def job_tmp_url(job):
+	public_url = os.environ['PUBLIC_URL']
+	return tmp_file_url(public_url, job.message_id, '')
 
 
 
