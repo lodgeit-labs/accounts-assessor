@@ -74,7 +74,7 @@ def income_years_of_loan(records):
 
 	# income year end accruals
 	for income_year in inclusive_range(first_year, first_year + loan_term - 1):
-		if income_year > loan_start_record.info['calculation_year']:
+		if income_year > loan_start_record.info['calculation_income_year']:
 			return
 		yield income_year
 
