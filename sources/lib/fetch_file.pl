@@ -12,7 +12,7 @@
 
 
  services_rpc(Path, Cmd, Result) :-
-	'='(Url, $>atomics_to_string([$>services_server, '/', Path])),
+	atomics_to_string([$>services_server, '/', Path], Url),
 	%merge_dicts(cmd{'jsonrpc':"2.0",'id':"0"}, Cmd, Cmd2),
 	json_post(Url, Cmd, Response),
 	(	get_dict(result, Response, Result)

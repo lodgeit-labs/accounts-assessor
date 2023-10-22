@@ -27,7 +27,7 @@ from . import div7a
 @app.post("/div7a")
 def post_div7a(loan_summary: dict):
 	log.warn(loan_summary)
-	return div7a.div7a_from_json(loan_summary)
+	return dict(result=div7a.div7a_from_json(loan_summary))
 
 @app.post("/arelle_extract")
 def post_arelle_extract(taxonomy_locator: str):

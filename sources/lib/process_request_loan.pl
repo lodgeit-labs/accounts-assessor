@@ -188,6 +188,7 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 
 
 loan_agr_summary_python(LA, Summary) :-
+	!ground(LA),
 	services_rpc('div7a', LA, R),
 	(	_{
 			opening_balance: OpeningBalance,
@@ -201,9 +202,8 @@ loan_agr_summary_python(LA, Summary) :-
 		} :< R
 	->	true
 	;	throw_string(R)),
-    Summary = loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
-	gtrace.
-
+    Summary = loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance).
+    
 
 repayments_to_json(LoanRepayments, Json) :-
 	maplist(repayment_to_json, LoanRepayments, Json).
@@ -212,7 +212,7 @@ repayments_to_json(LoanRepayments, Json) :-
 repayment_to_json(Repayment, Json) :-
 	Repayment = loan_repayment(Date, Value),
 	Json = repayment{date:Date, value:Value}.
- 
+
 
  display_xml_loan_response(IncomeYear, LoanSummary) :-
 	xml_loan_response(IncomeYear, LoanSummary, LoanResponseXML),
@@ -242,7 +242,7 @@ xml_loan_response(
 	var(LoanResponseXML),
 
 	format(string(LoanResponseXML),
-	
+
 '<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n\c
    <IncomeYear>~q</IncomeYear>\n\c
    <OpeningBalance>~f8</OpeningBalance>\n\c
@@ -272,7 +272,7 @@ xml_loan_response(
 % ===================================================================
 
 % -------------------------------------------------------------------
-% convert_loan_inputs/14 
+% convert_loan_inputs/14
 % -------------------------------------------------------------------
 
  convert_loan_inputs(CreationIncomeYear,  Term,  PrincipalAmount,  LodgementDate,  ComputationYear,  OpeningBalance,  LoanRepayments,
@@ -292,7 +292,7 @@ xml_loan_response(
 	generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear),
 	absolute_day(LodgementDate, NLodgementDay),
 	generate_absolute_day(loan_repayments, LoanRepayments, NLoanRepayments).
-     
+
  generate_absolute_day(creation_income_year, CreationIncomeYear, NCreationIncomeYear) :-
 	atom_number(CreationIncomeYear, CreationIncomeYearNumber),
 	absolute_day(date(CreationIncomeYearNumber, 7, 1), NCreationIncomeYear).
@@ -307,8 +307,8 @@ xml_loan_response(
 	parse_date_into_absolute_days(Date, NDate),
 	atom_number(Value, NValue),
 	generate_absolute_day(loan_repayments, Rest1, Rest2).
-	
-	
+
+
 % ----------------------------------------------------------------------
 % compute_opening_balance/2
 % ----------------------------------------------------------------------

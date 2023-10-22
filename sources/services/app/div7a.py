@@ -31,13 +31,13 @@ def div7a_from_json(j):
   <body>
     <main>
 """,file=ooo)
-		div7a_from_json2(ooo, j)
+		r = div7a_from_json2(ooo, j)
 		print("""
     </main>
   </body>
 </html>
 """,file=ooo)
-
+	return r
 
 def div7a_from_json2(ooo,j):
 
