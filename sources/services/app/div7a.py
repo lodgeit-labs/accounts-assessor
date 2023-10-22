@@ -1,5 +1,6 @@
 import json
 import logging
+import pathlib
 from datetime import datetime
 
 from pandas.io.formats.style import Styler
@@ -21,8 +22,8 @@ pd.set_option('display.max_rows', None)
 
 
 
-def div7a_from_json(j):
-	with open('test.html', 'w') as ooo:
+def div7a_from_json(j,tmp_dir_path='.'):
+	with open(pathlib.PosixPath(tmp_dir_path) / 'test.html', 'w') as ooo:
 		print("""<!DOCTYPE html>
 <html lang="en">
   <head>

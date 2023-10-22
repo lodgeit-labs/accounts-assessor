@@ -189,7 +189,8 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 
 loan_agr_summary_python(LA, Summary) :-
 	!ground(LA),
-	services_rpc('div7a', LA, R),
+	my_request_tmp_dir_path(Tmp_Dir_Path),
+	services_rpc('div7a', _{tmp_dir_path:Tmp_Dir_Path,data:LA}, R),
 	(	_{
 			opening_balance: OpeningBalance,
 			interest_rate: InterestRate,
