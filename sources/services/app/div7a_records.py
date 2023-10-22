@@ -16,11 +16,12 @@ def record(date, type, info):
 
 
 class Record:
-	uuid: int = new_uuid()
+	uuid: int
 	date: date
 	info: dict
 
 	def __init__(self, date=None, info=None):
+		self.uuid = new_uuid()
 		self.date = date
 		self.info = {} if info is None else info
 		self.final_balance = None

@@ -109,6 +109,8 @@ def div7a(records):
 
 
 
+debug = True
+
 def step(ooo, tables, f):
 	t1 = tables[-1]
 	check_invariants(t1)
@@ -120,27 +122,36 @@ def step(ooo, tables, f):
 		if r.year is None:
 			r.year = r.income_year - get_loan_start_record(t2).income_year
 		if r.remaining_term is None:
-			r.remaining_term = get_remaining_term(t2, r)
+			rt = get_remaining_term(t2, r)
+			if rt <= get_loan_start_record(t2).info['term']:
+				r.remaining_term = rt
+			else:
+				r.remaining_term = ''
 	
-	if in_notebook():
-		from IPython.display import display, HTML
-		print(f.__name__)
+	if debug:
+		if in_notebook():
+			from IPython.display import display, HTML
+			print(f.__name__)
+	
 		print(f'<h3>{f.__name__}</h3>', file=ooo)
-
+	
 		dicts1 = records_to_dicts(t1)
 		dicts2 = records_to_dicts(t2)
-		
+			
 		df2 = pd.DataFrame(dicts2)
-		display(HTML(df2.to_html(index=False, max_rows=1000)))
 
+		if in_notebook():
+			display(HTML(df2.to_html(index=False, max_rows=1000)))
+	
 		sss = Styler(df2)
 		sss.set_table_styles([
 			dict(selector='.new', props=[
-				('background-color', 'orange'),
+				('background-color', ''),
 				('font-weight', 'bold'),
 				('border', 'inset'),
 			]),
-			#dict(selector='.old', props=[('background-color', 'gray')])
+			dict(selector='.old', props=[('background-color', 'rgb(55, 99, 71)')]),
+			dict(selector='', props=[('white-space', 'nowrap')]),
 		], overwrite=False)
 		sss.set_td_classes(pd.DataFrame(diff_colors(dicts1, dicts2)))
 		print(sss.to_html(), file=ooo)
@@ -158,7 +169,7 @@ def diff_colors(dicts1, dicts2):
 
 		if len(dicts1) <= t1_idx:
 			rows.append(all_new)
-			break
+			continue
 			
 		record1 = dicts1[t1_idx]
 		
@@ -167,6 +178,7 @@ def diff_colors(dicts1, dicts2):
 		if record1 == record2:
 			rows.append(all_old)
 			t1_idx += 1
+			continue
 
 		# it's the same record, but it's been modified
 		elif record1['uuid'] == record2['uuid']:
@@ -178,16 +190,19 @@ def diff_colors(dicts1, dicts2):
 					cells[k] = ' old'
 			rows.append(cells)
 			t1_idx += 1
+			continue
 
 		# it's a new record
 		else:
 			rows.append(all_new)
+			continue
+			
 	return rows
 
 def records_to_dicts(records):
 	dicts = []
 	for r in records:
-		info = dict(term='', note='', rate='', amount='', days='', sorting='', interest_accrued='', total_repaid='', total_repaid_for_myr_calc='', counts_towards_initial_balance='', myr_required='', shortfall='', excess='')
+		info = dict(term='', note='', rate='', amount='', days='', sorting='', interest_accrued='', total_repaid='', total_repaid_for_myr_calc='', counts_towards_initial_balance='', myr_required='', shortfall='', excess='', principal='', calculation_income_year='')
 		info.update(r.info)
 		d = dict(
 			uuid=r.uuid,
@@ -203,6 +218,7 @@ def records_to_dicts(records):
 			d['final_balance'] = ''
 
 		del d['sorting']
+		del d['calculation_income_year'] # this could be inferred from calculation_start record now, and is a constant that doesnt participate in the event sequence in any way
 
 		dicts.append(d)
 	return dicts

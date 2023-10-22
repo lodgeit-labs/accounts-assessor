@@ -61,7 +61,8 @@ def get_remaining_term(records, r):
 	"""
 	loan_start_record = get_loan_start_record(records)
 	loan_term_years = loan_start_record.info['term']
-	return loan_term_years - (r.income_year-1 - loan_start_record.income_year)
+	result = loan_term_years - ((r.income_year - 1) - loan_start_record.income_year)
+	return result
 
 
 def get_loan_start_record(records):
@@ -134,7 +135,7 @@ def opening_balance_record(records):
 
 
 def interest_accrued(prev_balance, r):
-	return r.info['days'] * r.info['rate'] * prev_balance / 365
+	return r.info['days'] * r.info['rate']/100 * prev_balance / 365
 
 
 

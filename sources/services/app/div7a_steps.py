@@ -96,9 +96,10 @@ def with_balance_and_accrual(records):
 					r.final_balance = prev_balance - r.info['amount']
 				else:
 					r.final_balance = prev_balance
+					
 				# also note interest accrual, but in div7a, interest does not add to balance.
 				if r.__class__ == interest_accrual:
-					r.info['interest_accrued'] = prev_balance + interest_accrued(prev_balance, r)
+					r.info['interest_accrued'] = interest_accrued(prev_balance, r)
 
 
 
@@ -175,7 +176,9 @@ def evaluate_myr_checks(records):
 			br = benchmark_rate(r.income_year)
 			remaining_term = get_remaining_term(records, r)
 
-			r.info['myr_required'] = (previous_income_year_final_balance * br / 365) / (1-(1/(1+br))**remaining_term)
+			r.info['myr_check_previous_income_year_final_balance'] = previous_income_year_final_balance
+			r.info['myr_required'] = ((previous_income_year_final_balance * (br/100)) /
+									  (1-(1/(1+(br/100)))**remaining_term))
 			#(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))). % -?
 
 			if r.info['myr_required'] < r.info['total_repaid_for_myr_calc']:
