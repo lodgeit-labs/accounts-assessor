@@ -186,8 +186,8 @@ def total_principal_paid(records, iy):
 	"""how much of what was repaid this year, was principal?"""
 	total_paid = sum([r.info['amount'] for r in records if r.income_year == iy and r.__class__ == repayment]) # ? and not r.info['counts_towards_initial_balance']
 	total_interest = total_interest_accrued(records, iy)
-	return total_paid - total_interest
-
+	return min(0, total_paid - total_interest)
+z
 
 def closing_balance(records, iy):
 	"""closing balance of this income year"""

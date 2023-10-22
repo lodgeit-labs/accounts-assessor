@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 
@@ -21,6 +22,25 @@ pd.set_option('display.max_rows', None)
 
 
 def div7a_from_json(j):
+	with open('test.html', 'w') as ooo:
+		print("""<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <main>
+""",file=ooo)
+		div7a_from_json2(ooo, j)
+		print("""
+    </main>
+  </body>
+</html>
+""",file=ooo)
+
+
+def div7a_from_json2(ooo,j):
+
 	ciy = int(j['computation_income_year'])
 	term = int(j['term'])
 	principal = float(j['principal_amount'])
@@ -64,7 +84,7 @@ def div7a_from_json(j):
 
 	if not in_notebook():
 		log.warn(records)
-	records = div7a(records)
+	records = div7a(ooo, records)
 
 	myr_info = get_myr_check_of_income_year(records, ciy).info
 	
@@ -80,36 +100,39 @@ def div7a_from_json(j):
 		closing_balance = closing_balance(records, ciy),
 	)
 
+	if ooo:
+		print(f'<h3>response</h3>', file=ooo)
+		print(f'<big><pre><code>', file=ooo)
+		json.dump(response, ooo, indent=True)
+		print(f'</code></pre></big>', file=ooo)
+
 	return response
 
-def div7a(records):
-	with open('test.html', 'w') as ooo:
+def div7a(ooo, records):
+
+	# we begin with loan_start, optional opening_balance, possible lodgement day, and then repayments.
+	tables = [SortedList(records)]
+	step(ooo, tables, input)
+	# insert opening_balance record if it's not there
+	step(ooo, tables, ensure_opening_balance_exists)
+	# we insert accrual points for each income year, and for each repayment.
+	step(ooo, tables, insert_interest_accrual_records)
+	# we calculate the number of days of each accrual period
+	step(ooo, tables, with_interest_accrual_days)
+	# we propagate balance from start or from opening balance, adjusting for repayments
+	step(ooo, tables, with_balance_and_accrual)
+	# first year repayments either fall before or after lodgement day, affecting minimum yearly repayment calculation
+	step(ooo, tables, annotate_repayments_with_myr_relevance)
+	# insert minimum yearly repayment check records
+	step(ooo, tables, with_myr_checks)
+	# was minimum yearly repayment met?
+	step(ooo, tables, evaluate_myr_checks)
+	# one final check
+	check_invariants(tables[-1])
 	
-		# we begin with loan_start, optional opening_balance, possible lodgement day, and then repayments.
-		tables = [SortedList(records)]
-		step(ooo, tables, input)
-		# insert opening_balance record if it's not there
-		step(ooo, tables, ensure_opening_balance_exists)
-		# we insert accrual points for each income year, and for each repayment.
-		step(ooo, tables, insert_interest_accrual_records)
-		# we calculate the number of days of each accrual period
-		step(ooo, tables, with_interest_accrual_days)
-		# we propagate balance from start or from opening balance, adjusting for repayments
-		step(ooo, tables, with_balance_and_accrual)
-		# first year repayments either fall before or after lodgement day, affecting minimum yearly repayment calculation
-		step(ooo, tables, annotate_repayments_with_myr_relevance)
-		# insert minimum yearly repayment check records
-		step(ooo, tables, with_myr_checks)
-		# was minimum yearly repayment met?
-		step(ooo, tables, evaluate_myr_checks)
-		# one final check
-		check_invariants(tables[-1])
-		
-		return tables[-1]
+	return tables[-1]
 
 
-
-debug = True
 
 def step(ooo, tables, f):
 	t1 = tables[-1]
@@ -128,7 +151,7 @@ def step(ooo, tables, f):
 			else:
 				r.remaining_term = ''
 	
-	if debug:
+	if ooo:
 		if in_notebook():
 			from IPython.display import display, HTML
 			print(f.__name__)
