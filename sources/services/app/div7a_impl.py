@@ -176,7 +176,7 @@ def get_myr_check_of_income_year(records, income_year):
 
 def total_interest_accrued(records, iy):
 	"""
-	Total interest accrued in the income year, that is, how much interest must be paid. (myr always exceeds interest)
+	Total interest accrued in the income year, that is, how much interest must be paid. (myr always exceeds this)
 	"""
 	return sum([r.info['interest_accrued'] for r in records if r.income_year == iy and r.__class__ == interest_accrual])
 

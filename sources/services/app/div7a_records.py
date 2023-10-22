@@ -71,9 +71,15 @@ class myr_check(Record):
 class lodgement(Record):
 	pass
 
+class calculation_start(Record):
+	pass
+
+class calculation_end(Record):
+	pass
+
 
 record_sorting = {
-	# calculation_start: 0,
+	calculation_start: 0,
 	loan_start: 1,
 	interest_accrual: 2,
 	repayment: 3,
@@ -81,7 +87,7 @@ record_sorting = {
 	# todo test repayment *at* lodgement day. What's the legal position?
 	myr_check: 5,
 	opening_balance: 6,
-	# calculation_end: 7,
+	calculation_end: 7,
 }
 
 

@@ -34,7 +34,11 @@ def div7a_from_json(j):
 
 	loan_start_record = loan_start(date(int(j['creation_income_year']), 6, 30), principal, int(j['term']))
 	loan_start_record.info['calculation_income_year'] = ciy
+	
 	records = SortedList([loan_start_record])
+	
+	records.add(calculation_start(date(ciy-1, 7, 1)))
+	records.add(calculation_end(date(ciy, 6, 30)))
 
 	# opening balance, as specified by user, is always understood to be the opening balance of the computation income year	
 	
@@ -53,6 +57,7 @@ def div7a_from_json(j):
 	else:
 		lodgement_date = datetime.strptime(ld, '%Y-%m-%d').date()
 		records.add(lodgement(lodgement_date))
+
 
 	if not in_notebook():
 		log.warn(records)
@@ -75,45 +80,71 @@ def div7a_from_json(j):
 	return response
 
 def div7a(records):
-	# we begin with loan_start, optional opening_balance, possible lodgement day, and then repayments.
-	tables = [SortedList(records)]
-	step(tables, input)
-	# insert opening_balance record if it's not there
-	step(tables, ensure_opening_balance_exists)
-	# we insert accrual points for each income year, and for each repayment.
-	step(tables, insert_interest_accrual_records)
-	# we calculate the number of days of each accrual period
-	step(tables, with_interest_accrual_days)
-	# we propagate balance from start or from opening balance, adjusting for repayments
-	step(tables, with_balance_and_accrual)
-	# first year repayments either fall before or after lodgement day, affecting minimum yearly repayment calculation
-	step(tables, annotate_repayments_with_myr_relevance)
-	# insert minimum yearly repayment check records
-	step(tables, with_myr_checks)
-	# was minimum yearly repayment met?
-	step(tables, evaluate_myr_checks)
-	# one final check
-	check_invariants(tables[-1])
-	return tables[-1]
+	with open('test.html', 'w') as ooo:
+	
+		# we begin with loan_start, optional opening_balance, possible lodgement day, and then repayments.
+		tables = [SortedList(records)]
+		step(ooo, tables, input)
+		# insert opening_balance record if it's not there
+		step(ooo, tables, ensure_opening_balance_exists)
+		# we insert accrual points for each income year, and for each repayment.
+		step(ooo, tables, insert_interest_accrual_records)
+		# we calculate the number of days of each accrual period
+		step(ooo, tables, with_interest_accrual_days)
+		# we propagate balance from start or from opening balance, adjusting for repayments
+		step(ooo, tables, with_balance_and_accrual)
+		# first year repayments either fall before or after lodgement day, affecting minimum yearly repayment calculation
+		step(ooo, tables, annotate_repayments_with_myr_relevance)
+		# insert minimum yearly repayment check records
+		step(ooo, tables, with_myr_checks)
+		# was minimum yearly repayment met?
+		step(ooo, tables, evaluate_myr_checks)
+		# one final check
+		check_invariants(tables[-1])
+		
+		return tables[-1]
 
 
-def step(tables, f):
-	check_invariants(tables[-1])
-	# a sliced SortedList is a list, duh. 
-	t = SortedList(tables[-1][:])
-	f(t)
-	tables.append(t)
 
-	for r in t:
+def step(ooo, tables, f):
+	t1 = tables[-1]
+	
+	check_invariants(t1)
+	
+	t2 = SortedList(t1[:]) # a sliced SortedList is a list, duh.
+	
+	f(t2)
+	
+	tables.append(t2)
+
+	for r in t2:
 		if r.year is None:
-			r.year = r.income_year - get_loan_start_record(t).income_year
+			r.year = r.income_year - get_loan_start_record(t2).income_year
 		if r.remaining_term is None:
-			r.remaining_term = get_remaining_term(t, r)
+			r.remaining_term = get_remaining_term(t2, r)
 	
 	if in_notebook():
 		from IPython.display import display, HTML
 		print(f.__name__)
-		display(HTML(df(tables[-1]).to_html(index=False, max_rows=1000)))
+		print(f'<h3>{f.__name__}</h3>', file=ooo)
+
+		def color_cells(s):
+			# if pd.notna(s) and s.startswith('1'):
+			# else:
+			return 'color:{0}; font-weight:bold'.format('red')
+#			return ''
+
+		df1 = df(t1)
+		df2 = df(t2)
+
+		compare = df1.compare(df2, keep_shape=True).drop('other', level=1, axis=1)
+		compare = compare.droplevel(1, axis=1).dropna(how='all')
+		
+		df2.style.apply(lambda x: df2.applymap(color_cells), axis=None)
+
+		display(HTML(df2.to_html(index=False, max_rows=1000)))
+		print(df2.to_html(), file=ooo)
+		
 
 
 def df(records):

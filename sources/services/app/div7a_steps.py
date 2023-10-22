@@ -1,5 +1,7 @@
 from .div7a_impl import *
 
+
+
 def ensure_opening_balance_exists(records):
 	"""
 	opening balance is either:
