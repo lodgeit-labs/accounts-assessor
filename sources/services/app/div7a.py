@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+from pandas.io.formats.style import Styler
 from sortedcontainers import SortedList
 import pandas as pd
 from .div7a_steps import *
@@ -21,9 +22,10 @@ pd.set_option('display.max_rows', None)
 
 def div7a_from_json(j):
 	ciy = int(j['computation_income_year'])
-	
+	term = int(j['term'])
 	principal = float(j['principal_amount'])
 	ob = float(j['opening_balance'])
+	creation_income_year = int(j['creation_income_year'])
 	
 	if principal == -1:
 		if ob == -1:
@@ -32,20 +34,21 @@ def div7a_from_json(j):
 	if principal == -1:
 		principal = None
 
-	loan_start_record = loan_start(date(int(j['creation_income_year']), 6, 30), principal, int(j['term']))
-	loan_start_record.info['calculation_income_year'] = ciy
+	loan_start_record = loan_start(date(creation_income_year, 6, 30), dict(principal=principal, term=term, calculation_income_year = ciy))
 	
 	records = SortedList([loan_start_record])
 	
 	records.add(calculation_start(date(ciy-1, 7, 1)))
 	records.add(calculation_end(date(ciy, 6, 30)))
+	records.add(loan_term_end(date(creation_income_year + term, 6, 30)))
+	
 
 	# opening balance, as specified by user, is always understood to be the opening balance of the computation income year	
 	
 	if ob == -1:
 		pass
 	else:
-		records.add(opening_balance(date(ciy-1, 6, 30), ob))
+		records.add(opening_balance(date(ciy-1, 6, 30), dict(amount=ob)))
 		
 	for r in j['repayments']:
 		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
@@ -108,13 +111,9 @@ def div7a(records):
 
 def step(ooo, tables, f):
 	t1 = tables[-1]
-	
 	check_invariants(t1)
-	
-	t2 = SortedList(t1[:]) # a sliced SortedList is a list, duh.
-	
+	t2 = SortedList([r.copy() for r in t1]) # a sliced SortedList is a list, duh.
 	f(t2)
-	
 	tables.append(t2)
 
 	for r in t2:
@@ -128,31 +127,70 @@ def step(ooo, tables, f):
 		print(f.__name__)
 		print(f'<h3>{f.__name__}</h3>', file=ooo)
 
-		def color_cells(s):
-			# if pd.notna(s) and s.startswith('1'):
-			# else:
-			return 'color:{0}; font-weight:bold'.format('red')
-#			return ''
-
-		df1 = df(t1)
-		df2 = df(t2)
-
-		compare = df1.compare(df2, keep_shape=True).drop('other', level=1, axis=1)
-		compare = compare.droplevel(1, axis=1).dropna(how='all')
+		dicts1 = records_to_dicts(t1)
+		dicts2 = records_to_dicts(t2)
 		
-		df2.style.apply(lambda x: df2.applymap(color_cells), axis=None)
-
+		df2 = pd.DataFrame(dicts2)
 		display(HTML(df2.to_html(index=False, max_rows=1000)))
-		print(df2.to_html(), file=ooo)
+
+		sss = Styler(df2)
+		sss.set_table_styles([
+			dict(selector='.new', props=[
+				('background-color', 'orange'),
+				('font-weight', 'bold'),
+				('border', 'inset'),
+			]),
+			#dict(selector='.old', props=[('background-color', 'gray')])
+		], overwrite=False)
+		sss.set_td_classes(pd.DataFrame(diff_colors(dicts1, dicts2)))
+		print(sss.to_html(), file=ooo)
+
+
+def diff_colors(dicts1, dicts2):
+	
+	rows = []
+	t1_idx = 0
+	for t2_idx, record2 in enumerate(dicts2):
+		record2 = dicts2[t2_idx]
+		all_new = dict([(k, ' new') for k, v in record2.items()])
+		all_old = dict([(k, ' old') for k, v in record2.items()])
+
+
+		if len(dicts1) <= t1_idx:
+			rows.append(all_new)
+			break
+			
+		record1 = dicts1[t1_idx]
 		
 
+		# it's the same record
+		if record1 == record2:
+			rows.append(all_old)
+			t1_idx += 1
 
-def df(records):
+		# it's the same record, but it's been modified
+		elif record1['uuid'] == record2['uuid']:
+			cells = {}
+			for k, v2 in record2.items():
+				if k not in record1 or v2 != record1[k]:
+					cells[k] = ' new'
+				else:
+					cells[k] = ' old'
+			rows.append(cells)
+			t1_idx += 1
+
+		# it's a new record
+		else:
+			rows.append(all_new)
+	return rows
+
+def records_to_dicts(records):
 	dicts = []
 	for r in records:
-		info = dict(term='',note='',rate='',amount='',days='',sorting='',interest_accrued='',total_repaid='',total_repaid_for_myr_calc='',counts_towards_initial_balance='',myr_required='',shortfall='',excess='')
+		info = dict(term='', note='', rate='', amount='', days='', sorting='', interest_accrued='', total_repaid='', total_repaid_for_myr_calc='', counts_towards_initial_balance='', myr_required='', shortfall='', excess='')
 		info.update(r.info)
 		d = dict(
+			uuid=r.uuid,
 			year=r.year,
 			remain=r.remaining_term,
 			fiscal=r.income_year,
@@ -163,16 +201,14 @@ def df(records):
 
 		if d['final_balance'] == None:
 			d['final_balance'] = ''
-			
+
 		del d['sorting']
-		
+
 		dicts.append(d)
+	return dicts
 
-	f = pd.DataFrame(dicts)
 
-	return f
-	
-	
+
 def in_notebook():
 	"""
 	https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook

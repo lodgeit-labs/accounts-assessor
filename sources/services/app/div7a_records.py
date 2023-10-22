@@ -1,6 +1,14 @@
 from datetime import date
 
 
+uuid = 0
+def new_uuid():
+	global uuid
+	uuid += 1
+	return uuid
+
+
+
 def record(date, type, info):
 	result = type(date)
 	result.info = info
@@ -8,6 +16,7 @@ def record(date, type, info):
 
 
 class Record:
+	uuid: int = new_uuid()
 	date: date
 	info: dict
 
@@ -20,12 +29,23 @@ class Record:
 
 	def copy(self):
 		result = self.__class__()
+		result.uuid = self.uuid
 		result.date = self.date
 		result.info = self.info.copy()
 		result.final_balance = self.final_balance
 		result.year = self.year
 		result.remaining_term = self.remaining_term
 		return result
+
+	def __eq__(self, other):
+		return (self.__class__ == other.__class__ and
+				self.uuid == other.uuid and
+				self.date == other.date and 
+				self.info == other.info and
+				self.final_balance == other.final_balance and
+				self.year == other.year and
+				self.remaining_term == other.remaining_term
+		)
 
 	@property
 	def income_year(self) -> int:
@@ -37,8 +57,6 @@ class Record:
 
 	def __repr__(self):
 		return f'{self.date}:{self.__class__.__name__}({self.info})'
-	def __eq__(self, other):
-		return self.date == other.date and self.__class__ == other.__class__ and self.info == other.info
 	def __lt__(self, other):
 		x = 0
 		goes_before_any = self.info.get('goes_before_any')
@@ -52,14 +70,10 @@ class loan_start(Record):
 	"""
 	carries the principal and term of the loan, but these are invariants of the computation, there is no meaning to them being specified in a record inserted into a particular position in the records list. 
 	"""
-	def __init__(self, date, principal=None, term=None):
-		super().__init__(date)
-		self.info = dict(principal=principal, term=term)
+	pass
 
 class opening_balance(Record):
-	def __init__(self, date, amount=None):
-		super().__init__(date)
-		self.info = dict(amount=amount)
+	pass
 class interest_accrual(Record):
 	pass
 class lodgement(Record):
@@ -76,7 +90,8 @@ class calculation_start(Record):
 
 class calculation_end(Record):
 	pass
-
+class loan_term_end(Record):
+	pass
 
 record_sorting = {
 	calculation_start: 0,
@@ -88,6 +103,7 @@ record_sorting = {
 	myr_check: 5,
 	opening_balance: 6,
 	calculation_end: 7,
+	loan_term_end: 8,
 }
 
 
