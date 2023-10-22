@@ -1,4 +1,4 @@
-from div7a import *
+from app.div7a import *
 
 
 def test1():

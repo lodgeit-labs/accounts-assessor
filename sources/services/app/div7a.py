@@ -47,10 +47,11 @@ def div7a_from_json(j):
 		lodgement_date = datetime.strptime(ld, '%Y-%m-%d').date()
 		records.add(lodgement(lodgement_date))
 
-	log.warn(records)
+	if not in_notebook():
+		log.warn(records)
 	records = div7a(records)[-1]
 
-	myr_info = get_myr_check_of_income_year(records, ciy).myr_info
+	myr_info = get_myr_check_of_income_year(records, ciy).info
 	
 	response = dict(
 		income_year  =ciy,
@@ -112,7 +113,7 @@ def df(records):
 	dicts = []
 	for r in records:
 		info = dict(term='',note='',rate='',amount='',days='',sorting='',interest_accrued='',total_repaid='',total_repaid_for_myr_calc='',counts_towards_initial_balance='',myr_required='',shortfall='',excess='')
-		info.update(r.myr_info)
+		info.update(r.info)
 		d = dict(
 			year=r.year,
 			remain=r.remaining_term,
