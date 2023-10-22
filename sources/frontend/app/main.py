@@ -280,9 +280,9 @@ def process_request(request_directory, requested_output_format = 'job_handle'):
 			reports = job.result.get(block=True, timeout=1000 * 1000)
 			logger.info(str(reports))
 			# was this an error?
-			if reports['status'] == 'error':
+			if reports['alerts'] != []:
 				#return JSONResponse(reports), reports
-				error_xml_text = '<internal_error>' + reports['message'] + '</internal_error>'
+				error_xml_text = '<error>' + str(reports['alerts']) + '</error>'
 				return PlainTextResponse(error_xml_text, status_code=500), error_xml_text
 			return RedirectResponse(find_report_by_key(reports['reports'], 'result')), None
 	elif requested_output_format == 'immediate_json_reports_list':

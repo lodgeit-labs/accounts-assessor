@@ -163,7 +163,7 @@ def call_prolog(
 
 
 	if stdout_data in [b'', '']:
-		ret = {'status':'error', 'message': 'invoke_rpc: got no stdout from swipl.'}
+		ret = {'alerts':['invoke_rpc: got no stdout from swipl.']}
 		logging.getLogger().warn(str(ret))
 		return ret
 	else:
