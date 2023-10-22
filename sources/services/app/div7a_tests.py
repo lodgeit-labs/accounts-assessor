@@ -1,25 +1,7 @@
+
+
 from app.div7a import *
-
-
-def test1():
-	return div7a([
-		record(date(2014, 6, 30), loan_start, {'term': 7}),
-		record(date(2019, 6, 30), opening_balance, {'amount': 1000}),
-	])
-
-
-def test2():
-	return div7a([
-		record(date(2014, 6, 30), loan_start, {'term': 7}),
-		record(date(2014, 6, 30), opening_balance, {'amount': 1000}),
-	])
-
-
-def test3():
-	return div7a([
-		record(date(2014, 6, 30), loan_start, {'term': 7}),
-		record(date(2014, 12, 30), lodgement, {}),
-	])
+div7a_from_json({'computation_income_year': '1999', 'creation_income_year': '1998', 'lodgement_date': '1999-02-04', 'opening_balance': '298', 'principal_amount': -1, 'repayments': [], 'term': '1'})
 
 
 # todo try:

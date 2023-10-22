@@ -1,4 +1,13 @@
 from .div7a_records import *
+from dataclasses import dataclass
+
+
+
+
+@dataclass
+class IdxAndRec:
+	idx: Record
+	rec: object
 
 
 
@@ -34,14 +43,6 @@ benchmark_rates = {
 
 def benchmark_rate(year):
 	return benchmark_rates[year]
-
-
-
-
-def get_loan_start_year_final_balance_for_myr_calc(records):
-	loan_start = get_loan_start_record(records)
-	repaid_in_first_year_before_lodgement_day = sum([r.info['amount'] for r in repayments(records) if r.info['counts_towards_initial_balance']])
-	return loan_start.info['principal'] - repaid_in_first_year_before_lodgement_day
 
 
 
@@ -94,7 +95,7 @@ def get_final_balance_of_previous_income_year(records, i):
 
 
 def loan_agr_year_opening_balance(records, income_year):
-	i,_ = records_of_income_year(records, income_year)[0]
+	i = records_of_income_year(records, income_year)[0].idx
 	prev = i - 1
 	if prev < 0:
 		# prev = 0 # technically, this is correct, but we don't want to do this, because it's a weird notion that year 0 has any opening balance
@@ -155,7 +156,7 @@ def lodgement_day(records):
 
 
 def records_of_income_year(records, income_year):
-	return [(i,r) for i,r in enumerate(records) if r.income_year == income_year]
+	return [IdxAndRec(i,r) for i,r in enumerate(records) if r.income_year == income_year]
 
 
 
@@ -189,9 +190,7 @@ def total_principal_paid(records, iy):
 
 def closing_balance(records, iy):
 	"""closing balance of this income year"""
-	return one([r.final_balance for r in records if r.income_year == iy])
-
-
+	return records_of_income_year(records, iy)[-1].rec.final_balance
 
 
 

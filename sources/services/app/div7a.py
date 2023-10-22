@@ -23,14 +23,21 @@ def div7a_from_json(j):
 	ciy = int(j['computation_income_year'])
 	
 	principal = float(j['principal_amount'])
+	ob = float(j['opening_balance'])
+	
+	if principal == -1:
+		if ob == -1:
+			raise Exception('must specify either principal or opening balance')
+	
 	if principal == -1:
 		principal = None
 
 	loan_start_record = loan_start(date(int(j['creation_income_year']), 6, 30), principal, int(j['term']))
 	loan_start_record.info['calculation_income_year'] = ciy
 	records = SortedList([loan_start_record])
-		
-	ob = float(j['opening_balance'])
+
+	# opening balance, as specified by user, is always understood to be the opening balance of the computation income year	
+	
 	if ob == -1:
 		pass
 	else:
@@ -49,7 +56,7 @@ def div7a_from_json(j):
 
 	if not in_notebook():
 		log.warn(records)
-	records = div7a(records)[-1]
+	records = div7a(records)
 
 	myr_info = get_myr_check_of_income_year(records, ciy).info
 	
@@ -87,7 +94,7 @@ def div7a(records):
 	step(tables, evaluate_myr_checks)
 	# one final check
 	check_invariants(tables[-1])
-	return records
+	return tables[-1]
 
 
 def step(tables, f):

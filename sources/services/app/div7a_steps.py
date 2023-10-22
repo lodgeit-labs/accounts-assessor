@@ -1,6 +1,13 @@
 from .div7a_impl import *
 
 def ensure_opening_balance_exists(records):
+	"""
+	opening balance is either:
+	* provided explicitly by user (implied to be the opening balance of the computation income year), 
+	* or it is implied by loan princial (on the last day of loan start income year).
+	in either case, there will be one opening balance record, and it will be on the last day of the computation income year.
+	"""
+	
 	opening_balance = opening_balance_record(records)
 	if opening_balance is None:
 		loan_start = get_loan_start_record(records)
@@ -120,7 +127,7 @@ def with_myr_checks(records):
 			continue
 
 
-		repayments = [r for i,r in records_of_income_year(records, income_year) if r.__class__ == repayment]
+		repayments = [r.rec for r in records_of_income_year(records, income_year) if r.rec.__class__ == repayment]
 
 		repayments_total = sum([r.info['amount'] for r in repayments])
 		repayments_towards_myr_total = sum([r.info['amount'] for r in repayments if not r.info['counts_towards_initial_balance']])
@@ -143,6 +150,8 @@ def with_myr_checks(records):
 def evaluate_myr_checks(records):
 	"""
 	https://www.ato.gov.au/uploadedImages/Content/Images/40557-3.gif
+	
+	calculate required payment for each year, and compare to actual payment.
 	"""
 
 	loan_start = get_loan_start_record(records)
@@ -151,10 +160,15 @@ def evaluate_myr_checks(records):
 		r = records[i]
 		if r.__class__ == myr_check:
 
+			fb = get_final_balance_of_previous_income_year(records, i)
+
 			if r.income_year == loan_start.income_year + 1:
-				previous_income_year_final_balance = get_loan_start_year_final_balance_for_myr_calc(records)
+				repaid_in_first_year_before_lodgement_day = sum(
+					[r.info['amount'] for r in repayments(records) if r.info['counts_towards_initial_balance']]
+				)
+				previous_income_year_final_balance = fb - repaid_in_first_year_before_lodgement_day
 			else:
-				previous_income_year_final_balance = get_final_balance_of_previous_income_year(records, i)
+				previous_income_year_final_balance = fb 
 
 			br = benchmark_rate(r.income_year)
 			remaining_term = get_remaining_term(records, r)
