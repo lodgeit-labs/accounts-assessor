@@ -28,6 +28,9 @@ def insert_interest_accrual_records(records):
 	# income year end accruals
 	for income_year in income_years_of_loan(records):
 				
+		if income_year not in benchmark_rates:
+			break
+				
 		records.add(record(
 			date(income_year, 6, 30),
 			interest_accrual,
@@ -129,6 +132,9 @@ def with_myr_checks(records):
 			# no myr check for year of opening balance either. But this relies on the fact that opening balance is set on the last day of the preceding income year.
 			continue
 
+		# skip checks in future
+		if income_year not in benchmark_rates:
+			break
 
 		repayments = [r.rec for r in records_of_income_year(records, income_year) if r.rec.__class__ == repayment]
 
