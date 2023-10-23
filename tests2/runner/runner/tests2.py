@@ -1,5 +1,7 @@
 from io import StringIO
-from xml.etree.ElementTree import canonicalize, fromstring
+from xml import etree
+from xml.etree.ElementTree import canonicalize, fromstring, tostring
+import lxml.etree
 
 from luigi.freezing import FrozenOrderedDict
 from defusedxml.ElementTree import parse as xmlparse 
@@ -21,6 +23,8 @@ import sys,os
 from urllib.parse import urlparse
 
 from luigi.parameter import _DictParamEncoder
+
+from runner.compare import my_xml_diff
 from runner.utils import *
 
 #print(sys.path)
@@ -263,77 +267,19 @@ class TestEvaluateImmediateXml(luigi.Task):
 			
 			canonical_result_xml_string = canonicalize(from_file=result_fn, strip_text=True)
 			canonical_expected_xml_string = canonicalize(from_file=expected_fn, strip_text=True)
-			logger.info(canonical_result_xml_string)
-			logger.info(canonical_expected_xml_string)
 
 			result = fromstring(canonical_result_xml_string)
 			expected = fromstring(canonical_expected_xml_string)
-			
-			#result = xmlparse(result_fn).getroot()
-			#expected = xmlparse(expected_fn).getroot()
+
+			# logger.info(tostring(result))
+			# logger.info(tostring(expected))
 
 
-			
-			
-			
-			# just nope, xmldiff produces total trash
-"""
-left:
-<LoanSummary xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd"><IncomeYear>2020</IncomeYear><OpeningBalance>9355.0000008</OpeningBalance><InterestRate>5.3700008</InterestRate><MinYearlyRepayment>2182.9166668</MinYearlyRepayment><TotalRepayment>5507.0000008</TotalRepayment><RepaymentShortfall>0.0000008</RepaymentShortfall><TotalInterest>483.7796328</TotalInterest><TotalPrincipal>0.0000008</TotalPrincipal><ClosingBalance>3848.0000008</ClosingBalance></LoanSummary>
-
-right:
-<LoanSummary><IncomeYear>2020</IncomeYear><OpeningBalance>9355</OpeningBalance><InterestRate>5.37</InterestRate><MinYearlyRepayment>2183.00</MinYearlyRepayment><TotalRepayment>5507.00</TotalRepayment><RepaymentShortfall>0</RepaymentShortfall><TotalInterest>482.97</TotalInterest><TotalPrincipal>5024.03</TotalPrincipal><ClosingBalance>4330.97</ClosingBalance></LoanSummary>
-
-diff:
-<LoanSummary xmlns:diff="http://namespaces.shoobx.com/diff" diff:delete-attr="{http://www.w3.org/2001/XMLSchema-instance}schemaLocation">
-  <IncomeYear>2020</IncomeYear>
-  <OpeningBalance diff:delete="">9355.0000008</OpeningBalance>
-  <OpeningBalance diff:insert="" diff:rename="ClosingBalance">9355</OpeningBalance>
-  <InterestRate>5.37<diff:delete>00008</diff:delete></InterestRate>
-  <MinYearlyRepayment diff:insert="" diff:rename="RepaymentShortfall">2183.00</MinYearlyRepayment>
-  <TotalRepayment diff:insert="" diff:rename="OpeningBalance">5507.00</TotalRepayment>
-  <RepaymentShortfall diff:insert="" diff:rename="TotalPrincipal">0</RepaymentShortfall>
-  <TotalInterest diff:rename="MinYearlyRepayment"><diff:delete>21</diff:delete><diff:insert>4</diff:insert>82.9<diff:delete>166668</diff:delete><diff:insert>7</diff:insert></TotalInterest>
-  <TotalPrincipal diff:rename="TotalRepayment"><diff:delete>5</diff:delete>50<diff:delete>7.0000008</diff:delete><diff:insert>24.03</diff:insert></TotalPrincipal>
-  <RepaymentShortfall diff:delete="">0.0000008</RepaymentShortfall>
-  <ClosingBalance diff:rename="TotalInterest">4<diff:delete>83.7796328</diff:delete><diff:insert>330.97</diff:insert></ClosingBalance>
-  <TotalPrincipal diff:delete="">0.0000008</TotalPrincipal>
-  <ClosingBalance diff:delete="">3848.0000008</ClosingBalance>
-</LoanSummary>
-"""			
-			
-			# diff = []
-			# xml_diff = xmldiff.main.diff_files(
-			# 	#result_fn, 
-			# 	#expected_fn,
-			# 	StringIO(canonical_result_xml_string),
-			# 	StringIO(canonical_expected_xml_string),
-			# 	formatter=xmldiff.formatting.XMLFormatter(
-			# 		normalize=xmldiff.formatting.WS_BOTH,
-			# 		pretty_print=True,
-			# 	),
-			# 	diff_options = dict(
-			# 		F=0,
-			# 		ratio_mode='accurate'
-			# 	)
-			# )
-			# logger.info(xml_diff)
-			
-			# if xml_diff != "":
-			# 	diff.append(xml_diff)
-			# 	diff.append(xmldiff.main.diff_files(result_fn, expected_fn))
-			# 	shortfall = expected.find("./LoanSummary/RepaymentShortfall")
-			# 	if shortfall is not None:
-			# 		shortfall = shortfall.text
-			# 	
-			# 	diff.append(dict(
-			# 		type='div7a',
-			# 		failed=result.tag == 'error',
-			# 		expected_shortfall=shortfall
-			# 	))
-								
-			return done(diff)
-
+			d = my_xml_diff(result, expected)
+			if d is None:
+				return done([])
+			else:
+				return done([d])
 		return done([])
 
 	def output(self):
