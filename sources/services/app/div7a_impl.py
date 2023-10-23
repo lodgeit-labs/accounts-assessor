@@ -15,6 +15,7 @@ class IdxAndRec:
 
 
 benchmark_rates = {
+	2024: 8.27,
 	2023: 4.77,
 	2022: 4.52,
 	2021: 4.52,
