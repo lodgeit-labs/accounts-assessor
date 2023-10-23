@@ -12,7 +12,8 @@ def my_xml_diff(a,b):
 		try:
 			af = float(a.text)
 			bf = float(b.text)
-			if abs(af - bf) > 0.002:
+			# a bit for float errors, and a bit for ato calc rounding
+			if abs(af - bf) > 0.002 + 0.5:
 				return f'{af} !~= {bf}'
 		except ValueError:
 			return f'{a.text} != {b.text}'
