@@ -134,18 +134,23 @@ def call_prolog(
 
 	#goal = ",make,utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
 	goal = ",utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
-	cmd = flatten_lists([
-		#'/usr/bin/time',
-		#	'-v',
-		#	--f', "user time :%U secs, max mem: %M kb",
-		git("sources/public_lib/lodgeit_solvers/tools/dev_runner/dev_runner.pl"),
-		['--problem_lines_whitelist',
-		 git("sources/public_lib/lodgeit_solvers/tools/dev_runner/problem_lines_whitelist")],
-		dev_runner_debug_args + [["--script", sources(entry_file)]],
-		options['dev_runner_options'],
-		'-g',
-		debug_goal + options['prolog_flags'] + goal + halt_goal
-	])
+
+	goal_opts = ['-g', debug_goal + options['prolog_flags'] + goal + halt_goal]
+	
+	if options.get('skip_dev_runner', False):
+		cmd = flatten_lists(['swipl', '-s', sources(entry_file), goal_opts])
+	else:
+		cmd = flatten_lists([
+			#'/usr/bin/time',
+			#	'-v',
+			#	--f', "user time :%U secs, max mem: %M kb",
+			git("sources/public_lib/lodgeit_solvers/tools/dev_runner/dev_runner.pl"),
+			['--problem_lines_whitelist',
+			 git("sources/public_lib/lodgeit_solvers/tools/dev_runner/problem_lines_whitelist")],
+			dev_runner_debug_args + [["--script", sources(entry_file)]],
+			options['dev_runner_options'],
+			goal_opts
+		])
 
 
 	logging.getLogger().warn('invoke_rpc: cmd:')
