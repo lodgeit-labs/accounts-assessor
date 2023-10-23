@@ -65,6 +65,17 @@ class Dummy(luigi.Task):
 		return False
 
 
+class AssistantStartup(luigi.Task):
+	"""just a dummy task to pass to an assitant worker. Could be simplified."""
+	ts = luigi.Parameter(default=datetime.datetime.utcnow().isoformat())
+
+	def run(self):
+		self.output().open('w').close()
+
+	def output(self):
+		return luigi.LocalTarget('/tmp/luigi_dummy/%s' % self.ts)
+
+
 def symlink(source, target):
 	# fixme, gotta get a safe file name in source.parent 
 	tmp = source+str(os.getpid()) + "." + str(time.time())
@@ -504,11 +515,16 @@ class Summary(luigi.Task):
 		yield evals
 
 		with self.output().open('w') as out:
-			summary = []
+			summary = dict(ok=None, total=None, evaluations=[])
+			ok = 0
 			for eval in evals:
 				with eval.output()['evaluation'].open() as e:
 					evaluation = json.load(e)
-				summary.append(evaluation)
+				summary['evaluations'].append(evaluation)
+				if evaluation['delta'] == []:
+					ok += 1
+			summary['ok'] = ok
+			summary['total'] = len(evals)
 			json_dump(summary, out)
 
 			#RepaymentShortfall
@@ -531,10 +547,6 @@ class TestDebugPrepare(luigi.WrapperTask):
 	def run(self):
 		with self.input().open() as pf:
 			yield [TestPrepare(t) for t in json.load(pf)]
-
-
-
-
 
 
 
