@@ -1,7 +1,12 @@
+from io import StringIO
+from xml.etree.ElementTree import canonicalize, fromstring
+
 from luigi.freezing import FrozenOrderedDict
 from defusedxml.ElementTree import parse as xmlparse 
 import xmldiff
-from xmldiff import main as xmldiffmain, formatting
+import xmldiff.main, xmldiff.formatting
+#from xmldiff import main as xmldiffmain, formatting
+import xmldiff
 import requests
 import datetime
 import logging
@@ -255,26 +260,48 @@ class TestEvaluateImmediateXml(luigi.Task):
 			#with open() as fd:
 
 			result_fn = P(self.test['path']) / response['result']
-			result = xmlparse(result_fn).getroot()
 			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'response.xml'
-			expected = xmlparse(expected_fn).getroot()
+			
+			canonical_result_xml_string = canonicalize(from_file=result_fn, strip_text=True)
+			canonical_expected_xml_string = canonicalize(from_file=expected_fn, strip_text=True)
+			
+			result = fromstring(canonical_result_xml_string)
+			expected = fromstring(canonical_expected_xml_string)
+			
+			#result = xmlparse(result_fn).getroot()
+			#expected = xmlparse(expected_fn).getroot()
 
 			# diff_trees()
 			diff = []
-			xml_diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
+			xml_diff = xmldiff.main.diff_files(
+				#result_fn, 
+				#expected_fn,
+				StringIO(canonical_result_xml_string),
+				StringIO(canonical_expected_xml_string),
+				# formatter=xmldiff.formatting.XMLFormatter(
+				# 	normalize=xmldiff.formatting.WS_BOTH,
+				# 	pretty_print=True,
+				# 	
+				# )
+			)
+			logger.info(canonical_result_xml_string)
+			logger.info(canonical_expected_xml_string)
+			
+			
 			logger.info(xml_diff)
-			if xml_diff != "":
-				diff.append(xml_diff)
-				diff.append(xmldiffmain.diff_files(result_fn, expected_fn))
-				shortfall = expected.find("./LoanSummary/RepaymentShortfall")
-				if shortfall is not None:
-					shortfall = shortfall.text
-				
-				diff.append(dict(
-					type='div7a',
-					failed=result.tag == 'error',
-					expected_shortfall=shortfall
-				))
+			
+			# if xml_diff != "":
+			# 	diff.append(xml_diff)
+			# 	diff.append(xmldiff.main.diff_files(result_fn, expected_fn))
+			# 	shortfall = expected.find("./LoanSummary/RepaymentShortfall")
+			# 	if shortfall is not None:
+			# 		shortfall = shortfall.text
+			# 	
+			# 	diff.append(dict(
+			# 		type='div7a',
+			# 		failed=result.tag == 'error',
+			# 		expected_shortfall=shortfall
+			# 	))
 								
 			return done(diff)
 
