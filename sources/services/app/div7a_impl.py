@@ -168,6 +168,8 @@ def records_of_income_year(records, income_year):
 
 
 
+def total_repayment_in_income_year(records, income_year):
+	return sum([r.info['amount'] for r in records if r.income_year == income_year and r.__class__ == repayment])
 
 
 def inclusive_range(start, end, step=1):
@@ -193,7 +195,7 @@ def total_principal_paid(records, iy):
 	"""how much of what was repaid this year, was principal?"""
 	total_paid = sum([r.info['amount'] for r in records if r.income_year == iy and r.__class__ == repayment]) # ? and not r.info['counts_towards_initial_balance']
 	total_interest = total_interest_accrued(records, iy)
-	return min(0, total_paid - total_interest)
+	return max(0, total_paid - total_interest)
 
 
 def closing_balance(records, iy):
