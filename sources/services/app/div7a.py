@@ -94,7 +94,7 @@ def div7a_from_json2(ooo,j):
 		opening_balance = loan_agr_year_opening_balance(records, ciy),
 		interest_rate = benchmark_rate(ciy),
 		min_yearly_repayment = myr_info['myr_required'],
-		total_repayment = myr_info['total_repaid_for_myr_calc'],
+		total_repayment = total_repayment_in_income_year(records, ciy),
 		repayment_shortfall = myr_info['shortfall'],
 		total_interest = total_interest_accrued(records, ciy),
 		total_principal = total_principal_paid(records, ciy),
