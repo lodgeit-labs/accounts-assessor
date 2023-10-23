@@ -1,3 +1,5 @@
+from calendar import calendar
+
 from .div7a_records import *
 from dataclasses import dataclass
 
@@ -133,9 +135,13 @@ def opening_balance_record(records):
 		raise Exception('More than one opening balance record')
 
 
+def get_year_days(year):
+	return 366 if calendar.isleap(year) else 365
+	
+
 
 def interest_accrued(prev_balance, r):
-	return r.info['days'] * r.info['rate']/100 * prev_balance / 365
+	return r.info['days'] * r.info['rate']/100 * prev_balance / get_year_days(r.date.year)
 
 
 

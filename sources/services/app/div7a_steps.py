@@ -179,7 +179,7 @@ def evaluate_myr_checks(records):
 			r.info['myr_check_previous_income_year_final_balance'] = previous_income_year_final_balance
 			r.info['myr_required'] = ((previous_income_year_final_balance * (br/100)) /
 									  (1-(1/(1+(br/100)))**remaining_term))
-
+			
 			#if r.info['myr_required'] < r.info['total_repaid_for_myr_calc']:
 			r.info['excess'] = min(0, r.info['total_repaid_for_myr_calc'] - r.info['myr_required'])
 
