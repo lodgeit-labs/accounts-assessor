@@ -174,7 +174,7 @@ def step(ooo, tables, f):
 				('font-weight', 'bold'),
 				('border', 'inset'),
 			]),
-			dict(selector='.old', props=[('background-color', 'rgb(55, 99, 71)')]),
+			#dict(selector='.old', props=[('background-color', 'rgb(55, 99, 71)')]),
 			dict(selector='', props=[('white-space', 'nowrap')]),
 		], overwrite=False)
 		sss.set_td_classes(pd.DataFrame(diff_colors(dicts1, dicts2)))
