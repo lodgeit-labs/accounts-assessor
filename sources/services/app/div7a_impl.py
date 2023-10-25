@@ -143,11 +143,15 @@ def get_year_days(year):
 
 
 def interest_accrued(prev_balance, r):
-	return r.info['days'] * r.info['rate']/100 * prev_balance / get_year_days(r.income_year)
+	return (prev_balance *
+			# rate in percent: 5.5% -> 0.05, 100% would be 1, one year with 100% interest rate would have you paying back twice as much as you borrowed	
+			(r.info['rate']/100) * 
+			# but what fraction of the year did you have the loan for? one month is about a 1/12 of year
+			(r.info['days'] / get_year_days(r.income_year)))
 
 
 
-def days_diff(d1, d2):
+def days_diff(d1: date, d2: date) -> int:
 	return (d1 - d2).days
 
 
