@@ -243,7 +243,7 @@ xml_loan_response(
 	var(LoanResponseXML),
 
 	format(string(LoanResponseXML),
-nths'<?xml version="1.0" ?>\n<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n\c
+'<?xml version="1.0" ?>\n<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n\c
    <IncomeYear>~q</IncomeYear>\n\c
    <OpeningBalance>~f8</OpeningBalance>\n\c
    <InterestRate>~f8</InterestRate>\n\c
