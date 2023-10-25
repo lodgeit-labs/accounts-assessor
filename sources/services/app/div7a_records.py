@@ -1,5 +1,5 @@
 from datetime import date
-
+from functools import total_ordering
 
 uuid = 0
 def new_uuid():
@@ -15,6 +15,7 @@ def record(date, type, info):
 	return result
 
 
+@total_ordering
 class Record:
 	uuid: int
 	date: date
@@ -59,13 +60,17 @@ class Record:
 	def __repr__(self):
 		return f'{self.date}:{self.__class__.__name__}({self.info})'
 	def __lt__(self, other):
-		x = 0
-		goes_before_any = self.info.get('goes_before_any')
-		if goes_before_any:
-			for type in goes_before_any:
-				if isinstance(other, type):
-					x = -1
-		return (self.date, x, record_sorting[self.__class__]) < (other.date, 0, record_sorting[other.__class__])
+		goes_before = self.info.get('sorting', {}).get('goes_before')
+		if self.date != other.date:
+			return self.date < other.date
+		elif goes_before is not None:
+			if other is goes_before:
+				return True
+			else:
+				return goes_before < other
+		else:
+			return record_sorting[self.__class__] < record_sorting[other.__class__]
+	
 
 class loan_start(Record):
 	"""
@@ -75,11 +80,15 @@ class loan_start(Record):
 
 class opening_balance(Record):
 	pass
+class interest_calc(Record):
+	pass
 class interest_accrual(Record):
 	pass
 class lodgement(Record):
 	pass
 class repayment(Record):
+	pass
+class income_year_end(Record):
 	pass
 class myr_check(Record):
 	pass
@@ -97,8 +106,10 @@ class loan_term_end(Record):
 record_sorting = {
 	calculation_start: 0,
 	loan_start: 1,
-	interest_accrual: 2,
+	interest_calc: 2,
 	repayment: 3,
+	income_year_end: 3.5,
+	interest_accrual: 3.6,
 	lodgement: 4,
 	# todo test repayment *at* lodgement day. What's the legal position?
 	myr_check: 5,

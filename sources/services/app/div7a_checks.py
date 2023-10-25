@@ -19,10 +19,10 @@ def check_invariants(records):
 	# 
 
 
-	# - no two interest accruals on the same day:
+	# - no two adjacent interest calcs on the same day:
 
 	for i in range(len(records) - 1):
-		if records[i].__class__ == interest_accrual and records[i + 1].__class__ == interest_accrual and records[
+		if records[i].__class__ == interest_calc and records[i + 1].__class__ == interest_calc and records[
 			i].date == records[i + 1].date:
 			raise Exception('Two adjacent interest accruals on the same day')
 

@@ -117,11 +117,11 @@ def div7a(ooo, records):
 	# insert opening_balance record if it's not there
 	step(ooo, tables, ensure_opening_balance_exists)
 	# we insert accrual points for each income year, and for each repayment.
-	step(ooo, tables, insert_interest_accrual_records)
+	step(ooo, tables, insert_interest_calc_records)
 	# we calculate the number of days of each accrual period
-	step(ooo, tables, with_interest_accrual_days)
+	step(ooo, tables, with_interest_calc_days)
 	# we propagate balance from start or from opening balance, adjusting for repayments
-	step(ooo, tables, with_balance_and_accrual)
+	step(ooo, tables, with_balance)
 	# first year repayments either fall before or after lodgement day, affecting minimum yearly repayment calculation
 	step(ooo, tables, annotate_repayments_with_myr_relevance)
 	# insert minimum yearly repayment check records

@@ -188,7 +188,7 @@ class TestResultImmediateXml(luigi.Task):
 			request_files = json.load(request_files_f)
 
 		resp = make_request(self.test, request_files)
-		job = {'status': resp.status_code}
+		job = {'status': resp.status_code, 'url': resp.url}
 
 		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'result.xml')
 		result_xml.makedirs()
@@ -198,6 +198,7 @@ class TestResultImmediateXml(luigi.Task):
 			with open(result_xml_fn, 'w') as result_xml_fd:
 				result_xml_fd.write(resp.text)
 		job['result'] = 'outputs/result.xml'
+		
 
 		with self.output().temporary_path() as response_fn:
 			with open(response_fn, 'w') as response_fd:
@@ -285,12 +286,7 @@ class TestEvaluateImmediateXml(luigi.Task):
 			# logger.info(tostring(result))
 			# logger.info(tostring(expected))
 
-
-			d = my_xml_diff(result, expected)
-			if d is None:
-				return done([])
-			else:
-				return done([d])
+			return done(list(my_xml_diff(result, expected)))
 		return done([])
 
 	def output(self):
@@ -527,7 +523,6 @@ class Summary(luigi.Task):
 			summary['total'] = len(evals)
 			json_dump(summary, out)
 
-			#RepaymentShortfall
 
 
 	def output(self):

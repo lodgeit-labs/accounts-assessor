@@ -100,7 +100,7 @@ def get_final_balance_of_previous_income_year(records, i):
 
 
 def loan_agr_year_opening_balance(records, income_year):
-	i = records_of_income_year(records, income_year)[0].idx
+	i = records_of_income_year_indexed(records, income_year)[0].idx
 	prev = i - 1
 	if prev < 0:
 		# prev = 0 # technically, this is correct, but we don't want to do this, because it's a weird notion that year 0 has any opening balance
@@ -143,7 +143,7 @@ def get_year_days(year):
 
 
 def interest_accrued(prev_balance, r):
-	return r.info['days'] * r.info['rate']/100 * prev_balance / get_year_days(r.date.year)
+	return r.info['days'] * r.info['rate']/100 * prev_balance / get_year_days(r.income_year)
 
 
 
@@ -164,9 +164,12 @@ def lodgement_day(records):
 
 
 
-def records_of_income_year(records, income_year):
+def records_of_income_year_indexed(records, income_year):
 	return [IdxAndRec(i,r) for i,r in enumerate(records) if r.income_year == income_year]
 
+
+def records_of_income_year(records, income_year):
+	return [r for r in records if r.income_year == income_year]
 
 
 def total_repayment_in_income_year(records, income_year):
@@ -189,7 +192,7 @@ def total_interest_accrued(records, iy):
 	"""
 	Total interest accrued in the income year, that is, how much interest must be paid. (myr always exceeds this)
 	"""
-	return sum([r.info['interest_accrued'] for r in records if r.income_year == iy and r.__class__ == interest_accrual])
+	return sum([r.info['interest_accrued'] for r in records if r.income_year == iy and r.__class__ == interest_calc])
 
 
 def total_principal_paid(records, iy):
@@ -201,7 +204,7 @@ def total_principal_paid(records, iy):
 
 def closing_balance(records, iy):
 	"""closing balance of this income year"""
-	return records_of_income_year(records, iy)[-1].rec.final_balance
+	return records_of_income_year(records, iy)[-1].final_balance
 
 
 

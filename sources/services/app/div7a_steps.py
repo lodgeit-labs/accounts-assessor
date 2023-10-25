@@ -23,48 +23,55 @@ def ensure_opening_balance_exists(records):
 
 
 
-def insert_interest_accrual_records(records):
+def insert_interest_calc_records(records):
+
+	# accruals before each repayment
+	for repayment in repayments(records):
+		records.add(record(
+			repayment.date,
+			interest_calc,
+			{
+				'note': 'for period until repayment',
+				'sorting': {'goes_before': repayment},
+				'rate': benchmark_rate(repayment.income_year)
+			}))
 
 	# income year end accruals
 	for income_year in income_years_of_loan(records):
 				
 		if income_year not in benchmark_rates:
 			break
+
+		iy_end = record(
+			date(income_year, 6, 30),
+			income_year_end,
+			{}
+		)
+		records.add(iy_end)
 				
 		records.add(record(
 			date(income_year, 6, 30),
-			interest_accrual,
+			interest_calc,
 			{
 				'note':'for period until income year end',
-				'sorting':{'goes_before_any': [opening_balance]},
+				'sorting': {'goes_before': iy_end},
 				'rate': benchmark_rate(income_year),
 			}))
 
-	# accruals before each repayment
-	for repayment in repayments(records):
-		records.add(record(
-			repayment.date,
-			interest_accrual,
-			{
-				'note':'for period until repayment',
-				'rate': benchmark_rate(repayment.income_year)
-			}))
 
-
-
-def with_interest_accrual_days(records):
+def with_interest_calc_days(records):
 	"""
 	for each interest accrual record, calculate the accrual period since the last interest accrual or other significant event, by going backwards from the record.
 	"""
 	for i in range(len(records)):
 		r = records[i]
-		if r.__class__ != interest_accrual:
+		if r.__class__ != interest_calc:
 			continue
 
 		prev_event_date = None
 
 		for j in inclusive_range(i-1, 0, -1):
-			if records[j].__class__ in [interest_accrual, opening_balance]:
+			if records[j].__class__ in [interest_calc, opening_balance]:
 				prev_event_date = records[j].date
 				break
 
@@ -75,7 +82,7 @@ def with_interest_accrual_days(records):
 
 
 
-def with_balance_and_accrual(records):
+def with_balance(records):
 	"""
 	the final balance of the previous record, is the balance of the period between the previous record and this one, is this record's start balance
 	"""
@@ -97,16 +104,20 @@ def with_balance_and_accrual(records):
 				# calculate the new balance
 				if r.__class__ == repayment:
 					r.final_balance = prev_balance - r.info['amount']
+				elif r.__class__ == interest_calc:
+					# round to two decimal places as ato calc seems to be doing
+					r.info['interest_accrued'] = round(interest_accrued(prev_balance, r), 2)
+					r.final_balance = prev_balance
+				elif r.__class__ == income_year_end:
+					periods = [c.info['interest_accrued'] for c in records_of_income_year(records, r.income_year) if c.__class__ == interest_calc]
+					r.info['periods'] = len(periods)
+					r.info['interest_accrued'] = sum(periods)
+					r.final_balance = prev_balance + r.info['interest_accrued']
 				else:
 					r.final_balance = prev_balance
-					
-				# also note interest accrual, but in div7a, interest does not add to balance.
-				if r.__class__ == interest_accrual:
-					r.info['interest_accrued'] = interest_accrued(prev_balance, r)
 
 
-
-
+	
 def annotate_repayments_with_myr_relevance(records):
 	lodgement = get_lodgement(records)
 	loan_start = get_loan_start_record(records)
@@ -136,7 +147,7 @@ def with_myr_checks(records):
 		if income_year not in benchmark_rates:
 			break
 
-		repayments = [r.rec for r in records_of_income_year(records, income_year) if r.rec.__class__ == repayment]
+		repayments = [r for r in records_of_income_year(records, income_year) if r.__class__ == repayment]
 
 		repayments_total = sum([r.info['amount'] for r in repayments])
 		repayments_towards_myr_total = sum([r.info['amount'] for r in repayments if not r.info['counts_towards_initial_balance']])
@@ -187,9 +198,9 @@ def evaluate_myr_checks(records):
 									  (1-(1/(1+(br/100)))**remaining_term))
 			
 			#if r.info['myr_required'] < r.info['total_repaid_for_myr_calc']:
-			r.info['excess'] = min(0, r.info['total_repaid_for_myr_calc'] - r.info['myr_required'])
+			r.info['excess'] = min(0, r.info['total_repaid'] - r.info['myr_required'])
 
 			#elif r.info['myr_required'] > r.info['total_repaid_for_myr_calc']:
-			r.info['shortfall'] = max(0, r.info['myr_required'] - r.info['total_repaid_for_myr_calc'])
+			r.info['shortfall'] = max(0, r.info['myr_required'] - r.info['total_repaid'])
 			
 
