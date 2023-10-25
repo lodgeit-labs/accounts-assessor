@@ -82,6 +82,8 @@ class opening_balance(Record):
 	pass
 class interest_calc(Record):
 	pass
+class closing_interest_calc(Record):
+	pass
 class interest_accrual(Record):
 	pass
 class lodgement(Record):
@@ -94,10 +96,8 @@ class myr_check(Record):
 	pass
 class lodgement(Record):
 	pass
-
 class calculation_start(Record):
 	pass
-
 class calculation_end(Record):
 	pass
 class loan_term_end(Record):
@@ -108,6 +108,7 @@ record_sorting = {
 	loan_start: 1,
 	interest_calc: 2,
 	repayment: 3,
+	closing_interest_calc: 3.4,
 	income_year_end: 3.5,
 	interest_accrual: 3.6,
 	lodgement: 4,

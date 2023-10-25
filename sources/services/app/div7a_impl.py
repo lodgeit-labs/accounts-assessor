@@ -196,7 +196,7 @@ def total_interest_accrued(records, iy):
 	"""
 	Total interest accrued in the income year, that is, how much interest must be paid. (myr always exceeds this)
 	"""
-	return sum([r.info['interest_accrued'] for r in records if r.income_year == iy and r.__class__ == interest_calc])
+	return sum([r.info['interest_accrued'] for r in records if r.income_year == iy and r.__class__ in [interest_calc, closing_interest_calc]])
 
 
 def total_principal_paid(records, iy):

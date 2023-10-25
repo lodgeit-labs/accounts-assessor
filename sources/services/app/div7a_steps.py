@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from .div7a_impl import *
 
 
@@ -25,18 +27,18 @@ def ensure_opening_balance_exists(records):
 
 def insert_interest_calc_records(records):
 
-	# accruals before each repayment
+	# before each repayment
 	for repayment in repayments(records):
 		records.add(record(
 			repayment.date,
 			interest_calc,
 			{
-				'note': 'for period until repayment',
+				'note': 'for period up until repayment',
 				'sorting': {'goes_before': repayment},
 				'rate': benchmark_rate(repayment.income_year)
 			}))
 
-	# income year end accruals
+	# income year end
 	for income_year in income_years_of_loan(records):
 				
 		if income_year not in benchmark_rates:
@@ -47,16 +49,17 @@ def insert_interest_calc_records(records):
 			income_year_end,
 			{}
 		)
-		records.add(iy_end)
 				
 		records.add(record(
 			date(income_year, 6, 30),
-			interest_calc,
+			closing_interest_calc,
 			{
 				'note':'for period until income year end',
 				'sorting': {'goes_before': iy_end},
 				'rate': benchmark_rate(income_year),
 			}))
+
+		records.add(iy_end)
 
 
 def with_interest_calc_days(records):
@@ -65,22 +68,34 @@ def with_interest_calc_days(records):
 	"""
 	for i in range(len(records)):
 		r = records[i]
-		if r.__class__ != interest_calc:
+		
+		if r.__class__ not in [interest_calc, closing_interest_calc]:
 			continue
 
 		prev_event_date = None
+		for j in records_before_this_record_in_reverse_order(records, i):
 
-		for j in inclusive_range(i-1, 0, -1):
-			if records[j].__class__ in [interest_calc, opening_balance]:
-				prev_event_date = records[j].date
+			if j.__class__ in [opening_balance]:
+				# 
+				prev_event_date = j.date + timedelta(days=1)
 				break
-
+			if j.__class__ in [interest_calc]:
+				prev_event_date = j.date
+				break
+	
 		if prev_event_date is None:
-			raise Exception('No previous interest accrual record')
-		else:
+			raise Exception('No previous opening_balance or interest_calc record')
+
+		if r.__class__ is interest_calc:
 			r.info['days'] = days_diff(r.date, prev_event_date)
+		elif r.__class__ is closing_interest_calc:
+			r.info['days'] = days_diff(r.date + timedelta(days=1), prev_event_date)
+			
 
 
+def records_before_this_record_in_reverse_order(records, i):
+	for j in inclusive_range(i-1, 0, -1):
+		yield records[j]
 
 def with_balance(records):
 	"""
@@ -104,12 +119,12 @@ def with_balance(records):
 				# calculate the new balance
 				if r.__class__ == repayment:
 					r.final_balance = prev_balance - r.info['amount']
-				elif r.__class__ == interest_calc:
-					# round to two decimal places as ato calc seems to be doing
+				elif r.__class__ in [interest_calc, closing_interest_calc]:
+					# round to two decimal places as ato calc seems to be doing?
 					r.info['interest_accrued'] = round(interest_accrued(prev_balance, r), 2)
 					r.final_balance = prev_balance
 				elif r.__class__ == income_year_end:
-					periods = [c.info['interest_accrued'] for c in records_of_income_year(records, r.income_year) if c.__class__ == interest_calc]
+					periods = [c.info['interest_accrued'] for c in records_of_income_year(records, r.income_year) if c.__class__ in [interest_calc, closing_interest_calc]]
 					r.info['periods'] = len(periods)
 					r.info['interest_accrued'] = sum(periods)
 					r.final_balance = prev_balance + r.info['interest_accrued']
