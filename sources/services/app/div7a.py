@@ -42,6 +42,12 @@ def div7a_from_json(j,tmp_dir_path='.'):
 
 def div7a_from_json2(ooo,j):
 
+	if ooo:
+		print(f'<h3>request</h3>', file=ooo)
+		print(f'<big><pre><code>', file=ooo)
+		json.dump(j, ooo, indent=True)
+		print(f'</code></pre></big>', file=ooo)
+
 	ciy = int(j['computation_income_year'])
 	term = int(j['term'])
 	principal = float(j['principal_amount'])

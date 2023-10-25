@@ -207,10 +207,18 @@ def total_principal_paid(records, iy):
 
 
 def closing_balance(records, iy):
-	"""closing balance of this income year"""
-	return records_of_income_year(records, iy)[-1].final_balance
+	"""closing balance of this income year
+	per ato calc, closing balance is not the same as the final balance of the last record of the income year.
+	the closing balance is lowered by the unpaid interest. This means that the unpaid interest is not taken into account, it is effectiively de-accrued. This situation can only happen when the myr is not met, so the computation is over.
+	Furthermore, this is only a reporting / output function, not affecting the computation. 
+	"""
+	return records_of_income_year(records, iy)[-1].final_balance - unpaid_interest(records, iy)
 
 
+def unpaid_interest(records, iy):
+	total_paid = sum([r.info['amount'] for r in records if r.income_year == iy and r.__class__ == repayment]) # ? and not r.info['counts_towards_initial_balance']
+	total_interest = total_interest_accrued(records, iy)
+	return max(0, total_interest - total_paid)
 
 
 def one(xs):

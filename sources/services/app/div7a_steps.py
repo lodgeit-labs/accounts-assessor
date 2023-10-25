@@ -75,7 +75,7 @@ def with_interest_calc_days(records):
 		prev_event_date = None
 		for j in records_before_this_record_in_reverse_order(records, i):
 
-			if j.__class__ in [opening_balance]:
+			if j.__class__ in [opening_balance, loan_start]:
 				# 
 				prev_event_date = j.date + timedelta(days=1)
 				break
@@ -121,7 +121,7 @@ def with_balance(records):
 					r.final_balance = prev_balance - r.info['amount']
 				elif r.__class__ in [interest_calc, closing_interest_calc]:
 					# round to two decimal places as ato calc seems to be doing?
-					r.info['interest_accrued'] = round(interest_accrued(prev_balance, r), 2)
+					r.info['interest_accrued'] = round(interest_accrued(prev_balance, r), 20)
 					r.final_balance = prev_balance
 				elif r.__class__ == income_year_end:
 					periods = [c.info['interest_accrued'] for c in records_of_income_year(records, r.income_year) if c.__class__ in [interest_calc, closing_interest_calc]]

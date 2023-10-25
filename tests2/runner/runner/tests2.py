@@ -1,6 +1,9 @@
+import urllib
 from io import StringIO
 from xml import etree
 from xml.etree.ElementTree import canonicalize, fromstring, tostring
+
+from furl import furl
 import lxml.etree
 
 from luigi.freezing import FrozenOrderedDict
@@ -189,6 +192,10 @@ class TestResultImmediateXml(luigi.Task):
 
 		resp = make_request(self.test, request_files)
 		job = {'status': resp.status_code, 'url': resp.url}
+		# get the url of the directory of the file pointed-to by url:
+		uuu = furl(job['url'])
+		uuu.path = '/'.join(str(uuu.path).split('/')[:-1])
+		job['dir'] = uuu.url
 
 		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'result.xml')
 		result_xml.makedirs()
@@ -208,44 +215,6 @@ class TestResultImmediateXml(luigi.Task):
 		return luigi.LocalTarget(P(self.test['path']) / 'response.json')
 
 
-
-class TestResult(luigi.Task):
-	test = luigi.parameter.DictParameter()
-
-	def requires(self):
-		return TestPrepare(self.test)
-
-	def run(self):
-		with self.input().open() as request_files_f:
-			request_files = json.load(request_files_f)
-
-		start = TestStart(self.test, request_files)
-		yield start
-		with start.output().open() as fd:
-			handle = fd.read() 
-		with self.output().temporary_path() as tmp:
-			while True:
-				logger.info('...')
-				time.sleep(15)
-
-				job = requests.get(handle).json()
-				with open(tmp, 'w') as out:
-					json_dump(job, out)
-
-				if job['status'] in [ "Failure", 'Success']:
-					break
-				elif job['status'] in [ "Started", "Pending"]:
-					pass
-				else:
-					raise Exception('weird status')
-
-
-	def output(self):
-		return luigi.LocalTarget(P(self.test['path']) / 'job.json')
-
-
-
-
 class TestEvaluateImmediateXml(luigi.Task):
 
 	priority = 100
@@ -257,13 +226,13 @@ class TestEvaluateImmediateXml(luigi.Task):
 
 	def run(self):
 
-		def done(delta):
-			with self.output()['evaluation'].open('w') as out:
-				json_dump({'test':dict(self.test), 'job': status, 'delta':delta}, out)
-
 		with open(P(self.input().path)) as fd:
 			response = json.load(fd)
 		status = response['status']
+
+		def done(delta):
+			with self.output()['evaluation'].open('w') as out:
+				json_dump({'test':dict(self.test), 'job': status, 'delta':delta,'response':response}, out)
 
 		with open(os.path.abspath(P(self.test['suite']) / self.test['dir'] / 'response.json')) as fd:
 			expected_response = json.load(fd)
@@ -296,6 +265,41 @@ class TestEvaluateImmediateXml(luigi.Task):
 		}
 
 
+
+
+class TestResult(luigi.Task):
+	test = luigi.parameter.DictParameter()
+
+	def requires(self):
+		return TestPrepare(self.test)
+
+	def run(self):
+		with self.input().open() as request_files_f:
+			request_files = json.load(request_files_f)
+
+		start = TestStart(self.test, request_files)
+		yield start
+		with start.output().open() as fd:
+			handle = fd.read()
+		with self.output().temporary_path() as tmp:
+			while True:
+				logger.info('...')
+				time.sleep(15)
+
+				job = requests.get(handle).json()
+				with open(tmp, 'w') as out:
+					json_dump(job, out)
+
+				if job['status'] in [ "Failure", 'Success']:
+					break
+				elif job['status'] in [ "Started", "Pending"]:
+					pass
+				else:
+					raise Exception('weird status')
+
+
+	def output(self):
+		return luigi.LocalTarget(P(self.test['path']) / 'job.json')
 
 
 
@@ -513,12 +517,16 @@ class Summary(luigi.Task):
 		with self.output().open('w') as out:
 			summary = dict(ok=None, total=None, evaluations=[])
 			ok = 0
+			bad = []
 			for eval in evals:
 				with eval.output()['evaluation'].open() as e:
 					evaluation = json.load(e)
 				summary['evaluations'].append(evaluation)
 				if evaluation['delta'] == []:
 					ok += 1
+				else:
+					bad.append(evaluation)
+			summary['bad'] = bad
 			summary['ok'] = ok
 			summary['total'] = len(evals)
 			json_dump(summary, out)
