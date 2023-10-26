@@ -142,7 +142,7 @@ def annotate_repayments_with_myr_relevance(records):
 		if r.income_year == loan_start.income_year + 1:
 			if lodgement is None:
 				raise Exception('if we recorded any repayments that occured the first year after loan start, then we need to know the lodgement day')
-			if r.date <= lodgement.date:
+			if r.date < lodgement.date:
 				r.info['counts_towards_initial_balance'] = True
 
 

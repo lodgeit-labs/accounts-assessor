@@ -1,4 +1,16 @@
 Metadata-Version: 2.1
 Name: frontend
 Version: 0.1.0
+Requires-Dist: jinja2
+Requires-Dist: pyyaml
+Requires-Dist: fastapi
+Requires-Dist: starlette>=0.27.0
+Requires-Dist: python-multipart
+Requires-Dist: agraph-python==101.0.7
+Requires-Dist: pycurl
+Requires-Dist: uvicorn[standard]
+Requires-Dist: gunicorn
+Requires-Dist: pydantic
+Requires-Dist: requests
 Provides-Extra: dev
+Requires-Dist: watchdog; extra == "dev"

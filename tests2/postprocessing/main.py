@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 
 import json, sys
-
+import pathlib
+import shutil
 
 if __name__ == '__main__':
-	with open(sys.argv[1]) as f:
+	
+	dir = pathlib.PurePath(sys.argv[1])
+			
+	with open(dir/'summary.json') as f:
 		j = json.load(f)
 
-	for i in j['bad']:
-		d = i['delta']
-		print(d)
+	bad = j['bad']
+	
+	print(len([x for x in bad if x['job'] == 502]))
+	
+	# print(f'delete {len(bad)} tests')
+	# for i in bad:
+	# 	try:
+	# 		shutil.rmtree(i['test']['path'])
+	# 	except:
+	# 		pass
+	# 	
+	# 

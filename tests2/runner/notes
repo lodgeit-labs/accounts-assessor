@@ -141,6 +141,6 @@ then run an overseer scheduler and worker, with a luigi task that spawns a slave
 
 	in effect, we have a generic scheduler sharding.
 
-    this isg onna be somewhat problematic in ht esense that each scheduler(shard) should ahve its own worker instance on each machine (each core oor more, erally)
+    this isg onna be somewhat problematic in ht esense that each scheduler(shard) should ahve its own worker instance on each machine (each core oor more, erally)`
     
    
