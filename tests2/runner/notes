@@ -57,8 +57,7 @@ parallelization of automated testing, and other optimization
        
      - maybe add "gitinfo" (mainly for git diff) from each worker into session dir. (generated on session start, triggered by Summary)
        
-
-     
+    
     - like some other schemas here, this relies on the exact same commit of the repo being checked out on all the machines, same paths for tests, ..
 
       - this can be easily checked by the runner (summary?..), or rather a commit should be passed as an argument (default) to summary job, propagated to individual Result tasks, and those can check the argument value against actual value:
@@ -67,7 +66,7 @@ parallelization of automated testing, and other optimization
         
         - eventually, we'll also want to check the actual robust server commit, but it can be inferred that it's the runner commit, this would be more relevant for testing other reasoners, we can skip it altogether when running immediate xml tests, maybe at some point implement the check when running handle jobs 
    
-
+    ^^ this is very preferable to sharing a robust_tmp across a swarm
 
 
 
@@ -124,3 +123,24 @@ for testing of python div7a, we could bypass:
  - and talk to services directly, but then it wont even have a directory to store test.html
  - we could bypass just swipl, go from worker to services,
  - but it seems more reasonable to try to optimize the swipl jump instead of removing it entirely, if next step is gonna be reviving the swipl div7a implementation anyway
+
+
+
+
+
+* -->>> try to merge small luigi tasks into one, like immediate xml prepare/result/evaluate
+
+
+
+
+
+* shard luigi scheduler, have Permutations create multiple files with equally sized batches,
+then run an overseer scheduler and worker, with a luigi task that spawns a slave scheduler (with subprocess?). 
+
+	the rest is as normal, run worker with Summary + assistant workers (maybe reasoner-specific invocations of assistantw orkers on different machiens later, but again that's the same as with single scheudelr)
+
+	in effect, we have a generic scheduler sharding.
+
+    this isg onna be somewhat problematic in ht esense that each scheduler(shard) should ahve its own worker instance on each machine (each core oor more, erally)
+    
+   
