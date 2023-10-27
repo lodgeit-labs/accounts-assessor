@@ -194,8 +194,8 @@ f"""
 ServerName {public_host}
 """ + '\n'.join([f"""
 ProxyPassReverse "/{path}" "http://{frontend}:7788/{path}"
-ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=160 timeout=160 retry=10 acquire=3000 Keepalive=Off
-""" for path in 'health health_check chat upload reference api view web'.split()]))
+ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999 timeout=999999999 retry=999999999 acquire=999999999 Keepalive=Off
+""" for path in 'health_check health chat upload reference api view web'.split()]))
  
 	pp = port_postfix
 
