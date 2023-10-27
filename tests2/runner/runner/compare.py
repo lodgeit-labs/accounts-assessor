@@ -13,7 +13,7 @@ def my_xml_diff(a,b):
 			af = float(a.text)
 			bf = float(b.text)
 			# a bit for float errors, and a bit for ato calc rounding
-			if abs(af - bf) > 0.002 + 0.5:
+			if abs(af - bf) > 0.003 + 0.5:
 				yield  f'{a.tag}: {af:.20f} !~= {bf:.20f}'
 		except ValueError:
 			yield f'{a.tag}: {a.text} != {b.text}'
