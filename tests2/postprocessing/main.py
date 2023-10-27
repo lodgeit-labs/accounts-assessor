@@ -19,11 +19,10 @@ if __name__ == '__main__':
 	for i in bad:
 		print(i)
 
-	# print(f'delete {len(bad)} tests')
-	# for i in bad:
-	# 	try:
-	# 		shutil.rmtree(i['test']['path'])
-	# 	except:
-	# 		pass
-	# 	
-	# 
+	print(f'delete {len(bad)} tests')
+	for i in bad:
+	 	try:
+	 		shutil.rmtree(i['test']['path'])
+	 	except:
+	 		pass
+	 	

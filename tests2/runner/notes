@@ -3,6 +3,16 @@ find nonok tests:
 find /home/koom/robust_tests/latest/ -name evaluation.json -type f -print0 | xargs -0 -I % fish -c 'grep "delta\": \[\]" %; or begin echo %; cat %; end'
 ```
 
+delete bad tests
+```
+./main.py ~/robust_tests/2023-10-25_21_49_19.215267/
+```
+
+rerun deleted tests
+```
+rm  ~/robust_tests/2023-10-25_21_49_19.215267/summary.json
+reset;echo -e "\e[3J"; PYTHONPATH=(pwd) luigi --module runner.tests2 --Permutations-robust-server-url http://jj.internal:8877  Summary --Permutations-suite ~/repos/koo5/div7a/endpoint_tests/loan/good_atocalc_autogen --workers=10 --worker-force-multiprocessing --Permutations-debug "False" --session ~/robust_tests/2023-10-25_21_49_19.215267; sleep 100; sleep.sh
+```
 
 
 parallelization of automated testing, and other optimization
