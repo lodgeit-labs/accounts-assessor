@@ -49,5 +49,5 @@ urllib3==1.26.18
     # via requests
 webargs==8.2.0
     # via flask-apispec
-werkzeug==2.2.3
+werkzeug==3.0.1
     # via flask
