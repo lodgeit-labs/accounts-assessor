@@ -30,7 +30,7 @@ RUN chown myuser:myuser /app/server_root/tmp
 USER myuser
 
 VOLUME /App/RdfTemplates.n3
-
+VOLUME /home/myuser/.dotnet
 
 HEALTHCHECK --interval=5s --timeout=50s --start-period=5s --retries=3 CMD curl -L -S --fail http://127.0.0.1:17789/health
 

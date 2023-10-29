@@ -52,8 +52,6 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
-      FLASK_DEBUG:
-      FLASK_ENV:
       WATCHMEDO:
     #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by copying the dev one
     #  REQUIREMENTS_FILE: requirements.txt
@@ -132,8 +130,6 @@ services:
     image: koo5/services${PP}:latest
     environment:
       RABBITMQ_URL:
-      FLASK_DEBUG:
-      FLASK_ENV:
       WATCHMEDO:
     volumes:
       - tmp:/app/server_root/tmp
@@ -161,6 +157,7 @@ services:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
       - "../sources/static/:/App/data/"
+      - "/home/myuser/.dotnet"
     networks:
       - backend
     hostnet_ports:

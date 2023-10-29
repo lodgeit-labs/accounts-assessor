@@ -7,72 +7,13 @@
 
 
 
+div7a_complete_records_upto(Loan_in, Loan_out, End_date) :-
+	append(Loan_in, New_records, Loan_out),
+	div7a_new_records(Loan_in, New_records)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-div7a(Agreement, Summary) :-
-
-	/*
-	Minimum yearly repayment depen
-
-
-	*/
-
-	loan_agr_computation_year(Agreement, Comp_Year_0Idx),
-
-
-	loan_agr_computation_opening_balance(Agreement, Opening_Balance),
-	(	Opening_Balance \= false
-	->	(
-			loan_agr_year_days(Agreement, Comp_Year_0Idx, Computation_Year_Start_Day, _),
-			Initial_Sequence = [p(Computation_Year_Start_Day, opening_balance, Opening_Balance)]
-		)
-	;	throw_string(not_implemented)
-	),
-
-	div7a_records(Initial_Sequence, Records),
-	div7a_results(Records, Comp_Year_0Idx, Summary).
-
-
-
-div7a_results(Records, Comp_Year_0Idx, Summary) :-
-	% report Interest_Rate for calculation year
-	loan_agr_year_days(Agreement, Comp_Year_0Idx, Year_Start_Day, _End_Day),
-	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
-	loan_sum_interest_rate(Summary, Interest_Rate),
-
-	div7a_year_opening_balance(	Agreement, Comp_Year_0Idx, Opening_Balance),
-	div7a_year_closing_balance(	Agreement, Comp_Year_0Idx, Closing_Balance),
-	div7a_min_yearly_repayment(	Agreement, Comp_Year_0Idx, Min_Yearly_Repayment),
-	div7a_total_repayment(		Agreement, Comp_Year_0Idx, Total_Repayment),
-	div7a_total_interest(		Agreement, Comp_Year_0Idx, Total_Interest),
-	div7a_total_principal(		Agreement, Comp_Year_0Idx, Total_Principal),
-	div7a_repayment_shortfall(	Agreement, Comp_Year_0Idx, Repayment_Shortfall),
-
-	loan_sum_number(				Summary, Comp_Year_0Idx),
-	loan_sum_opening_balance(		Summary, Opening_Balance),
-	loan_sum_interest_rate(			Summary, Interest_Rate),
-	loan_sum_min_yearly_repayment(	Summary, Min_Yearly_Repayment),
-	loan_sum_total_repayment(		Summary, Total_Repayment),
-	loan_sum_repayment_shortfall(	Summary, Repayment_Shortfall),
-	loan_sum_total_interest(		Summary, Total_Interest),
-	loan_sum_total_principal(		Summary, Total_Principal),
-	loan_sum_closing_balance(		Summary, Closing_Balance).
+Loan_in, [Date|], [Repayment|Repayments]
 
 /*
 given a point list In, repeatedly apply div7a_new_points to the last element, until the last element of the result is end.
@@ -325,3 +266,66 @@ div7a_records(Start, [Start,Next|Records_Tail]) :-
 	;	Records_Tail = []
 	).
 */
+
+
+
+/*
+loan{date:date(2014,6,30), term:7}
+opening_balance{date:date(2019,6,30), amount:1000}
+should append:
+interest{date:date(2020,6,30), days:366, amount:53.7}
+balance(date(2020,6,30)
+
+ato result:
+
+Minimum yearly repayment not met.
+
+The amount of the loan not repaid at the end of income year 2019-20 is $1,000.00.
+
+The private company may be taken to pay a dividend under Division 7A to the shareholder or shareholder's associate because the amount repaid during income year 2019-20 in relation to the amalgamated loan is less than the minimum yearly repayment required.
+
+Interest received by the private company must be included in the income tax return for 2019-20.
+
+Minimum yearly repayment $370.00
+Benchmark interest rate 5.37%
+
+Opening balance:
+Date: 30/06/2019
+Balance: $1,000.00
+
+Days: 366
+Interest: $53.70
+
+Total repayments $0
+Total interest $53.70
+Total principal $0
+
+Closing balance
+Date: 30/06/2020
+Balance: $1,000.00
+
+===========
+
+
+
+
+
+
+
+
+
+second testcase:
+
+
+loan{date:date(2015,7,1), term:7}
+opening_balance{date:date(2019,6,30), amount:1010}
+
+
+
+
+
+
+
+*/
+
+

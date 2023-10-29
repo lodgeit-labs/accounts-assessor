@@ -2,7 +2,7 @@
 
 
 
-fetch_file_from_url(loc(absolute_url,Url), loc(absolute_path, Path)) :-
+ fetch_file_from_url(loc(absolute_url,Url), loc(absolute_path, Path)) :-
 	/* fixme ensure the host isnt localhost / local network */
 	/*uri_components(Url, Components),
 	writeq(Components),nl,*/
@@ -10,13 +10,13 @@ fetch_file_from_url(loc(absolute_url,Url), loc(absolute_path, Path)) :-
 	services_server_shell_cmd(['curl', Url, '-o', Path]).
 
 
-/*,'method':"agraph_sparql","params":{"sparql":"clear graphs"}}'*/
-services_rpc(Cmd, Result) :-
-	'='(Url, $>atomics_to_string([$>services_server, '/rpc/'])),
-	merge_dicts(cmd{'jsonrpc':"2.0",'id':"0"}, Cmd, Cmd2),
-	json_post(Url, Cmd2, Response),
+
+ services_rpc(Path, Cmd, Result) :-
+	atomics_to_string([$>services_server, '/', Path], Url),
+	%merge_dicts(cmd{'jsonrpc':"2.0",'id':"0"}, Cmd, Cmd2),
+	json_post(Url, Cmd, Response),
 	(	get_dict(result, Response, Result)
 	->	true
-	;	throw(Response)).
+	;	throw_string(Response)).
 
 

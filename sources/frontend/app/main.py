@@ -13,8 +13,7 @@ from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, sta
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from fastapi.responses import RedirectResponse
-from fastapi.responses import HTMLResponse
+from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
 from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
 
@@ -187,7 +186,6 @@ async def get_task(id: str):
 	#'2012-05-29T19:30:03.283Z'
 	#"2023-09-21T10:16:44.571279+00:00",
 	import dateutil.parser
-	
 	enqueued_datetime = dateutil.parser.parse(message['enqueued_datetime'])
 	end_datetime = message.get('end_datetime', None)
 	if end_datetime is not None:
@@ -259,13 +257,6 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 
 
 
-def job_tmp_url(job):
-	public_url = os.environ['PUBLIC_URL']
-	return tmp_file_url(public_url, job.message_id, '')
-
-
-
-
 def process_request(request_directory, requested_output_format = 'job_handle'):
 	public_url=os.environ['PUBLIC_URL']
 
@@ -284,8 +275,15 @@ def process_request(request_directory, requested_output_format = 'job_handle'):
 
 	logger.info('requested_output_format: %s' % requested_output_format)
 
+	# the immediate modes should be removed, they are only legacy excel plugin stuff
 	if requested_output_format == 'immediate_xml':
 			reports = job.result.get(block=True, timeout=1000 * 1000)
+			logger.info(str(reports))
+			# was this an error?
+			if reports['alerts'] != []:
+				#return JSONResponse(reports), reports
+				error_xml_text = '<error>' + str(reports['alerts']) + '</error>'
+				return PlainTextResponse(error_xml_text, status_code=500), error_xml_text
 			return RedirectResponse(find_report_by_key(reports['reports'], 'result')), None
 	elif requested_output_format == 'immediate_json_reports_list':
 			reports = job.result.get(block=True, timeout=1000 * 1000)
@@ -335,6 +333,12 @@ def save_uploaded_file(tmp_directory_path, src):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
 	return PlainTextResponse(str(exc), status_code=400)
+
+
+
+def job_tmp_url(job):
+	public_url = os.environ['PUBLIC_URL']
+	return tmp_file_url(public_url, job.message_id, '')
 
 
 

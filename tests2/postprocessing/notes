@@ -1,0 +1,3 @@
+find ~/robust_tests/2023-10-25_21_49_19.215267 -maxdepth 2 -type d -name nodebug | wc -l
+
+
