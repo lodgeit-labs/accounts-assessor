@@ -51,3 +51,8 @@
 		</repayments>
 	</loanDetails>
 </reports>
+<!--
+
+principal is 75000, but opening balance for first year after loan is made is 55000.
+
+-->

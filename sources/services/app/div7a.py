@@ -75,6 +75,9 @@ def div7a_from_json2(ooo,j):
 	if ob == -1:
 		pass
 	else:
+		if principal is not None and ciy == creation_income_year + 1:
+			raise Exception(f'opening balance for income year {ciy} must be equal to principal, or one must be omitted.')
+		
 		records.add(opening_balance(date(ciy-1, 6, 30), dict(amount=ob)))
 		
 	for r in j['repayments']:
