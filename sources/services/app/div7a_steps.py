@@ -75,7 +75,7 @@ def with_interest_calc_days(records):
 		prev_event_date = None
 		for j in records_before_this_record_in_reverse_order(records, i):
 
-			if j.__class__ in [opening_balance, loan_start]:
+			if j.__class__ in [opening_balance, loan_start, closing_interest_calc]:
 				# 
 				prev_event_date = j.date + timedelta(days=1)
 				break
@@ -178,7 +178,12 @@ def with_myr_checks(records):
 
 	for r in myr_checks:
 		records.add(r)
-
+		
+	for i,r in enumerate(records):
+		if r.__class__ is myr_check:
+			r.final_balance = records[i-1].final_balance
+		
+		
 
 
 
