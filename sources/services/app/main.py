@@ -26,7 +26,7 @@ from . import div7a
 
 @app.post("/div7a")
 def post_div7a(loan_summary_request: dict):
-	log.warn(loan_summary_request)
+	log.warn(json.dumps(loan_summary_request))
 	result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
 	log.warn(result)
 	return result

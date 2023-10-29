@@ -191,11 +191,14 @@ class TestResultImmediateXml(luigi.Task):
 			request_files = json.load(request_files_f)
 
 		resp = make_request(self.test, request_files)
-		job = {'status': resp.status_code, 'url': resp.url}
-		# get the url of the directory of the file pointed-to by url:
-		uuu = furl(job['url'])
-		uuu.path = '/'.join(str(uuu.path).split('/')[:-1])
-		job['dir'] = uuu.url
+		job = {'status': resp.status_code}
+
+		if resp.ok:
+			job['url'] = resp.url
+			# get the url of the directory of the file pointed-to by url:
+			uuuu = furl(job['url'])
+			uuuu.path = '/'.join(str(uuuu.path).split('/')[:-1])
+			job['dir'] = uuuu.url
 
 		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'result.xml')
 		result_xml.makedirs()
@@ -234,8 +237,17 @@ class TestEvaluateImmediateXml(luigi.Task):
 			with self.output()['evaluation'].open('w') as out:
 				json_dump({'test':dict(self.test), 'job': status, 'delta':delta,'response':response}, out)
 
-		with open(os.path.abspath(P(self.test['suite']) / self.test['dir'] / 'response.json')) as fd:
-			expected_response = json.load(fd)
+		expected_response_json_fn = (P(self.test['suite']) / self.test['dir'] / 'response.json')
+		if expected_response_json_fn.exists():
+			expected_response = json_load(expected_response_json_fn)
+		else:
+			return done([
+				{
+					"msg": f"response.json is missing in testcase",
+					"fix": {"op": "cp", "src": str(self.input().path), "dst": str(expected_response_json_fn)}
+				}
+			])
+		
 		expected_status = expected_response['status']
 
 		if status != expected_status:
@@ -245,6 +257,16 @@ class TestEvaluateImmediateXml(luigi.Task):
 
 			result_fn = P(self.test['path']) / response['result']
 			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'response.xml'
+
+			if not expected_fn.exists():
+				return done([
+					{
+						"msg": f"response.xml is missing in testcase",
+						"fix": {"op": "cp", "src": str(result_fn), "dst": str(expected_fn)}
+					}
+				])
+
+			
 			
 			canonical_result_xml_string = canonicalize(from_file=result_fn, strip_text=True)
 			canonical_expected_xml_string = canonicalize(from_file=expected_fn, strip_text=True)
@@ -446,13 +468,18 @@ class Permutations(luigi.Task):
 	def required_evaluations(self):
 		for dir in self.robust_testcase_dirs():
 			for debug in ([False, True] if self.debug is None else [self.debug]):
-				
-				requested_output_format = 'immediate_xml' if P(self.suite / dir / 'response.json').exists() else 'job_handle' 
+
+				requested_output_format = 'job_handle'
+
+				request_json = P(self.suite / dir / 'request.json')
+				if request_json.exists():
+					request_json = json_load(request_json)
+					requested_output_format = request_json.get('requested_output_format')
 
 				yield {
-					'robust_server_url': self.robust_server_url,
 					'requested_output_format': requested_output_format,
-					'suite': str(self.suite),
+					'robust_server_url': self.robust_server_url,
+					'suite': str(os.path.abspath((self.suite))),
 					'dir': str(dir),
 					'worker_options': {
 						'prolog_debug': debug,
@@ -550,6 +577,25 @@ class TestDebugPrepare(luigi.WrapperTask):
 	def run(self):
 		with self.input().open() as pf:
 			yield [TestPrepare(t) for t in json.load(pf)]
+
+
+
+
+
+def json_load(fn):
+	with open(fn) as f:
+		return json.load(f)
+
+
+
+
+
+
+
+
+
+
+
 
 
 

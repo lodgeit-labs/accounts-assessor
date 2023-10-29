@@ -11,15 +11,15 @@ def ensure_opening_balance_exists(records):
 	* or it is implied by loan princial (on the last day of loan start income year).
 	in either case, there will be one opening balance record, and it will be on the last day of the computation income year.
 	"""
-	
-	opening_balance = opening_balance_record(records)
-	if opening_balance is None:
-		loan_start = get_loan_start_record(records)
+
+	opening_balance_rec = opening_balance_record(records)
+	if opening_balance_rec is None:
+		loan_start_rec = get_loan_start_record(records)
 		records.add(record(
-			date(loan_start.income_year, 6, 30),
+			date(loan_start_rec.income_year, 6, 30),
 			opening_balance,
 			{
-				'amount': loan_start.info['principal']
+				'amount': loan_start_rec.info['principal']
 			}
 		))
 
