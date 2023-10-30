@@ -45,9 +45,9 @@ packaging==23.0
     #   webargs
 requests==2.31.0
     # via agraph-python
-urllib3==1.26.15
+urllib3==1.26.18
     # via requests
 webargs==8.2.0
     # via flask-apispec
-werkzeug==2.2.3
+werkzeug==3.0.1
     # via flask

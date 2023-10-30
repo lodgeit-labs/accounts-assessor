@@ -56,7 +56,7 @@ typing-extensions==4.7.1
     # via
     #   fastapi
     #   pydantic
-urllib3==2.0.3
+urllib3==2.0.7
     # via requests
 uvicorn==0.22.0
     # via frontend (pyproject.toml)
