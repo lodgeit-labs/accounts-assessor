@@ -1,4 +1,4 @@
-:- module(chat, [do_chat/2, chat_response/4, chat_preprocess/4, history_json_to_tuples/2, match_response_with_last_question/3]).
+:- module(chat, [chat_response/4, chat_preprocess/4, history_json_to_tuples/2, match_response_with_last_question/3]).
 
 /*
 swipl version 8 required.
@@ -53,17 +53,6 @@ match_response_with_last_question(In, HistoryWithResponse, CurrentQuestionId) :-
 match_response_with_last_question(In, In.current_state, 0).
 
 
-
-
-do_chat(Dict, Response) :-
-	Type = Dict.get(type),
-	do_chat2(Type, Dict, Response).
-
-do_chat2("sbe", Dict, r{result:Result}) :-
-	sbe:sbe_step(Dict, Result).
-
-do_chat2("residency", Dict, r{result:Result}) :-
-	residency:residency_step(Dict, Result).
 
 
 

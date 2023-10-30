@@ -16,6 +16,8 @@
 
 :- use_module(library(http/json)).
 :- use_module('chat', []).
+:- use_module('sbe', []).
+:- use_module('residency', []).
 :- use_module(library(prolog_stack)).
 
 :- ['lib'].
@@ -63,6 +65,17 @@ process_request_rpc_cmdline3("chat", Dict) :-
 	!,
 	!(chat:do_chat(Dict, Response)),
 	json_write(current_output, Response).
+
+
+do_chat(Dict, Response) :-
+	Type = Dict.get(type),
+	do_chat2(Type, Dict, Response).
+
+do_chat2("sbe", Dict, r{result:Result}) :-
+	sbe:sbe_step(Dict, Result).
+
+do_chat2("residency", Dict, r{result:Result}) :-
+	residency:residency_step(Dict, Result).
 
 
 
