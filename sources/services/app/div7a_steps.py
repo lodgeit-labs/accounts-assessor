@@ -11,15 +11,15 @@ def ensure_opening_balance_exists(records):
 	* or it is implied by loan princial (on the last day of loan start income year).
 	in either case, there will be one opening balance record, and it will be on the last day of the computation income year.
 	"""
-	
-	opening_balance = opening_balance_record(records)
-	if opening_balance is None:
-		loan_start = get_loan_start_record(records)
+
+	opening_balance_rec = opening_balance_record(records)
+	if opening_balance_rec is None:
+		loan_start_rec = get_loan_start_record(records)
 		records.add(record(
-			date(loan_start.income_year, 6, 30),
+			date(loan_start_rec.income_year, 6, 30),
 			opening_balance,
 			{
-				'amount': loan_start.info['principal']
+				'amount': loan_start_rec.info['principal']
 			}
 		))
 
@@ -75,7 +75,7 @@ def with_interest_calc_days(records):
 		prev_event_date = None
 		for j in records_before_this_record_in_reverse_order(records, i):
 
-			if j.__class__ in [opening_balance, loan_start]:
+			if j.__class__ in [opening_balance, loan_start, closing_interest_calc]:
 				# 
 				prev_event_date = j.date + timedelta(days=1)
 				break
@@ -178,7 +178,12 @@ def with_myr_checks(records):
 
 	for r in myr_checks:
 		records.add(r)
-
+		
+	for i,r in enumerate(records):
+		if r.__class__ is myr_check:
+			r.final_balance = records[i-1].final_balance
+		
+		
 
 
 
