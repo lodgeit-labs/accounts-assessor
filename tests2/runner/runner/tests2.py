@@ -1,7 +1,17 @@
+import urllib
+from io import StringIO
+from xml import etree
+from xml.etree.ElementTree import canonicalize, fromstring, tostring
+
+from furl import furl
+import lxml.etree
+
 from luigi.freezing import FrozenOrderedDict
 from defusedxml.ElementTree import parse as xmlparse 
 import xmldiff
-from xmldiff import main as xmldiffmain, formatting
+import xmldiff.main, xmldiff.formatting
+#from xmldiff import main as xmldiffmain, formatting
+import xmldiff
 import requests
 import datetime
 import logging
@@ -16,6 +26,8 @@ import sys,os
 from urllib.parse import urlparse
 
 from luigi.parameter import _DictParamEncoder
+
+from runner.compare import my_xml_diff
 from runner.utils import *
 
 #print(sys.path)
@@ -56,8 +68,20 @@ class Dummy(luigi.Task):
 		return False
 
 
+class AssistantStartup(luigi.Task):
+	"""just a dummy task to pass to an assitant worker. Could be simplified."""
+	ts = luigi.Parameter(default=datetime.datetime.utcnow().isoformat())
+
+	def run(self):
+		self.output().open('w').close()
+
+	def output(self):
+		return luigi.LocalTarget('/tmp/luigi_dummy/%s' % self.ts)
+
+
 def symlink(source, target):
-	tmp = '/tmp/abcdefgrobusttestrunnerrrr'+str(os.getpid())
+	# fixme, gotta get a safe file name in source.parent 
+	tmp = source+str(os.getpid()) + "." + str(time.time())
 	subprocess.call([
 		'/bin/ln', '-s',
 		target,
@@ -79,7 +103,7 @@ class TestPrepare(luigi.Task):
 		inputs.append(self.write_job_json(request_files_dir))
 		with self.output().open('w') as out:
 			json_dump(inputs, out)
-		symlink(P(self.test['path']) / 'testcase', (P(self.test['suite']) / self.test['dir']).absolute())
+		#symlink(P(self.test['path']) / 'testcase', (P(self.test['suite']) / self.test['dir']).absolute())
 
 	def copy_inputs(self, request_files_dir):
 		files = []
@@ -169,14 +193,22 @@ class TestResultImmediateXml(luigi.Task):
 		resp = make_request(self.test, request_files)
 		job = {'status': resp.status_code}
 
+		if resp.ok:
+			job['url'] = resp.url
+			# get the url of the directory of the file pointed-to by url:
+			uuuu = furl(job['url'])
+			uuuu.path = '/'.join(str(uuuu.path).split('/')[:-1])
+			job['dir'] = uuuu.url
+
 		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'result.xml')
 		result_xml.makedirs()
 
-		if resp.ok:
-			with result_xml.temporary_path() as result_xml_fn:
-				with open(result_xml_fn, 'w') as result_xml_fd:
-					result_xml_fd.write(resp.text)
-			job['result'] = 'outputs/result.xml'
+		#if resp.ok:
+		with result_xml.temporary_path() as result_xml_fn:
+			with open(result_xml_fn, 'w') as result_xml_fd:
+				result_xml_fd.write(resp.text)
+		job['result'] = 'outputs/result.xml'
+		
 
 		with self.output().temporary_path() as response_fn:
 			with open(response_fn, 'w') as response_fd:
@@ -184,6 +216,76 @@ class TestResultImmediateXml(luigi.Task):
 
 	def output(self):
 		return luigi.LocalTarget(P(self.test['path']) / 'response.json')
+
+
+class TestEvaluateImmediateXml(luigi.Task):
+
+	priority = 100
+	test = luigi.parameter.DictParameter()
+
+	def requires(self):
+		return TestResultImmediateXml(self.test)
+
+
+	def run(self):
+
+		with open(P(self.input().path)) as fd:
+			response = json.load(fd)
+		status = response['status']
+
+		def done(delta):
+			with self.output()['evaluation'].open('w') as out:
+				json_dump({'test':dict(self.test), 'job': status, 'delta':delta,'response':response}, out)
+
+		expected_response_json_fn = (P(self.test['suite']) / self.test['dir'] / 'response.json')
+		if expected_response_json_fn.exists():
+			expected_response = json_load(expected_response_json_fn)
+		else:
+			return done([
+				{
+					"msg": f"response.json is missing in testcase",
+					"fix": {"op": "cp", "src": str(self.input().path), "dst": str(expected_response_json_fn)}
+				}
+			])
+		
+		expected_status = expected_response['status']
+
+		if status != expected_status:
+			return done([f'status({status}) != expected_status({expected_status})'])
+
+		if status == 200:
+
+			result_fn = P(self.test['path']) / response['result']
+			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'response.xml'
+
+			if not expected_fn.exists():
+				return done([
+					{
+						"msg": f"response.xml is missing in testcase",
+						"fix": {"op": "cp", "src": str(result_fn), "dst": str(expected_fn)}
+					}
+				])
+
+			
+			
+			canonical_result_xml_string = canonicalize(from_file=result_fn, strip_text=True)
+			canonical_expected_xml_string = canonicalize(from_file=expected_fn, strip_text=True)
+
+			result = fromstring(canonical_result_xml_string)
+			expected = fromstring(canonical_expected_xml_string)
+
+			# logger.info(tostring(result))
+			# logger.info(tostring(expected))
+
+			return done(list(my_xml_diff(result, expected)))
+		return done([])
+
+	def output(self):
+		return {
+			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
+			'outputs':luigi.LocalTarget(P(self.test['path']) / 'outputs')
+		}
+
 
 
 
@@ -200,7 +302,7 @@ class TestResult(luigi.Task):
 		start = TestStart(self.test, request_files)
 		yield start
 		with start.output().open() as fd:
-			handle = fd.read() 
+			handle = fd.read()
 		with self.output().temporary_path() as tmp:
 			while True:
 				logger.info('...')
@@ -220,72 +322,6 @@ class TestResult(luigi.Task):
 
 	def output(self):
 		return luigi.LocalTarget(P(self.test['path']) / 'job.json')
-
-
-
-
-class TestEvaluateImmediateXml(luigi.Task):
-
-	priority = 100
-	test = luigi.parameter.DictParameter()
-
-	def requires(self):
-		return TestResultImmediateXml(self.test)
-
-
-	def run(self):
-
-		def done(delta):
-			with self.output()['evaluation'].open('w') as out:
-				json_dump({'test':dict(self.test), 'job': status, 'delta':delta}, out)
-
-		with open(P(self.input().path)) as fd:
-			response = json.load(fd)
-		status = response['status']
-
-		with open(os.path.abspath(P(self.test['suite']) / self.test['dir'] / 'response.json')) as fd:
-			expected_response = json.load(fd)
-		expected_status = expected_response['status']
-
-		if status != expected_status:
-			return done([f'status({status}) != expected_status({expected_status})'])
-
-		if status == 200:
-			#with open() as fd:
-
-			result_fn = P(self.test['path']) / response['result']
-			result = xmlparse(result_fn).getroot()
-			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'response.xml'
-			expected = xmlparse(expected_fn).getroot()
-
-			# diff_trees()
-			diff = []
-			xml_diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
-			logger.info(xml_diff)
-			if xml_diff != "":
-				diff.append(xml_diff)
-				diff.append(xmldiffmain.diff_files(result_fn, expected_fn))
-				shortfall = expected.find("./LoanSummary/RepaymentShortfall")
-				if shortfall is not None:
-					shortfall = shortfall.text
-				
-				diff.append(dict(
-					type='div7a',
-					failed=result.tag == 'error',
-					expected_shortfall=shortfall
-				))
-								
-			return done(diff)
-
-		return done([])
-
-	def output(self):
-		return {
-			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
-			'outputs':luigi.LocalTarget(P(self.test['path']) / 'outputs')
-		}
-
-
 
 
 
@@ -432,13 +468,18 @@ class Permutations(luigi.Task):
 	def required_evaluations(self):
 		for dir in self.robust_testcase_dirs():
 			for debug in ([False, True] if self.debug is None else [self.debug]):
-				
-				requested_output_format = 'immediate_xml' if P(self.suite / dir / 'response.json').exists() else 'job_handle' 
+
+				requested_output_format = 'job_handle'
+
+				request_json = P(self.suite / dir / 'request.json')
+				if request_json.exists():
+					request_json = json_load(request_json)
+					requested_output_format = request_json.get('requested_output_format')
 
 				yield {
-					'robust_server_url': self.robust_server_url,
 					'requested_output_format': requested_output_format,
-					'suite': str(self.suite),
+					'robust_server_url': self.robust_server_url,
+					'suite': str(os.path.abspath((self.suite))),
 					'dir': str(dir),
 					'worker_options': {
 						'prolog_debug': debug,
@@ -501,14 +542,22 @@ class Summary(luigi.Task):
 		yield evals
 
 		with self.output().open('w') as out:
-			summary = []
+			summary = dict(ok=None, total=None, evaluations=[])
+			ok = 0
+			bad = []
 			for eval in evals:
 				with eval.output()['evaluation'].open() as e:
 					evaluation = json.load(e)
-				summary.append(evaluation)
+				summary['evaluations'].append(evaluation)
+				if evaluation['delta'] == []:
+					ok += 1
+				else:
+					bad.append(evaluation)
+			summary['bad'] = bad
+			summary['ok'] = ok
+			summary['total'] = len(evals)
 			json_dump(summary, out)
 
-			#RepaymentShortfall
 
 
 	def output(self):
@@ -528,6 +577,21 @@ class TestDebugPrepare(luigi.WrapperTask):
 	def run(self):
 		with self.input().open() as pf:
 			yield [TestPrepare(t) for t in json.load(pf)]
+
+
+
+
+
+def json_load(fn):
+	with open(fn) as f:
+		return json.load(f)
+
+
+
+
+
+
+
 
 
 

@@ -34,7 +34,7 @@ tenacity==8.2.2
     # via luigi
 tornado==6.3.3
     # via luigi
-urllib3==1.26.17
+urllib3==1.26.18
     # via requests
 xmldiff==2.6.3
     # via -r requirements.in

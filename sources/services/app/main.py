@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, logging, re
 import urllib.parse
 import json
 import datetime
@@ -8,15 +8,31 @@ from typing import Optional, Any
 from fastapi import FastAPI, Request, File, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+import requests, glob
+from pathlib import Path as P
+import xmlschema
+
+
+log = logging.getLogger(__name__)
 
 app = FastAPI()
 
+schemas = {}
+
 
 from . import account_hierarchy
+from . import div7a
 
+
+@app.post("/div7a")
+def post_div7a(loan_summary_request: dict):
+	log.warn(json.dumps(loan_summary_request))
+	result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
+	log.warn(result)
+	return result
 
 @app.post("/arelle_extract")
-def arelle_extract(taxonomy_locator: str):
+def post_arelle_extract(taxonomy_locator: str):
 	return account_hierarchy.ArelleController().run(taxonomy_locator)
 
 
@@ -47,9 +63,6 @@ def shell(shell_request: ShellRequest):
 
 
 
-import xmlschema
-schemas = {}
-
 def parse_schema(xsd):
 	return xmlschema.XMLSchema(xsd)
 
@@ -74,3 +87,41 @@ def xml_xsd_validator(xml: str, xsd:str):
 		response['error_type'] = str(type(e))
 		response['result'] = 'error'
 	return JSONResponse(response)
+
+
+@app.post('/fetch_remote_file')
+def fetch_remote_file(tmp_dir_path: str, url: str):
+	log.debug(url)
+
+	url = correct_onedrive_url(url)
+
+	path = P(tmp_dir_path) / 'remote_files'
+	path.mkdir(exist_ok=True)
+
+
+	existing_items = list(path.glob('*'))
+	log.debug(existing_items)
+
+
+	existing_items_count = len(existing_items)
+	path = path / str(existing_items_count)
+	log.debug(path)
+
+	path.mkdir(exist_ok=True)
+	log.debug(url)
+	proc = subprocess.run(['wget', url], cwd=path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+	files = list(path.glob('*'))
+
+	if len(files) == 1:
+		r = dict(result = 'ok', file_path=str(path / files[0]))
+	else:
+		r = dict(result = 'error', error_message = proc.stdout)
+
+	log.info(r)
+	return JSONResponse(r)
+
+def correct_onedrive_url(url):
+	try:
+		return 'https://api.onedrive.com/v1.0/shares/s!'+re.search(r'https://1drv.ms/u/s\!(.*?)\?.*', url).group(1)+'/root/content'
+	except:
+		return url

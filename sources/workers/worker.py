@@ -62,7 +62,7 @@ def run_last_request_outside_of_docker(self):
 
 
 
-print(local_calculator.fn)
+#print(local_calculator.fn)
 remoulade.declare_actors([local_rpc, local_calculator])
 
 

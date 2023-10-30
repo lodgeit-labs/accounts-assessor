@@ -1,10 +1,9 @@
 #!/usr/bin/env fish
-function _; or status --is-interactive; or exit 1; end
+function _; or status --is-interactive; or exit 1; end # this serves as a replacement for the bash "set -e" flag
 set DIR (dirname (readlink -m (status --current-filename)));cd "$DIR"
 
 
 sudo echo "i'm root!"; or begin; echo "root level setup skipped"; exit 0; end
-
 
 
 
@@ -26,6 +25,7 @@ sudo usermod -aG docker $USER;_ # fixme, how to apply this without logging out?
 # if not using compose:
 #docker swarm init;_
 
+# bump inotify limits, otherwise, you're gonna get error messages inside docker containers
 echo -e "fs.inotify.max_user_instances=65535\nfs.inotify.max_user_watches=4194304" | sudo tee /etc/sysctl.d/inotify.conf
 sudo sysctl --load=/etc/sysctl.d/inotify.conf
 

@@ -1,6 +1,6 @@
 -e ../common/libs/remoulade/[rabbitmq,redis,postgres]
 agraph-python==101.0.7
-urllib3==1.26.17 
+urllib3==1.26.18 
 #agraph-python
 fire
 memory-profiler
