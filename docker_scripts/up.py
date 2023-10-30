@@ -56,7 +56,7 @@ def health_check(public_url):
 
 	try:
 		print('health_check...')
-		subprocess.check_call(shlex.split(f"""curl  --trace-time --trace-ascii - --retry-connrefused  --retry-delay 10 --retry 10 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' {public_url}/health_check"""))
+		subprocess.check_call(shlex.split(f"""curl  --trace-time - --retry-connrefused  --retry-delay 10 --retry 30 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' {public_url}/health_check"""))
 		print('healthcheck ok')
 		
 	except Exception as e:
