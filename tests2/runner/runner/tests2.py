@@ -199,15 +199,15 @@ class TestResultImmediateXml(luigi.Task):
 			uuuu = furl(job['url'])
 			uuuu.path = '/'.join(str(uuuu.path).split('/')[:-1])
 			job['dir'] = uuuu.url
-
-		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'result.xml')
+			
+		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'response.xml')
 		result_xml.makedirs()
 
 		#if resp.ok:
 		with result_xml.temporary_path() as result_xml_fn:
 			with open(result_xml_fn, 'w') as result_xml_fd:
 				result_xml_fd.write(resp.text)
-		job['result'] = 'outputs/result.xml'
+		job['result'] = 'outputs/response.xml'
 		
 
 		with self.output().temporary_path() as response_fn:
