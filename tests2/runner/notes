@@ -1,6 +1,6 @@
-find nonok tests:
+find nonok tests without summary.json:
 ```
-find /home/koom/robust_tests/latest/ -name evaluation.json -type f -print0 | xargs -0 -I % fish -c 'grep "delta\": \[\]" %; or begin echo %; cat %; end'
+find /home/koom/robust_tests/latest/ -name evaluation.json -type f -print0 | xargs -0 -I % fish -c 'grep \"delta\": \[\]" %; or begin echo %; cat %; end'
 ```
 
 delete bad tests
