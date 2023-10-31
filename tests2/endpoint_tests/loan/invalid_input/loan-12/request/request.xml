@@ -1,4 +1,10 @@
 <?xml version="1.0"?>
+
+
+			<!-- There can be only one of opening balance or principal. -->
+
+
+
 <!-- The following document is a representation of the following information: The first income year begins on
 	date(2014, 7, 1). The private companys lodgement day is date(2015, 5, 15). A payment of $20,000 is made
 	on date(2014, 8, 31). A payment of $8,000 is made on date(2015, 5, 30). The principal amount of the loan
@@ -38,7 +44,6 @@
 			<field name="Principal amount of loan" value="75000" />
 			<field name="Lodgement day of private company" value="2015-05-15" />
 			<field name="Income year of computation" value="2015" />
-			<!-- There can be at most one of the following field in a loanAgreement. -->
 			<field name="Opening balance of computation" value="55000" />
 		</loanAgreement>
 		<!-- There must be exactly one repayments element in a loandetails element. -->

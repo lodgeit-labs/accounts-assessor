@@ -26,5 +26,13 @@ we have relatively few testcases where zero balance is reached:
 ```
 and we have zero ato calc testcases ending in overpayment. We may have to generate some.
 
+we need to propagate error messages from python to prolog - python can easily signal an error by returning an error json.
+prolog can catch it and throw and alert. 
+alerts will be lost on xml clients - or they could read the <error> tag.
+but it probably makes more sense to finish the migration of div7a too.
+but for simplicity we will want to stick to current xml format in tests. That, plus error tag.
 
-
+implicit messages hidden in xml format:
+* shortfall - explicit tag
+* repayments excess - in excess of myr - checked for each year - not indicated - not an error
+* loan overpayment - "principal repaid" exceeds opening balance - not an error
