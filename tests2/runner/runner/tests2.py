@@ -41,6 +41,14 @@ from common import robust_tests_folder
 from json import JSONEncoder
 
 
+
+requests_session = requests.Session()
+requests_adapter = requests.adapters.HTTPAdapter(max_retries=5)
+requests_session.mount('http://', requests_adapter)
+requests_session.mount('https://', requests_adapter)
+
+
+
 logger = logging.getLogger('robust')
 
 class MyJSONEncoder(JSONEncoder):
@@ -149,7 +157,7 @@ def make_request(test, request_files):
 	files = {}
 	for idx, input_file in enumerate(request_files):
 		files['file' + str(idx+1)] = open(request_files[idx])
-	return requests.post(
+	return requests_session.post(
 			url + '/upload',
 			params={'request_format':request_format, 'requested_output_format': test['requested_output_format']},
 			files=files
@@ -308,7 +316,7 @@ class TestResult(luigi.Task):
 				logger.info('...')
 				time.sleep(15)
 
-				job = requests.get(handle).json()
+				job = requests_session.get(handle).json()
 				with open(tmp, 'w') as out:
 					json_dump(job, out)
 
@@ -448,7 +456,7 @@ def fetch_report(tmp, url):
 	fn = pathlib.Path(urlparse(url).path).name
 	out = P(tmp) / fn
 	with open(out, 'wb') as result_file:
-		shutil.copyfileobj(requests.get(url, stream=True).raw, result_file)
+		shutil.copyfileobj(requests_session.get(url, stream=True).raw, result_file)
 	return out
 
 
