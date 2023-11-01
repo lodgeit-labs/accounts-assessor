@@ -18,6 +18,6 @@ def my_xml_diff(a,b):
 		except ValueError:
 			yield f'{a.tag}: {a.text} != {b.text}'
 	if len(a) != len(b):
-		yield f'{a.tag}: len({a}) != len({b})'
+		yield f'{a.tag}: len({a}) != len({b}): {len(a)} != {len(b)}'
 	for i in range(len(a)):
 		yield from my_xml_diff(a[i],b[i])
