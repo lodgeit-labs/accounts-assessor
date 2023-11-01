@@ -105,7 +105,7 @@ def loan_agr_year_opening_balance(records, income_year):
 	if prev < 0:
 		# prev = 0 # technically, this is correct, but we don't want to do this, because it's a weird notion that year 0 has any opening balance
 		raise Exception('not expected to be called on income year of loan creation')
-	return records[prev].final_balance
+	return max(0,records[prev].final_balance)
 
 
 # def get_last_record_of_previous_income_year(records, i):
@@ -209,10 +209,11 @@ def total_principal_paid(records, iy):
 def closing_balance(records, iy):
 	"""closing balance of this income year
 	per ato calc, closing balance is not the same as the final balance of the last record of the income year.
-	the closing balance is lowered by the unpaid interest. This means that the unpaid interest is not taken into account, it is effectiively de-accrued. This situation can only happen when the myr is not met, so the computation is over.
+	the closing balance is lowered by the unpaid interest. This means that the unpaid interest is not taken into account, it is effectively de-accrued. This situation can only happen when the myr is not met, so the computation is over. 
+	(iow, interest is not taken into account when the loan is deemed not div7a?)
 	Furthermore, this is only a reporting / output function, not affecting the computation. 
 	"""
-	return records_of_income_year(records, iy)[-1].final_balance - unpaid_interest(records, iy)
+	return max(0,records_of_income_year(records, iy)[-1].final_balance - unpaid_interest(records, iy))
 
 
 def unpaid_interest(records, iy):

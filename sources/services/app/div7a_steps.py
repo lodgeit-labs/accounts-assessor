@@ -121,7 +121,7 @@ def with_balance(records):
 					r.final_balance = prev_balance - r.info['amount']
 				elif r.__class__ in [interest_calc, closing_interest_calc]:
 					# round to two decimal places as ato calc seems to be doing?
-					r.info['interest_accrued'] = round(interest_accrued(prev_balance, r), 20)
+					r.info['interest_accrued'] = round(interest_accrued(max(0,prev_balance), r), 20)
 					r.final_balance = prev_balance
 				elif r.__class__ == income_year_end:
 					periods = [c.info['interest_accrued'] for c in records_of_income_year(records, r.income_year) if c.__class__ in [interest_calc, closing_interest_calc]]
@@ -208,7 +208,9 @@ def evaluate_myr_checks(records):
 				)
 				previous_income_year_final_balance = fb - repaid_in_first_year_before_lodgement_day
 			else:
-				previous_income_year_final_balance = fb 
+				previous_income_year_final_balance = fb
+
+			previous_income_year_final_balance = max(0,previous_income_year_final_balance)
 
 			br = benchmark_rate(r.income_year)
 			remaining_term = get_remaining_term(records, r)
