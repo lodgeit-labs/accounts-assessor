@@ -210,8 +210,6 @@ def evaluate_myr_checks(records):
 			else:
 				previous_income_year_final_balance = fb
 
-			previous_income_year_final_balance = max(0,previous_income_year_final_balance)
-
 			br = benchmark_rate(r.income_year)
 			remaining_term = get_remaining_term(records, r)
 
