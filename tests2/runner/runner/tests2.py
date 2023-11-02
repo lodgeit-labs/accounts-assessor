@@ -3,6 +3,7 @@ from io import StringIO
 from xml import etree
 from xml.etree.ElementTree import canonicalize, fromstring, tostring
 
+import psutil
 from furl import furl
 import lxml.etree
 
@@ -128,9 +129,12 @@ class TestPrepare(luigi.Task):
 
 
 	def write_job_json(self, request_files_dir):
+		with open(request_files_dir / 'request.json') as fp:
+			metadata = json.load(fp)
 		data = dict(
+			**metadata,
 			custom_job_metadata = dict(self.test),
-			worker_options = dict(self.test['worker_options'])
+			worker_options = dict(self.test['worker_options']),
 		)
 		fn = request_files_dir / 'request.json'
 		with open(fn, 'w') as fp:
@@ -170,6 +174,19 @@ class TestStart(luigi.Task):
 
 	test = luigi.parameter.DictParameter()
 	request_files = luigi.parameter.ListParameter()
+
+	@property
+	def resources(self):
+		for f in self.request_files:
+			if f.endswith('/request.json'):
+				with open(f) as fd:
+					j = json.load(fd)
+				nodebug_mem_reserve_mb = j.get('nodebug_mem_reserve_mb', 25)
+				o = j.get('worker_options')
+				if o is not None:
+					if o.get('prolog_debug') is True:
+						nodebug_mem_reserve_mb *= 4			
+		return {'nodebug_mem_reserve_mb': min(1, nodebug_mem_reserve_mb / (psutil.virtual_memory().available/1000000))}
 
 	def run(self):
 		resp = make_request(self.test, self.request_files)
