@@ -252,12 +252,12 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 		logger.info('uploaded: %s' % file)
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
 
-	return process_request(request_tmp_directory_name, requested_output_format)[0]
+	return process_request(request_tmp_directory_name, request_format, requested_output_format)[0]
 
 
 
 
-def process_request(request_directory, requested_output_format = 'job_handle'):
+def process_request(request_directory, request_format='rdf', requested_output_format = 'job_handle'):
 	public_url=os.environ['PUBLIC_URL']
 
 	request_json = os.path.join(request_directory, 'request.json')
@@ -268,6 +268,7 @@ def process_request(request_directory, requested_output_format = 'job_handle'):
 		options = None
 
 	job = worker.trigger_remote_calculator_job(
+		request_format=request_format,
 		request_directory=request_directory,
 		public_url=public_url,
 		options=options

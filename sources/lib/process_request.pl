@@ -351,6 +351,7 @@
 	debug(tmp_files, "member(~w, ~w)~n", [Path, File_Paths]),
 	tmp_file_path_to_url__singleton(Path, Url),
 	debug(tmp_files, "tmp_file_path_to_url(~w, ~w)~n", [Path, Url]),
+	add_report_file(-20,'request_file', 'request_file', Url),
 	(	loc_icase_endswith(Path, ".xml")
 	->	(
 			add_report_file(-20,'request_xml', 'request_xml', Url),

@@ -13,10 +13,11 @@ def call_prolog_calculator(**kwargs):
 	msg = kwargs['msg']
 	params = msg['params']
 
-	if len(params['request_files']) == 1 and params['request_files'][0].lower().endswith('.xml'):
-		params['request_format']='xml'
-	else:
-		params['request_format']='rdf'
+	if params.get(request_format) is None:
+		if len(params['request_files']) == 1 and params['request_files'][0].lower().endswith('.xml'):
+			params['request_format']='xml'
+		else:
+			params['request_format']='rdf'
 
 
 	# this is where prolog will put reports:

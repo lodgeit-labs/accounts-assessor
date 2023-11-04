@@ -66,6 +66,10 @@ process_request_rpc_cmdline3("chat", Dict) :-
 	!(chat:do_chat(Dict, Response)),
 	json_write(current_output, Response).
 
+process_request_rpc_cmdline3(_,_) :-
+	json_write(current_output, response{status:error, message:unknown_method}).
+
+
 
 do_chat(Dict, Response) :-
 	Type = Dict.get(type),
@@ -76,9 +80,4 @@ do_chat2("sbe", Dict, r{result:Result}) :-
 
 do_chat2("residency", Dict, r{result:Result}) :-
 	residency:residency_step(Dict, Result).
-
-
-
-process_request_rpc_cmdline3(_,_) :-
-	json_write(current_output, response{status:error, message:unknown_method}).
 
