@@ -4,6 +4,7 @@ requests
 defusedxml
 xmldiff
 furl
+psutil
 #file://../../sdk
 
 
