@@ -587,16 +587,29 @@ class Summary(luigi.Task):
 				else:
 					bad.append(evaluation)
 			summary['bad'] = bad
-			summary['ok'] = ok
-			summary['total'] = len(evals)
+			summary['stats'] = dict(bad=len(bad),ok=ok,total=len(evals))
 			json_dump(summary, out)
-
-
+			
+			# im' not sure we can really do this, not sure if the event handler is always called in the same worker.
+			self.summary = summary
+			
 
 	def output(self):
 		return luigi.LocalTarget(self.session / 'summary.json')
 
 
+def print_summary_summary(summary):
+	logging.getLogger('robust').info('')
+	for i in summary['bad']:
+		logging.getLogger('robust').info(json.dumps(i, indent=4))
+	logging.getLogger('robust').info(summary['stats'])
+	logging.getLogger('robust').info('')
+
+
+@Summary.event_handler(luigi.Event.SUCCESS)
+def celebrate_success(task):
+	logging.getLogger('robust').info('tadaaaa')
+	print_summary_summary(task.summary)
 
 
 class TestDebugPrepare(luigi.WrapperTask):
