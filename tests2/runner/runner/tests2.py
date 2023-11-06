@@ -105,10 +105,17 @@ class TestPrepare(luigi.Task):
 	test = luigi.parameter.DictParameter()
 
 
+	@property
+	def suitedir(self):
+		return P(self.test['suite']) / self.test['dir']
+
 	def run(self):
 		request_files_dir: pathlib.Path = P(self.test['path']) / 'inputs'
+		logging.getLogger('robust').debug(f'request_files_dir: {request_files_dir}')
 		request_files_dir.mkdir(parents=True, exist_ok=True)
 		inputs = self.copy_inputs(request_files_dir)
+
+		logging.getLogger('robust').debug(f'done copying inputs.')
 		inputs.append(self.write_job_json(request_files_dir))
 		with self.output().open('w') as out:
 			json_dump(inputs, out)
@@ -117,7 +124,8 @@ class TestPrepare(luigi.Task):
 	def copy_inputs(self, request_files_dir):
 		files = []
 		input_file: pathlib.Path
-		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('request/*'))):
+		for input_file in sorted(filter(lambda x: not x.is_dir(), 	(P(self.test['suite']) / self.test['dir']).glob('request/*'))):
+			logging.getLogger('robust').debug(f'copying {input_file}')
 			x = None
 			if str(input_file).endswith('/request.xml'):
 				x = Xml2rdf().xml2rdf(input_file, request_files_dir)
@@ -129,7 +137,7 @@ class TestPrepare(luigi.Task):
 
 
 	def write_job_json(self, request_files_dir):
-		with open(request_files_dir / 'request.json') as fp:
+		with open(self.suitedir / 'request.json') as fp:
 			metadata = json.load(fp)
 		data = dict(
 			**metadata,
