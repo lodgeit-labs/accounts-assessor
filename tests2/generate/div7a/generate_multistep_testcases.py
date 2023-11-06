@@ -2,6 +2,7 @@
 import io
 import json, os, sys, datetime, random, requests
 from datetime import timedelta, date
+from pathlib import Path
 from xml.etree.ElementTree import canonicalize, fromstring, tostring
 
 from utils import python_date_to_xml
@@ -26,6 +27,7 @@ from utils import *
 def single_step_request(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year):
 	x = request_xml(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year)
 	s = x.toprettyxml(indent='\t')
+	print(s)
 
 	robust_server_url = 'http://localhost:8877'
 
@@ -70,13 +72,9 @@ def run():
 				print(last_step_result_xml_text)
 				step = fromstring(last_step_result_xml_text)
 
-				cb2 = float(step.find('ClosingBalance').text)
-						
-				if cb2 >= cb:
-					raise 'hmm'
-				cb = cb2
+				cb = float(step.find('ClosingBalance').text)
 
-				if float(step.find('Shortfall').text) != 0:
+				if float(step.find('RepaymentShortfall').text) != 0:
 					break
 				if cb == 0:
 					break
@@ -115,7 +113,7 @@ def write_multistep_testcase(
 	counter += 1
 	id = f'{counter:07d}'
 
-	case_dir = P(f'{cases_dir}/{id}')
+	case_dir = Path(f'{cases_dir}/{id}')
 	case_dir.mkdir(parents=True)
 
 	inputs_dir = case_dir / 'request'
