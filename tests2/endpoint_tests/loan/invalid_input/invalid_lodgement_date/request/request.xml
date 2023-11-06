@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<loanDetails>
+		<loanAgreement>
+			<field name="Income year of loan creation" value="2016" />
+			<field name="Full term of loan in years" value="4" />
+			<field name="Principal amount of loan" value="10000" />
+			<field name="Lodgement day of private company" value="2012-06-30" />
+			<field name="Income year of computation" value="2018" />
+		</loanAgreement>
+		<repayments>
+		</repayments>
+	</loanDetails>
+</reports>

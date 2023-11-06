@@ -4,21 +4,14 @@
 		<loanAgreement>
 			<field name="Income year of loan creation" value="2014"/>
 			<field name="Full term of loan in years" value="7"/>
-			<field name="Lodgement day of private company" value="2014-07-05"/>
+			<field name="Lodgement day of private company" value="2015-05-15"/>
 			<field name="Income year of computation" value="2015"/>
 			<field name="Opening balance of computation" value="123.86121234762837"/>
 		</loanAgreement>
 		<repayments>
-			<repayment date="2014-07-10" value="102.86121234762868"/>
+			<repayment date="2014-07-10" value="122.86121234762868"/>
 			<repayment date="2014-07-15" value="10"/>
-			<repayment date="2014-07-16" value="100"/>
+			<repayment date="2014-07-16" value="100000"/>
 		</repayments>
 	</loanDetails>
 </reports>
-
-<!--
-
-todo, we differ from ato here.
-is lodgement date or some repaymeent date or something invalid in the inputs here?
-
--->
