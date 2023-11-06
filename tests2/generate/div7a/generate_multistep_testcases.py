@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
-
-import json, os, sys, datetime, random
+import io
+import json, os, sys, datetime, random, requests
 from datetime import timedelta, date
 from xml.etree.ElementTree import canonicalize, fromstring, tostring
 
+from utils import python_date_to_xml
 
 random.seed(0)
+
+
+requests_session = requests.Session()
+requests_adapter = requests.adapters.HTTPAdapter(max_retries=5)
+requests_session.mount('http://', requests_adapter)
+requests_session.mount('https://', requests_adapter)
 
 
 from xml.dom import minidom
@@ -15,6 +22,29 @@ impl = getDOMImplementation()
 
 from utils import *
 
+
+def single_step_request(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year):
+	x = request_xml(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year)
+	s = x.toprettyxml(indent='\t')
+
+	robust_server_url = 'http://localhost:8877'
+
+	file1=io.StringIO(s)
+	file1.name='request.xml'
+	files = dict(file1=file1)
+
+	return requests_session.post(
+			f'{robust_server_url}/upload',
+			params={'request_format':'xml', 'requested_output_format': 'immediate_xml'},
+			files=files
+	).text
+
+
+
+def repayments_for_income_year(repayments, enquiry_year):
+	for r in repayments:
+		if r['date'] >= date(enquiry_year - 1, 7, 1) and r['date'] <= date(enquiry_year, 6, 30):
+			yield r
 
 
 def run():
@@ -29,22 +59,24 @@ def run():
 			principal = random.randint(1, 1000000)
 			lodgement_date = start + timedelta(days=random.randint(0, 365))
 
-			enquiry_year = date(loan_year, 7, 1)
+			enquiry_year = loan_year + 1 #date(loan_year, 7, 1)
 			cb = principal
 
 			while cb > 0:
-				enquiry_year += 1
+				enquiry_year += 1#date(enquiry_year.year + 1, 7, 1)
 
-				last_step_result_xml_text = single_step_request(loan_year, full_term, lodgement_date, cb, repayments_for_iy(enquiry_year, repayments))
+				last_step_result_xml_text = single_step_request(loan_year, full_term, lodgement_date, cb, repayments_for_income_year(repayments, enquiry_year), enquiry_year)
+
+				print(last_step_result_xml_text)
 				step = fromstring(last_step_result_xml_text)
 
-				cb2 = float(step.find('closing_balance').text)
+				cb2 = float(step.find('ClosingBalance').text)
 						
 				if cb2 >= cb:
 					raise 'hmm'
 				cb = cb2
 
-				if float(step.find('shortfall').text) != 0:
+				if float(step.find('Shortfall').text) != 0:
 					break
 				if cb == 0:
 					break
@@ -54,83 +86,87 @@ def run():
 			write_multistep_testcase(loan_year, full_term, lodgement_date, principal, repayments, enquiry_year, last_step_result_xml_text)
 
 
-def write_multistep_testcase(loan_year, full_term, lodgement_date, principal, repayments, enquiry_year, single_step_result_xml_text):
-	request_fn = inputs_dir / 'request.xml'
 
-	with open(request_fn, 'w') as f:
+counter = 0
 
-		doc = impl.createDocument(None, "reports", None)
-		loan = doc.documentElement.appendChild(doc.createElement('loanDetails'))
+def write_multistep_testcase(
+	income_year_of_loan_creation,
+	full_term_of_loan_in_years,
+	lodgement_day_of_private_company,
+	opening_balance,
+	repayment_dicts,
+	income_year_of_computation,
+	single_step_result_xml_text
+):
 
-		agreement = loan.appendChild(doc.createElement('loanAgreement'))
-		repayments = loan.appendChild(doc.createElement('repayments'))
+	global counter
 
-		def field(name, value):
-			field = agreement.appendChild(doc.createElement('field'))
-			field.setAttribute('name', name)
-			field.setAttribute('value', str(value))
+	doc = request_xml(
+		income_year_of_loan_creation,
+		full_term_of_loan_in_years,
+		lodgement_day_of_private_company,
+		opening_balance,
+		repayment_dicts,
+		income_year_of_computation
+	)
 
-			field('Income year of loan creation', income_year_of_loan_creation)
-			field('Full term of loan in years', full_term_of_loan_in_years)
-			if lodgement_day_of_private_company is not None:
-				field('Lodgement day of private company', ato_date_to_xml(lodgement_day_of_private_company))
-			field('Income year of computation', income_year_of_computation)
+	cases_dir = Path('multistep')
 
-			# maybe we could generate some testcases with principal rather than opening balance tag, it will mean the same thing.
-			field('Opening balance of computation', opening_balance)
-			# field('Principal amount of loan', opening_balance)
+	counter += 1
+	id = f'{counter:07d}'
 
-			for r in j['repayments']:
-				repayment = repayments.appendChild(doc.createElement('repayment'))
-				repayment.setAttribute('date', ato_date_to_xml(r['rd']))
-				repayment.setAttribute('value', str(r['ra']))
+	case_dir = P(f'{cases_dir}/{id}')
+	case_dir.mkdir(parents=True)
 
-			with open(request_fn, 'w') as f:
-				f.write(doc.toprettyxml(indent='\t'))
+	inputs_dir = case_dir / 'request'
+	inputs_dir.mkdir(parents=True)
 
-		f.write(to_xml_string(dict(
-			loan_year = loan_year,
-			full_term = full_term,
-			lodgement_date = lodgement_date,
-			calc_year = enquiry_year,
-			principal = principal,
-			repayments = repayments,
-		))
+	outputs_dir = case_dir/ 'responses'
+	outputs_dir.mkdir(parents=True)
 
-	with open(tc / 'responses' / 'response.xml', 'w') as f:
+	with open(inputs_dir / 'request.xml', 'w') as f:
+		f.write(doc.toprettyxml(indent='\t'))
+
+	with open(outputs_dir / 'response.xml', 'w') as f:
 		f.write(single_step_result_xml_text)
-	
-	
-
-		
-	
-	# 	dict(
-	# 		IncomeYear = last_step['IncomeYear'],
-	# 		OpeningBalance = last_step['OpeningBalance'],
-	# 		InterestRate = last_step['InterestRate'],
-	# 		MinYearlyRepayment = last_step['MinYearlyRepayment'],
-	# 		TotalRepayment = last_step['TotalRepayment'],
-	# 		RepaymentShortfall = 
-	# 		TotalInterest = 
-	# 		TotalPrincipal = 
-	# 		ClosingBalance = 
-	# 		shortfall = last_step['shortfall'],
-			
-			
-		
-		
-
-		
-	
-	
-	
-	
-	
 
 
 
+def request_xml(
+	income_year_of_loan_creation,
+	full_term_of_loan_in_years,
+	lodgement_day_of_private_company,
+	opening_balance,
+	repayment_dicts,
+	income_year_of_computation
+):
+	doc = impl.createDocument(None, "reports", None)
+	loan = doc.documentElement.appendChild(doc.createElement('loanDetails'))
 
+	agreement = loan.appendChild(doc.createElement('loanAgreement'))
+	repayments = loan.appendChild(doc.createElement('repayments'))
 
+	def field(name, value):
+		field = agreement.appendChild(doc.createElement('field'))
+		field.setAttribute('name', name)
+		field.setAttribute('value', str(value))
+
+	field('Income year of loan creation', income_year_of_loan_creation)
+	field('Full term of loan in years', full_term_of_loan_in_years)
+	if lodgement_day_of_private_company is not None:
+		field('Lodgement day of private company', (lodgement_day_of_private_company))
+	field('Income year of computation', income_year_of_computation)
+
+	# maybe we could generate some testcases with principal rather than opening balance tag, it will mean the same thing.
+	field('Opening balance of computation', opening_balance)
+	# field('Principal amount of loan', opening_balance)
+
+	for r in repayment_dicts:
+		repayment = repayments.appendChild(doc.createElement('repayment'))
+		repayment.setAttribute('date', python_date_to_xml(r['date']))
+		repayment.setAttribute('value', str(r['amount']))
+
+	return doc
 
 
 def repaymentset(start, end_inclusive):
@@ -146,11 +182,20 @@ def repaymentset(start, end_inclusive):
 
 
 
-
-
-
-
-
-
 if __name__ == '__main__':
 	run()
+
+
+
+# 	dict(
+# 		IncomeYear = last_step['IncomeYear'],
+# 		OpeningBalance = last_step['OpeningBalance'],
+# 		InterestRate = last_step['InterestRate'],
+# 		MinYearlyRepayment = last_step['MinYearlyRepayment'],
+# 		TotalRepayment = last_step['TotalRepayment'],
+# 		RepaymentShortfall =
+# 		TotalInterest =
+# 		TotalPrincipal =
+# 		ClosingBalance =
+# 		shortfall = last_step['shortfall'],
+
