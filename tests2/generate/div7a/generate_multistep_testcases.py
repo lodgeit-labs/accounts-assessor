@@ -50,7 +50,10 @@ def repayments_for_income_year(repayments, enquiry_year):
 
 
 def run():
+	while True:
+		run2()
 
+def run2():
 	for loan_year in range(2000, 2020):
 		start = date(loan_year, 7, 1)
 		for full_term in range(2, 7):
@@ -82,10 +85,11 @@ def run():
 					break
 					
 			write_multistep_testcase(loan_year, full_term, lodgement_date, principal, repayments, enquiry_year, last_step_result_xml_text)
+	
+	
 
+counter = 1000
 
-
-counter = 0
 
 def write_multistep_testcase(
 	income_year_of_loan_creation,
@@ -183,17 +187,4 @@ def repaymentset(start, end_inclusive):
 if __name__ == '__main__':
 	run()
 
-
-
-# 	dict(
-# 		IncomeYear = last_step['IncomeYear'],
-# 		OpeningBalance = last_step['OpeningBalance'],
-# 		InterestRate = last_step['InterestRate'],
-# 		MinYearlyRepayment = last_step['MinYearlyRepayment'],
-# 		TotalRepayment = last_step['TotalRepayment'],
-# 		RepaymentShortfall =
-# 		TotalInterest =
-# 		TotalPrincipal =
-# 		ClosingBalance =
-# 		shortfall = last_step['shortfall'],
 
