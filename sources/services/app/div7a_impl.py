@@ -3,8 +3,31 @@ from dataclasses import dataclass
 
 
 from .div7a_records import *
+import logging
+
+log = logging.getLogger(__name__)
 
 
+
+def rec_add(recs, rec):
+	recs.append(rec)
+	recs.sort()
+	
+	modified = True
+	
+	while modified:
+		log.warn(rec)
+		modified = False
+		
+		for i,r in enumerate(recs):
+			goes_before = r.info.get('sorting', {}).get('goes_before')
+			if goes_before is not None:
+				j = i + 1
+				if len(recs) <= j or recs[j] != goes_before:
+					recs.remove(r)
+					recs.insert(recs.index(goes_before), r)
+					modified = True
+					break
 
 
 @dataclass

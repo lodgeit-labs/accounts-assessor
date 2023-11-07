@@ -15,7 +15,7 @@ def ensure_opening_balance_exists(records):
 	opening_balance_rec = opening_balance_record(records)
 	if opening_balance_rec is None:
 		loan_start_rec = get_loan_start_record(records)
-		records.add(record(
+		rec_add(records, record(
 			date(loan_start_rec.income_year, 6, 30),
 			opening_balance,
 			{
@@ -29,7 +29,7 @@ def insert_interest_calc_records(records):
 
 	# before each repayment
 	for repayment in repayments(records):
-		records.add(record(
+		rec_add(records, record(
 			repayment.date,
 			interest_calc,
 			{
@@ -49,8 +49,9 @@ def insert_interest_calc_records(records):
 			income_year_end,
 			{}
 		)
+		rec_add(records, iy_end)
 				
-		records.add(record(
+		rec_add(records, record(
 			date(income_year, 6, 30),
 			closing_interest_calc,
 			{
@@ -58,8 +59,6 @@ def insert_interest_calc_records(records):
 				'sorting': {'goes_before': iy_end},
 				'rate': benchmark_rate(income_year),
 			}))
-
-		records.add(iy_end)
 
 
 def with_interest_calc_days(records):
@@ -177,7 +176,7 @@ def with_myr_checks(records):
 		))
 
 	for r in myr_checks:
-		records.add(r)
+		rec_add(records, r)
 		
 	for i,r in enumerate(records):
 		if r.__class__ is myr_check:

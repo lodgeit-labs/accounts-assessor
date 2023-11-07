@@ -190,18 +190,20 @@ div7a_rdf_result(ComputationYearNumber, Summary) :-
 loan_agr_summary_python(LA, Summary) :-
 	!ground(LA),
 	my_request_tmp_dir_path(Tmp_Dir_Path),
-%gtrace,
 	services_rpc('div7a', _{tmp_dir_path:Tmp_Dir_Path,data:LA}, R),
-	(	_{
-			opening_balance: OpeningBalance,
-			interest_rate: InterestRate,
-			min_yearly_repayment: MinYearlyRepayment,
-			total_repayment: TotalRepayment,
-			repayment_shortfall: RepaymentShortfall,
-			total_interest: TotalInterest,
-			total_principal: TotalPrincipal,
-			closing_balance: ClosingBalance
-		} :< R
+	(	(
+			get_dict(result, R, RR),
+			_{
+				opening_balance: OpeningBalance,
+				interest_rate: InterestRate,
+				min_yearly_repayment: MinYearlyRepayment,
+				total_repayment: TotalRepayment,
+				repayment_shortfall: RepaymentShortfall,
+				total_interest: TotalInterest,
+				total_principal: TotalPrincipal,
+				closing_balance: ClosingBalance
+			} :< RR
+		)
 	->	true
 	;	throw_string(R.error_message)),
     Summary = loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance).

@@ -40,14 +40,7 @@ class Record:
 		return result
 
 	def __eq__(self, other):
-		return (self.__class__ == other.__class__ and
-				self.uuid == other.uuid and
-				self.date == other.date and 
-				self.info == other.info and
-				self.final_balance == other.final_balance and
-				self.year == other.year and
-				self.remaining_term == other.remaining_term
-		)
+		return self.uuid == other.uuid
 
 	@property
 	def income_year(self) -> int:
@@ -59,15 +52,10 @@ class Record:
 
 	def __repr__(self):
 		return f'{self.date}:{self.__class__.__name__}({self.info})'
+	
 	def __lt__(self, other):
-		goes_before = self.info.get('sorting', {}).get('goes_before')
 		if self.date != other.date:
 			return self.date < other.date
-		elif goes_before is not None:
-			if other is goes_before:
-				return True
-			else:
-				return goes_before < other
 		else:
 			return record_sorting[self.__class__] < record_sorting[other.__class__]
 	

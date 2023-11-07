@@ -4,7 +4,6 @@ import pathlib
 from datetime import datetime
 
 from pandas.io.formats.style import Styler
-from sortedcontainers import SortedList
 import pandas as pd
 from .div7a_steps import *
 from .div7a_checks import *
@@ -61,13 +60,15 @@ def div7a_from_json2(ooo,j):
 	if principal == -1:
 		principal = None
 
+	records = []
+
 	loan_start_record = loan_start(date(creation_income_year, 6, 30), dict(principal=principal, term=term, calculation_income_year = ciy))
+
+	rec_add(records, loan_start_record)
 	
-	records = SortedList([loan_start_record])
-	
-	records.add(calculation_start(date(ciy-1, 7, 1)))
-	records.add(calculation_end(date(ciy, 6, 30)))
-	records.add(loan_term_end(date(creation_income_year + term, 6, 30)))
+	rec_add(records, calculation_start(date(ciy-1, 7, 1)))
+	rec_add(records, calculation_end(date(ciy, 6, 30)))
+	rec_add(records, loan_term_end(date(creation_income_year + term, 6, 30)))
 	
 
 	# opening balance, as specified by user, is always understood to be the opening balance of the computation income year	
@@ -78,18 +79,18 @@ def div7a_from_json2(ooo,j):
 		if principal is not None and ciy == creation_income_year + 1:
 			raise Exception(f'opening balance for income year {ciy} must be equal to principal, or one must be omitted.')
 		
-		records.add(opening_balance(date(ciy-1, 6, 30), dict(amount=ob)))
+		rec_add(records, opening_balance(date(ciy-1, 6, 30), dict(amount=ob)))
 		
 	for r in j['repayments']:
 		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
-		records.add(repayment(d, {'amount':float(r['value'])}))
+		rec_add(records, repayment(d, {'amount':float(r['value'])}))
 
 	ld = j['lodgement_date']
 	if ld == -1:
 		pass
 	else:
 		lodgement_date = datetime.strptime(ld, '%Y-%m-%d').date()
-		records.add(lodgement(lodgement_date))
+		rec_add(records, lodgement(lodgement_date))
 
 
 	if not in_notebook():
@@ -121,7 +122,7 @@ def div7a_from_json2(ooo,j):
 def div7a(ooo, records):
 
 	# we begin with loan_start, optional opening_balance, possible lodgement day, and then repayments.
-	tables = [SortedList(records)]
+	tables = [list(records)]
 	step(ooo, tables, input)
 	# insert opening_balance record if it's not there
 	step(ooo, tables, ensure_opening_balance_exists)
@@ -147,7 +148,7 @@ def div7a(ooo, records):
 def step(ooo, tables, f):
 	t1 = tables[-1]
 	check_invariants(t1)
-	t2 = SortedList([r.copy() for r in t1]) # a sliced SortedList is a list, duh.
+	t2 = [r.copy() for r in t1] 
 	f(t2)
 	tables.append(t2)
 
@@ -250,7 +251,7 @@ def records_to_dicts(records):
 		if d['final_balance'] == None:
 			d['final_balance'] = ''
 
-		del d['sorting']
+		#del d['sorting']
 		del d['calculation_income_year'] # this could be inferred from calculation_start record now, and is a constant that doesnt participate in the event sequence in any way
 
 		dicts.append(d)
