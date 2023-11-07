@@ -39,6 +39,8 @@ We are only concerned with unsecured loans here.
 % Benchmark interest rates
 % These rates apply to private companies with an income year ending 30 June.
 % Source: https://www.ato.gov.au/rates/division-7a---benchmark-interest-rate/
+
+benchmark_interest_rate(Day, 8.27, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2024, Days).
 benchmark_interest_rate(Day, 4.77, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2023, Days).
 benchmark_interest_rate(Day, 4.52, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2022, Days).
 benchmark_interest_rate(Day, 4.52, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2021, Days).
