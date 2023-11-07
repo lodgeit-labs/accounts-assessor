@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<reports>
+	<loanDetails>
+		<loanAgreement>
+			<field name="Income year of loan creation" value="2012"/>
+			<field name="Full term of loan in years" value="3"/>
+			<field name="Lodgement day of private company" value="2012-07-27"/>
+			<field name="Income year of computation" value="2014"/>
+			<field name="Opening balance of computation" value="45936"/>
+		</loanAgreement>
+		<repayments>
+			<repayment date="2013-04-24" value="29792"/>
+			<repayment date="2013-12-30" value="16695"/>
+			<repayment date="2014-12-25" value="31172"/>
+			<repayment date="2015-04-14" value="22098"/>
+			<repayment date="2015-08-28" value="2767"/>
+		</repayments>
+	</loanDetails>
+</reports>

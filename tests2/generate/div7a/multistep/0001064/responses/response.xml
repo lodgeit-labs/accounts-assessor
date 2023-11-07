@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">
+<IncomeYear>2014</IncomeYear>
+<OpeningBalance>327400.0000008</OpeningBalance>
+<InterestRate>6.2000008</InterestRate>
+<MinYearlyRepayment>94917.9382218</MinYearlyRepayment>
+<TotalRepayment>93280.0000008</TotalRepayment>
+<RepaymentShortfall>1637.9382218</RepaymentShortfall>
+<TotalInterest>17601.8856118</TotalInterest>
+<TotalPrincipal>75678.1143898</TotalPrincipal>
+<ClosingBalance>251721.8856118</ClosingBalance>
+</LoanSummary>

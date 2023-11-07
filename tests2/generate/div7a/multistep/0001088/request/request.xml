@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<reports>
+	<loanDetails>
+		<loanAgreement>
+			<field name="Income year of loan creation" value="2017"/>
+			<field name="Full term of loan in years" value="4"/>
+			<field name="Lodgement day of private company" value="2018-01-27"/>
+			<field name="Income year of computation" value="2019"/>
+			<field name="Opening balance of computation" value="588879"/>
+		</loanAgreement>
+		<repayments>
+			<repayment date="2018-06-27" value="28291"/>
+			<repayment date="2018-09-07" value="388"/>
+			<repayment date="2019-09-26" value="33511"/>
+			<repayment date="2019-12-14" value="43327"/>
+			<repayment date="2020-12-07" value="36915"/>
+			<repayment date="2021-06-21" value="23654"/>
+			<repayment date="2022-02-13" value="2383"/>
+		</repayments>
+	</loanDetails>
+</reports>

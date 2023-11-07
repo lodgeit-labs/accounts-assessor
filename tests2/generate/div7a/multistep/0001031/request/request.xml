@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<reports>
+	<loanDetails>
+		<loanAgreement>
+			<field name="Income year of loan creation" value="2006"/>
+			<field name="Full term of loan in years" value="2"/>
+			<field name="Lodgement day of private company" value="2006-07-21"/>
+			<field name="Income year of computation" value="2008"/>
+			<field name="Opening balance of computation" value="541619"/>
+		</loanAgreement>
+		<repayments>
+			<repayment date="2007-01-11" value="38204"/>
+			<repayment date="2007-06-10" value="47063"/>
+			<repayment date="2008-06-05" value="30830"/>
+			<repayment date="2008-07-08" value="5547"/>
+		</repayments>
+	</loanDetails>
+</reports>
