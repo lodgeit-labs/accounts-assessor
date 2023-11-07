@@ -27,7 +27,10 @@ from . import div7a
 @app.post("/div7a")
 def post_div7a(loan_summary_request: dict):
 	log.warn(json.dumps(loan_summary_request))
-	result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
+	try:
+		result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
+	except Exception as e:
+		result = dict(result='error', error_message=str(e))
 	log.warn(result)
 	return result
 
@@ -113,9 +116,9 @@ def fetch_remote_file(tmp_dir_path: str, url: str):
 	files = list(path.glob('*'))
 
 	if len(files) == 1:
-		r = dict(result = 'ok', file_path=str(path / files[0]))
+		r = dict(result='ok', file_path=str(path / files[0]))
 	else:
-		r = dict(result = 'error', error_message = proc.stdout)
+		r = dict(result='error', error_message=proc.stdout)
 
 	log.info(r)
 	return JSONResponse(r)

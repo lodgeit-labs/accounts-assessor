@@ -24,7 +24,7 @@ def check_invariants(records):
 	for i in range(len(records) - 1):
 		if records[i].__class__ == interest_calc and records[i + 1].__class__ == interest_calc and records[
 			i].date == records[i + 1].date:
-			raise Exception('Two adjacent interest accruals on the same day')
+			raise Exception('Two adjacent interest calcs on the same day')
 
 	# - zero or one opening balance:
 

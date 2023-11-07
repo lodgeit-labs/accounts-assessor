@@ -84,8 +84,6 @@ class interest_calc(Record):
 	pass
 class closing_interest_calc(Record):
 	pass
-class interest_accrual(Record):
-	pass
 class lodgement(Record):
 	pass
 class repayment(Record):
@@ -110,7 +108,6 @@ record_sorting = {
 	repayment: 3,
 	closing_interest_calc: 3.4,
 	income_year_end: 3.5,
-	interest_accrual: 3.6,
 	lodgement: 4,
 	# todo test repayment *at* lodgement day. What's the legal position?
 	myr_check: 5,
