@@ -88,7 +88,7 @@
 
  process_request2 :-
 	!cf(collect_alerts(Alerts3, Alerts_html)),
-	!nicety(make_json_report(Alerts3, alerts_json)),
+	!(make_json_report(Alerts3, alerts_json)),
 	!cf(make_alerts_report(Alerts_html)),
 
 	nicety(!cf(make_doc_dump_report)),
@@ -126,13 +126,14 @@
 
  handle_processing_exception2(E) :-
 	enrich_exception_with_ctx_dump(E, E2),
-	format_exception_into_alert_string(E2, Str, Html),
+	format_exception_into_alert_string(E2, Msg, Str, Html),
 	add_alert('error', Str, Alert_uri),
 	(	Html \= ''
 	->	doc_add(Alert_uri, l:has_html, Html)
-	;	true).
+	;	true),
+	doc_add(Alert_uri, l:plain_message, Msg).
 
- format_exception_into_alert_string(E, Str, Html) :-
+ format_exception_into_alert_string(E, Msg, Str, Html) :-
 	(	E = with_processing_context(C,E1)
 	->	Context_str = C
 	;	(
@@ -235,18 +236,18 @@
 
  collect_alerts(Alerts_text, Alerts_html) :-
 	findall(
-		Alert_text,
+		Msg,
 		(
 			/* every alert is converted into a string, which is put into result json. This isnt currently being displayed to users - they see the html versions collected below. We might probably replace this with a link to the html report, just for easy navigation from command line during development. */
-			get_alert(Key,Msg0,_),
-			!alert_to_string(Key, Msg0, Alert_text)
+			get_alert(Key,Msg,_,_)
+			%!alert_to_string(Key, Msg0, Alert_text)
 		),
 		Alerts_text
 	),
 	findall(
 		Alert_html,
 		(
-			get_alert(Key,Msg0,Uri),
+			get_alert(Key,_,Msg0,Uri),
 			/* alerts generated from exceptions caught by handle_processing_exception already have html generated from the exception, including stack trace and context trace. todo refactor. Context trace etc extracted from exception should be set on the generated alert, then used here. */
 			(	doc(Uri,l:has_html,Alert_html)
 			->	true
