@@ -33,19 +33,22 @@
 	findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
 	atom_number(ComputationYear, NIncomeYear),
 
+%gtrace,
 
 	findall(Summary1, loan_agr_summary_python0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary1), [Summary1]),
 
-	(	loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary2)
-	->	(	terms_with_floats_close_enough(Summary1, Summary2)
-		->	true
-		;	throw_string('server error: implementations do not match')
-		)
-	;	/*prolog implementation is currently expected to fail for some inputs*/
-		true
-	),
+	div7a_xml_loan_response(NIncomeYear, Summary1, Url),
+	add_report_file(0, 'result', 'result', Url),
 
-	display_xml_loan_response(NIncomeYear, Summary1).
+	(	loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary2)
+	->	(
+			div7a_xml_loan_response(NIncomeYear, Summary2, _),
+			(	terms_with_floats_close_enough(Summary1, Summary2)
+			->	true
+			;	throw_string('server error: inconsistent implementations'))
+		)
+	;	true). /*prolog implementation is currently expected to fail for some inputs*/
+
 
 
 
@@ -87,6 +90,9 @@
 		Summary_term
 	),
 	div7a_summary_term_to_dict(Summary_term, Summary_dict).
+	
+	
+	
 	
  div7a_summary_term_to_dict(Summary_term, Summary_dict) :-	
     Summary_term = loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
@@ -150,7 +156,7 @@ repayment_to_json(Repayment, Json) :-
 	Json = repayment{date:Date, value:Value}.
 
 
- display_xml_loan_response(IncomeYear, LoanSummary) :-
+ div7a_xml_loan_response(IncomeYear, LoanSummary, Url) :-
 	xml_loan_response(IncomeYear, LoanSummary, LoanResponseXML),
 
 	report_file_path(loc(file_name, 'response.xml'), Url, Path, _),
@@ -163,10 +169,8 @@ repayment_to_json(Repayment, Json) :-
 
 	% read the schema file
 	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
-	!validate_xml(Path, LoanResponseXSD, []),
-	add_report_file(0,'result', 'result', Url).
-
-
+	!validate_xml(Path, LoanResponseXSD, []).
+	
 
  xml_loan_response(
 	IncomeYear,
