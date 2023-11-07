@@ -33,7 +33,8 @@
 	findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
 	atom_number(ComputationYear, NIncomeYear),
 
-	loan_agr_summary_python0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary1),
+
+	findall(Summary1, loan_agr_summary_python0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary1), [Summary1]),
 
 	(	loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary2)
 	->	(	terms_with_floats_close_enough(Summary1, Summary2)
@@ -50,7 +51,7 @@
 
 
 
-loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary) :-
+ loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary_dict) :-
 
 	(	ground(LodgementDateStr)
 	->	parse_date(LodgementDateStr, LodgementDate)
@@ -85,6 +86,9 @@ loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncome
 		),
 		Summary_term
 	),
+	div7a_summary_term_to_dict(Summary_term, Summary_dict).
+	
+ div7a_summary_term_to_dict(Summary_term, Summary_dict) :-	
     Summary_term = loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment, RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
 	Summary_dict = _{
 				opening_balance: OpeningBalance,
@@ -119,9 +123,22 @@ loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncome
 	!ground(LA),
 	my_request_tmp_dir_path(Tmp_Dir_Path),
 	services_rpc('div7a', _{tmp_dir_path:Tmp_Dir_Path,data:LA}, R),
-	(	get_dict(result, R, Summary_dict)
+	(	get_dict(result, R, Summary_dict0)
 	->	true
-	;	throw_string(R.error_message)).
+	;	throw_string(R.error_message)),
+	Summary_dict = _{
+				opening_balance: _,
+				interest_rate: _,
+				min_yearly_repayment: _,
+				total_repayment: _,
+				repayment_shortfall: _,
+				total_interest: _,
+				total_principal: _,
+				closing_balance: _
+	},
+	Summary_dict :< Summary_dict0.
+	
+	
 
 
 repayments_to_json(LoanRepayments, Json) :-
@@ -151,11 +168,21 @@ repayment_to_json(Repayment, Json) :-
 
 
 
-xml_loan_response(
+ xml_loan_response(
 	IncomeYear,
-	loan_summary(_Number, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance),
+	Summary_dict,
 	LoanResponseXML
 ) :-
+
+	_{	opening_balance: OpeningBalance,
+		interest_rate: InterestRate,
+		min_yearly_repayment: MinYearlyRepayment,
+		total_repayment: TotalRepayment,
+		repayment_shortfall: RepaymentShortfall,
+		total_interest: TotalInterest,
+		total_principal: TotalPrincipal,
+		closing_balance: ClosingBalance
+	} :< Summary_dict,
 
 	ground(x(IncomeYear, OpeningBalance, InterestRate, MinYearlyRepayment, TotalRepayment,RepaymentShortfall, TotalInterest, TotalPrincipal, ClosingBalance)),
 	var(LoanResponseXML),

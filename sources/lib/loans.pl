@@ -366,12 +366,18 @@ next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Bala
 
 	 but this is wrong because leap years are defined for calendar years, not for income years.
 	 */
-	gregorian_date(Next_Day, date(Next_Day_Year,_,_)),
+	/*gregorian_date(Next_Day, date(Next_Day_Year,_,_)),
 	(	leap_year(Next_Day_Year)
 	->	Year_Days = 366
-	;	Year_Days = 365),
+	;	Year_Days = 365),*/
 
-	benchmark_interest_rate(Current_Day, Interest_Rate),
+	benchmark_interest_rate(Current_Day, Interest_Rate, Year_Days2),
+	(	Year_Days2 = Year_Days
+	->	true
+	;	(
+			throw_string('unexpected error')
+		)
+	),
 	Interest_Amount is Current_Balance * (Interest_Rate/100) * Interest_Period / Year_Days,
 
 		
@@ -519,7 +525,7 @@ loan_agr_min_yearly_repayment(Agreement, Current_Year_Num, Min_Yearly_Rep) :-
 	loan_agr_year_opening_balance(Agreement, Current_Year_Num, min_repayment, Balance),
 	loan_agr_term(Agreement, Term),
 	Remaining_Term is Term - Current_Year_Num,
-	benchmark_interest_rate(Year_Begin_Day, Benchmark_Interest_Rate),
+	benchmark_interest_rate(Year_Begin_Day, Benchmark_Interest_Rate, _),
 	% https://www.ato.gov.au/uploadedImages/Content/Images/40557-3.gif
 	Min_Yearly_Rep is
 		(Balance * Benchmark_Interest_Rate) /
@@ -598,7 +604,7 @@ loan_agr_summary(Agreement, Summary) :-
 
 
 	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _End_Day),
-	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
+	benchmark_interest_rate(Year_Start_Day, Interest_Rate, _),
 
 	/* assert the fields of the final and only loan summary(result). */
 	loan_sum_number(				Summary, Summary_Number),
