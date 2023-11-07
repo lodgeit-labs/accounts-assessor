@@ -10,6 +10,12 @@ log = logging.getLogger(__name__)
 
 
 def rec_add(recs, rec):
+	
+	"""
+	add the record, sort the list, then make sure that all goes_before relations are honored.	
+	 
+	"""
+		
 	recs.append(rec)
 	recs.sort()
 	
