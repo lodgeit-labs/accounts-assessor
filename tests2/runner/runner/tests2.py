@@ -516,6 +516,9 @@ class Permutations(luigi.Task):
 					'dir': str(dir),
 					'worker_options': {
 						'prolog_debug': debug,
+						'skip_dev_runner': not debug,
+						'ROBUST_ENABLE_NICETY_REPORTS': debug,
+						
 					},
 					'path':
 						str(
