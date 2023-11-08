@@ -110,11 +110,14 @@ def with_balance(records):
 
 		# for others, we have to reference the previous record's final balance
 		if i != 0:
-			prev_balance = records[i-1].final_balance
-			if prev_balance is None:
-				# if we are going through the dummy records before opening balance, then there is no previous balance, and we cannot calculate anything
-				pass
+
+			prev_rec = records[i-1]
+			if prev_rec.__class__ == calculation_end:
+				prev_balance = None
 			else:
+				prev_balance = prev_rec.final_balance
+
+			if prev_balance is not None:
 				# calculate the new balance
 				if r.__class__ == repayment:
 					r.final_balance = prev_balance - r.info['amount']
