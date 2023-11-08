@@ -36,7 +36,6 @@ from runner.utils import *
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../..')))
 from fs_utils import directory_files, find_report_by_key
-import fs_utils
 from robust_sdk.xml2rdf import Xml2rdf
 from common import robust_tests_folder
 from json import JSONEncoder
@@ -125,14 +124,16 @@ class TestPrepare(luigi.Task):
 		files = []
 		input_file: pathlib.Path
 		for input_file in sorted(filter(lambda x: not x.is_dir(), 	(P(self.test['suite']) / self.test['dir']).glob('request/*'))):
-			logging.getLogger('robust').debug(f'copying {input_file}')
-			x = None
+			final_name = None
 			if str(input_file).endswith('/request.xml'):
-				x = Xml2rdf().xml2rdf(input_file, request_files_dir)
-			if x is None:
-				x = request_files_dir / input_file.name
-				shutil.copyfile(input_file, x)
-			files.append(x)
+				final_name = Xml2rdf().xml2rdf(input_file, request_files_dir)
+			if final_name is None:
+				if '/.#' in str(input_file):
+					continue
+				final_name = request_files_dir / input_file.name
+				logging.getLogger('robust').debug(f'copying {input_file}')
+				shutil.copyfile(input_file, final_name)
+			files.append(final_name)
 		return files
 
 
@@ -495,7 +496,7 @@ class Permutations(luigi.Task):
 
 
 	def robust_testcase_dirs(self):
-		return fs_utils.robust_testcase_dirs(self.suite, self.dirglob)
+		return robust_testcase_dirs(self.suite, self.dirglob)
 
 
 	def required_evaluations(self):
@@ -643,6 +644,18 @@ def json_load(fn):
 
 
 
+
+def robust_testcase_dirs(suite='.', dirglob=''):
+	dirs0 = [pathlib.Path('.')] + [pathlib.Path(x) for x in sorted(glob.glob(root_dir=suite, pathname='**/' + dirglob, recursive=True))]
+	# filter out 'responses' dirs
+	#dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
+	# fitler out non-leaf dirs
+	#dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
+
+	for d in dirs0:
+		if glob.glob(root_dir=suite, pathname=str(d) + '/request/*') != []:
+			yield d
+	#return dirs2
 
 
 
