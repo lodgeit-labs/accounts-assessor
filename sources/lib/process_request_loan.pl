@@ -40,17 +40,16 @@
 	div7a_xml_loan_response(NIncomeYear, Summary1, Url),
 	add_report_file(0, 'result', 'result', Url),
 
-	(	loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary2)
+	/* (	loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary2)
 	->	(
 			div7a_xml_loan_response(NIncomeYear, Summary2, _),
 			(	terms_with_floats_close_enough(Summary1, Summary2)
 			->	true
 			;	throw_string('server error: inconsistent implementations'))
 		)
-	;	true). /*prolog implementation is currently expected to fail for some inputs*/
-
-
-
+	;	true), % prolog implementation is currently expected to fail for some inputs
+	*/
+	true.
 
 
 

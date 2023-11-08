@@ -383,6 +383,8 @@ next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Bala
 		
 	loan_rec_number(			Next_Record, Next_Record_Number),
 	loan_rec_opening_day(		Next_Record, Current_Day),
+	/* this may be where the problem is, because this puts the accrual on the 1/7 of the next year, so, it gets picked up in loan_agr_total_interest for the next year */
+	/* you can't fix it by subtracting 1, because then loan_agr_year_opening_balance will fail. */
 	loan_rec_closing_day(		Next_Record, Next_Day),
 	loan_rec_opening_balance(	Next_Record, Current_Balance),
 	loan_rec_interest_rate(		Next_Record, Interest_Rate),
@@ -587,7 +589,8 @@ loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
 % A predicate for generating the summary records of a given loan agreement.
 
 loan_agr_summary(Agreement, Summary) :-
-%gtrace,
+
+	gtrace,
 	findall(Record, loan_agr_record(Agreement, Record), Recs),
 	loan_recs_table(Recs),
 	
@@ -598,6 +601,7 @@ loan_agr_summary(Agreement, Summary) :-
 	loan_agr_year_closing_balance(	Agreement, Summary_Number, Closing_Balance),
 	loan_agr_min_yearly_repayment(	Agreement, Summary_Number, Min_Yearly_Repayment),
 	loan_agr_total_repayment(		Agreement, Summary_Number, Total_Repayment),
+	%gtrace,
 	loan_agr_total_interest(		Agreement, Summary_Number, Total_Interest),
 	loan_agr_total_principal(		Agreement, Summary_Number, Total_Principal),
 	loan_agr_repayment_shortfall(	Agreement, Summary_Number, Repayment_Shortfall),
