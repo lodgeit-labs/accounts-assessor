@@ -24,6 +24,70 @@ impl = getDOMImplementation()
 from utils import *
 
 
+
+
+
+counter = 2000
+
+
+
+def loop():
+	for loan_year in range(2000, 2021):
+		start = date(loan_year, 7, 1)
+		for full_term in range(2, 7):
+			
+			end = date(loan_year+full_term, 6, 30)
+
+			repayments = repaymentset(start, end)
+			principal = random.randint(1, full_term * 60000)
+			lodgement_date = start + timedelta(days=random.randint(0, 365))
+
+			comments = []
+			
+			def comment(x):
+				comments.insert(0, x)
+				print(x)
+			
+			cb = principal
+			enquiry_year = loan_year
+
+			print()
+			print(f'========{counter}========')
+			print()
+
+			while cb > 0:
+				enquiry_year += 1
+
+				last_step_request_xml_text, last_step_result_xml_text = single_step_request(loan_year, full_term, lodgement_date, cb, repayments, enquiry_year)
+
+				comments.append(last_step_request_xml_text)
+				comments.append(last_step_result_xml_text)
+
+				step = fromstring(last_step_result_xml_text)
+				
+				#if step.find('error') is not None:
+				#	print('breaking due to error')
+				#	break
+				
+				cb = float(step.find('ClosingBalance').text)
+
+				if float(step.find('RepaymentShortfall').text) != 0:
+					comment('shortfall.')
+					break
+				if cb == 0:
+					comment('paid off.')
+					break
+				if enquiry_year >= 2024:
+					comment('stopped before enquiry_year = 2024')
+					break
+				if enquiry_year + 1 > loan_year + full_term:
+					comment('full term. This shouldnt happen.')
+					break
+
+			if enquiry_year > loan_year + 1:			
+				write_multistep_testcase(loan_year, full_term, lodgement_date, principal, repayments, enquiry_year, last_step_result_xml_text, comments)
+
+
 def single_step_request(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year):
 	x = request_xml(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year)
 	request_str = x.toprettyxml(indent='\t')
@@ -31,69 +95,19 @@ def single_step_request(loan_year, full_term, lodgement_date, ob, repayments, en
 
 	robust_server_url = 'http://localhost:8877'
 
-	file1=io.StringIO(request_str)
-	file1.name='request.xml'
+	file1 = io.StringIO(request_str)
+	file1.name = 'request.xml'
 	files = dict(file1=file1)
 
-	return (request_str, requests_session.post(
-			f'{robust_server_url}/upload',
-			params={'request_format':'xml', 'requested_output_format': 'immediate_xml'},
-			files=files
-	).text)
+	response_text = requests_session.post(
+		f'{robust_server_url}/upload',
+		params={'request_format': 'xml', 'requested_output_format': 'immediate_xml'},
+		files=files
+	).text
 
+	print(response_text)
+	return (request_str, response_text)
 
-
-def repayments_for_income_year(repayments, enquiry_year):
-	for r in repayments:
-		if r['date'] >= date(enquiry_year - 1, 7, 1) and r['date'] <= date(enquiry_year, 6, 30):
-			yield r
-
-
-def run():
-	while True:
-		run2()
-
-def run2():
-	for loan_year in range(2000, 2020):
-		start = date(loan_year, 7, 1)
-		for full_term in range(2, 7):
-			
-			end = date(loan_year+full_term, 6, 30)
-
-			repayments = repaymentset(start, end)
-			principal = random.randint(1, 1000000)
-			lodgement_date = start + timedelta(days=random.randint(0, 365))
-
-			enquiry_year = loan_year + 1 #date(loan_year, 7, 1)
-			cb = principal
-
-			comments = []
-
-			while cb > 0:
-				enquiry_year += 1#date(enquiry_year.year + 1, 7, 1)
-
-				last_step_request_xml_text, last_step_result_xml_text = single_step_request(loan_year, full_term, lodgement_date, cb, repayments_for_income_year(repayments, enquiry_year), enquiry_year)
-
-				comments.append(last_step_request_xml_text)
-				comments.append(last_step_result_xml_text)
-
-				print('last_step_result_xml_text:\n' + last_step_result_xml_text)
-				step = fromstring(last_step_result_xml_text)
-
-				cb = float(step.find('ClosingBalance').text)
-
-				if float(step.find('RepaymentShortfall').text) != 0:
-					break
-				if cb == 0:
-					break
-				if enquiry_year >= 2024:
-					break
-					
-			write_multistep_testcase(loan_year, full_term, lodgement_date, principal, repayments, enquiry_year, last_step_result_xml_text, comments)
-	
-	
-
-counter = 2000
 
 
 def write_multistep_testcase(
@@ -106,7 +120,10 @@ def write_multistep_testcase(
 	single_step_result_xml_text,
 	comments
 ):
-
+	"""
+	the last single_step_result_xml_text is also the exact result expected from the multistep computation.
+	"""
+	
 	global counter
 
 	doc = request_xml(
@@ -132,9 +149,13 @@ def write_multistep_testcase(
 	outputs_dir = case_dir/ 'responses'
 	outputs_dir.mkdir(parents=True)
 
+	rrr = doc.toprettyxml(indent='\t')
+	print('write_multistep_testcase:')
+	print(rrr)
+
 	with open(inputs_dir / 'request.xml', 'w') as f:
-		f.write(doc.toprettyxml(indent='\t'))
-		f.write('\n\n\n'.join([''] + comments+['']))
+		f.write(rrr)
+		f.write('<!--' + '\n\n\n'.join([''] + comments + ['']) + '-->')
 
 	with open(outputs_dir / 'response.xml', 'w') as f:
 		f.write(single_step_result_xml_text)
@@ -149,6 +170,10 @@ def request_xml(
 	repayment_dicts,
 	income_year_of_computation
 ):
+	"""
+	create a request xml dom, given loan details.	 
+	"""
+	
 	doc = impl.createDocument(None, "reports", None)
 	loan = doc.documentElement.appendChild(doc.createElement('loanDetails'))
 
@@ -179,7 +204,9 @@ def request_xml(
 
 
 def repaymentset(start, end_inclusive):
-	
+	"""
+	generate a random list of repayments within given dates 
+	"""
 	date = start
 	repayments = []
 
@@ -189,6 +216,18 @@ def repaymentset(start, end_inclusive):
 	
 	return repayments
 
+
+
+# def repayments_for_income_year(repayments, enquiry_year):
+# 	for r in repayments:
+# 		if r['date'] >= date(enquiry_year - 1, 7, 1) and r['date'] <= date(enquiry_year, 6, 30):
+# 			yield r
+
+
+def run():
+	while True:
+		loop()
+		
 
 
 if __name__ == '__main__':

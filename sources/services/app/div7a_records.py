@@ -90,8 +90,8 @@ class loan_term_end(Record):
 	pass
 
 record_sorting = {
-	calculation_start: 0,
-	loan_start: 1,
+	loan_start: 0,
+	calculation_start: 1,
 	interest_calc: 2,
 	repayment: 3,
 	closing_interest_calc: 3.4,
@@ -100,8 +100,8 @@ record_sorting = {
 	# todo test repayment *at* lodgement day. What's the legal position?
 	myr_check: 5,
 	opening_balance: 6,
-	loan_term_end: 7,
-	calculation_end: 8,
+	calculation_end: 7,
+	loan_term_end: 8,
 }
 
 

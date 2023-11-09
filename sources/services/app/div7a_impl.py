@@ -242,7 +242,7 @@ def closing_balance(records, iy):
 	(iow, interest is not taken into account when the loan is deemed not div7a?)
 	Furthermore, this is only a reporting / output function, not affecting the computation. 
 	"""
-	r = records_of_income_year(records, iy)
+	r = list(filter(lambda r: r.final_balance is not None, records_of_income_year(records, iy)))
 	fb = r[-1].final_balance
 	ui = unpaid_interest(records, iy)
 	return max(0,fb - ui)

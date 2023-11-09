@@ -283,7 +283,11 @@ def process_request(request_directory, request_format='rdf', requested_output_fo
 			# was this an error?
 			if reports['alerts'] != []:
 				#return JSONResponse(reports), reports
-				error_xml_text = '<error>' + '. '.join(reports['alerts'] + [find_report_by_key(reports['reports'], 'task_directory')]) + '</error>'
+				error_xml_text = (
+						'<error>' + 
+							'<message>' + '. '.join(reports['alerts']) + '</message>' +
+							'<task_directory>' + find_report_by_key(reports['reports'], 'task_directory') + '</task_directory>' +
+						'</error>')
 				return PlainTextResponse(error_xml_text, status_code=500), error_xml_text
 			return RedirectResponse(find_report_by_key(reports['reports'], 'result')), None
 	elif requested_output_format == 'immediate_json_reports_list':
