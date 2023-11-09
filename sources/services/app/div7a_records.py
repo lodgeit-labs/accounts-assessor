@@ -100,8 +100,8 @@ record_sorting = {
 	# todo test repayment *at* lodgement day. What's the legal position?
 	myr_check: 5,
 	opening_balance: 6,
-	calculation_end: 7,
-	loan_term_end: 8,
+	loan_term_end: 7,
+	calculation_end: 8,
 }
 
 

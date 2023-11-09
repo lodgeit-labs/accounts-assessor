@@ -128,7 +128,7 @@
 	!ground(LA),
 	my_request_tmp_dir_path(Tmp_Dir_Path),
 	services_rpc('div7a', _{tmp_dir_path:Tmp_Dir_Path,data:LA}, R),
-	(	get_dict(result, R, Summary_dict0)
+	(	(get_dict(result, R, Summary_dict0), Summary_dict0 \= "error")
 	->	true
 	;	throw_string(R.error_message)),
 	Summary_dict = _{

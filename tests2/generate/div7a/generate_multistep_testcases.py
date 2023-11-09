@@ -26,20 +26,20 @@ from utils import *
 
 def single_step_request(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year):
 	x = request_xml(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year)
-	s = x.toprettyxml(indent='\t')
-	print(s)
+	request_str = x.toprettyxml(indent='\t')
+	print(request_str)
 
 	robust_server_url = 'http://localhost:8877'
 
-	file1=io.StringIO(s)
+	file1=io.StringIO(request_str)
 	file1.name='request.xml'
 	files = dict(file1=file1)
 
-	return requests_session.post(
+	return (request_str, requests_session.post(
 			f'{robust_server_url}/upload',
 			params={'request_format':'xml', 'requested_output_format': 'immediate_xml'},
 			files=files
-	).text
+	).text)
 
 
 
@@ -67,12 +67,17 @@ def run2():
 			enquiry_year = loan_year + 1 #date(loan_year, 7, 1)
 			cb = principal
 
+			comments = []
+
 			while cb > 0:
 				enquiry_year += 1#date(enquiry_year.year + 1, 7, 1)
 
-				last_step_result_xml_text = single_step_request(loan_year, full_term, lodgement_date, cb, repayments_for_income_year(repayments, enquiry_year), enquiry_year)
+				last_step_request_xml_text, last_step_result_xml_text = single_step_request(loan_year, full_term, lodgement_date, cb, repayments_for_income_year(repayments, enquiry_year), enquiry_year)
 
-				print(last_step_result_xml_text)
+				comments.append(last_step_request_xml_text)
+				comments.append(last_step_result_xml_text)
+
+				print('last_step_result_xml_text:\n' + last_step_result_xml_text)
 				step = fromstring(last_step_result_xml_text)
 
 				cb = float(step.find('ClosingBalance').text)
@@ -84,11 +89,11 @@ def run2():
 				if enquiry_year >= 2024:
 					break
 					
-			write_multistep_testcase(loan_year, full_term, lodgement_date, principal, repayments, enquiry_year, last_step_result_xml_text)
+			write_multistep_testcase(loan_year, full_term, lodgement_date, principal, repayments, enquiry_year, last_step_result_xml_text, comments)
 	
 	
 
-counter = 1000
+counter = 2000
 
 
 def write_multistep_testcase(
@@ -98,7 +103,8 @@ def write_multistep_testcase(
 	opening_balance,
 	repayment_dicts,
 	income_year_of_computation,
-	single_step_result_xml_text
+	single_step_result_xml_text,
+	comments
 ):
 
 	global counter
@@ -128,6 +134,7 @@ def write_multistep_testcase(
 
 	with open(inputs_dir / 'request.xml', 'w') as f:
 		f.write(doc.toprettyxml(indent='\t'))
+		f.write('\n\n\n'.join([''] + comments+['']))
 
 	with open(outputs_dir / 'response.xml', 'w') as f:
 		f.write(single_step_result_xml_text)

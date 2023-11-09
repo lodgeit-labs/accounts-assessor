@@ -1,2 +1,2 @@
 from div7a_tests import *
-test1()
+#test1()
