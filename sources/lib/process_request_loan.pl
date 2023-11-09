@@ -193,14 +193,14 @@ repayment_to_json(Repayment, Json) :-
 	format(string(LoanResponseXML),
 '<?xml version="1.0" ?>\n<LoanSummary xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="loan_response.xsd">\n\c
    <IncomeYear>~q</IncomeYear>\n\c
-   <OpeningBalance>~f8</OpeningBalance>\n\c
-   <InterestRate>~f8</InterestRate>\n\c
-   <MinYearlyRepayment>~f8</MinYearlyRepayment>\n\c
-   <TotalRepayment>~f8</TotalRepayment>\n\c
-   <RepaymentShortfall>~f8</RepaymentShortfall>\n\c
-   <TotalInterest>~f8</TotalInterest>\n\c
-   <TotalPrincipal>~f8</TotalPrincipal>\n\c
-   <ClosingBalance>~f8</ClosingBalance>\n\c
+   <OpeningBalance>~8f</OpeningBalance>\n\c
+   <InterestRate>~8f</InterestRate>\n\c
+   <MinYearlyRepayment>~8f</MinYearlyRepayment>\n\c
+   <TotalRepayment>~8f</TotalRepayment>\n\c
+   <RepaymentShortfall>~8f</RepaymentShortfall>\n\c
+   <TotalInterest>~8f</TotalInterest>\n\c
+   <TotalPrincipal>~8f</TotalPrincipal>\n\c
+   <ClosingBalance>~8f</ClosingBalance>\n\c
 </LoanSummary>\n',
 
    [IncomeYear,
