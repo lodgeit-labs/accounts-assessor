@@ -27,7 +27,7 @@ from utils import *
 
 
 
-counter = 2000
+counter = 2500
 
 
 

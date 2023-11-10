@@ -21,6 +21,10 @@
 	->	true
 	;	true),
 
+	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDateStr), _E4)
+	->	true
+	;	true),
+
 	/* for example 2018 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of computation', @value=ComputationYear), _E5),
 
