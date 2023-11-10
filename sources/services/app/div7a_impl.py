@@ -99,7 +99,7 @@ def get_remaining_term(records, r):
 
 
 def get_loan_start_record(records):
-	return [r for r in records if r.__class__ == loan_start][0]
+	return one([r for r in records if r.__class__ == loan_start])
 
 
 def income_years_of_loan(records):
@@ -187,7 +187,9 @@ def days_diff(d1: date, d2: date) -> int:
 
 
 def lodgement_day(records):
-	# find the lodgement day, if any
+	"""
+	find the lodgement day, if any
+	"""
 
 	for r in records:
 		if r.__class__ == lodgement:
@@ -236,11 +238,13 @@ def total_principal_paid(records, iy):
 
 
 def closing_balance(records, iy):
-	"""closing balance of this income year
+	"""
+	closing balance of this income year.
+	This is only a reporting / output function, not affecting the computation.
+
 	per ato calc, closing balance is not the same as the final balance of the last record of the income year.
 	the closing balance is lowered by the unpaid interest. This means that the unpaid interest is not taken into account, it is effectively de-accrued. This situation can only happen when the myr is not met, so the computation is over. 
 	(iow, interest is not taken into account when the loan is deemed not div7a?)
-	Furthermore, this is only a reporting / output function, not affecting the computation. 
 	"""
 	r = list(filter(lambda r: r.final_balance is not None, records_of_income_year(records, iy)))
 	fb = r[-1].final_balance
@@ -249,7 +253,7 @@ def closing_balance(records, iy):
 
 
 def unpaid_interest(records, iy):
-	total_paid = sum([r.info['amount'] for r in records if r.income_year == iy and r.__class__ == repayment]) # ? and not r.info['counts_towards_initial_balance']
+	total_paid = sum([r.info['amount'] for r in records if r.income_year == iy and r.__class__ == repayment])
 	total_interest = total_interest_accrued(records, iy)
 	return max(0, total_interest - total_paid)
 
@@ -260,19 +264,3 @@ def one(xs):
 	return xs[0]
 
 
-
-
-"""
-1)
-
-	fiscal_year_atlim
-	first_fiscal_year_atlim
-	
-
-
-
-	Where a repayment is made before {the private company's lodgment day for the year in which the amalgamated loan is made}, the principal amount at 1 July of the first income year after the loan is made, is not the sum total of the constituent loans at 1 July. Rather, it is the sum of the constituent loans immediately before the lodgment day. For this purpose, payments made before lodgment day are taken to have been made in the year the amalgamated loan is made.
-
-
-
-"""

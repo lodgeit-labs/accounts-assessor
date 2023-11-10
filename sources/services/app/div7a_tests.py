@@ -8,5 +8,7 @@ div7a_from_json({"computation_income_year": "2017", "creation_income_year": "201
 
 # todo try:
 #  corner cases with repayment on the same date as opening balance
+# - this is probably well covered by atocalc-generated testcases. There is also no such thing as a date of opening balance, opening balance always applies to the start of the income year.
 #  opening balance on loan start date
+# - ditto
 #  lodgement on loan start date

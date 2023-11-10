@@ -122,7 +122,6 @@ def with_balance(records):
 				if r.__class__ == repayment:
 					r.final_balance = prev_balance - r.info['amount']
 				elif r.__class__ in [interest_calc, closing_interest_calc]:
-					# round to two decimal places as ato calc seems to be doing?
 					r.info['interest_accrued'] = round(interest_accrued(max(0,prev_balance), r), 20)
 					r.final_balance = prev_balance
 				elif r.__class__ == income_year_end:
@@ -136,6 +135,9 @@ def with_balance(records):
 
 	
 def annotate_repayments_with_myr_relevance(records):
+	"""
+	Where a repayment is made before {the private company's lodgment day for the year in which the amalgamated loan is made}, the principal amount at 1 July of the first income year after the loan is made, is not the sum total of the constituent loans at 1 July. Rather, it is the sum of the constituent loans immediately before the lodgment day. For this purpose, payments made before lodgment day are taken to have been made in the year the amalgamated loan is made.
+	"""
 	lodgement = get_lodgement(records)
 	loan_start = get_loan_start_record(records)
 	for r in repayments(records):
@@ -143,7 +145,7 @@ def annotate_repayments_with_myr_relevance(records):
 		# but if this is the first year
 		if r.income_year == loan_start.income_year + 1:
 			if lodgement is None:
-				raise Exception('if we recorded any repayments that occured the first year after loan start, then we need to know the lodgement day')
+				raise Exception('if we recorded any repayments that occured the first year after loan start, then we need to know the lodgement day to calculate minimum yearly repayment.')
 			if r.date < lodgement.date:
 				r.info['counts_towards_initial_balance'] = True
 
