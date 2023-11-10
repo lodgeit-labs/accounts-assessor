@@ -94,7 +94,7 @@ class ArelleController(Cntlr.Cntlr):
 				# if "xxxx".lower() in i.qname.expandedName.lower():
 			if isinstance(i, ModelFormulaObject.ModelValueAssertion):
 				if i.aspectModel != 'dimensional':
-					raise Exception('unsupported aspect model: %s'.format(i.aspectModel))
+					raise MyException('unsupported aspect model: %s'.format(i.aspectModel))
 
 				#o['assertions'].append(
 				#	{'xbrl-id':i.id

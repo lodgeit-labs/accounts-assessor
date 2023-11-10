@@ -8,6 +8,9 @@ import logging
 log = logging.getLogger(__name__)
 
 
+class MyException(Exception):
+	pass
+
 
 def rec_add(recs, rec):
 	
@@ -75,7 +78,10 @@ benchmark_rates = {
 
 
 def benchmark_rate(year):
-	return benchmark_rates[year]
+	try:
+		return benchmark_rates[year]
+	except KeyError:
+		raise MyException(f'No benchmark rate for year {year}')
 
 
 
@@ -133,7 +139,7 @@ def loan_agr_year_opening_balance(records, income_year):
 	prev = i - 1
 	if prev < 0:
 		# prev = 0 # technically, this is correct, but we don't want to do this, because it's a weird notion that year 0 has any opening balance
-		raise Exception('not expected to be called on income year of loan creation')
+		raise MyException('not expected to be called on income year of loan creation')
 	return max(0,records[prev].final_balance)
 
 
@@ -163,7 +169,7 @@ def opening_balance_record(records):
 	if len(r) == 1:
 		return r[0]
 	elif len(r) > 1:
-		raise Exception('More than one opening balance record')
+		raise MyException('More than one opening balance record')
 
 
 def get_year_days(year):
@@ -260,7 +266,7 @@ def unpaid_interest(records, iy):
 
 def one(xs):
 	if len(xs) != 1:
-		raise Exception(f'Expected one element, but got {len(xs)}')
+		raise MyException(f'Expected one element, but got {len(xs)}')
 	return xs[0]
 
 

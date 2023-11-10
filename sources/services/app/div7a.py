@@ -55,7 +55,7 @@ def div7a_from_json2(ooo,j):
 	
 	if principal == -1:
 		if ob == -1:
-			raise Exception('must specify either principal or opening balance')
+			raise MyException('must specify either principal or opening balance')
 	
 	if principal == -1:
 		principal = None
@@ -77,7 +77,7 @@ def div7a_from_json2(ooo,j):
 		pass
 	else:
 		if principal is not None and ciy == creation_income_year + 1:
-			raise Exception(f'opening balance for income year {ciy} must be equal to principal, or one must be omitted.')
+			raise MyException(f'opening balance for income year {ciy} must be equal to principal, or one must be omitted.')
 		
 		rec_add(records, opening_balance(date(ciy-1, 6, 30), dict(amount=ob)))
 		
