@@ -25,3 +25,10 @@ git+https://github.com/koo5/memory_profiler
 argh
 PyYAML
 requests
+
+
+sortedcontainers
+pandas
+
+
+jinja2

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
+  <loanDetails>
+    <loanAgreement>
+      <field name="Income year of loan creation" value="2014"/>
+      <field name="Full term of loan in years" value="2"/>
+      <field name="Principal amount of loan" value="50000.00"/>
+      <field name="Lodgement day of private company" value="2015-05-15"/>
+      <field name="Income year of computation" value="2017"/>
+    </loanAgreement>
+    <repayments>
+      <repayment date="2014-08-31" value="20000.00"/>
+      <repayment date="2015-05-30" value="8000.00"/>
+      <repayment date="2016-05-30" value="8000.00"/>
+    </repayments>
+  </loanDetails>
+</reports>

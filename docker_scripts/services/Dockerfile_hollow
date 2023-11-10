@@ -4,6 +4,9 @@ EXPOSE 7788
 RUN mkdir -p /app/server_root
 VOLUME /app/server_root
 VOLUME /app/sources/
+
+RUN apt install wget
+
 USER myuser
 
 ENV FLASK_ENV=development

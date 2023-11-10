@@ -1,0 +1,9 @@
+deepdiff
+defusedxml
+xmlschema~=1.5
+arelle-release==2.3.4
+xmldiff
+simplejson
+PyYAML
+jupyter
+pandas

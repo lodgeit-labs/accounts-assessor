@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<reports>
+	<loanDetails>
+		<loanAgreement>
+			<field name="Income year of loan creation" value="2000"/>
+			<field name="Full term of loan in years" value="5"/>
+			<field name="Lodgement day of private company" value="2001-05-17"/>
+			<field name="Income year of computation" value="2002"/>
+			<field name="Opening balance of computation" value="506375"/>
+		</loanAgreement>
+		<repayments>
+			<repayment date="2001-11-13" value="40994"/>
+			<repayment date="2002-04-08" value="2411"/>
+			<repayment date="2002-04-08" value="24686"/>
+		</repayments>
+	</loanDetails>
+</reports>
+<!--
+
+
+Minimum yearly repayment not met.
+
+The amount of the loan not repaid at the end of income year 2001-02 is $470,536.88.
+
+The private company may be taken to pay a dividend under Division 7A to the shareholder or shareholder's associate because the amount repaid during income year 2001-02 in relation to the amalgamated loan is less than the minimum yearly repayment required.
+
+Interest received by the private company must be included in the income tax return for 2001-02.
+
+Minimum yearly repayment
+
+$148,822.00
+
+Benchmark interest rate
+
+6.8%
+
+Opening balance:
+
+Date: 30/06/2001
+
+Balance: $506,375.00
+
+Days: 135
+
+Interest: $12,735.68
+
+Payments
+
+Date: 13/11/2001
+
+Amount: $40,994.00
+
+Balance: $465,381.00
+
+Days: 146
+
+Interest: $12,658.36
+
+Date: 08/04/2002
+
+Amount: $27,097.00
+
+Balance: $438,284.00
+
+Days: 84
+
+Interest: $6,858.84
+
+Total repayments
+
+$68,091.00
+
+Total interest
+
+$32,252.88
+
+Total principal
+
+$35,838.12
+
+Closing balance
+
+Date: 30/06/2002
+
+Balance: $470,536.88
+-->

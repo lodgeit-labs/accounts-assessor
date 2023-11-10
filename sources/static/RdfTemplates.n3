@@ -762,7 +762,7 @@ ic:unit_valueses
 		[excel:property uv:currency; excel:type xsd:string]
 	);
 	excel:grab_unknown_fields true;
-	excel:unknown_fields_type xsd:dateTime.
+	excel:unknown_fields_type xsd:date.
 
 uv:name rdfs:label "Market v".
 
@@ -816,7 +816,7 @@ ic_ui:bank_statement_items
 	excel:class bs:item;
 	excel:fields (
 		[excel:property bs:transaction_description; excel:type xsd:string]
-		[excel:property bs:bank_transaction_date; excel:type xsd:dateTime]
+		[excel:property bs:bank_transaction_date; excel:type xsd:date]
 		[excel:property bs:debit; excel:type xsd:decimal]
 		[excel:property bs:credit; excel:type xsd:decimal]
 		[excel:property bs:bank_balance; excel:type xsd:decimal]
@@ -944,7 +944,7 @@ ic_ui:action_input_entries_template
 	excel:class ic:action_input_entry;
 	excel:fields (
 		[excel:property ic:action_verb; excel:type xsd:string]
-		[excel:property ic:date; excel:type xsd:dateTime]
+		[excel:property ic:date; excel:type xsd:date]
 		[excel:property ic:debit; excel:type xsd:string]
 		[excel:property ic:credit; excel:type xsd:string]
 		[excel:property ic:units_count; excel:type xsd:decimal]
@@ -961,7 +961,7 @@ ic_ui:gl_entries_template
 	excel:cardinality excel:multi;
 	excel:class ic:gl_entry;
 	excel:fields (
-		[excel:property ic:date; excel:type xsd:dateTime]
+		[excel:property ic:date; excel:type xsd:date]
 		[excel:property ic:account; excel:type xsd:string]
 		[excel:property ic:description; excel:type xsd:string]
 		[excel:property ic:debit; excel:type xsd:string]
@@ -1012,7 +1012,7 @@ ic_ui:reallocation_entries_template
 	excel:class ic:reallocation_entry;
 	excel:fields (
 		[excel:property reallocation:account; excel:type xsd:string]
-		[excel:property reallocation:date; excel:type xsd:dateTime]	
+		[excel:property reallocation:date; excel:type xsd:date]
 		[excel:property reallocation:amount; excel:type xsd:string]
 		[excel:property reallocation:description; excel:type xsd:string]
 		[excel:property ic:param1; excel:type xsd:string]
@@ -1034,8 +1034,8 @@ ic_ui:report_details
 	excel:cardinality excel:single;
 	excel:class ic:report_details;
 	excel:fields (
-		[excel:property ic:from; excel:type xsd:dateTime]
-		[excel:property ic:to; excel:type xsd:dateTime]
+		[excel:property ic:from; excel:type xsd:date]
+		[excel:property ic:to; excel:type xsd:date]
 		[excel:property ic:currency; excel:type xsd:string]
 		[excel:property ic:cost_or_market; excel:type excel:uri]
 		[excel:property ic:pricing_method; excel:type excel:uri]

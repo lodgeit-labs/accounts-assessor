@@ -3,7 +3,8 @@ sqlalchemy<1.4
 requests
 defusedxml
 xmldiff
-
+furl
+psutil
 #file://../../sdk
 
 

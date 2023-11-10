@@ -274,7 +274,7 @@
                 $('#od-json').empty();
 
                 // add the syntax-highlighted json response
-                $("<pre>").html(syntaxHighlight(data)).appendTo("#od-json");
+                $("<pre>").html(syntaxHighlight({})).appendTo("#od-json");
 
                 // process the response data. if we get back children (data.children)
                 // then render the tile view. otherwise, render the "one-up" view

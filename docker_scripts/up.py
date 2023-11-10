@@ -4,13 +4,17 @@
 import os,subprocess,time,shlex,logging,sys,threading,tempfile,fire
 
 
+
+logging.basicConfig(level=logging.DEBUG)
+ll = logging.getLogger(__name__)
+
+
+
 die = threading.Event()
 failed = threading.Event()
 flag = '../generated_stack_files/build_done.flag'
 
 
-
-#class Up():
 
 def run(terminal_cmd="", parallel_build=True, public_url = "http://localhost:8877", offline=False):
 
@@ -25,15 +29,18 @@ def run(terminal_cmd="", parallel_build=True, public_url = "http://localhost:887
 		if terminal_cmd != True:
 		      cmd += ['--terminal_cmd', terminal_cmd]
 		cmd += ['--parallel_build', str(parallel_build), '--public_url', public_url, '--offline', str(offline)]# + sys.argv[1:]
-		print(cmd)
+		ll.info(cmd)
 		subprocess.check_call(cmd)
-		print('develop.sh finished.')
+		ll.info('develop.sh finished.')
 	except:
+		ll.info('failure.')
 		die.set()
 		t.join()
 		sys.exit(1)
 
+	ll.info('wait for healtcheck thread to finish')
 	t.join()
+	ll.info(f'failed.is_set(): {failed.is_set()}')
 	sys.exit(0 if not failed.is_set() else 1)
 
 
@@ -43,30 +50,30 @@ def health_check(public_url):
 	while not die.is_set():
 		try:
 			open(flag)
+			ll.info('build done')
 			break
 		except OSError:
-			print('waiting for build to finish')
+			ll.info('waiting for build to finish')
 			time.sleep(10)
 
 	if die.is_set():
+		ll.info(f'die.is_set(): {die.is_set()}')
 		return
 
-	print('build done...')
+	ll.info('build done...')
 	time.sleep(10)
 
 	try:
-		print('health_check...')
-		subprocess.check_call(shlex.split(f"""curl  --trace-time --trace-ascii - --retry-connrefused  --retry-delay 10 --retry 10 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' {public_url}/health_check"""))
-		print('healthcheck ok')
+		ll.info('health_check...')
+		subprocess.check_call(shlex.split(f"""curl  --trace-time --retry-connrefused  --retry-delay 10 --retry 30 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' {public_url}/health_check"""))
+		ll.info('healthcheck ok')
 		
 	except Exception as e:
-		print(e)
-		print('healthcheck failed')
+		ll.info(e)
+		ll.info('healthcheck failed')
 		failed.set()
 
 
 
-#if __name__ == '__main__':
-#	run()
 if __name__ == "__main__":
 	fire.Fire(run)

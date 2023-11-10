@@ -36,11 +36,13 @@ def trigger_remote_calculator_job(**kwargs):
 def local_calculator(
 	request_directory: str,
 	public_url='http://localhost:8877',
-	options=None
+	options=None,
+	request_format=None
 ):
 	msg = dict(
 		method='calculator',
 		params=dict(
+			request_format=request_format,
 			request_tmp_directory_name = request_directory,
 			request_files = convert_request_files(files_in_dir(get_tmp_directory_absolute_path(request_directory))),
 			public_url = public_url
@@ -62,7 +64,7 @@ def run_last_request_outside_of_docker(self):
 
 
 
-print(local_calculator.fn)
+#print(local_calculator.fn)
 remoulade.declare_actors([local_rpc, local_calculator])
 
 

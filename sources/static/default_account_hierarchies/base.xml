@@ -6,7 +6,7 @@
 
 	<account parent_role="root" normal_side="debit" name="Accounts">
 		<account role="Net_Assets" name="Net_Assets">
-			<account name="Thingies">
+			<account name="Assets">
 				<account role="Current_Assets" name="Current_Assets">
 					<account role="Cash_and_Cash_Equivalents" name="Cash_and_Cash_Equivalents">
 						<account name="Banks" role="Banks" />

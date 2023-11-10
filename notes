@@ -1,0 +1,8 @@
+-
+	cwd: tests2/runner/
+	cmd: reset;echo -e "\e[3J"; PYTHONPATH=(pwd) luigi --local   --module runner.tests2 --Permutations-robust-server-url http://dev3-hp.internal:8877 Summary --Permutations-suite   ../endpoint_tests/loan/ato-calc-selection/one-year-term-loans-fail-but-shouldnt/  --Permutations-debug True --workers=1 --Permutations-dirglob="2023-09-07T02:54:54.735Z0.7334157811011499"
+
+-
+	cwd: docker_scripts/
+	cmd: ./down.sh; ./develop.sh --parallel_build true  --public_url "http://dev3-hp.internal:8877" --container_startup_sequencing False --workers_scale=1 --develop true
+

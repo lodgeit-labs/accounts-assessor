@@ -39,6 +39,8 @@ We are only concerned with unsecured loans here.
 % Benchmark interest rates
 % These rates apply to private companies with an income year ending 30 June.
 % Source: https://www.ato.gov.au/rates/division-7a---benchmark-interest-rate/
+
+benchmark_interest_rate(Day, 8.27, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2024, Days).
 benchmark_interest_rate(Day, 4.77, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2023, Days).
 benchmark_interest_rate(Day, 4.52, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2022, Days).
 benchmark_interest_rate(Day, 4.52, Days) :- benchmark_interest_rate_day_in_income_year(Day, 2021, Days).
@@ -364,17 +366,25 @@ next_loan_record(Repayments_Hd, Current_Record_Number, Current_Day, Current_Bala
 
 	 but this is wrong because leap years are defined for calendar years, not for income years.
 	 */
-	gregorian_date(Next_Day, date(Next_Day_Year,_,_)),
+	/*gregorian_date(Next_Day, date(Next_Day_Year,_,_)),
 	(	leap_year(Next_Day_Year)
 	->	Year_Days = 366
-	;	Year_Days = 365),
+	;	Year_Days = 365),*/
 
-	benchmark_interest_rate(Current_Day, Interest_Rate),
+	benchmark_interest_rate(Current_Day, Interest_Rate, Year_Days2),
+	(	Year_Days2 = Year_Days
+	->	true
+	;	(
+			throw_string('unexpected error')
+		)
+	),
 	Interest_Amount is Current_Balance * (Interest_Rate/100) * Interest_Period / Year_Days,
 
 		
 	loan_rec_number(			Next_Record, Next_Record_Number),
 	loan_rec_opening_day(		Next_Record, Current_Day),
+	/* this may be where the problem is, because this puts the accrual on the 1/7 of the next year, so, it gets picked up in loan_agr_total_interest for the next year */
+	/* you can't fix it by subtracting 1, because then loan_agr_year_opening_balance will fail. */
 	loan_rec_closing_day(		Next_Record, Next_Day),
 	loan_rec_opening_balance(	Next_Record, Current_Balance),
 	loan_rec_interest_rate(		Next_Record, Interest_Rate),
@@ -517,10 +527,11 @@ loan_agr_min_yearly_repayment(Agreement, Current_Year_Num, Min_Yearly_Rep) :-
 	loan_agr_year_opening_balance(Agreement, Current_Year_Num, min_repayment, Balance),
 	loan_agr_term(Agreement, Term),
 	Remaining_Term is Term - Current_Year_Num,
-	benchmark_interest_rate(Year_Begin_Day, Benchmark_Interest_Rate),
+	benchmark_interest_rate(Year_Begin_Day, Benchmark_Interest_Rate, _),
 	% https://www.ato.gov.au/uploadedImages/Content/Images/40557-3.gif
-	Min_Yearly_Rep is Balance * Benchmark_Interest_Rate /
-		(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))).
+	Min_Yearly_Rep is
+		(Balance * Benchmark_Interest_Rate) /
+		(100 * (1 - (1 + (Benchmark_Interest_Rate / 100)) ** (-Remaining_Term))). % -?
 
 % A predicate for generating the records of a loan agreement within a given period.
 
@@ -578,7 +589,8 @@ loan_agr_repayment_shortfall(Agreement, Year_Num, Shortfall) :-
 % A predicate for generating the summary records of a given loan agreement.
 
 loan_agr_summary(Agreement, Summary) :-
-%gtrace,
+
+	gtrace,
 	findall(Record, loan_agr_record(Agreement, Record), Recs),
 	loan_recs_table(Recs),
 	
@@ -589,13 +601,14 @@ loan_agr_summary(Agreement, Summary) :-
 	loan_agr_year_closing_balance(	Agreement, Summary_Number, Closing_Balance),
 	loan_agr_min_yearly_repayment(	Agreement, Summary_Number, Min_Yearly_Repayment),
 	loan_agr_total_repayment(		Agreement, Summary_Number, Total_Repayment),
+	%gtrace,
 	loan_agr_total_interest(		Agreement, Summary_Number, Total_Interest),
 	loan_agr_total_principal(		Agreement, Summary_Number, Total_Principal),
 	loan_agr_repayment_shortfall(	Agreement, Summary_Number, Repayment_Shortfall),
 
 
 	loan_agr_year_days(Agreement, Summary_Number, Year_Start_Day, _End_Day),
-	benchmark_interest_rate(Year_Start_Day, Interest_Rate),
+	benchmark_interest_rate(Year_Start_Day, Interest_Rate, _),
 
 	/* assert the fields of the final and only loan summary(result). */
 	loan_sum_number(				Summary, Summary_Number),

@@ -1,7 +1,18 @@
+import urllib
+from io import StringIO
+from xml import etree
+from xml.etree.ElementTree import canonicalize, fromstring, tostring
+
+import psutil
+from furl import furl
+import lxml.etree
+
 from luigi.freezing import FrozenOrderedDict
 from defusedxml.ElementTree import parse as xmlparse 
 import xmldiff
-from xmldiff import main as xmldiffmain, formatting
+import xmldiff.main, xmldiff.formatting
+#from xmldiff import main as xmldiffmain, formatting
+import xmldiff
 import requests
 import datetime
 import logging
@@ -16,6 +27,8 @@ import sys,os
 from urllib.parse import urlparse
 
 from luigi.parameter import _DictParamEncoder
+
+from runner.compare import my_xml_diff
 from runner.utils import *
 
 #print(sys.path)
@@ -23,10 +36,17 @@ from runner.utils import *
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../..')))
 from fs_utils import directory_files, find_report_by_key
-import fs_utils
 from robust_sdk.xml2rdf import Xml2rdf
 from common import robust_tests_folder
 from json import JSONEncoder
+
+
+
+requests_session = requests.Session()
+requests_adapter = requests.adapters.HTTPAdapter(max_retries=5)
+requests_session.mount('http://', requests_adapter)
+requests_session.mount('https://', requests_adapter)
+
 
 
 logger = logging.getLogger('robust')
@@ -56,8 +76,20 @@ class Dummy(luigi.Task):
 		return False
 
 
+class AssistantStartup(luigi.Task):
+	"""just a dummy task to pass to an assitant worker. Could be simplified."""
+	ts = luigi.Parameter(default=datetime.datetime.utcnow().isoformat())
+
+	def run(self):
+		self.output().open('w').close()
+
+	def output(self):
+		return luigi.LocalTarget('/tmp/luigi_dummy/%s' % self.ts)
+
+
 def symlink(source, target):
-	tmp = '/tmp/abcdefgrobusttestrunnerrrr'+str(os.getpid())
+	# fixme, gotta get a safe file name in source.parent 
+	tmp = source+str(os.getpid()) + "." + str(time.time())
 	subprocess.call([
 		'/bin/ln', '-s',
 		target,
@@ -72,33 +104,46 @@ class TestPrepare(luigi.Task):
 	test = luigi.parameter.DictParameter()
 
 
+	@property
+	def suitedir(self):
+		return P(self.test['suite']) / self.test['dir']
+
 	def run(self):
 		request_files_dir: pathlib.Path = P(self.test['path']) / 'inputs'
+		logging.getLogger('robust').debug(f'request_files_dir: {request_files_dir}')
 		request_files_dir.mkdir(parents=True, exist_ok=True)
 		inputs = self.copy_inputs(request_files_dir)
+
+		logging.getLogger('robust').debug(f'done copying inputs.')
 		inputs.append(self.write_job_json(request_files_dir))
 		with self.output().open('w') as out:
 			json_dump(inputs, out)
-		symlink(P(self.test['path']) / 'testcase', (P(self.test['suite']) / self.test['dir']).absolute())
+		#symlink(P(self.test['path']) / 'testcase', (P(self.test['suite']) / self.test['dir']).absolute())
 
 	def copy_inputs(self, request_files_dir):
 		files = []
 		input_file: pathlib.Path
-		for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('request/*'))):
-			x = None
+		for input_file in sorted(filter(lambda x: not x.is_dir(), 	(P(self.test['suite']) / self.test['dir']).glob('request/*'))):
+			final_name = None
 			if str(input_file).endswith('/request.xml'):
-				x = Xml2rdf().xml2rdf(input_file, request_files_dir)
-			if x is None:
-				x = request_files_dir / input_file.name
-				shutil.copyfile(input_file, x)
-			files.append(x)
+				final_name = Xml2rdf().xml2rdf(input_file, request_files_dir)
+			if final_name is None:
+				if '/.#' in str(input_file):
+					continue
+				final_name = request_files_dir / input_file.name
+				logging.getLogger('robust').debug(f'copying {input_file}')
+				shutil.copyfile(input_file, final_name)
+			files.append(final_name)
 		return files
 
 
 	def write_job_json(self, request_files_dir):
+		with open(self.suitedir / 'request.json') as fp:
+			metadata = json.load(fp)
 		data = dict(
+			**metadata,
 			custom_job_metadata = dict(self.test),
-			worker_options = dict(self.test['worker_options'])
+			worker_options = dict(self.test['worker_options']),
 		)
 		fn = request_files_dir / 'request.json'
 		with open(fn, 'w') as fp:
@@ -125,7 +170,7 @@ def make_request(test, request_files):
 	files = {}
 	for idx, input_file in enumerate(request_files):
 		files['file' + str(idx+1)] = open(request_files[idx])
-	return requests.post(
+	return requests_session.post(
 			url + '/upload',
 			params={'request_format':request_format, 'requested_output_format': test['requested_output_format']},
 			files=files
@@ -138,6 +183,19 @@ class TestStart(luigi.Task):
 
 	test = luigi.parameter.DictParameter()
 	request_files = luigi.parameter.ListParameter()
+
+	@property
+	def resources(self):
+		for f in self.request_files:
+			if f.endswith('/request.json'):
+				with open(f) as fd:
+					j = json.load(fd)
+				nodebug_mem_reserve_mb = j.get('nodebug_mem_reserve_mb', 25)
+				o = j.get('worker_options')
+				if o is not None:
+					if o.get('prolog_debug') is True:
+						nodebug_mem_reserve_mb *= 4			
+		return {'nodebug_mem_reserve_mb': min(1, nodebug_mem_reserve_mb / (psutil.virtual_memory().available/1000000))}
 
 	def run(self):
 		resp = make_request(self.test, self.request_files)
@@ -169,14 +227,22 @@ class TestResultImmediateXml(luigi.Task):
 		resp = make_request(self.test, request_files)
 		job = {'status': resp.status_code}
 
-		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'result.xml')
+		if resp.ok:
+			job['url'] = resp.url
+			# get the url of the directory of the file pointed-to by url:
+			uuuu = furl(job['url'])
+			uuuu.path = '/'.join(str(uuuu.path).split('/')[:-1])
+			job['dir'] = uuuu.url
+			
+		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'response.xml')
 		result_xml.makedirs()
 
-		if resp.ok:
-			with result_xml.temporary_path() as result_xml_fn:
-				with open(result_xml_fn, 'w') as result_xml_fd:
-					result_xml_fd.write(resp.text)
-			job['result'] = 'outputs/result.xml'
+		#if resp.ok:
+		with result_xml.temporary_path() as result_xml_fn:
+			with open(result_xml_fn, 'w') as result_xml_fd:
+				result_xml_fd.write(resp.text)
+		job['result'] = 'outputs/response.xml'
+		
 
 		with self.output().temporary_path() as response_fn:
 			with open(response_fn, 'w') as response_fd:
@@ -184,6 +250,76 @@ class TestResultImmediateXml(luigi.Task):
 
 	def output(self):
 		return luigi.LocalTarget(P(self.test['path']) / 'response.json')
+
+
+class TestEvaluateImmediateXml(luigi.Task):
+
+	priority = 100
+	test = luigi.parameter.DictParameter()
+
+	def requires(self):
+		return TestResultImmediateXml(self.test)
+
+
+	def run(self):
+
+		with open(P(self.input().path)) as fd:
+			response = json.load(fd)
+		status = response['status']
+
+		def done(delta):
+			with self.output()['evaluation'].open('w') as out:
+				json_dump({'test':dict(self.test), 'job': status, 'delta':delta,'response':response}, out)
+
+		expected_response_json_fn = (P(self.test['suite']) / self.test['dir'] / 'response.json')
+		if expected_response_json_fn.exists():
+			expected_response = json_load(expected_response_json_fn)
+		else:
+			return done([
+				{
+					"msg": f"response.json is missing in testcase",
+					"fix": {"op": "cp", "src": str(self.input().path), "dst": str(expected_response_json_fn)}
+				}
+			])
+		
+		expected_status = expected_response['status']
+
+		if status != expected_status:
+			return done([f'status({status}) != expected_status({expected_status})'])
+
+		if status == 200:
+
+			result_fn = P(self.test['path']) / response['result']
+			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'response.xml'
+
+			if not expected_fn.exists():
+				return done([
+					{
+						"msg": f"response.xml is missing in testcase",
+						"fix": {"op": "cp", "src": str(result_fn), "dst": str(expected_fn)}
+					}
+				])
+
+			
+			
+			canonical_result_xml_string = canonicalize(from_file=result_fn, strip_text=True)
+			canonical_expected_xml_string = canonicalize(from_file=expected_fn, strip_text=True)
+
+			result = fromstring(canonical_result_xml_string)
+			expected = fromstring(canonical_expected_xml_string)
+
+			# logger.info(tostring(result))
+			# logger.info(tostring(expected))
+
+			return done(list(my_xml_diff(result, expected)))
+		return done([])
+
+	def output(self):
+		return {
+			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
+			'outputs':luigi.LocalTarget(P(self.test['path']) / 'outputs')
+		}
+
 
 
 
@@ -200,13 +336,13 @@ class TestResult(luigi.Task):
 		start = TestStart(self.test, request_files)
 		yield start
 		with start.output().open() as fd:
-			handle = fd.read() 
+			handle = fd.read()
 		with self.output().temporary_path() as tmp:
 			while True:
 				logger.info('...')
 				time.sleep(15)
 
-				job = requests.get(handle).json()
+				job = requests_session.get(handle).json()
 				with open(tmp, 'w') as out:
 					json_dump(job, out)
 
@@ -220,72 +356,6 @@ class TestResult(luigi.Task):
 
 	def output(self):
 		return luigi.LocalTarget(P(self.test['path']) / 'job.json')
-
-
-
-
-class TestEvaluateImmediateXml(luigi.Task):
-
-	priority = 100
-	test = luigi.parameter.DictParameter()
-
-	def requires(self):
-		return TestResultImmediateXml(self.test)
-
-
-	def run(self):
-
-		def done(delta):
-			with self.output()['evaluation'].open('w') as out:
-				json_dump({'test':dict(self.test), 'job': status, 'delta':delta}, out)
-
-		with open(P(self.input().path)) as fd:
-			response = json.load(fd)
-		status = response['status']
-
-		with open(os.path.abspath(P(self.test['suite']) / self.test['dir'] / 'response.json')) as fd:
-			expected_response = json.load(fd)
-		expected_status = expected_response['status']
-
-		if status != expected_status:
-			return done([f'status({status}) != expected_status({expected_status})'])
-
-		if status == 200:
-			#with open() as fd:
-
-			result_fn = P(self.test['path']) / response['result']
-			result = xmlparse(result_fn).getroot()
-			expected_fn = P(self.test['suite']) / self.test['dir'] / 'responses' / 'response.xml'
-			expected = xmlparse(expected_fn).getroot()
-
-			# diff_trees()
-			diff = []
-			xml_diff = xmldiffmain.diff_files(result_fn, expected_fn, formatter=xmldiff.formatting.XMLFormatter())
-			logger.info(xml_diff)
-			if xml_diff != "":
-				diff.append(xml_diff)
-				diff.append(xmldiffmain.diff_files(result_fn, expected_fn))
-				shortfall = expected.find("./LoanSummary/RepaymentShortfall")
-				if shortfall is not None:
-					shortfall = shortfall.text
-				
-				diff.append(dict(
-					type='div7a',
-					failed=result.tag == 'error',
-					expected_shortfall=shortfall
-				))
-								
-			return done(diff)
-
-		return done([])
-
-	def output(self):
-		return {
-			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
-			'outputs':luigi.LocalTarget(P(self.test['path']) / 'outputs')
-		}
-
-
 
 
 
@@ -412,7 +482,7 @@ def fetch_report(tmp, url):
 	fn = pathlib.Path(urlparse(url).path).name
 	out = P(tmp) / fn
 	with open(out, 'wb') as result_file:
-		shutil.copyfileobj(requests.get(url, stream=True).raw, result_file)
+		shutil.copyfileobj(requests_session.get(url, stream=True).raw, result_file)
 	return out
 
 
@@ -426,22 +496,30 @@ class Permutations(luigi.Task):
 
 
 	def robust_testcase_dirs(self):
-		return fs_utils.robust_testcase_dirs(self.suite, self.dirglob)
+		return robust_testcase_dirs(self.suite, self.dirglob)
 
 
 	def required_evaluations(self):
 		for dir in self.robust_testcase_dirs():
 			for debug in ([False, True] if self.debug is None else [self.debug]):
-				
-				requested_output_format = 'immediate_xml' if P(self.suite / dir / 'response.json').exists() else 'job_handle' 
+
+				requested_output_format = 'job_handle'
+
+				request_json = P(self.suite / dir / 'request.json')
+				if request_json.exists():
+					request_json = json_load(request_json)
+					requested_output_format = request_json.get('requested_output_format')
 
 				yield {
-					'robust_server_url': self.robust_server_url,
 					'requested_output_format': requested_output_format,
-					'suite': str(self.suite),
+					'robust_server_url': self.robust_server_url,
+					'suite': str(os.path.abspath((self.suite))),
 					'dir': str(dir),
 					'worker_options': {
 						'prolog_debug': debug,
+						'skip_dev_runner': not debug,
+						'ROBUST_ENABLE_NICETY_REPORTS': debug,
+						
 					},
 					'path':
 						str(
@@ -501,20 +579,41 @@ class Summary(luigi.Task):
 		yield evals
 
 		with self.output().open('w') as out:
-			summary = []
+			summary = dict(ok=None, total=None, evaluations=[])
+			ok = 0
+			bad = []
 			for eval in evals:
 				with eval.output()['evaluation'].open() as e:
 					evaluation = json.load(e)
-				summary.append(evaluation)
+				summary['evaluations'].append(evaluation)
+				if evaluation['delta'] == []:
+					ok += 1
+				else:
+					bad.append(evaluation)
+			summary['bad'] = bad
+			summary['stats'] = dict(bad=len(bad),ok=ok,total=len(evals))
 			json_dump(summary, out)
-
-			#RepaymentShortfall
-
+			
+			# im' not sure we can really do this, not sure if the event handler is always called in the same worker.
+			self.summary = summary
+			
 
 	def output(self):
 		return luigi.LocalTarget(self.session / 'summary.json')
 
 
+def print_summary_summary(summary):
+	logging.getLogger('robust').info('')
+	for i in summary['bad']:
+		logging.getLogger('robust').info(json.dumps(i, indent=4))
+	logging.getLogger('robust').info(summary['stats'])
+	logging.getLogger('robust').info('')
+
+
+@Summary.event_handler(luigi.Event.SUCCESS)
+def celebrate_success(task):
+	logging.getLogger('robust').info('tadaaaa')
+	print_summary_summary(task.summary)
 
 
 class TestDebugPrepare(luigi.WrapperTask):
@@ -530,6 +629,33 @@ class TestDebugPrepare(luigi.WrapperTask):
 			yield [TestPrepare(t) for t in json.load(pf)]
 
 
+
+
+
+def json_load(fn):
+	with open(fn) as f:
+		return json.load(f)
+
+
+
+
+
+
+
+
+
+
+def robust_testcase_dirs(suite='.', dirglob=''):
+	dirs0 = [pathlib.Path('.')] + [pathlib.Path(x) for x in sorted(glob.glob(root_dir=suite, pathname='**/' + dirglob, recursive=True))]
+	# filter out 'responses' dirs
+	#dirs1 = list(filter(lambda x: x.name != 'responses', dirs0))
+	# fitler out non-leaf dirs
+	#dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
+
+	for d in dirs0:
+		if glob.glob(root_dir=suite, pathname=str(d) + '/request/*') != []:
+			yield d
+	#return dirs2
 
 
 

@@ -5,7 +5,8 @@ starlette>=0.27.0
 python-multipart
 agraph-python==101.0.7
 pycurl
-uvicorn
+uvicorn[standard]
+gunicorn
 pydantic
 requests
 

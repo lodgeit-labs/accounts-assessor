@@ -15,8 +15,9 @@
 
 
 :- use_module(library(http/json)).
-:- use_module('residency', []).
+:- use_module('chat', []).
 :- use_module('sbe', []).
+:- use_module('residency', []).
 :- use_module(library(prolog_stack)).
 
 :- ['lib'].
@@ -62,14 +63,11 @@ process_request_rpc_cmdline3("calculator", Dict) :-
 
 process_request_rpc_cmdline3("chat", Dict) :-
 	!,
-	!(do_chat(Dict, Response)),
+	!(chat:do_chat(Dict, Response)),
 	json_write(current_output, Response).
-
-
 
 process_request_rpc_cmdline3(_,_) :-
 	json_write(current_output, response{status:error, message:unknown_method}).
-
 
 
 
