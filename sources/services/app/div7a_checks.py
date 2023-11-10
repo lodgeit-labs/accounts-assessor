@@ -2,23 +2,16 @@ from .div7a_impl import *
 
 
 def check_invariants(records):
-	"""
-	this is a rather random collection at the moment. Some of them could be promoted to invariants, checked after every step, and some of them may be specific to particular phases maybe? The div7a() can eventually be simplified depending on how this turns out.
-	"""
 
-	# sanity checks:
-
-	# - loan start is within benchmark rates range:
-	
-	# - calculation year is within benchmark rates range:
-	
-	# - lodgement day is after loan start:
-	
 	# - lodgement day year == loan start year + 1:
 	
+	lodgement_day_records = [r for r in records if r.__class__ == lodgement]
+	if len(lodgement_day_records) > 1:
+		raise Exception('More than one lodgement day')
+	if len(lodgement_day_records) == 1:
+		if lodgement_day_records[0].income_year != get_loan_start_record(records).income_year + 1:
+			raise Exception(f'lodgement day income year != loan start income year + 1: {lodgement_day_records[0].income_year} != {get_loan_start_record(records).income_year} + 1')
 
-
-	
 	# - loan start is first record:
 
 	if records[0].__class__ != loan_start:
