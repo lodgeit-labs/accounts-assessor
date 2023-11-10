@@ -45,7 +45,7 @@ def loop():
 			comments = []
 			
 			def comment(x):
-				comments.insert(0, x)
+				comments.append(x)
 				print(x)
 			
 			cb = principal
