@@ -21,7 +21,7 @@
 	->	true
 	;	true),
 
-	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDateStr), _E4)
+	(	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Lodgment day of private company', @value=LodgementDateStr), __E4)
 	->	true
 	;	true),
 

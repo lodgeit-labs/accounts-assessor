@@ -39,7 +39,7 @@ def loop():
 			end = date(loan_year+full_term, 6, 30)
 
 			repayments = repaymentset(start, end)
-			principal = random.randint(1, full_term * 60000)
+			principal = random.randint(1, full_term * 50000)
 			lodgement_date = start + timedelta(days=random.randint(0, 365))
 
 			comments = []
@@ -211,6 +211,8 @@ def repaymentset(start, end_inclusive):
 	repayments = []
 
 	while date <= end_inclusive:
+		if date.year >= 2024:
+			break
 		date += timedelta(days=random.randint(0, 400))
 		repayments.append(dict(date=date, amount=random.randint(0, 50000)))
 	
