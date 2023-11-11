@@ -25,13 +25,15 @@ from utils import *
 
 
 
-
-
-counter = 2530
+counter = 0
 
 
 
 def loop():
+
+	print(f'==============')
+	
+
 	for loan_year in range(2000, 2021):
 		start = date(loan_year, 7, 1)
 		for full_term in range(2, 7):
@@ -53,7 +55,7 @@ def loop():
 
 			print()
 			print(f'========{counter}========')
-			print()
+			print(f'enquiry_year: {enquiry_year}')
 
 			while cb > 0:
 				enquiry_year += 1
@@ -144,10 +146,15 @@ def write_multistep_testcase(
 	case_dir = Path(f'{cases_dir}/{id}')
 	case_dir.mkdir(parents=True)
 
+	with open(case_dir / 'request.json', 'w') as f:
+		json.dump({"requested_output_format":"immediate_xml"}, f)
+	with open(case_dir / 'response.json', 'w') as f:
+		json.dump({"status":200,"result":"responses/response.xml"}, f)
+
 	inputs_dir = case_dir / 'request'
 	inputs_dir.mkdir(parents=True)
 
-	outputs_dir = case_dir/ 'responses'
+	outputs_dir = case_dir / 'responses'
 	outputs_dir.mkdir(parents=True)
 
 	rrr = doc.toprettyxml(indent='\t')
