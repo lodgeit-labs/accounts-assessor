@@ -27,7 +27,7 @@ from utils import *
 
 
 
-counter = 2500
+counter = 2530
 
 
 
@@ -89,7 +89,7 @@ def loop():
 
 
 def single_step_request(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year):
-	x = request_xml(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year)
+	x = request_xml(loan_year, full_term, lodgement_date, ob, None, repayments, enquiry_year)
 	request_str = x.toprettyxml(indent='\t')
 	print(request_str)
 
@@ -114,7 +114,7 @@ def write_multistep_testcase(
 	income_year_of_loan_creation,
 	full_term_of_loan_in_years,
 	lodgement_day_of_private_company,
-	opening_balance,
+	principal,
 	repayment_dicts,
 	income_year_of_computation,
 	single_step_result_xml_text,
@@ -130,7 +130,8 @@ def write_multistep_testcase(
 		income_year_of_loan_creation,
 		full_term_of_loan_in_years,
 		lodgement_day_of_private_company,
-		opening_balance,
+		None,
+		principal,
 		repayment_dicts,
 		income_year_of_computation
 	)
@@ -167,6 +168,7 @@ def request_xml(
 	full_term_of_loan_in_years,
 	lodgement_day_of_private_company,
 	opening_balance,
+	principal,
 	repayment_dicts,
 	income_year_of_computation
 ):
@@ -191,9 +193,10 @@ def request_xml(
 		field('Lodgement day of private company', (lodgement_day_of_private_company))
 	field('Income year of computation', income_year_of_computation)
 
-	# maybe we could generate some testcases with principal rather than opening balance tag, it will mean the same thing.
-	field('Opening balance of computation', opening_balance)
-	# field('Principal amount of loan', opening_balance)
+	if opening_balance is not None:
+		field('Opening balance of computation', opening_balance)
+	if principal is not None:
+		field('Principal amount of loan', principal)
 
 	for r in repayment_dicts:
 		repayment = repayments.appendChild(doc.createElement('repayment'))
