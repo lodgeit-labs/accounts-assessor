@@ -25,10 +25,6 @@ from utils import *
 
 
 
-counter = 0
-
-
-
 def loop():
 
 	print(f'==============')
@@ -54,8 +50,8 @@ def loop():
 			enquiry_year = loan_year
 
 			print()
-			print(f'========{counter}========')
 			print(f'enquiry_year: {enquiry_year}')
+			print()
 
 			while cb > 0:
 				enquiry_year += 1
@@ -79,7 +75,7 @@ def loop():
 				if cb == 0:
 					comment('paid off.')
 					break
-				if enquiry_year >= 2024:
+				if enquiry_year > 2024:
 					comment('stopped before enquiry_year = 2024')
 					break
 				if enquiry_year + 1 > loan_year + full_term:
@@ -125,8 +121,6 @@ def write_multistep_testcase(
 	"""
 	the last single_step_result_xml_text is also the exact result expected from the multistep computation.
 	"""
-	
-	global counter
 
 	doc = request_xml(
 		income_year_of_loan_creation,
@@ -140,8 +134,7 @@ def write_multistep_testcase(
 
 	cases_dir = Path('multistep')
 
-	counter += 1
-	id = f'{counter:07d}'
+	id = str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_')
 
 	case_dir = Path(f'{cases_dir}/{id}')
 	case_dir.mkdir(parents=True)
@@ -221,9 +214,14 @@ def repaymentset(start, end_inclusive):
 	repayments = []
 
 	while date <= end_inclusive:
-		if date.year >= 2024:
-			break
+
 		date += timedelta(days=random.randint(0, 400))
+
+		if date.year > 2024:
+			break
+		if date.year == 2024 and date.month > 6:
+			break
+
 		repayments.append(dict(date=date, amount=random.randint(0, 50000)))
 	
 	return repayments
