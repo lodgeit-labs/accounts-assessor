@@ -11,6 +11,7 @@ from pydantic import BaseModel
 import requests, glob
 from pathlib import Path as P
 import xmlschema
+import traceback
 
 
 log = logging.getLogger(__name__)
@@ -29,8 +30,11 @@ def post_div7a(loan_summary_request: dict):
 	log.warn(json.dumps(loan_summary_request))
 	try:
 		result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
-	except Exception as e:
+	except MyException as e:
 		result = dict(result='error', error_message=str(e))
+	except Exception as e:
+		traceback_message = traceback.format_exc()
+		result = dict(result='error', error_message=traceback_message)
 	log.warn(result)
 	return result
 

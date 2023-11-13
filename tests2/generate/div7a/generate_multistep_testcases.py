@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import io
 import json, os, sys, datetime, random, requests
+import calendar
 from datetime import timedelta, date
 from pathlib import Path
 from xml.etree.ElementTree import canonicalize, fromstring, tostring
@@ -24,14 +25,15 @@ impl = getDOMImplementation()
 from utils import *
 
 
-
-
-
-counter = 2000
-
+def days_in_year(y):
+	return 366 if calendar.isleap(y) else 365
 
 
 def loop():
+
+	print(f'==============')
+	
+
 	for loan_year in range(2000, 2021):
 		start = date(loan_year, 7, 1)
 		for full_term in range(2, 7):
@@ -39,8 +41,8 @@ def loop():
 			end = date(loan_year+full_term, 6, 30)
 
 			repayments = repaymentset(start, end)
-			principal = random.randint(1, full_term * 60000)
-			lodgement_date = start + timedelta(days=random.randint(0, 365))
+			principal = random.randint(1, full_term * 50000)
+			lodgement_date = start + timedelta(days=random.randint(0, days_in_year(start.year+1)-1))
 
 			comments = []
 			
@@ -52,7 +54,7 @@ def loop():
 			enquiry_year = loan_year
 
 			print()
-			print(f'========{counter}========')
+			print(f'enquiry_year: {enquiry_year}')
 			print()
 
 			while cb > 0:
@@ -77,7 +79,7 @@ def loop():
 				if cb == 0:
 					comment('paid off.')
 					break
-				if enquiry_year >= 2024:
+				if enquiry_year > 2024:
 					comment('stopped before enquiry_year = 2024')
 					break
 				if enquiry_year + 1 > loan_year + full_term:
@@ -89,7 +91,7 @@ def loop():
 
 
 def single_step_request(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year):
-	x = request_xml(loan_year, full_term, lodgement_date, ob, repayments, enquiry_year)
+	x = request_xml(loan_year, full_term, lodgement_date, ob, None, repayments, enquiry_year)
 	request_str = x.toprettyxml(indent='\t')
 	print(request_str)
 
@@ -114,7 +116,7 @@ def write_multistep_testcase(
 	income_year_of_loan_creation,
 	full_term_of_loan_in_years,
 	lodgement_day_of_private_company,
-	opening_balance,
+	principal,
 	repayment_dicts,
 	income_year_of_computation,
 	single_step_result_xml_text,
@@ -123,30 +125,33 @@ def write_multistep_testcase(
 	"""
 	the last single_step_result_xml_text is also the exact result expected from the multistep computation.
 	"""
-	
-	global counter
 
 	doc = request_xml(
 		income_year_of_loan_creation,
 		full_term_of_loan_in_years,
 		lodgement_day_of_private_company,
-		opening_balance,
+		None,
+		principal,
 		repayment_dicts,
 		income_year_of_computation
 	)
 
 	cases_dir = Path('multistep')
 
-	counter += 1
-	id = f'{counter:07d}'
+	id = str(datetime.datetime.utcnow()).replace(' ', '_').replace(':', '_')
 
 	case_dir = Path(f'{cases_dir}/{id}')
 	case_dir.mkdir(parents=True)
 
+	with open(case_dir / 'request.json', 'w') as f:
+		json.dump({"requested_output_format":"immediate_xml"}, f)
+	with open(case_dir / 'response.json', 'w') as f:
+		json.dump({"status":200,"result":"responses/response.xml"}, f)
+
 	inputs_dir = case_dir / 'request'
 	inputs_dir.mkdir(parents=True)
 
-	outputs_dir = case_dir/ 'responses'
+	outputs_dir = case_dir / 'responses'
 	outputs_dir.mkdir(parents=True)
 
 	rrr = doc.toprettyxml(indent='\t')
@@ -167,6 +172,7 @@ def request_xml(
 	full_term_of_loan_in_years,
 	lodgement_day_of_private_company,
 	opening_balance,
+	principal,
 	repayment_dicts,
 	income_year_of_computation
 ):
@@ -191,9 +197,10 @@ def request_xml(
 		field('Lodgement day of private company', (lodgement_day_of_private_company))
 	field('Income year of computation', income_year_of_computation)
 
-	# maybe we could generate some testcases with principal rather than opening balance tag, it will mean the same thing.
-	field('Opening balance of computation', opening_balance)
-	# field('Principal amount of loan', opening_balance)
+	if opening_balance is not None:
+		field('Opening balance of computation', opening_balance)
+	if principal is not None:
+		field('Principal amount of loan', principal)
 
 	for r in repayment_dicts:
 		repayment = repayments.appendChild(doc.createElement('repayment'))
@@ -211,7 +218,14 @@ def repaymentset(start, end_inclusive):
 	repayments = []
 
 	while date <= end_inclusive:
+
 		date += timedelta(days=random.randint(0, 400))
+
+		if date.year > 2024:
+			break
+		if date.year == 2024 and date.month > 6:
+			break
+
 		repayments.append(dict(date=date, amount=random.randint(0, 50000)))
 	
 	return repayments
