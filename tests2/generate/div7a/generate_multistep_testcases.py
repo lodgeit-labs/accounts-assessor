@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import io
 import json, os, sys, datetime, random, requests
+import calendar
 from datetime import timedelta, date
 from pathlib import Path
 from xml.etree.ElementTree import canonicalize, fromstring, tostring
@@ -24,6 +25,9 @@ impl = getDOMImplementation()
 from utils import *
 
 
+def days_in_year(y):
+	return 366 if calendar.isleap(y) else 365
+
 
 def loop():
 
@@ -38,7 +42,7 @@ def loop():
 
 			repayments = repaymentset(start, end)
 			principal = random.randint(1, full_term * 50000)
-			lodgement_date = start + timedelta(days=random.randint(0, 365))
+			lodgement_date = start + timedelta(days=random.randint(0, days_in_year(start.year+1)))
 
 			comments = []
 			
