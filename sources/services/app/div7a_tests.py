@@ -68,6 +68,64 @@ except Exception as e:
 	assert str(e) == 'lodgement day income year != loan start income year + 1: 2010 != 2008 + 1'
 
 try:
+  div7a_from_json({
+   "computation_income_year": "2019",
+   "creation_income_year": "2018",
+   "lodgement_date": "2019-03-24",
+   "opening_balance": "24492",
+   "principal_amount": -1,
+   "repayments": [
+	{
+	 "date": "2018-07-13",
+	 "value": "20630"
+	},
+	{
+	 "date": "2019-01-30",
+	 "value": "8209"
+	},
+	{
+	 "date": "2020-02-25",
+	 "value": "41652"
+	},
+	{
+	 "date": "2020-07-14",
+	 "value": "26634"
+	},
+	{
+	 "date": "2021-06-22",
+	 "value": "9314"
+	},
+	{
+	 "date": "2022-04-22",
+	 "value": "9665"
+	},
+	{
+	 "date": "2022-11-14",
+	 "value": "20060"
+	},
+	{
+	 "date": "2023-08-02",
+	 "value": "3922"
+	},
+	{
+	 "date": "2023-10-24",
+	 "value": "8217"
+	},
+	{
+	 "date": "2023-12-31",
+	 "value": "31515"
+	},
+	{
+	 "date": "2024-12-26",
+	 "value": "42067"
+	}
+   ],
+   "term": "6"
+  })
+except Exception as e:
+	assert str(e) == 'No benchmark rate for year 2025'
+
+try:
 	div7a_from_json({"computation_income_year": "2017", "creation_income_year": "2014", "lodgement_date": "2015-05-15", "opening_balance": -1, "principal_amount": "50000.00", "repayments": [{"date": "2014-08-31", "value": "20000.00"}, {"date": "2015-05-30", "value": "8000.00"}, {"date": "2016-05-30", "value": "8000.00"}], "term": "2"})
 except Exception as e:
 	assert str(e) == 'calculation starts after loan_term_end'
