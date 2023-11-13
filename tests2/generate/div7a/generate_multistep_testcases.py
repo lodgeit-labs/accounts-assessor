@@ -42,7 +42,7 @@ def loop():
 
 			repayments = repaymentset(start, end)
 			principal = random.randint(1, full_term * 50000)
-			lodgement_date = start + timedelta(days=random.randint(0, days_in_year(start.year+1)))
+			lodgement_date = start + timedelta(days=random.randint(0, days_in_year(start.year+1)-1))
 
 			comments = []
 			
