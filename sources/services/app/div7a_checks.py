@@ -43,7 +43,7 @@ def check_invariants(records):
 		raise MyException('loan_start is before calculation_start')
 
 	if records.index(one([r for r in records if r.__class__ == calculation_start])) >= records.index(one([r for r in records if r.__class__ == loan_term_end])):
-		raise MyException('calculation starts after loan_term_endcalculation_start')
+		raise MyException('calculation starts after loan_term_end')
 
 	if records.index(one([r for r in records if r.__class__ == calculation_end])) >= records.index(one([r for r in records if r.__class__ == loan_term_end])):
 		raise MyException('loan_term_end is before calculation_end')
