@@ -2,6 +2,7 @@
 import io
 import json, os, sys, datetime, random, requests
 import calendar
+import time
 from datetime import timedelta, date
 from pathlib import Path
 from xml.etree.ElementTree import canonicalize, fromstring, tostring
@@ -15,6 +16,30 @@ requests_session = requests.Session()
 requests_adapter = requests.adapters.HTTPAdapter(max_retries=5)
 requests_session.mount('http://', requests_adapter)
 requests_session.mount('https://', requests_adapter)
+
+
+def post(url, params, file):
+	for i in range(20000000):
+		try:
+			r = post2(url, params, file)
+			if r.ok:
+				return r
+			else:
+				print(f'error: {r.status_code}')
+				print(r.text)
+		except Exception as e:
+			print(e)
+		print(f'retrying {i}')
+		time.sleep(10)
+	return post2(url, params, file)
+					
+def post2(url, params, file):
+
+	file1 = io.StringIO(file['content'])
+	file1.name = file['name']
+
+	return requests_session.post(url, params=params, files=dict(file1=file1))
+
 
 
 from xml.dom import minidom
@@ -79,11 +104,11 @@ def loop():
 				if cb == 0:
 					comment('paid off.')
 					break
-				if enquiry_year > 2024:
-					comment('stopped before enquiry_year = 2024')
+				if enquiry_year == 2024:
+					comment('stopped before enquiry_year > 2024')
 					break
 				if enquiry_year + 1 > loan_year + full_term:
-					comment('full term. This shouldnt happen.')
+					comment('Ran over term with neither full repayment reached, nor shortfall. This shouldnt happen.')
 					break
 
 			if enquiry_year > loan_year + 1:			
@@ -96,15 +121,10 @@ def single_step_request(loan_year, full_term, lodgement_date, ob, repayments, en
 	print(request_str)
 
 	robust_server_url = 'http://localhost:8877'
-
-	file1 = io.StringIO(request_str)
-	file1.name = 'request.xml'
-	files = dict(file1=file1)
-
-	response_text = requests_session.post(
+	response_text = post(
 		f'{robust_server_url}/upload',
 		params={'request_format': 'xml', 'requested_output_format': 'immediate_xml'},
-		files=files
+		file=dict(name='request.xml', content=request_str)
 	).text
 
 	print(response_text)
