@@ -232,7 +232,7 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	with open(fn, 'wb') as f:
 		f.write(r.content)
 
-	r = process_request(request_tmp_directory_name)[1]
+	r = process_request(request_tmp_directory_name, request_tmp_directory_path)[1]
 
 	jv = find_report_by_key(r['reports'], 'job_view_url')
 	if jv is not None:
@@ -249,27 +249,29 @@ def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, r
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
 
 	for file in filter(None, [file1, file2]):
-		logger.info('uploaded: %s' % file)
+		logger.info('uploaded: %s' % file.filename)
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
 
-	return process_request(request_tmp_directory_name, request_format, requested_output_format)[0]
+	return process_request(request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format)[0]
 
 
 
 
-def process_request(request_directory, request_format='rdf', requested_output_format = 'job_handle'):
+def process_request(request_tmp_directory_name, request_tmp_directory_path, request_format='rdf', requested_output_format = 'job_handle'):
 	public_url=os.environ['PUBLIC_URL']
 
-	request_json = os.path.join(request_directory, 'request.json')
+	request_json = os.path.join(request_tmp_directory_path, 'request.json')
 	if os.path.exists(request_json):
 		with open(request_json) as f:
 			options = json.load(f).get('worker_options', {})
 	else:
+		logger.info('no %s' % request_json)
 		options = None
+	logger.info('options: %s' % str(options))
 
 	job = worker.trigger_remote_calculator_job(
 		request_format=request_format,
-		request_directory=request_directory,
+		request_directory=request_tmp_directory_name,
 		public_url=public_url,
 		options=options
 	)
@@ -283,10 +285,14 @@ def process_request(request_directory, request_format='rdf', requested_output_fo
 			# was this an error?
 			if reports['alerts'] != []:
 				#return JSONResponse(reports), reports
+				if 'reports' in reports:
+					taskdir = '<task_directory>' + find_report_by_key(reports['reports'], 'task_directory') + '</task_directory>'
+				else:
+					taskdir = '<job_id>'+job.message_id+'</job_id>'
 				error_xml_text = (
-						'<error>' + 
-							'<message>' + '. '.join(reports['alerts']) + '</message>' +
-							'<task_directory>' + find_report_by_key(reports['reports'], 'task_directory') + '</task_directory>' +
+						'<error>' +
+						'<message>' + '. '.join(reports['alerts']) + '</message>' +
+						taskdir +
 						'</error>')
 				return PlainTextResponse(error_xml_text, status_code=500), error_xml_text
 			return RedirectResponse(find_report_by_key(reports['reports'], 'result')), None
@@ -317,7 +323,7 @@ def process_request(request_directory, request_format='rdf', requested_output_fo
 
 
 def save_uploaded_file(tmp_directory_path, src):
-	logger.info('src: %s' % src)
+	logger.info('src: %s' % src.filename)
 	dest = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(src.filename)]))
 	with open(dest, 'wb+') as dest_fd:
 		shutil.copyfileobj(src.file, dest_fd)
