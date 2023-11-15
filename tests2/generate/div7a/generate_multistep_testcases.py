@@ -19,6 +19,16 @@ requests_session.mount('https://', requests_adapter)
 
 
 def post(url, params, file):
+	"""
+	possibly replace this with something like:
+	https://pypi.org/project/retry-requests/
+	https://pypi.org/project/requests-retry-on-exceptions/
+	
+	but this seems to work and the extra control seems handy.
+	
+	At any case, Sessions and Adapters are useless, because they don't and won't retry on connection errors: https://github.com/psf/requests/issues/4568
+	
+	"""
 	for i in range(20000000):
 		try:
 			r = post2(url, params, file)
@@ -91,11 +101,6 @@ def loop():
 				comments.append(last_step_result_xml_text)
 
 				step = fromstring(last_step_result_xml_text)
-				
-				#if step.find('error') is not None:
-				#	print('breaking due to error')
-				#	break
-				
 				cb = float(step.find('ClosingBalance').text)
 
 				if float(step.find('RepaymentShortfall').text) != 0:

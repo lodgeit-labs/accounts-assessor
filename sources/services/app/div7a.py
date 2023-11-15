@@ -41,6 +41,31 @@ def div7a_from_json(j,tmp_dir_path='.'):
 
 def div7a_from_json2(ooo,j):
 
+	"""
+	given starting amount as:
+		<loan principal> (same as opening balance at first year)
+		or
+		opening balance at calculation income year
+		or
+		<opening balance> at <income year> (not supported here)
+		
+	given repayments for:
+		all the years - in case of principal provided
+		or
+		only the calculation year - in case of opening balance provided
+		or
+		years since opening balance of <income year> - in case of opening balance of <income year> provided 
+	
+	given lodgement day:
+		<date> - in case of calculation of first loan year, this is implied by:
+			principal provided
+			opening balance at calculation income year, where calculation income year is the first year after loan creation
+			<opening balance> at <income year>, where <income year> is the first year after loan creation	
+	
+	...	
+	 
+	"""
+
 	if ooo:
 		print(f'<h3>request</h3>', file=ooo)
 		print(f'<big><pre><code>', file=ooo)
@@ -137,7 +162,7 @@ def div7a(ooo, records):
 	# insert minimum yearly repayment check records
 	step(ooo, tables, with_myr_checks)
 	# was minimum yearly repayment met?
-	step(ooo, tables, evaluate_myr_checks)
+	step(ooo, tables, evaluate_myr_checks, True)
 	# one final check
 	check_invariants(tables[-1])
 	
@@ -145,7 +170,7 @@ def div7a(ooo, records):
 
 
 
-def step(ooo, tables, f):
+def step(ooo, tables, f, final=False):
 	t1 = tables[-1]
 	check_invariants(t1)
 	t2 = [r.copy() for r in t1] 
@@ -163,18 +188,16 @@ def step(ooo, tables, f):
 				r.remaining_term = ''
 	
 	if ooo:
-		if in_notebook():
-			from IPython.display import display, HTML
-			print(f.__name__)
-	
-		print(f'<h3>{f.__name__}</h3>', file=ooo)
-	
+
 		dicts1 = records_to_dicts(t1)
 		dicts2 = records_to_dicts(t2)
-			
 		df2 = pd.DataFrame(dicts2)
 
-		if in_notebook():
+		print(f'<h3>{f.__name__}</h3>', file=ooo)
+
+		if in_notebook() and final:
+			from IPython.display import display, HTML
+			print(f.__name__)
 			display(HTML(df2.to_html(index=False, max_rows=1000)))
 	
 		sss = Styler(df2)

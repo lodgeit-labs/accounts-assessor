@@ -25,7 +25,7 @@ def rec_add(recs, rec):
 	modified = True
 	
 	while modified:
-		log.warn(rec)
+		#log.warn(rec)
 		modified = False
 		
 		for i,r in enumerate(recs):

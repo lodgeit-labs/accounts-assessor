@@ -6,6 +6,7 @@ import ntpath
 import shutil
 import re
 from pathlib import Path as P
+
 import requests
 
 from typing import Optional, Any, List, Annotated
@@ -16,6 +17,12 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
 from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
+
+
+from xml.etree import ElementTree
+from xml.dom import minidom
+from xml.dom.minidom import getDOMImplementation
+impl = getDOMImplementation()
 
 
 templates = Jinja2Templates(directory="templates")
@@ -49,6 +56,14 @@ class RpcCommand(BaseModel):
 	method: str
 	params: Any
 
+class Div7aPrincipal(BaseModel):
+	amount: float
+class Div7aOpeningBalanceForCalculationYear(BaseModel):
+	amount: float
+
+class Div7aRepayment(BaseModel):
+	date: datetime.date
+	value: float
 
 
 logger = logging.getLogger()
@@ -78,37 +93,30 @@ logger.addHandler(ch)
 
 
 
-
-# not sure waht i was getting at here
-# def ee(context_manager):
-# 	return ExitStack().enter_context(context_manager)
-#
-# def secret(key):
-# 	try:
-# 		stack = ee(open('/run/secrets/'+key))
-# 	except FileNotFoundError:
-# 		pass
-# 	else:
-# 		with stack as f:
-# 			return f.read().rstrip('\n')
-# 	return os.environ[key]
+app = FastAPI(
+	title="Robust API",
+	summary="invoke accounting calculators and other endpoints",
+	servers = [dict(url=os.environ['PUBLIC_URL'])] 			  
+)
 
 
-
-app = FastAPI()
-
-
-@app.get("/")
+@app.get("/", include_in_schema=False)
 async def read_root():
+	"""
+	nothing to see here
+	"""
 	return {"Hello": "World"}
 
 
-#@app.get("/health")
-#some status page here?
+#@app.get("/status")
+#some status page for the whole stack here? like queue size, workers, .. 
 
 
 @app.post("/health_check")
 def post(request: Request):
+	"""
+	run an end-to-end healthcheck, internally invoking chat endpoint.
+	"""
 	r = json_prolog_rpc_call(request, {
 		"method": "chat",
 		"params": {"type":"sbe","current_state":[]}
@@ -121,6 +129,9 @@ def post(request: Request):
 
 @app.post("/chat")
 def post(body: ChatRequest, request: Request):
+	"""
+	invoke chat endpoint
+	"""
 	return json_prolog_rpc_call(request, {
 		"method": "chat",
 		"params": body.dict(),
@@ -141,6 +152,9 @@ def tmp_file_url(public_url, tmp_dir_name, fn):
 
 @app.get("/view/job/{job_id}", response_class=HTMLResponse)
 async def views_limbo(request: Request, job_id: str, redirect:bool=True):
+	"""
+	job html page
+	"""
 	job = await get_task(job_id)
 	if job is not None:
 		if redirect and job['status'] == 'Success' and 'reports' in job['result']:
@@ -175,7 +189,10 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 
 
 @app.get('/api/job/{id}')
-async def get_task(id: str):
+async def get_job_by_id(id: str):
+	"""
+	get job json
+	"""
 	r = requests.get(os.environ['REMOULADE_API'] + '/messages/states/' + id)
 	if not r.ok:
 		return None
@@ -209,7 +226,7 @@ async def get_task(id: str):
 @app.post("/reference")
 def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	"""
-	This endpoint is for running IC on a file that is already on the internet ("by reference").
+	Trigger a calculator by submitting an URL of an input file.
 	"""
 	# todo, we should probably instead implement this as a part of "preprocessing" the uploaded content, that is, there'd be a "reference" type of "uploaded file", and the referenced url should then also be retrieved in a unified way along with retrieving for example xbrl taxonomies referenced by xbrl files.
 
@@ -245,6 +262,9 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 
 @app.post("/upload")
 def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
+	"""
+	Trigger a calculator by uploading one or more input files.
+	"""
 	
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
 
@@ -284,7 +304,6 @@ def process_request(request_tmp_directory_name, request_tmp_directory_path, requ
 			logger.info(str(reports))
 			# was this an error?
 			if reports['alerts'] != []:
-				#return JSONResponse(reports), reports
 				if 'reports' in reports:
 					taskdir = '<task_directory>' + find_report_by_key(reports['reports'], 'task_directory') + '</task_directory>'
 				else:
@@ -298,7 +317,7 @@ def process_request(request_tmp_directory_name, request_tmp_directory_path, requ
 			return RedirectResponse(find_report_by_key(reports['reports'], 'result')), None
 	elif requested_output_format == 'immediate_json_reports_list':
 			reports = job.result.get(block=True, timeout=1000 * 1000)
-			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory') + '/000000_response.json.json'), None
+			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory') + '/000000_response.json.json'), reports
 	elif requested_output_format == 'job_handle':
 		jsn = {
 			"alerts": ["job scheduled."],
@@ -353,6 +372,134 @@ def job_tmp_url(job):
 
 
 
+@app.get('/well-known/ai-plugin.json')
+async def ai_plugin_json():
+	return {
+    "schema_version": "v1",
+    "name_for_human": "Div7A",
+    "name_for_model": "Div7A",
+    "description_for_human": "Plugin for calculating minimum repayment and loan balance under Division 7A.",
+    "description_for_model": "Plugin for calculating minimum repayment and loan balance under Division 7A.",
+    "auth": {
+      "type": "none"
+    },
+    "api": {
+      "type": "openapi",
+      "url": os.environ['PUBLIC_URL'] + "/openapi.json"
+    },
+    "logo_url": os.environ['PUBLIC_URL'] + "/static/logo.png",
+    "contact_email": "legal@example.com",
+    "legal_info_url": "http://example.com/legal"
+  }
+
+
+@app.get('/div7a')
+async def div7a(
+		loan_year: int, 
+		full_term: int,
+		enquiry_year: int,
+		starting_amount: Div7aOpeningBalanceForCalculationYear | Div7aPrincipal,
+		repayments: list[Div7aRepayment],
+		lodgement_date: datetime.date
+):
+	
+	"""
+	calculate Div7A loan summary
+	"""
+
+	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
+
+	with open(request_tmp_directory_path + '/ai-request.xml', 'wb') as f:
+
+		if isinstance(starting_amount, Div7aOpeningBalanceForCalculationYear):
+			ob = starting_amount.amount
+			principal = None
+		else:
+			ob = None
+			principal = starting_amount.amount
+		
+		x = div7a_request_xml(loan_year, full_term, lodgement_date, ob, None, repayments, enquiry_year)
+		f.write(x.toprettyxml(indent='\t'))
+
+	reports = process_request(request_tmp_directory_name, request_tmp_directory_path, request_format='xml', requested_output_format = 'immediate_json_reports_list')[1]
+
+	if reports['alerts'] != []:
+		e = '. '.join(reports['alerts'])
+		if 'reports' in reports:
+			e += ' - ' + find_report_by_key(reports['reports'], 'task_directory')
+		else:
+			e += ' - ' + job.message_id
+		return JSONResponse(dict(error=e))
+
+	result_url = find_report_by_key(r['reports'], 'result')
+	expected_prefix = os.environ['PUBLIC_URL'] + '/tmp/'
+	if not result_url.startswith(expected_prefix):
+		raise Exception('unexpected result_url prefix: ' + result_url)
+
+	xml = ElementTree.parse(get_tmp_directory_absolute_path(result_url[len(expected_prefix):]))
+	j = {}
+	for tag in ['OpeningBalance','InterestRate','MinYearlyRepayment','TotalRepayment','RepaymentShortfall','TotalInterest','TotalPrincipal','ClosingBalance']:
+		j[tag] = float(xml.find(tag).text)
+	
+	return j
+
+
+def div7a_request_xml(
+		income_year_of_loan_creation,
+		full_term_of_loan_in_years,
+		lodgement_day_of_private_company,
+		opening_balance,
+		principal,
+		repayment_dicts,
+		income_year_of_computation
+):
+	"""
+	create a request xml dom, given loan details.	 
+	"""
+
+	doc = impl.createDocument(None, "reports", None)
+	loan = doc.documentElement.appendChild(doc.createElement('loanDetails'))
+
+	agreement = loan.appendChild(doc.createElement('loanAgreement'))
+	repayments = loan.appendChild(doc.createElement('repayments'))
+
+	def field(name, value):
+		field = agreement.appendChild(doc.createElement('field'))
+		field.setAttribute('name', name)
+		field.setAttribute('value', str(value))
+
+	field('Income year of loan creation', income_year_of_loan_creation)
+	field('Full term of loan in years', full_term_of_loan_in_years)
+	if lodgement_day_of_private_company is not None:
+		field('Lodgement day of private company', (lodgement_day_of_private_company))
+	field('Income year of computation', income_year_of_computation)
+
+	if opening_balance is not None:
+		field('Opening balance of computation', opening_balance)
+	if principal is not None:
+		field('Principal amount of loan', principal)
+
+	for r in repayment_dicts:
+		repayment = repayments.appendChild(doc.createElement('repayment'))
+		repayment.setAttribute('date', python_date_to_xml(r.date))
+		repayment.setAttribute('value', str(r.value))
+
+	return doc
+
+
+def python_date_to_xml(date):
+	y = date.year
+	m = date.month
+	d = date.day
+	if not (0 < m <= 12):
+		raise Exception(f'invalid month: {m}')
+	if not (0 < d <= 31):
+		raise Exception(f'invalid day: {d}')
+	if not (1980 < y <= 2050):
+		raise Exception(f'invalid year: {y}')
+	return f'{y}-{m:02}-{d:02}' # ymd
+
+
 """
 FastAPI def vs async def:
 
@@ -361,5 +508,4 @@ When you declare a path operation function with normal def instead of async def,
 If you are coming from another async framework that does not work in the way described above and you are used to define trivial compute-only path operation functions with plain def for a tiny performance gain (about 100 nanoseconds), please note that in FastAPI the effect would be quite opposite. In these cases, it's better to use async def unless your path operation functions use code that performs blocking I/O.
 - https://fastapi.tiangolo.com/async/
 """
-
 # https://12factor.net/
