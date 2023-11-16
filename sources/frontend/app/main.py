@@ -10,7 +10,7 @@ from pathlib import Path as P
 import requests
 
 from typing import Optional, Any, List, Annotated
-from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status
+from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status, Query
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -395,12 +395,12 @@ async def ai_plugin_json():
 
 @app.get('/div7a')
 async def div7a(
-		loan_year: int, 
-		full_term: int,
-		enquiry_year: int,
-		starting_amount: Div7aOpeningBalanceForCalculationYear | Div7aPrincipal,
+		loan_year: Annotated[int, Query(title="The income year in which the amalgamated loan was made")],
+		full_term: Annotated[int, Query(title="The length of the loan, in years")],
+		enquiry_year: Annotated[int, Query(title="The income year to calculate the summary for")],
+		starting_amount: Annotated[Div7aOpeningBalanceForCalculationYear | Div7aPrincipal, Query(title="Either loan principal amount, as of loan start year, or the opening balance as of enquiry_year")],
 		repayments: list[Div7aRepayment],
-		lodgement_date: datetime.date
+		lodgement_date: Annotated[Optional[datetime.date], Query(title="Lodgement date, required for calculation in first year of loan")]
 ):
 	
 	"""
