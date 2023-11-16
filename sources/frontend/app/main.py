@@ -63,7 +63,7 @@ class Div7aOpeningBalanceForCalculationYear(BaseModel):
 
 class Div7aRepayment(BaseModel):
 	date: datetime.date
-	value: float
+	amount: float
 
 
 logger = logging.getLogger()
@@ -403,7 +403,8 @@ async def div7a(
 	loan_year: Annotated[int, Query(title="The income year in which the amalgamated loan was made")],
 	full_term: Annotated[int, Query(title="The length of the loan, in years")],
 	enquiry_year: Annotated[int, Query(title="The income year to calculate the summary for")],
-	starting_amount: Annotated[Div7aOpeningBalanceForCalculationYear | Div7aPrincipal, Query(title="Either loan principal amount, as of loan start year, or the opening balance as of enquiry_year")],
+	#starting_amount: Annotated[Div7aOpeningBalanceForCalculationYear | Div7aPrincipal, Query(title="Either loan principal amount, as of loan start year, or the opening balance as of enquiry_year")],
+	starting_amount: Annotated[float, Query(title="Opening balance of enquiry_year")],
 	repayments: list[Div7aRepayment],
 	lodgement_date: Annotated[Optional[datetime.date], Query(title="Lodgement date, required for calculation in first year of loan")]
 ):
@@ -487,7 +488,7 @@ def div7a_request_xml(
 	for r in repayment_dicts:
 		repayment = repayments.appendChild(doc.createElement('repayment'))
 		repayment.setAttribute('date', python_date_to_xml(r.date))
-		repayment.setAttribute('value', str(r.value))
+		repayment.setAttribute('value', str(r.amount))
 
 	return doc
 
