@@ -372,7 +372,7 @@ def job_tmp_url(job):
 
 
 
-@app.get('/well-known/ai-plugin.json')
+@app.get('/.well-known/ai-plugin.json')
 async def ai_plugin_json():
 	return {
     "schema_version": "v1",
