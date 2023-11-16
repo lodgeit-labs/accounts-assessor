@@ -436,6 +436,8 @@ async def div7a(
 		principal=None
 		ob=opening_balance
 
+		logger.info('rrrr %s' % repayments)
+		
 		x = div7a_request_xml(loan_year, full_term, lodgement_date, ob, principal, repayments, enquiry_year)
 		f.write(x.toprettyxml(indent='\t').encode('utf-8'))
 
