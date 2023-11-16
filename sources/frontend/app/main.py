@@ -408,7 +408,7 @@ async def ai_plugin_json():
 # repayments: Annotated[Div7aRepayments, Query(title="exhaustive list of repayments performed in enquiry year")],
 
 
-@app.post('/div7a')
+@app.get('/div7a')
 async def div7a(
 	loan_year: Annotated[int, Query(title="The income year in which the amalgamated loan was made")],
 	full_term: Annotated[int, Query(title="The length of the loan, in years")],
