@@ -417,7 +417,7 @@ async def div7a(
 	
 	# hack, OpenAI does not like a naked list for body
 	repayments: Div7aRepayments,
-	lodgement_date: Annotated[Optional[datetime.date], Query(title="Lodgement date, required for calculation in first year of loan")]
+	lodgement_date: Annotated[Optional[datetime.date], Query(title="Date of lodgement of the income year in which the loan was made. Required for calculating for the first year of loan.")]
 
 ):
 	
