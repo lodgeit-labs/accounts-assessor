@@ -414,6 +414,8 @@ async def div7a(
 	full_term: Annotated[int, Query(title="The length of the loan, in years")],
 	enquiry_year: Annotated[int, Query(title="The income year to calculate the summary for")],
 	opening_balance: Annotated[float, Query(title="Opening balance of enquiry_year")],
+	
+	# hack, OpenAI does not like a naked list for body
 	repayments: Div7aRepayments,
 	lodgement_date: Annotated[Optional[datetime.date], Query(title="Lodgement date, required for calculation in first year of loan")]
 
@@ -438,7 +440,7 @@ async def div7a(
 
 		logger.info('rrrr %s' % repayments)
 		
-		x = div7a_request_xml(loan_year, full_term, lodgement_date, ob, principal, repayments, enquiry_year)
+		x = div7a_request_xml(loan_year, full_term, lodgement_date, ob, principal, repayments.relevant_repayments, enquiry_year)
 		f.write(x.toprettyxml(indent='\t').encode('utf-8'))
 
 	reports = process_request(request_tmp_directory_name, request_tmp_directory_path, request_format='xml', requested_output_format = 'immediate_json_reports_list')[1]
