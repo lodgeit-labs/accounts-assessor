@@ -378,8 +378,8 @@ async def ai_plugin_json():
     "schema_version": "v1",
     "name_for_human": "Div7A",
     "name_for_model": "Div7A",
-    "description_for_human": "Plugin for calculating minimum repayment and loan balance under Division 7A.",
-    "description_for_model": "Plugin for calculating minimum repayment and loan balance under Division 7A.",
+    "description_for_human": "Plugin for calculating loan summary, including minimum repayment and loan balance, under Division 7A.",
+    "description_for_model": "Plugin for calculating loan summary, including minimum repayment and loan balance, under Division 7A.",
     "auth": {
       "type": "none"
     },
