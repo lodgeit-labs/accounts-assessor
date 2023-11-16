@@ -398,7 +398,7 @@ async def ai_plugin_json():
 #  {"OpeningBalance":13039.97419956,"InterestRate":7.05,"MinYearlyRepayment":4973.4437243,"TotalRepayment":0.0,"RepaymentShortfall":4973.4437243,"TotalInterest":919.31818107,"TotalPrincipal":0.0,"ClosingBalance":13039.97419956}⏎
 #
 
-@app.get('/div7a')
+@app.post('/div7a')
 async def div7a(
 	loan_year: Annotated[int, Query(title="The income year in which the amalgamated loan was made")],
 	full_term: Annotated[int, Query(title="The length of the loan, in years")],
