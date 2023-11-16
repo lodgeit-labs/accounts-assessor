@@ -100,7 +100,8 @@ logger.addHandler(ch)
 app = FastAPI(
 	title="Robust API",
 	summary="invoke accounting calculators and other endpoints",
-	servers = [dict(url=os.environ['PUBLIC_URL'][:-1])]
+	servers = [dict(url=os.environ['PUBLIC_URL'][:-1])],
+	
 )
 
 
@@ -392,8 +393,8 @@ async def ai_plugin_json():
       "url": os.environ['PUBLIC_URL'] + "openapi.json"
     },
     "logo_url": os.environ['PUBLIC_URL'] + "static/logo.png",
-    "contact_email": "legal@example.com",
-    "legal_info_url": "http://example.com/legal"
+    "contact_email": "ook519951@gmail.com",
+    "legal_info_url": "https://github.com/lodgeit-labs/accounts-assessor/"
   }
 
 
