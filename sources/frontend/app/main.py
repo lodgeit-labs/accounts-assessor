@@ -413,7 +413,7 @@ async def div7a(
 	loan_year: Annotated[int, Query(title="The income year in which the amalgamated loan was made")],
 	full_term: Annotated[int, Query(title="The length of the loan, in years")],
 	enquiry_year: Annotated[int, Query(title="The income year to calculate the summary for")],
-	starting_amount: Annotated[float, Query(title="Opening balance of enquiry_year")],
+	opening_balance: Annotated[float, Query(title="Opening balance of enquiry_year")],
 	repayments: Div7aRepayments,
 	lodgement_date: Annotated[Optional[datetime.date], Query(title="Lodgement date, required for calculation in first year of loan")]
 
@@ -427,13 +427,15 @@ async def div7a(
 
 	with open(request_tmp_directory_path + '/ai-request.xml', 'wb') as f:
 
-		if isinstance(starting_amount, Div7aOpeningBalanceForCalculationYear):
-			ob = starting_amount.opening_balance
-			principal = None
-		else:
-			ob = None
-			principal = starting_amount.principal
-		
+		# if isinstance(starting_amount, Div7aOpeningBalanceForCalculationYear):
+		# 	ob = starting_amount.opening_balance
+		# 	principal = None
+		# elif isinstance(starting_amount, Div7aPrincipal):
+		# 	ob = None
+		# 	principal = starting_amount.principal
+		principal=None
+		ob=opening_balance
+
 		x = div7a_request_xml(loan_year, full_term, lodgement_date, ob, principal, repayments, enquiry_year)
 		f.write(x.toprettyxml(indent='\t').encode('utf-8'))
 
