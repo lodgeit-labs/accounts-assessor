@@ -30,7 +30,7 @@ def post_div7a(loan_summary_request: dict):
 	log.warn(json.dumps(loan_summary_request))
 	try:
 		result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
-	except MyException as e:
+	except div7a.MyException as e:
 		result = dict(result='error', error_message=str(e))
 	except Exception as e:
 		traceback_message = traceback.format_exc()

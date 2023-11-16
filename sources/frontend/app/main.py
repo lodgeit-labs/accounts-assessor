@@ -57,9 +57,9 @@ class RpcCommand(BaseModel):
 	params: Any
 
 class Div7aPrincipal(BaseModel):
-	amount: float
+	principal: float
 class Div7aOpeningBalanceForCalculationYear(BaseModel):
-	amount: float
+	opening_balance: float
 
 class Div7aRepayment(BaseModel):
 	date: datetime.date
@@ -393,14 +393,19 @@ async def ai_plugin_json():
   }
 
 
+
+#  >> curl -H "Content-Type: application/json" -X GET "http://localhost:7788/div7a?loan_year=2000&full_term=7&enquiry_year=2005&lodgement_date=2001-04-23" -d '{"starting_amount":{"principal":10000},"repayments":[]}'
+#  {"OpeningBalance":13039.97419956,"InterestRate":7.05,"MinYearlyRepayment":4973.4437243,"TotalRepayment":0.0,"RepaymentShortfall":4973.4437243,"TotalInterest":919.31818107,"TotalPrincipal":0.0,"ClosingBalance":13039.97419956}⏎
+#
+
 @app.get('/div7a')
 async def div7a(
-		loan_year: Annotated[int, Query(title="The income year in which the amalgamated loan was made")],
-		full_term: Annotated[int, Query(title="The length of the loan, in years")],
-		enquiry_year: Annotated[int, Query(title="The income year to calculate the summary for")],
-		starting_amount: Annotated[Div7aOpeningBalanceForCalculationYear | Div7aPrincipal, Query(title="Either loan principal amount, as of loan start year, or the opening balance as of enquiry_year")],
-		repayments: list[Div7aRepayment],
-		lodgement_date: Annotated[Optional[datetime.date], Query(title="Lodgement date, required for calculation in first year of loan")]
+	loan_year: Annotated[int, Query(title="The income year in which the amalgamated loan was made")],
+	full_term: Annotated[int, Query(title="The length of the loan, in years")],
+	enquiry_year: Annotated[int, Query(title="The income year to calculate the summary for")],
+	starting_amount: Annotated[Div7aOpeningBalanceForCalculationYear | Div7aPrincipal, Query(title="Either loan principal amount, as of loan start year, or the opening balance as of enquiry_year")],
+	repayments: list[Div7aRepayment],
+	lodgement_date: Annotated[Optional[datetime.date], Query(title="Lodgement date, required for calculation in first year of loan")]
 ):
 	
 	"""
@@ -412,14 +417,14 @@ async def div7a(
 	with open(request_tmp_directory_path + '/ai-request.xml', 'wb') as f:
 
 		if isinstance(starting_amount, Div7aOpeningBalanceForCalculationYear):
-			ob = starting_amount.amount
+			ob = starting_amount.opening_balance
 			principal = None
 		else:
 			ob = None
-			principal = starting_amount.amount
+			principal = starting_amount.principal
 		
-		x = div7a_request_xml(loan_year, full_term, lodgement_date, ob, None, repayments, enquiry_year)
-		f.write(x.toprettyxml(indent='\t'))
+		x = div7a_request_xml(loan_year, full_term, lodgement_date, ob, principal, repayments, enquiry_year)
+		f.write(x.toprettyxml(indent='\t').encode('utf-8'))
 
 	reports = process_request(request_tmp_directory_name, request_tmp_directory_path, request_format='xml', requested_output_format = 'immediate_json_reports_list')[1]
 
@@ -431,7 +436,7 @@ async def div7a(
 			e += ' - ' + job.message_id
 		return JSONResponse(dict(error=e))
 
-	result_url = find_report_by_key(r['reports'], 'result')
+	result_url = find_report_by_key(reports['reports'], 'result')
 	expected_prefix = os.environ['PUBLIC_URL'] + '/tmp/'
 	if not result_url.startswith(expected_prefix):
 		raise Exception('unexpected result_url prefix: ' + result_url)
