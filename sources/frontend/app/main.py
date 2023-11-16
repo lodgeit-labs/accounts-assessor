@@ -65,6 +65,10 @@ class Div7aRepayment(BaseModel):
 	date: datetime.date
 	amount: float
 
+class Div7aRepayments(BaseModel):
+	repayments: list[Div7aRepayment]
+	
+
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -405,7 +409,8 @@ async def div7a(
 	enquiry_year: Annotated[int, Query(title="The income year to calculate the summary for")],
 	#starting_amount: Annotated[Div7aOpeningBalanceForCalculationYear | Div7aPrincipal, Query(title="Either loan principal amount, as of loan start year, or the opening balance as of enquiry_year")],
 	starting_amount: Annotated[float, Query(title="Opening balance of enquiry_year")],
-	repayments: list[Div7aRepayment],
+	repayments: Annotated[Div7aRepayments, Query(title="exhaustive list of repayments performed in enquiry year")],
+	#repayments: list[Div7aRepayment],
 	lodgement_date: Annotated[Optional[datetime.date], Query(title="Lodgement date, required for calculation in first year of loan")]
 ):
 	
