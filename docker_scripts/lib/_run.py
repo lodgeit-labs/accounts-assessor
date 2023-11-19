@@ -191,14 +191,20 @@ def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_bui
 		frontend = 'localhost'
 	else:
 		frontend = 'frontend'
-	open('apache/conf/dynamic.conf','w').write(
-f"""
+
+	with open('apache/conf/dynamic.conf','w') as f:
+		f.write(
+			f"""
 ServerName {public_host}
-""" + '\n'.join([f"""
+			""")
+		for path in 'health_check health chat upload reference api view div7a /.well-known/ai-plugin.json openapi.json docs'.split():
+			f.write(
+				f"""
+ServerName {public_host}
 ProxyPassReverse "/{path}" "http://{frontend}:7788/{path}"
 ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999 timeout=999999999 retry=999999999 acquire=999999999 Keepalive=Off
-""" for path in 'health_check health chat upload reference api view web'.split()]))
- 
+				""")
+
 	pp = port_postfix
 
 	if choices['mount_host_sources_dir']:

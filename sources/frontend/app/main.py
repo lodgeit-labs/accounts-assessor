@@ -414,7 +414,9 @@ async def div7a(
 	loan_year: Annotated[int, Query(title="The income year in which the amalgamated loan was made")],
 	full_term: Annotated[int, Query(title="The length of the loan, in years")],
 	enquiry_year: Annotated[int, Query(title="The income year to calculate the summary for")],
+	
 	opening_balance: Annotated[float, Query(title="Opening balance of enquiry_year")],
+	#opening_balance_year: int,
 	
 	# hack, OpenAI does not like a naked list for body
 	repayments: Div7aRepayments,
@@ -522,13 +524,3 @@ def python_date_to_xml(date):
 		raise Exception(f'invalid year: {y}')
 	return f'{y}-{m:02}-{d:02}' # ymd
 
-
-"""
-FastAPI def vs async def:
-
-When you declare a path operation function with normal def instead of async def, it is run in an external threadpool that is then awaited, instead of being called directly (as it would block the server).
-
-If you are coming from another async framework that does not work in the way described above and you are used to define trivial compute-only path operation functions with plain def for a tiny performance gain (about 100 nanoseconds), please note that in FastAPI the effect would be quite opposite. In these cases, it's better to use async def unless your path operation functions use code that performs blocking I/O.
-- https://fastapi.tiangolo.com/async/
-"""
-# https://12factor.net/
