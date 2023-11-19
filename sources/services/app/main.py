@@ -27,7 +27,7 @@ from . import div7a
 
 @app.post("/div7a")
 def post_div7a(loan_summary_request: dict):
-	log.warn(json.dumps(loan_summary_request))
+	log.info(json.dumps(loan_summary_request))
 	try:
 		result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
 	except div7a.MyException as e:
@@ -35,7 +35,7 @@ def post_div7a(loan_summary_request: dict):
 	except Exception as e:
 		traceback_message = traceback.format_exc()
 		result = dict(result='error', error_message=traceback_message)
-	log.warn(result)
+	log.info(result)
 	return result
 
 @app.post("/arelle_extract")
