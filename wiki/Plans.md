@@ -1,3 +1,9 @@
+## user accounts, authentication
+
+
+
+
+
 ## access control
 
 an authorization token will be passed from frontend server to worker - 
@@ -46,3 +52,7 @@ tests2/runner/docs/parallelization.md:47
 tests2/runner/docs/parallelization.md:71
 
 
+
+
+## depreciation
+verify functionality at least without pools. gpt it?
