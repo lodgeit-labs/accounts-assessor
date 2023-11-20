@@ -38,6 +38,27 @@ def post_div7a(loan_summary_request: dict):
 	log.info(result)
 	return result
 
+
+@app.post("/div7a2")
+def post_div7a2(
+	loan_year,
+	full_term,
+	opening_balance,
+	opening_balance_year,
+	repayments,
+	lodgement_date
+):
+	try:
+		result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
+	except div7a.MyException as e:
+		result = dict(result='error', error_message=str(e))
+	except Exception as e:
+		traceback_message = traceback.format_exc()
+		result = dict(result='error', error_message=traceback_message)
+	log.info(result)
+	return result
+
+
 @app.post("/arelle_extract")
 def post_arelle_extract(taxonomy_locator: str):
 	return account_hierarchy.ArelleController().run(taxonomy_locator)
