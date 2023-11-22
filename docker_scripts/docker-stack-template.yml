@@ -171,7 +171,6 @@ services:
     environment:
       CSHARPSERVICES_DATADIR: "/App/data/"
         
-        
 
 
   redis:
@@ -318,6 +317,26 @@ services:
     secrets:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
+
+
+  download:
+    image: koo5/download${PP}:latest
+    environment:
+      WATCHMEDO:
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+    hostnet_ports:
+      - 6457
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+
 
 
 networks:

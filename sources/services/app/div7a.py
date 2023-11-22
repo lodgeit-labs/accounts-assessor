@@ -369,7 +369,7 @@ def div7a2_from_json2(ooo,j):
 
 	if ob == -1 and principal == None:
 		raise MyException('must specify either principal or opening balance')
-	
+
 	records = []
 
 	loan_start_record = loan_start(date(creation_income_year, 6, 30), dict(principal=principal, term=term, calculation_income_year = ciy))
