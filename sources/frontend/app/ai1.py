@@ -1,6 +1,8 @@
+import logging
 from datetime import datetime
 from typing import Annotated, Optional
 
+import requests
 from fastapi import Query
 
 
