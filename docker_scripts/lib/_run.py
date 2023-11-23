@@ -666,11 +666,12 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 
 	join([ubuntu])
 
-	svc('remoulade-api', 		'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/remoulade_api/Dockerfile_hollow")
-	svc('workers', 				'../sources/', dbtks+'-hlw{port_postfix}"', 		"workers/Dockerfile_hollow")
-	svc('internal-services', 	'../sources/', dbtks+'-hlw{port_postfix}"', 		"internal_services/Dockerfile_hollow")
-	svc('services', 			'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/services/Dockerfile_hollow")
-	svc('frontend', 			'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/frontend/Dockerfile_hollow")
+	svc('download',				'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/download/Dockerfile_hollow")
+	svc('remoulade-api', 		'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/remoulade_api/Dockerfile_hollow")
+	svc('workers', 				'../sources/', dbtks+'-hlw{port_postfix}"', "workers/Dockerfile_hollow")
+	svc('internal-services',		'../sources/', dbtks+'-hlw{port_postfix}"', "internal_services/Dockerfile_hollow")
+	svc('services', 			'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/services/Dockerfile_hollow")
+	svc('frontend', 			'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/frontend/Dockerfile_hollow")
 
 	os.set_blocking(sys.stdout.fileno(), False)
 	print("ok?")
