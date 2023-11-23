@@ -315,7 +315,14 @@ def div7a2_from_json(j,tmp_dir_path='.'):
   <body>
     <main>
 """,file=ooo)
-		r = div7a_from_json2(ooo, j)
+		if ooo:
+			print(f'<h3>request</h3>', file=ooo)
+			print(f'<big><pre><code>', file=ooo)
+			json.dump(j, ooo, indent=True)
+			print(f'</code></pre></big>', file=ooo)
+
+		r = div7a2_from_json2(ooo, j)
+
 		print("""
     </main>
   </body>
@@ -325,75 +332,31 @@ def div7a2_from_json(j,tmp_dir_path='.'):
 
 def div7a2_from_json2(ooo,j):
 
-	"""
-	given starting amount as:
-		<loan principal> (same as opening balance at first year)
-		or
-		opening balance at calculation income year
-		or
-		<opening balance> at <income year> (not supported here)
+	records = []
 
-	given repayments for:
-		all the years - in case of principal provided
-		or
-		only the calculation year - in case of opening balance provided
-		or
-		years since opening balance of <income year> - in case of opening balance of <income year> provided
-
-	given lodgement day:
-		<date> - in case of calculation of first loan year, this is implied by:
-			principal provided
-			opening balance at calculation income year, where calculation income year is the first year after loan creation
-			<opening balance> at <income year>, where <income year> is the first year after loan creation
-
-	...
-
-	"""
-
-	if ooo:
-		print(f'<h3>request</h3>', file=ooo)
-		print(f'<big><pre><code>', file=ooo)
-		json.dump(j, ooo, indent=True)
-		print(f'</code></pre></big>', file=ooo)
-
+	for r in j['repayments']:
+		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
+		rec_add(records, repayment(d, {'amount':float(r['value'])}))
 
 
 	loan_year = int(j['loan_year'])
 	full_term = int(j['full_term'])
 	ob = float(j['opening_balance'])
 	oby = float(j['opening_balance_year'])
+
+	calculation_income_year = div7a2_calculation_income_year(loan_year, repayments(records))
+
 	if oby == loan_year:
 		principal = ob
 	else:
 		principal = None
+		rec_add(records, opening_balance(date(oby, 7, 1), dict(amount=ob)))
 
-	if ob == -1 and principal == None:
-		raise MyException('must specify either principal or opening balance')
-
-	records = []
-
-	loan_start_record = loan_start(date(creation_income_year, 6, 30), dict(principal=principal, term=term, calculation_income_year = ciy))
-
-	rec_add(records, loan_start_record)
-
+	rec_add(records, loan_start(date(creation_income_year, 6, 30), dict(principal=principal, term=term, calculation_income_year=calculation_income_year)))
+	# calculation_start is wrong..
 	rec_add(records, calculation_start(date(ciy-1, 7, 1)))
 	rec_add(records, calculation_end(date(ciy, 6, 30)))
 	rec_add(records, loan_term_end(date(creation_income_year + term, 6, 30)))
-
-
-	# opening balance, as specified by user, is always understood to be the opening balance of the computation income year
-
-	if ob == -1:
-		pass
-	else:
-		if principal is not None and ciy == creation_income_year + 1:
-			raise MyException(f'opening balance for income year {ciy} must be equal to principal, or one must be omitted.')
-
-		rec_add(records, opening_balance(date(ciy-1, 6, 30), dict(amount=ob)))
-
-	for r in j['repayments']:
-		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
-		rec_add(records, repayment(d, {'amount':float(r['value'])}))
 
 	ld = j['lodgement_date']
 	if ld == -1:
@@ -402,10 +365,16 @@ def div7a2_from_json2(ooo,j):
 		lodgement_date = datetime.strptime(ld, '%Y-%m-%d').date()
 		rec_add(records, lodgement(lodgement_date))
 
+	# debug
 
 	if not in_notebook():
 		log.warn(records)
+
+	# computation
+
 	records = div7a(ooo, records)
+
+	# answer
 
 	myr_info = get_myr_check_of_income_year(records, ciy).info
 
@@ -428,3 +397,14 @@ def div7a2_from_json2(ooo,j):
 		print(f'</code></pre></big>', file=ooo)
 
 	return response
+
+
+
+def div7a2_calculation_income_year(loan_year, repayments):
+	"""
+	find the last year in which a repayment was made, then add 1
+	""" 
+	if len(repayments) == 0:
+		return loan_year + 1
+	return repayments[-1].income_year + 1
+	

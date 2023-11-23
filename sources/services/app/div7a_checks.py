@@ -58,3 +58,7 @@ def check_invariants(records):
 			i].date == records[i + 1].date:
 			raise MyException('Two adjacent interest calcs on the same day')
 
+	# - repayments must be positive amounts:
+	for r in repayments(records):
+		if r.info['amount'] <= 0:
+			raise MyException('Repayment is not positive')

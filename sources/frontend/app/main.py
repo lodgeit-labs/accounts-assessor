@@ -1,3 +1,4 @@
+import logging
 import os, sys
 import urllib.parse
 import json
@@ -40,7 +41,10 @@ from tasking import remoulade
 from fs_utils import directory_files, find_report_by_key
 from tmp_dir_path import create_tmp, get_tmp_directory_absolute_path
 import call_prolog_calculator
-import logging
+
+
+
+import ai1
 
 
 
@@ -103,6 +107,9 @@ app = FastAPI(
 	servers = [dict(url=os.environ['PUBLIC_URL'][:-1])],
 	
 )
+
+
+app.mount('/ai1', ai1.app)
 
 
 @app.get("/", include_in_schema=False)
