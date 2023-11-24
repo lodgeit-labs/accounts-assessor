@@ -1,4 +1,6 @@
 import os, sys, logging, re
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
+import div7a2
 import urllib.parse
 import json
 import datetime
@@ -39,17 +41,15 @@ def post_div7a(loan_summary_request: dict):
 	return result
 
 
+
+
 @app.post("/div7a2")
 def post_div7a2(
-	loan_year,
-	full_term,
-	opening_balance,
-	opening_balance_year,
-	repayments,
-	lodgement_date
+	request: div7a2.Div7aRequest,
+	tmp_dir_path
 ):
 	try:
-		result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
+		result = dict(result=div7a.div7a2_from_json(request, tmp_dir_path))
 	except div7a.MyException as e:
 		result = dict(result='error', error_message=str(e))
 	except Exception as e:

@@ -120,7 +120,10 @@ def income_years_of_loan(records):
 		yield income_year
 
 
-
+def overview_income_years(records):
+	loan_start_record = get_loan_start_record(records)
+	first_year = loan_start_record.income_year + 1
+	
 
 def get_final_balance_of_previous_income_year(records, i):
 	"""

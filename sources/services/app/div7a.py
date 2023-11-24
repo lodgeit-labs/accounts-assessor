@@ -323,6 +323,12 @@ def div7a2_from_json(j,tmp_dir_path='.'):
 
 		r = div7a2_from_json2(ooo, j)
 
+		if ooo:
+			print(f'<h3>response</h3>', file=ooo)
+			print(f'<big><pre><code>', file=ooo)
+			json.dump(r, ooo, indent=True)
+			print(f'</code></pre></big>', file=ooo)
+
 		print("""
     </main>
   </body>
@@ -375,28 +381,67 @@ def div7a2_from_json2(ooo,j):
 	records = div7a(ooo, records)
 
 	# answer
+	
+	overview = []
 
-	myr_info = get_myr_check_of_income_year(records, ciy).info
+	loan_start_record = get_loan_start_record(records)
+	first_year = loan_start_record.income_year
+	
+	overview.append(dict(
+		year=first_year, 
+		principal=principal if principal is not None else "unknown",
+		term=loan_start_record.info['term'],
+	))
+	
+	year = first_year + 1
+	
+	while year <= first_year + full_term:
+		y = dict(
+			year=year,
+			events=[]
+		)
+		
+		if first record of the year has balance:
+			y['opening_balance'] = the_opening_balance
+		
+		for r in records_of_income_year(records, year):
+			if r.__class__ in [lodgement, repayment]:
+				if r.__class__ == lodgement:
+					y['events'].append(dict(
+						type='lodgement',
+						date=r.date
+					))
+				elif r.__class__ == repayment:
+					y['events'].append(dict(
+						type='repayment',
+						date=r.date,
+						amount=r.info['amount']
+					))
 
-	response = dict(
-		income_year  =ciy,
-		opening_balance = loan_agr_year_opening_balance(records, ciy),
-		interest_rate = benchmark_rate(ciy),
-		min_yearly_repayment = myr_info['myr_required'],
-		total_repayment = total_repayment_in_income_year(records, ciy),
-		repayment_shortfall = myr_info['shortfall'],
-		total_interest = total_interest_accrued(records, ciy),
-		total_principal = total_principal_paid(records, ciy),
-		closing_balance = closing_balance(records, ciy),
-	)
+		y['total_repaid'] = the_total_repaid
 
-	if ooo:
-		print(f'<h3>response</h3>', file=ooo)
-		print(f'<big><pre><code>', file=ooo)
-		json.dump(response, ooo, indent=True)
-		print(f'</code></pre></big>', file=ooo)
+		if the_opening_balance:
+		
+			y['closing_balance'] = the_closing_balance
+			y['interest_accrued'] = the_interest_accrued
+			y['repayment_shortfall'] = the_repayment_shortfall
+			y['min_yearly_repayment'] = the_myr
+			y['excess'] = the_excess
+		
+		overview.append(y)
+		
+		if the_repayment_shortfall != 0:
+			break
+		
+		#if repayments_of_income_year(records, year) == []:
+			#break #this is implied by shortfall.
+		
+		# maybe if there are no repayments, we dont want to show shortfall, just myr.
+		
+		year += 1
+		
 
-	return response
+	return overview
 
 
 

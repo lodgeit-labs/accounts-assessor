@@ -66,12 +66,15 @@ async def div7a(
 
 	# now, invoke services to do the actual work.
 	request = dict(
-		loan_year=loan_year,
-		full_term=full_term,
-		opening_balance=opening_balance,
-		opening_balance_year=opening_balance_year,
-		repayments=repayments,
-		lodgement_date=lodgement_date
+		request=dict(
+			loan_year=loan_year,
+			full_term=full_term,
+			opening_balance=opening_balance,
+			opening_balance_year=opening_balance_year,
+			repayments=repayments,
+			lodgement_date=lodgement_date
+		),
+		tmp_dir_path='/app/server_root/tmp/'#fixme
 	)
 	return requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=request).raise_for_status()
 
