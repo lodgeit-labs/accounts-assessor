@@ -3,7 +3,7 @@ from datetime import datetime, date
 import requests
 from pydantic import BaseModel, Field
 from typing import Optional, Any, List, Annotated
-from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status, Query, Body
+from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status, Query, Body, Depends
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -30,7 +30,7 @@ async def read_root():
 
 @app.get('/div7a')
 async def div7a(
-	request: Div7aRequest = Body(examples=[example1])		
+	request: Annotated[Div7aRequest, Query(examples=[example1])] = Depends(Div7aRequest),
 ):
 	"""
 	Calculate the Div 7A minimum yearly repayment, balance, shortfall and interest for a loan.
