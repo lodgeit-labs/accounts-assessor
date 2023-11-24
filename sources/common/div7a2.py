@@ -47,7 +47,11 @@ class Div7aRepayment(BaseModel):
 	date: date
 	amount: float
 
-	
+
+class Div7aRepayments(BaseModel):
+	repayments: List[Div7aRepayment] = Field(title="Repayments made on the loan. The first repayment must be made in the income year following the income year in which the loan was made. The last repayment must be made in the income year in which the loan term ends.")
+
+
 
 class Div7aRequest(BaseModel):
 	loan_year: int = Field(title="The income year in which the amalgamated loan was made", ge=1999, le=2024)

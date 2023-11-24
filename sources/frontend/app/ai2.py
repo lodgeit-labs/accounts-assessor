@@ -17,7 +17,7 @@ import os
 app = FastAPI(
 	title="Robust API",
 	summary="Invoke accounting calculators.",
-	servers = [dict(url=os.environ['PUBLIC_URL'][:-1])],
+	servers=[dict(url=os.environ['PUBLIC_URL'][:-1])+'/ai2'],
 )
 
 
@@ -52,7 +52,7 @@ async def div7a(
 		title="Date of lodgement of the income year in which the loan was made. Required if opening_balance_year is loan_year.",
 		example="2021-06-30"
 	)],
-	repayments: Annotated[List[Div7aRepayment], Body(
+	repayments: Annotated[Div7aRepayments, Body(
 	)]
 		
 ):
