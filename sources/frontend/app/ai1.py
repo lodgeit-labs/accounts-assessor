@@ -1,13 +1,19 @@
+from pydantic import BaseModel
 import logging
-from datetime import datetime
-from typing import Annotated, Optional
-
+from datetime import datetime, date
 import requests
+from typing import Optional, Any, List, Annotated
+from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status, Query
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import PlainTextResponse, JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
 from fastapi import Query
+import os
 
 
 class Div7aRepayment(BaseModel):
-	date: datetime.date
+	date: date
 	amount: float
 
 class Div7aRepayments(BaseModel):
@@ -20,6 +26,15 @@ app = FastAPI(
 	servers = [dict(url=os.environ['PUBLIC_URL'][:-1])],
 )
 
+
+@app.get("/", include_in_schema=False)
+async def read_root():
+	"""
+	nothing to see here
+	"""
+	return {"Hello": "World"}
+
+
 @app.get('/div7a')
 async def div7a(
 	loan_year: Annotated[int, Query(title="The income year in which the amalgamated loan was made")],
@@ -27,7 +42,7 @@ async def div7a(
 	opening_balance: Annotated[float, Query(title="Opening balance of the income year given by opening_balance_year.")],
 	opening_balance_year: Annotated[int, Query(title="Income year of opening balance. If opening_balance_year is the income year following the income year in which the loan was made, then opening_balance is the principal amount of the loan. If user provides principal amount, then opening_balance_year should be the year after loan_year. If opening_balance_year is not specified, it is usually the current income year. Any repayments made before opening_balance_year are ignored.")],
 	repayments: Div7aRepayments,
-	lodgement_date: Annotated[Optional[datetime.date], Query(title="Date of lodgement of the income year in which the loan was made. Required if opening_balance_year is loan_year.")]
+	lodgement_date: Annotated[Optional[date], Query(title="Date of lodgement of the income year in which the loan was made. Required if opening_balance_year is loan_year.")]
 ):
 	"""
 	Calculate the Div 7A minimum yearly repayment, balance, shortfall and interest for a loan.

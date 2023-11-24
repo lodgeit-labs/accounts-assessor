@@ -129,7 +129,6 @@ services:
   services:
     image: koo5/services${PP}:latest
     environment:
-      RABBITMQ_URL:
       WATCHMEDO:
     volumes:
       - tmp:/app/server_root/tmp

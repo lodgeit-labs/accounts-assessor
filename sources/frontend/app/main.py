@@ -44,7 +44,7 @@ import call_prolog_calculator
 
 
 
-import ai1
+import app.ai1 as ai1
 
 
 

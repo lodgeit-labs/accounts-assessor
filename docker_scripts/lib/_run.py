@@ -472,7 +472,7 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 			v['depends_on'] = {}
 
 	if mount_host_sources_dir:
-		for x in ['workers','services','frontend', 'remoulade-api']:
+		for x in ['workers','services','frontend', 'remoulade-api', 'download']:
 			if x in services:
 				service = services[x]
 				if 'volumes' not in service:
