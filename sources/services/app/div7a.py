@@ -422,6 +422,10 @@ def div7a2_from_json2(ooo,j):
 
 		if the_opening_balance:
 		
+			if year is first_year + 1:
+				y['repayments_towards_myr'] = the_repayments_towards_myr
+				# we could organize the repayment list into two sections, one for myr-relevant, one for non-myr-relevant, hmm...
+		
 			y['closing_balance'] = the_closing_balance
 			y['interest_accrued'] = the_interest_accrued
 			y['repayment_shortfall'] = the_repayment_shortfall
