@@ -17,7 +17,7 @@ import os
 app = FastAPI(
 	title="Robust API",
 	summary="Invoke accounting calculators.",
-	servers=[dict(url=os.environ['PUBLIC_URL'][:-1])+'/ai2'],
+	servers=[dict(url=os.environ['PUBLIC_URL'][:-1]+'/ai2')],
 )
 
 
