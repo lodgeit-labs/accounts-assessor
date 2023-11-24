@@ -381,7 +381,7 @@ def div7a2_from_json2(ooo,j):
 	records = div7a(ooo, records)
 
 	# answer
-	
+	"""
 	overview = []
 
 	loan_start_record = get_loan_start_record(records)
@@ -440,7 +440,7 @@ def div7a2_from_json2(ooo,j):
 		
 		year += 1
 		
-
+	"""
 	return overview
 
 
