@@ -1,3 +1,6 @@
+from div7a3 import *
+
+
 import logging
 from datetime import datetime, date
 import requests
@@ -10,8 +13,6 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
 import os
 
-
-from div7a2 import *
 
 app = FastAPI(
 	title="Robust API",
@@ -31,6 +32,7 @@ async def read_root():
 @app.get('/div7a')
 async def div7a(
 	request: Annotated[Div7aRequest, Query(examples=[example1])] = Depends(Div7aRequest),
+	repayments: Annotated[Div7aRepayments, Query(title="Repayments")] = Depends(Div7aRepayments)
 ):
 	"""
 	Calculate the Div 7A minimum yearly repayment, balance, shortfall and interest for a loan.

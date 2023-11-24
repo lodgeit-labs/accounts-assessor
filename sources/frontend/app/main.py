@@ -44,9 +44,6 @@ import call_prolog_calculator
 
 
 
-import app.ai1 as ai1
-
-
 
 class UploadedFileException(Exception):
 	pass
@@ -108,8 +105,11 @@ app = FastAPI(
 	
 )
 
+import app.ai2 as ai2
+import app.ai3 as ai3
 
-app.mount('/ai1', ai1.app)
+app.mount('/ai2', ai2.app)
+app.mount('/ai3', ai3.app)
 
 
 @app.get("/", include_in_schema=False)
