@@ -52,6 +52,7 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
+      SERVICES_URL:
       WATCHMEDO:
     #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by copying the dev one
     #  REQUIREMENTS_FILE: requirements.txt

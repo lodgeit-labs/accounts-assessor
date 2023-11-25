@@ -342,7 +342,7 @@ def div7a2_from_json2(ooo,j):
 
 	for r in j['repayments']:
 		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
-		rec_add(records, repayment(d, {'amount':float(r['value'])}))
+		rec_add(records, repayment(d, {'amount':float(r['amount'])}))
 
 
 	loan_year = int(j['loan_year'])

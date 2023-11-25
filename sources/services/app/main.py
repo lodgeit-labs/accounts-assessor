@@ -45,11 +45,11 @@ def post_div7a(loan_summary_request: dict):
 
 @app.post("/div7a2")
 def post_div7a2(
-	request: div7a2.Div7aRequest,
-	tmp_dir_path
+	request: dict
 ):
+	log.info(json.dumps(request))
 	try:
-		result = dict(result=div7a.div7a2_from_json(request, tmp_dir_path))
+		result = dict(result=div7a.div7a2_from_json(request['request'], request['tmp_dir_path']))
 	except div7a.MyException as e:
 		result = dict(result='error', error_message=str(e))
 	except Exception as e:

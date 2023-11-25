@@ -197,7 +197,10 @@ def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_bui
 			f"""
 ServerName {public_host}
 			""")
-		for path in 'health_check health chat upload reference api view div7a /.well-known/ai-plugin.json openapi.json docs'.split():
+
+		paths = 'health_check health chat upload reference api view div7a .well-known/ai-plugin.json openapi.json docs ai2 ai3'.split()
+			
+		for path in paths:
 			f.write(
 				f"""
 ServerName {public_host}

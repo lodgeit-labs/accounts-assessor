@@ -1,3 +1,5 @@
+from fastapi.encoders import jsonable_encoder
+
 from div7a2 import *
 
 
@@ -17,7 +19,7 @@ import os
 app = FastAPI(
 	title="Robust API",
 	summary="Invoke accounting calculators.",
-	servers=[dict(url=os.environ['PUBLIC_URL'][:-1]+'/ai2')],
+	servers=[dict(url=os.environ['PUBLIC_URL']+'/ai2')],
 	root_path_in_servers=False,
 )
 
@@ -63,7 +65,7 @@ async def div7a(
 	
 	# todo, optionally create job directory if needed. This isn't much of a blocking operation, and it's done exactly the same in /upload etc.
 
-	logging.getLogger().info(request)
+	logging.getLogger().info(f'{loan_year=}, {full_term=}, {opening_balance=}, {opening_balance_year=}, {lodgement_date=}, {repayments=}')
 
 	# now, invoke services to do the actual work.
 	request = dict(
@@ -72,12 +74,12 @@ async def div7a(
 			full_term=full_term,
 			opening_balance=opening_balance,
 			opening_balance_year=opening_balance_year,
-			repayments=repayments,
+			repayments=[x.dict() for x in repayments.repayments],
 			lodgement_date=lodgement_date
 		),
 		tmp_dir_path='/app/server_root/tmp/'#fixme
 	)
-	return requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=request).raise_for_status()
+	return requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=jsonable_encoder(request)).raise_for_status()
 
 	
 	
