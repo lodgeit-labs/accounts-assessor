@@ -108,7 +108,7 @@ def get_user(request: Request):
 	if authorization is not None:
 		authorization = authorization.split(' ')
 		if len(authorization) == 2 and authorization[0] == 'Basic':
-			token = base64.b64decode('cm9idXN0OjQ3YjViYzE3ZTlmZjAzZjJjM2ZiYTg1MjAyMjFkNzM0MmY3ZTJkN2I3ZmZiZWZkNzFmODcxOGFj').decode()
+			token = base64.b64decode(authorization[1]).decode()
 			token.split(':')
 			if len(token) == 2:
 				return token[0] + '@basicauth'
