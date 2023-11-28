@@ -73,10 +73,15 @@ def call_prolog(
 		msg,
 		worker_options = None
 ):
+	result_tmp_path = get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']) if 'result_tmp_directory_name' in msg['params'] else None
+
+
+
 	if worker_options is None:
 		worker_options = {}
 
-	result_tmp_path = get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']) if 'result_tmp_directory_name' in msg['params'] else None
+	with open(sources('config/worker_config.json'), 'r') as c:
+		config = json.load(c)
 
 	default_options = dict(
 		dev_runner_options=[],
@@ -89,10 +94,9 @@ def call_prolog(
 		MPROF_OUTPUT_PATH=result_tmp_path + '/mem_prof.txt' if result_tmp_path else None,
 	)
 
-	with open(sources('config/worker_config.json'), 'r') as c:
-		config = json.load(c)
+	worker_options = default_options | config | worker_options
 
-	options = default_options | config | worker_options
+
 	
 	logging.getLogger().info('worker_options: ' + str(worker_options))
 	logging.getLogger().info('msg: ' + str(msg))
