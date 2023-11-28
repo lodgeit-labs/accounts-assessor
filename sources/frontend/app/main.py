@@ -105,7 +105,7 @@ def get_user(request: Request):
 	if authorization is not None:
 		authorization = authorization.split(' ')
 		if len(authorization) == 2 and authorization[0] == 'Basic':
-			token = base64.b64decode('cm9idXN0OjQ3YjViYzE3ZTlmZjAzZjJjM2ZiYTg1MjAyMjFkNzM0MmY3ZTJkN2I3ZmZiZWZkNzFmODcxOGFj')
+			token = base64.b64decode('cm9idXN0OjQ3YjViYzE3ZTlmZjAzZjJjM2ZiYTg1MjAyMjFkNzM0MmY3ZTJkN2I3ZmZiZWZkNzFmODcxOGFj').decode()
 			token.split(':')
 			if len(token) == 2:
 				return token[0] + '@basicauth'
@@ -190,19 +190,33 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 	"""
 	user = get_user(request)
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	job = await get_task(job_id)
+	job = await get_job_by_id(job_id)
 	if job is not None:
-		if redirect and job['status'] == 'Success' and 'reports' in job['result']:
+		if isinstance(job, str):
+			job = dict(json=job)
+
+		if redirect and job.get('status') == 'Success' and 'reports' in job.get('result'):
 			return RedirectResponse(find_report_by_key(job['result']['reports'], 'task_directory'))
 		else:
+			mem_txt,mem_data = write_mem_stuff(job.get('message_id'))
+			server_info_url = os.environ['PUBLIC_URL'] + '/static/git_info.txt'
+
+			# it turns out that failures are not permanent
+			return templates.TemplateResponse("job.html", {
+				"server_info": server_info_url, 
+				"mem_txt": mem_txt, 
+				"mem_data":mem_data, 
+				"request": request, 
+				"job_id": job_id, 
+				"json": json.dumps(job, indent=4, sort_keys=True), 
+				"refresh": (job.get('status') not in [ 'Success']), 
+				'status': job.get('status', 'internal error')})
+
+
+def write_mem_stuff(message_id):
+	if message_id is None:
+		return '',[]
+	else:
 			mem_txt = ''
 			for f in P(get_tmp_directory_absolute_path(job['message_id'])).glob('*/mem_prof.txt'):
 				if str(f).endswith('/completed/mem_prof.txt'):
@@ -222,12 +236,7 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 					mem = float(line.split()[1])
 					ts = float(line.split()[2])
 					mem_data.append(dict(x=ts*1000,y=mem))
-
-
-			server_info_url = os.environ['PUBLIC_URL'] + '/static/git_info.txt'
-
-			# it turns out that failures are not permanent
-			return templates.TemplateResponse("job.html", {"server_info": server_info_url, "mem_txt": mem_txt, "mem_data":mem_data, "request": request, "job_id": job_id, "json": json.dumps(job, indent=4, sort_keys=True), "refresh": (job['status'] not in [ 'Success']), 'status': job['status']})
+			return mem_txt,mem_data
 
 
 
@@ -253,12 +262,19 @@ async def get_job_by_id(id: str):
 		message['duration'] = str(end_datetime - enqueued_datetime)
 
 	# a dict with either result or error key (i think...)
-	result = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id, params={'max_size':'99999999'})
-	logger.info('result: %s' % result.text)
-	result = result.json()
+	result = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id, params={'max_size':'99999999','raise_on_error':False})
+	try:
+		result = result.json()
+	except Exception as e:
+		logger.info('nonsense received from remoulade api:')
+		logger.info('result: %s' % result.text)
+		logger.info('error: %s' % e)
 
 	if 'result' in result:
-		message['result'] = json.loads(result['result'])
+		try:
+			message['result'] = json.loads(result['result'])
+		except:
+			return result['result']
 	else:
 		message['result'] = {}
 		
