@@ -238,26 +238,26 @@ def write_mem_stuff(message_id):
 	if message_id is None:
 		return '',[]
 	else:
-			mem_txt = ''
-			for f in P(get_tmp_directory_absolute_path(job['message_id'])).glob('*/mem_prof.txt'):
-				if str(f).endswith('/completed/mem_prof.txt'):
-					continue
-				logger.info('f: %s' % f)
-				with open(f) as f2:
-					mem_txt += f2.read()
+		mem_txt = ''
+		for f in P(get_tmp_directory_absolute_path(message_id)).glob('*/mem_prof.txt'):
+			if str(f).endswith('/completed/mem_prof.txt'):
+				continue
+			logger.info('f: %s' % f)
+			with open(f) as f2:
+				mem_txt += f2.read()
 
-			#logger.info(mem_txt)
-			mem_data = []
-			
-			
-			mmm = mem_txt.splitlines()
-			for line in mmm:
-				if line.startswith('MEM '):
-					#logger.info(line)
-					mem = float(line.split()[1])
-					ts = float(line.split()[2])
-					mem_data.append(dict(x=ts*1000,y=mem))
-			return mem_txt,mem_data
+		#logger.info(mem_txt)
+		mem_data = []
+		
+		
+		mmm = mem_txt.splitlines()
+		for line in mmm:
+			if line.startswith('MEM '):
+				#logger.info(line)
+				mem = float(line.split()[1])
+				ts = float(line.split()[2])
+				mem_data.append(dict(x=ts*1000,y=mem))
+		return mem_txt,mem_data
 
 
 
