@@ -103,12 +103,15 @@ import base64
 
 def get_user(request: Request):
 	# get user from header coming from caddy, which is Authorization: Basic <base64-encoded username:password>
+
 	authorization = request.headers.get('Authorization', None)
+	logger.info('authorization: %s' % authorization)
 	if authorization is not None:
 		authorization = authorization.split(' ')
 		if len(authorization) == 2 and authorization[0] == 'Basic':
+			logger.info('authorization: %s' % authorization)
 			token = base64.b64decode(authorization[1]).decode()
-			token.split(':')
+			token = token.split(':')
 			if len(token) == 2:
 				return token[0]# + '@basicauth'
 
