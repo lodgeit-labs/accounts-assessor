@@ -56,6 +56,7 @@ async def div7a(
 		example="2021-06-30"
 	)],
 	repayments: Annotated[Div7aRepayments, Body(
+		example=example1['repayments'],
 	)]
 		
 ):

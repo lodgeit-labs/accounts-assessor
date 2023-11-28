@@ -335,7 +335,7 @@ class TestResult(luigi.Task):
 
 		start = TestStart(self.test, request_files)
 		yield start
-		wexcludeith start.output().open() as fd:
+		with start.output().open() as fd:
 			handle = fd.read()
 		with self.output().temporary_path() as tmp:
 			while True:

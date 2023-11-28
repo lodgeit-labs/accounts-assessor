@@ -11,7 +11,8 @@ from pathlib import Path as P
 import requests
 
 from typing import Optional, Any, List, Annotated
-from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status, Query
+from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status, Query, Header
+
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -96,6 +97,26 @@ logger.addHandler(ch)
 # 		return JsonResponse({"x":agc().executeGraphQuery(request.body)})
 
 
+import base64
+
+def get_user(request: Request):
+	# get user from header coming from caddy, which is Authorization: Basic <base64-encoded username:password>
+	authorization = request.headers.get('Authorization', None)
+	if authorization is not None:
+		authorization = authorization.split(' ')
+		if len(authorization) == 2 and authorization[0] == 'Basic':
+			token = base64.b64decode('cm9idXN0OjQ3YjViYzE3ZTlmZjAzZjJjM2ZiYTg1MjAyMjFkNzM0MmY3ZTJkN2I3ZmZiZWZkNzFmODcxOGFj')
+			token.split(':')
+			if len(token) == 2:
+				return token[0] + '@basicauth'
+
+	authorization = request.headers.get('X-Forwarded-Email', None)
+	if authorization is not None:
+		return authorization
+
+	return 'nobody'
+
+
 
 
 app = FastAPI(
@@ -167,6 +188,16 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 	"""
 	job html page
 	"""
+	user = get_user(request)
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	job = await get_task(job_id)
 	if job is not None:
 		if redirect and job['status'] == 'Success' and 'reports' in job['result']:
