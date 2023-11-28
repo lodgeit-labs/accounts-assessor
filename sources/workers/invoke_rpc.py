@@ -12,6 +12,7 @@ from misc import uri_params, env_string
 def call_prolog_calculator(**kwargs):
 	msg = kwargs['msg']
 	params = msg['params']
+	worker_options = kwargs['worker_options']
 
 	if params.get('request_format') is None:
 		if len(params['request_files']) == 1 and params['request_files'][0].lower().endswith('.xml'):
@@ -21,7 +22,7 @@ def call_prolog_calculator(**kwargs):
 
 
 	# this is where prolog will put reports:
-	result_tmp_directory_name, result_tmp_path = create_tmp_for_user(params['worker_options']['user'])
+	result_tmp_directory_name, result_tmp_path = create_tmp_for_user(worker_options['user'])
 	params['result_tmp_directory_name'] = result_tmp_directory_name
 
 	params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id
