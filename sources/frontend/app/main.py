@@ -286,7 +286,7 @@ async def get_job_by_id(id: str):
 		try:
 			message['result'] = json.loads(result['result'])
 		except:
-			return result['result']
+			message['result'] = result['result']
 	else:
 		message['result'] = {}
 		
