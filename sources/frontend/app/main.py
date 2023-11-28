@@ -138,7 +138,7 @@ app.mount('/ai3', ai3.app)
 
 def create_tmp_for_user(request: Request):
 	user = get_user(request)
-	name, path = create_tmp(user=user)
+	name, path = create_tmp()
 	write_htaccess(user, path)
 	return name, path
 
