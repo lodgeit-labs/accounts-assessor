@@ -21,7 +21,7 @@ def call_prolog_calculator(**kwargs):
 
 
 	# this is where prolog will put reports:
-	result_tmp_directory_name, result_tmp_path = create_tmp()
+	result_tmp_directory_name, result_tmp_path = create_tmp_for_user(params['worker_options']['user'])
 	params['result_tmp_directory_name'] = result_tmp_directory_name
 
 	params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id

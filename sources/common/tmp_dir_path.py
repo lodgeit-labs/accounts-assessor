@@ -44,6 +44,24 @@ def create_tmp():
 	os.mkdir(full_path)
 	return name,full_path
 
+def create_tmp_for_user(user):
+	name, path = create_tmp()
+	write_htaccess(user, path)
+	return name, path
+
+
+def write_htaccess(user, path):
+	with open(P(path) / '.htaccess', 'w') as f:
+		f.write(f"""
+RewriteEngine On
+SetEnvIfNoCase ^X-Forwarded-Email$ "(.*)" USER=$1
+SetEnvIfNoCase ^X-WEBAUTH-USER$ "(.*)" USER=$1
+SetEnv EXPECTED_USERNAME "{user}"
+RewriteCond %{{ENV:USER}} !=%{{ENV:EXPECTED_USERNAME}}
+RewriteRule ^ - [F,L]		
+""")
+
+
 def copy_request_files_to_tmp(tmp_directory_absolute_path, files):
 	# request file paths, as passed to prolog
 	files2 = []

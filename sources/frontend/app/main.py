@@ -43,7 +43,7 @@ from agraph import agc
 import invoke_rpc
 from tasking import remoulade
 from fs_utils import directory_files, find_report_by_key
-from tmp_dir_path import create_tmp, get_tmp_directory_absolute_path
+from tmp_dir_path import create_tmp_for_user, get_tmp_directory_absolute_path
 
 
 
@@ -139,22 +139,6 @@ app.mount('/ai3', ai3.app)
 
 
 
-def create_tmp_for_user(request: Request):
-	user = get_user(request)
-	name, path = create_tmp()
-	write_htaccess(user, path)
-	return name, path
-
-def write_htaccess(user, path):
-	with open(P(path) / '.htaccess', 'w') as f:
-		f.write(f"""
-RewriteEngine On
-SetEnvIfNoCase ^X-Forwarded-Email$ "(.*)" USER=$1
-SetEnvIfNoCase ^X-WEBAUTH-USER$ "(.*)" USER=$1
-SetEnv EXPECTED_USERNAME "{user}"
-RewriteCond %{{ENV:USER}} !=%{{ENV:EXPECTED_USERNAME}}
-RewriteRule ^ - [F,L]		
-""")
 	
 
 @app.get("/", include_in_schema=False)
@@ -333,7 +317,7 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 	#	return {"error": "only onedrive urls are supported at this time"}
 
 	r = requests.get(fileurl)
-	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(request)
+	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 	
 	# save r into request_tmp_directory_path
 	fn = request_tmp_directory_path + '/file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
@@ -357,7 +341,7 @@ def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[U
 	Trigger a calculator by uploading one or more input files.
 	"""
 	
-	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(request)
+	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 
 	for file in filter(None, [file1, file2]):
 		logger.info('uploaded: %s' % file.filename)
