@@ -111,7 +111,7 @@ def get_user(request: Request):
 			token = base64.b64decode(authorization[1]).decode()
 			token.split(':')
 			if len(token) == 2:
-				return token[0] + '@basicauth'
+				return token[0]# + '@basicauth'
 
 	authorization = request.headers.get('X-Forwarded-Email', None)
 	if authorization is not None:
@@ -140,12 +140,19 @@ app.mount('/ai3', ai3.app)
 def create_tmp_for_user(request: Request):
 	user = get_user(request)
 	name, path = create_tmp(user=user)
-	write_htaccess(path)
+	write_htaccess(user, path)
 	return name, path
 
-def write_htaccess(path):
+def write_htaccess(user, path):
 	with open(path / '.htaccess', 'w') as f:
-		f.write("""\n""")
+		f.write(f"""
+RewriteEngine On
+SetEnvIfNoCase ^X-Forwarded-Email$ "(.*)" USER=$1
+SetEnvIfNoCase ^X-WEBAUTH-USER$ "(.*)" USER=$1
+SetEnv EXPECTED_USERNAME "{user}"
+RewriteCond %{ENV:USER} !=%{ENV:EXPECTED_USERNAME}
+RewriteRule ^ - [F,L]		
+""")
 	
 
 @app.get("/", include_in_schema=False)
