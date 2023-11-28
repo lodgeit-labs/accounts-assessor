@@ -109,7 +109,7 @@ def call_prolog(
 	ROBUST_CALL_INFO_TXT_PATH = result_tmp_path+'/rpc_call_info.txt' if result_tmp_path else '/tmp/robust_rpc_call_info.txt'
 	with open(ROBUST_CALL_INFO_TXT_PATH, 'w') as info_fd:
 		info_fd.write('options:\n')
-		info_fd.write(json.dumps(options, indent=4))
+		info_fd.write(json.dumps(worker_options, indent=4))
 		info_fd.write('\nrequest:\n')
 		info_fd.write(json.dumps(msg, indent=4))
 		info_fd.write('\n')
@@ -140,7 +140,7 @@ def call_prolog(
 	#goal = ",make,utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
 	goal = ",utils:print_debugging_checklist,lib:process_request_rpc_cmdline_json_text('" + (input).replace('"','\\"') + "')"
 
-	goal_opts = ['-g', debug_goal + options['prolog_flags'] + goal + halt_goal]
+	goal_opts = ['-g', debug_goal + worker_options['prolog_flags'] + goal + halt_goal]
 	
 	if worker_options.get('skip_dev_runner', False):
 		cmd = flatten_lists(['swipl', '-s', sources(entry_file), goal_opts])
