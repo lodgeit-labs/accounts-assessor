@@ -28,7 +28,7 @@ def call_prolog_calculator(**kwargs):
 	if params['final_result_tmp_directory_name'] is None:
 		params['final_result_tmp_directory_name'] = 'cli'
 	params['final_result_tmp_directory_path'] = get_tmp_directory_absolute_path(params['final_result_tmp_directory_name'])
-	Path(params['final_result_tmp_directory_path']).mkdir(parents = True, exist_ok = True)
+	Path(params['final_result_tmp_directory_path']).mkdir(parents=True, exist_ok=True)
 
 	print("final_result_tmp_directory_path: " + params['final_result_tmp_directory_path'])
 
@@ -71,10 +71,10 @@ def call_prolog_calculator(**kwargs):
 
 def call_prolog(
 		msg,
-		options = None
+		worker_options = None
 ):
-	if options is None:
-		options = {}
+	if worker_options is None:
+		worker_options = {}
 
 	result_tmp_path = get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']) if 'result_tmp_directory_name' in msg['params'] else None
 
@@ -92,9 +92,9 @@ def call_prolog(
 	with open(sources('config/worker_config.json'), 'r') as c:
 		config = json.load(c)
 
-	options = default_options | config | options
-
-	logging.getLogger().info('options: ' + str(options))
+	options = default_options | config | worker_options
+	
+	logging.getLogger().info('worker_options: ' + str(worker_options))
 	logging.getLogger().info('msg: ' + str(msg))
 
 	sys.stdout.flush()
@@ -113,19 +113,19 @@ def call_prolog(
 
 	# construct the command line
 
-	if options['debug_loading']:
+	if worker_options['debug_loading']:
 		entry_file = 'lib/debug_loading_rpc_server.pl'
 	else:
 		entry_file = "lib/rpc_server.pl"
 
-	if options['prolog_debug']:
+	if worker_options['prolog_debug']:
 		dev_runner_debug_args = [['--debug', 'true']]
 		debug_goal = 'debug,set_prolog_flag(debug,true),'
 	else:
 		dev_runner_debug_args = [['--debug', 'false']]
 		debug_goal = 'set_prolog_flag(debug,false),'
 
-	if options['halt']:
+	if worker_options['halt']:
 		halt_goal = ',halt'
 	else:
 		halt_goal = ''
@@ -138,7 +138,7 @@ def call_prolog(
 
 	goal_opts = ['-g', debug_goal + options['prolog_flags'] + goal + halt_goal]
 	
-	if options.get('skip_dev_runner', False):
+	if worker_options.get('skip_dev_runner', False):
 		cmd = flatten_lists(['swipl', '-s', sources(entry_file), goal_opts])
 	else:
 		cmd = flatten_lists([
@@ -149,18 +149,18 @@ def call_prolog(
 			['--problem_lines_whitelist',
 			 git("sources/public_lib/lodgeit_solvers/tools/dev_runner/problem_lines_whitelist")],
 			dev_runner_debug_args + [["--script", sources(entry_file)]],
-			options['dev_runner_options'],
+			worker_options['dev_runner_options'],
 			goal_opts
 		])
 
 
 	logging.getLogger().warn('invoke_rpc: cmd:')
-	env = os.environ.copy() | dict([(k,str(v)) for k,v in options.items()])
+	env = os.environ.copy() | dict([(k,str(v)) for k,v in worker_options.items()])
 	logging.getLogger().warn('env: ' + env_string(env))
 	logging.getLogger().warn('cmd: ' + shlex.join(cmd))
 
 
-	if not options['dry_run']:
+	if not worker_options['dry_run']:
 		#print('invoke_rpc: invoking swipl...')
 		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, env=env)
 		(stdout_data, stderr_data) = p.communicate()

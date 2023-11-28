@@ -133,6 +133,18 @@ app.mount('/ai2', ai2.app)
 app.mount('/ai3', ai3.app)
 
 
+
+def create_tmp_for_user(request: Request):
+	user = get_user(request)
+	name, path = create_tmp(user=user)
+	write_htaccess(path)
+	return name, path
+
+def write_htaccess(path):
+	with open(path / '.htaccess', 'w') as f:
+		f.write("""\n""")
+	
+
 @app.get("/", include_in_schema=False)
 async def read_root():
 	"""
@@ -283,7 +295,7 @@ async def get_job_by_id(id: str):
 
 
 @app.post("/reference")
-def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
+def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	"""
 	Trigger a calculator by submitting an URL of an input file.
 	"""
@@ -301,14 +313,14 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 	#	return {"error": "only onedrive urls are supported at this time"}
 
 	r = requests.get(fileurl)
-	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
+	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(request)
 	
 	# save r into request_tmp_directory_path
 	fn = request_tmp_directory_path + '/file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
 	with open(fn, 'wb') as f:
 		f.write(r.content)
 
-	r = process_request(request_tmp_directory_name, request_tmp_directory_path)[1]
+	r = process_request(request, request_tmp_directory_name, request_tmp_directory_path)[1]
 
 	jv = find_report_by_key(r['reports'], 'job_view_url')
 	if jv is not None:
@@ -320,23 +332,24 @@ def reference(fileurl: str = Form(...)):#: Annotated[str, Form()]):
 
 
 @app.post("/upload")
-def upload(file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
+def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
 	"""
 	Trigger a calculator by uploading one or more input files.
 	"""
 	
-	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
+	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(request)
 
 	for file in filter(None, [file1, file2]):
 		logger.info('uploaded: %s' % file.filename)
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
 
-	return process_request(request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format)[0]
+	return process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format)[0]
 
 
 
 
-def process_request(request_tmp_directory_name, request_tmp_directory_path, request_format='rdf', requested_output_format = 'job_handle'):
+def process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format='rdf', requested_output_format = 'job_handle'):
+	
 	public_url=os.environ['PUBLIC_URL']
 
 	request_json = os.path.join(request_tmp_directory_path, 'request.json')
@@ -348,11 +361,13 @@ def process_request(request_tmp_directory_name, request_tmp_directory_path, requ
 		options = None
 	logger.info('options: %s' % str(options))
 
+	user = get_user(request)
+
 	job = worker.trigger_remote_calculator_job(
 		request_format=request_format,
 		request_directory=request_tmp_directory_name,
 		public_url=public_url,
-		options=options
+		worker_options=options | dict(user=user)  
 	)
 
 	logger.info('requested_output_format: %s' % requested_output_format)
