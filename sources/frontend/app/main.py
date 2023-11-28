@@ -375,7 +375,7 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 			options = json.load(f).get('worker_options', {})
 	else:
 		logger.info('no %s' % request_json)
-		options = None
+		options = {}
 	logger.info('options: %s' % str(options))
 
 	user = get_user(request)
