@@ -1,3 +1,6 @@
+from json import JSONDecodeError
+
+import dateutil.parser
 import logging
 import os, sys
 import urllib.parse
@@ -200,9 +203,9 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 	"""
 	job html page
 	"""
-	user = get_user(request)
 	
-	job = await get_job_by_id(job_id)
+	job = await get_job_by_id(request, job_id)
+	
 	if job is not None:
 		if isinstance(job, str):
 			job = dict(json=job)
@@ -253,10 +256,11 @@ def write_mem_stuff(message_id):
 
 
 @app.get('/api/job/{id}')
-async def get_job_by_id(id: str):
+async def get_job_by_id(request: Request, id: str):
 	"""
 	get job json
 	"""
+	
 	r = requests.get(os.environ['REMOULADE_API'] + '/messages/states/' + id)
 	if not r.ok:
 		return None
@@ -264,17 +268,15 @@ async def get_job_by_id(id: str):
 	if message['actor_name'] not in ["local_calculator"]:
 		return None
 
-	#'2012-05-29T19:30:03.283Z'
-	#"2023-09-21T10:16:44.571279+00:00",
-	import dateutil.parser
-	enqueued_datetime = dateutil.parser.parse(message['enqueued_datetime'])
-	end_datetime = message.get('end_datetime', None)
-	if end_datetime is not None:
-		end_datetime = dateutil.parser.parse(end_datetime)
-		message['duration'] = str(end_datetime - enqueued_datetime)
+	user = get_user(request)
+	logger.info('job: %s' % message)
+	# todo check auth here
+
+	await enrich_job_json_with_duration(message)
 
 	# a dict with either result or error key (i think...)
-	result = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id, params={'max_size':'99999999','raise_on_error':False})
+	result = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id, params={'max_size':'99999999'#'raise_on_error':False # this is ignored
+	})
 	try:
 		result = result.json()
 	except Exception as e:
@@ -285,13 +287,22 @@ async def get_job_by_id(id: str):
 	if 'result' in result:
 		try:
 			message['result'] = json.loads(result['result'])
-		except:
+		except JSONDecodeError:
 			message['result'] = result['result']
 	else:
 		message['result'] = {}
 		
 	return message
 
+
+async def enrich_job_json_with_duration(message):
+	# '2012-05-29T19:30:03.283Z'
+	# "2023-09-21T10:16:44.571279+00:00",
+	enqueued_datetime = dateutil.parser.parse(message['enqueued_datetime'])
+	end_datetime = message.get('end_datetime', None)
+	if end_datetime is not None:
+		end_datetime = dateutil.parser.parse(end_datetime)
+		message['duration'] = str(end_datetime - enqueued_datetime)
 
 
 @app.post("/reference")
