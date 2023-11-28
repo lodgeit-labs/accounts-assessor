@@ -1,6 +1,6 @@
 import logging,json, subprocess, os, sys, shutil, shlex
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
-from tmp_dir_path import git, sources, create_tmp_directory_name, create_tmp, get_tmp_directory_absolute_path, ln
+from tmp_dir_path import git, sources, create_tmp_for_user, get_tmp_directory_absolute_path, ln
 from fs_utils import command_nice, flatten_lists
 from tasking import remoulade
 from remoulade.middleware import CurrentMessage
