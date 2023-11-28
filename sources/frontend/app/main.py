@@ -143,7 +143,7 @@ def create_tmp_for_user(request: Request):
 	return name, path
 
 def write_htaccess(user, path):
-	with open(path / '.htaccess', 'w') as f:
+	with open(P(path) / '.htaccess', 'w') as f:
 		f.write(f"""
 RewriteEngine On
 SetEnvIfNoCase ^X-Forwarded-Email$ "(.*)" USER=$1
