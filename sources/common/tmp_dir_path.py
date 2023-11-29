@@ -60,9 +60,9 @@ SetEnv EXPECTED_USERNAME "{user}"
 
 SetEnvIfNoCase X-Forwarded-Email "(.*)" REMOTE_USERR=$1
 
-RewriteCond "%{{ENV:REMOTE_USER}} == {{ENV:EXPECTED_USERNAME}}
+RewriteCond "{{ENV:REMOTE_USER}} == {{ENV:EXPECTED_USERNAME}}
 RewriteRule ".*" - []		
-RewriteCond "%{{ENV:REMOTE_USERR}} == {{ENV:EXPECTED_USERNAME}}
+RewriteCond "{{ENV:REMOTE_USERR}} == {{ENV:EXPECTED_USERNAME}}
 RewriteRule ".*" - []
 
 RewriteRule ".*" - [F, L]
