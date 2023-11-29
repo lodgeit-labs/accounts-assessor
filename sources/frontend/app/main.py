@@ -320,6 +320,7 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 	
 	# save r into request_tmp_directory_path
+	# todo sanitize filename later
 	fn = request_tmp_directory_path + '/file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
 	with open(fn, 'wb') as f:
 		f.write(r.content)
@@ -421,6 +422,9 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 
 def save_uploaded_file(tmp_directory_path, src):
 	logger.info('src: %s' % src.filename)
+	if src.filename in ['.htaccess', '.', '..', 'converted']:
+		raise Exception('invalid file name')
+	
 	dest = os.path.abspath('/'.join([tmp_directory_path, ntpath.basename(src.filename)]))
 	with open(dest, 'wb+') as dest_fd:
 		shutil.copyfileobj(src.file, dest_fd)
