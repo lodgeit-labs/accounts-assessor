@@ -55,7 +55,6 @@ def write_htaccess(user, path):
 	with open(P(path) / '.htaccess', 'w') as f:
 		f.write(f"""
 RewriteEngine On
-LogLevel alert rewrite:trace8
 SetEnv EXPECTED_USERNAME "{user}"
 
 SetEnvIfNoCase X-Forwarded-Email "(.*)" REMOTE_USERR=$1
