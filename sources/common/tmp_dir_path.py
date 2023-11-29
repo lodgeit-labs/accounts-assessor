@@ -56,7 +56,7 @@ def write_htaccess(user, path):
 		f.write(f"""
 RewriteEngine On
 SetEnvIfNoCase ^X-Forwarded-Email$ "(.*)" USER=$1
-SetEnvIfNoCase ^X-WEBAUTH-USER$ "(.*)" USER=$1
+SetEnvIfNoCase ^REMOTE_USER$ "(.*)" USER=$1
 SetEnv EXPECTED_USERNAME "{user}"
 RewriteCond %{{ENV:USER}} !=%{{ENV:EXPECTED_USERNAME}}
 RewriteRule ^ - [F,L]		
