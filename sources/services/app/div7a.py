@@ -336,40 +336,24 @@ def div7a2_from_json(j,tmp_dir_path='.'):
 """,file=ooo)
 	return r
 
+
+def repayments_amount_before_lodgement(records, year):
+	"""
+	How much was repaid before lodgement day in the year?
+	"""
+	return sum([r.info['amount'] for r in records if r.__class__ == repayment and r.info['counts_towards_initial_balance']])
+
+
+def repayments_amount_after_lodgement(records, year):
+	"""
+	How much was repaid after lodgement day in the year?
+	"""
+	return sum([r.info['amount'] for r in records if r.__class__ == repayment and not r.info['counts_towards_initial_balance']])
+
+
 def div7a2_from_json2(ooo,j):
 
-	records = []
-
-	for r in j['repayments']:
-		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
-		rec_add(records, repayment(d, {'amount':float(r['amount'])}))
-
-
-	loan_year = int(j['loan_year'])
-	full_term = int(j['full_term'])
-	ob = float(j['opening_balance'])
-	oby = float(j['opening_balance_year'])
-
-	calculation_income_year = div7a2_calculation_income_year(loan_year, repayments(records))
-
-	if oby == loan_year:
-		principal = ob
-	else:
-		principal = None
-		rec_add(records, opening_balance(date(oby, 7, 1), dict(amount=ob)))
-
-	rec_add(records, loan_start(date(creation_income_year, 6, 30), dict(principal=principal, term=term, calculation_income_year=calculation_income_year)))
-	# calculation_start is wrong..
-	rec_add(records, calculation_start(date(ciy-1, 7, 1)))
-	rec_add(records, calculation_end(date(ciy, 6, 30)))
-	rec_add(records, loan_term_end(date(creation_income_year + term, 6, 30)))
-
-	ld = j['lodgement_date']
-	if ld == -1:
-		pass
-	else:
-		lodgement_date = datetime.strptime(ld, '%Y-%m-%d').date()
-		rec_add(records, lodgement(lodgement_date))
+	full_term, principal, records = div7a2_ingest(j)
 
 	# debug
 
@@ -381,7 +365,7 @@ def div7a2_from_json2(ooo,j):
 	records = div7a(ooo, records)
 
 	# answer
-	"""
+	
 	overview = []
 
 	loan_start_record = get_loan_start_record(records)
@@ -400,11 +384,13 @@ def div7a2_from_json2(ooo,j):
 			year=year,
 			events=[]
 		)
+
+		iyr = records_of_income_year(records, year)
+		fb = iyr[0].final_balance
+		if fb is not None:
+			y['opening_balance'] = fb
 		
-		if first record of the year has balance:
-			y['opening_balance'] = the_opening_balance
-		
-		for r in records_of_income_year(records, year):
+		for r in iyr:
 			if r.__class__ in [lodgement, repayment]:
 				if r.__class__ == lodgement:
 					y['events'].append(dict(
@@ -417,8 +403,12 @@ def div7a2_from_json2(ooo,j):
 						date=r.date,
 						amount=r.info['amount']
 					))
+					
+		y['total_repaid'] = total_repayment_in_income_year(records, year)
 
-		y['total_repaid'] = the_total_repaid
+		if year is first_year + 1:
+			y['total_repaid_before_lodgement'] = repayments_amount_before_lodgement(records, year)
+			y['total_repaid_after_lodgement'] = repayments_amount_after_lodgement(records, year)
 
 		if the_opening_balance:
 		
@@ -444,9 +434,40 @@ def div7a2_from_json2(ooo,j):
 		
 		year += 1
 		
-	"""
+	
 	return overview
 
+
+def div7a2_ingest(j):
+	records = []
+	for r in j['repayments']:
+		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
+		rec_add(records, repayment(d, {'amount': float(r['amount'])}))
+	loan_year = int(j['loan_year'])
+	full_term = int(j['full_term'])
+	ob = float(j['opening_balance'])
+	oby = float(j['opening_balance_year'])
+	calculation_income_year = div7a2_calculation_income_year(loan_year, repayments(records))
+	if oby < loan_year:
+		raise MyException('opening balance year must be after loan year')
+	if oby == loan_year:
+		principal = ob
+	else:
+		principal = None
+		rec_add(records, opening_balance(date(oby, 7, 1), dict(amount=ob)))
+	rec_add(records, loan_start(date(loan_year, 6, 30), dict(principal=principal, term=full_term, calculation_income_year=calculation_income_year)))
+	# calculation_start is wrong..
+	# rec_add(records, calculation_start(date(ciy-1, 7, 1)))
+	# rec_add(records, calculation_end(date(ciy, 6, 30)))
+	rec_add(records, loan_term_end(date(loan_year + full_term, 6, 30)))
+	ld = j['lodgement_date']
+	if ld == -1:
+		if oby == loan_year:
+			raise MyException('lodgement_date must be specified')
+	else:
+		lodgement_date = datetime.strptime(ld, '%Y-%m-%d').date()
+		rec_add(records, lodgement(lodgement_date))
+	return full_term, principal, records
 
 
 def div7a2_calculation_income_year(loan_year, repayments):

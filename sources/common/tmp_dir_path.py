@@ -52,20 +52,30 @@ def create_tmp_for_user(user):
 
 
 def write_htaccess(user, path):
+	"""
+	"""
+
+	#i think we'll eventually replace the role of apache here, with python.
+	#https://stackoverflow.com/questions/71276790/list-files-from-a-static-folder-in-fastapi
+	with open(P(path) / '.access', 'w') as f:
+		f.write(f"""{user}\n""")
+
+	
+	user = re.escape(user)
+	
 	with open(P(path) / '.htaccess', 'w') as f:
 		f.write(f"""
+
 RewriteEngine On
-SetEnv EXPECTED_USERNAME "{user}"
 
-SetEnvIfNoCase X-Forwarded-Email "(.*)" REMOTE_USERR=$1
+SetEnvIf BasicAuthUser "^{user}$" BasicAuthUser=$1
+Allow from env=BasicAuthUser
 
-RewriteCond "{{ENV:REMOTE_USER}} == {{ENV:EXPECTED_USERNAME}}
-RewriteRule ".*" - []		
-RewriteCond "{{ENV:REMOTE_USERR}} == {{ENV:EXPECTED_USERNAME}}
-RewriteRule ".*" - []
+SetEnvIf X-Forwarded-Email "^{user}$" OauthUser=$1
+Allow from env=OauthUser
 
-RewriteRule ".*" - [F, L]
-
+Deny from all
+		
 """)
 
 
