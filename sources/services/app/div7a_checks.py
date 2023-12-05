@@ -62,3 +62,11 @@ def check_invariants(records):
 	for r in repayments(records):
 		if r.info['amount'] <= 0:
 			raise MyException('Repayment is not positive')
+	
+	# - repayments cannot be before opening balance
+	for r in records:
+		if r.__class__ == opening_balance:
+			break
+		elif r.__class__ == repayment:
+			raise MyException('Repayment before opening balance')
+			

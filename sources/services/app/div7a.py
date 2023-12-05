@@ -351,6 +351,10 @@ def repayments_amount_after_lodgement(records, year):
 	return sum([r.info['amount'] for r in records if r.__class__ == repayment and not r.info['counts_towards_initial_balance']])
 
 
+def income_year_closing_balance(records, year):
+	return records_of_income_year(records, year)[-1].final_balance
+
+
 def div7a2_from_json2(ooo,j):
 
 	full_term, principal, records = div7a2_ingest(j)
@@ -385,10 +389,10 @@ def div7a2_from_json2(ooo,j):
 			events=[]
 		)
 
-		iyr = records_of_income_year(records, year)
-		fb = iyr[0].final_balance
-		if fb is not None:
-			y['opening_balance'] = fb
+		iyr = records_of_income_year(records, year-1)
+		ob = iyr[-1].final_balance
+		if ob is not None:
+			y['opening_balance'] = ob
 		
 		for r in iyr:
 			if r.__class__ in [lodgement, repayment]:
@@ -410,13 +414,19 @@ def div7a2_from_json2(ooo,j):
 			y['total_repaid_before_lodgement'] = repayments_amount_before_lodgement(records, year)
 			y['total_repaid_after_lodgement'] = repayments_amount_after_lodgement(records, year)
 
-		if the_opening_balance:
-		
-			if year is first_year + 1:
-				y['repayments_towards_myr'] = the_repayments_towards_myr
-				# we could organize the repayment list into two sections, one for myr-relevant, one for non-myr-relevant, hmm...
-		
-			y['closing_balance'] = the_closing_balance
+		if ob is not None:
+			myr_info = get_myr_check_of_income_year(records, ciy).info
+			
+			y['opening_balance'] = loan_agr_year_opening_balance(records, year),
+			y['interest_rate'] = benchmark_rate(year),
+			y['min_yearly_repayment'] = myr_info['myr_required'],
+			y['total_repayment'] = total_repayment_in_income_year(records, ciy),
+			y['repayment_shortfall'] = myr_info['shortfall'],
+			y['total_interest'] = total_interest_accrued(records, ciy),
+			y['total_principal'] = total_principal_paid(records, ciy),
+			y['closing_balance'] = closing_balance(records, ciy),
+
+			y['closing_balance'] = income_year_closing_balance(records, year)
 			y['interest_accrued'] = the_interest_accrued
 			y['repayment_shortfall'] = the_repayment_shortfall
 			y['min_yearly_repayment'] = the_myr
