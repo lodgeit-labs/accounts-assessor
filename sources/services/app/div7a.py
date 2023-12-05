@@ -351,8 +351,8 @@ def repayments_amount_after_lodgement(records, year):
 	return sum([r.info['amount'] for r in records if r.__class__ == repayment and not r.info['counts_towards_initial_balance']])
 
 
-def income_year_closing_balance(records, year):
-	return records_of_income_year(records, year)[-1].final_balance
+#def income_year_closing_balance(records, year):
+#	return records_of_income_year(records, year)[-1].final_balance
 
 
 def div7a2_from_json2(ooo,j):
@@ -407,44 +407,33 @@ def div7a2_from_json2(ooo,j):
 						date=r.date,
 						amount=r.info['amount']
 					))
-					
-		y['total_repaid'] = total_repayment_in_income_year(records, year)
 
 		if year is first_year + 1:
 			y['total_repaid_before_lodgement'] = repayments_amount_before_lodgement(records, year)
 			y['total_repaid_after_lodgement'] = repayments_amount_after_lodgement(records, year)
 
 		if ob is not None:
-			myr_info = get_myr_check_of_income_year(records, ciy).info
+			myr_info = get_myr_check_of_income_year(records, year).info
 			
-			y['opening_balance'] = loan_agr_year_opening_balance(records, year),
-			y['interest_rate'] = benchmark_rate(year),
-			y['min_yearly_repayment'] = myr_info['myr_required'],
-			y['total_repayment'] = total_repayment_in_income_year(records, ciy),
-			y['repayment_shortfall'] = myr_info['shortfall'],
-			y['total_interest'] = total_interest_accrued(records, ciy),
-			y['total_principal'] = total_principal_paid(records, ciy),
-			y['closing_balance'] = closing_balance(records, ciy),
+			y['opening_balance'] = loan_agr_year_opening_balance(records, year)
+			y['interest_rate'] = benchmark_rate(year)
+			y['minimum_yearly_repayment'] = myr_info['myr_required']
+			y['total_repaid'] = total_repayment_in_income_year(records, year)
+			if repayments(yir) != []:
+				y['repayment_shortfall'] = myr_info['shortfall']
+				y['repayment_excess'] = myr_info['excess']
+				y['total_principal_paid'] = total_principal_paid(records, year)
+			y['total_interest_accrued'] = total_interest_accrued(records, year)
+			y['closing_balance'] = closing_balance(records, year)
+			#y['closing_balance'] = income_year_closing_balance(records, year)
 
-			y['closing_balance'] = income_year_closing_balance(records, year)
-			y['interest_accrued'] = the_interest_accrued
-			y['repayment_shortfall'] = the_repayment_shortfall
-			y['min_yearly_repayment'] = the_myr
-			y['excess'] = the_excess
-		
 		overview.append(y)
 		
 		if the_repayment_shortfall != 0:
 			break
-		
-		#if repayments_of_income_year(records, year) == []:
-			#break #this is implied by shortfall.
-		
-		# maybe if there are no repayments, we dont want to show shortfall, just myr.
-		
+
 		year += 1
 		
-	
 	return overview
 
 
