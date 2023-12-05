@@ -5,7 +5,7 @@ from app.div7a import *
 # div7a2
 
 #div7a2_from_json({"loan_year": 2020, "full_term": 7, "opening_balance": 100000.0, "opening_balance_year": 2020, "repayments": [{"date": "2023-11-25", "amount": 0.0}], "lodgement_date": "2021-06-30"})
-div7a2_from_json({"loan_year": 2020, "full_term": 7, "opening_balance": 100000.0, "opening_balance_year": 2020, "repayments": [{"date": "2021-06-30", "amount": 10000.0}, {"date": "2022-06-30", "amount": 10000.0}, {"date": "2023-06-30", "amount": 10000.0}, {"date": "2024-06-30", "amount": 10000.0}, {"date": "2025-06-30", "amount": 10000.0}, {"date": "2026-06-30", "amount": 10000.0}, {"date": "2027-06-30", "amount": 10000.0}], "lodgement_date": "2021-06-30"})
+div7a2_from_json({"loan_year": 2020, "full_term": 7, "opening_balance": 100000.0, "opening_balance_year": 2020, "repayments": [{"date": "2021-06-30", "amount": 10000.0}, {"date": "2022-06-30", "amount": 10000.0}, {"date": "2023-06-30", "amount": 10000.0}, {"date": "2024-06-30", "amount": 10000.0}], "lodgement_date": "2021-06-30"})
 
 
 #div7a2_from_json({"loan_year": 2020, "full_term": 7, "opening_balance": 100000.0, "opening_balance_year": 2020, "repayments": [{"date": "2023-11-25", "amount": 0.0}], "lodgement_date": "2021-06-30"})

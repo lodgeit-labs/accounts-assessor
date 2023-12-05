@@ -1,7 +1,8 @@
 import json
+from json import JSONEncoder
 import logging
 import pathlib
-from datetime import datetime
+from datetime import datetime, date
 
 from pandas.io.formats.style import Styler
 import pandas as pd
@@ -10,6 +11,15 @@ from .div7a_checks import *
 
 
 log = logging.getLogger(__name__)
+
+
+
+class MyEncoder(JSONEncoder):
+	def default(self, obj):
+		if isinstance(obj, date):
+			return str(obj)
+		return json.JSONEncoder.default(self, obj)
+
 
 
 pd.set_option('display.max_rows', None)
@@ -326,7 +336,7 @@ def div7a2_from_json(j,tmp_dir_path='.'):
 		if ooo:
 			print(f'<h3>response</h3>', file=ooo)
 			print(f'<big><pre><code>', file=ooo)
-			json.dump(r, ooo, indent=True)
+			json.dump(r, ooo, indent=True, cls=MyEncoder)
 			print(f'</code></pre></big>', file=ooo)
 
 		print("""
@@ -376,9 +386,13 @@ def div7a2_from_json2(ooo,j):
 	first_year = loan_start_record.income_year
 	
 	overview.append(dict(
-		year=first_year, 
-		principal=principal if principal is not None else "unknown",
-		term=loan_start_record.info['term'],
+		year=first_year,
+		events=[dict(
+			type="loan created", 
+			date=loan_start_record.date, 
+			loan_principal=principal if principal is not None else "unknown",
+			loan_term=loan_start_record.info['term'],
+		)],
 	))
 	
 	year = first_year + 1
@@ -389,7 +403,7 @@ def div7a2_from_json2(ooo,j):
 			events=[]
 		)
 
-		iyr = records_of_income_year(records, year-1)
+		iyr = records_of_income_year(records, year)
 		ob = iyr[-1].final_balance
 		if ob is not None:
 			y['opening_balance'] = ob
@@ -419,9 +433,11 @@ def div7a2_from_json2(ooo,j):
 			y['interest_rate'] = benchmark_rate(year)
 			y['minimum_yearly_repayment'] = myr_info['myr_required']
 			y['total_repaid'] = total_repayment_in_income_year(records, year)
-			if repayments(yir) != []:
-				y['repayment_shortfall'] = myr_info['shortfall']
-				y['repayment_excess'] = myr_info['excess']
+			if repayments(iyr) != []:
+				if myr_info['shortfall'] > 0:
+					y['repayment_shortfall'] = myr_info['shortfall']
+				if myr_info['excess'] > 0:
+					y['repayment_excess'] = myr_info['excess']
 				y['total_principal_paid'] = total_principal_paid(records, year)
 			y['total_interest_accrued'] = total_interest_accrued(records, year)
 			y['closing_balance'] = closing_balance(records, year)
@@ -429,7 +445,7 @@ def div7a2_from_json2(ooo,j):
 
 		overview.append(y)
 		
-		if the_repayment_shortfall != 0:
+		if y.get('repayment_shortfall') not in [None, 0]:
 			break
 
 		year += 1
@@ -441,7 +457,10 @@ def div7a2_ingest(j):
 	records = []
 	for r in j['repayments']:
 		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
-		rec_add(records, repayment(d, {'amount': float(r['amount'])}))
+		r = repayment(d, {'amount': float(r['amount'])})
+		if r.income_year not in benchmark_rates:
+			raise MyException(f'Cannot calculate with repayments in income year {r.income_year}')
+		rec_add(records, r)
 	loan_year = int(j['loan_year'])
 	full_term = int(j['full_term'])
 	ob = float(j['opening_balance'])
