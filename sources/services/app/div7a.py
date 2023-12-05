@@ -445,8 +445,8 @@ def div7a2_ingest(j):
 	loan_year = int(j['loan_year'])
 	full_term = int(j['full_term'])
 	ob = float(j['opening_balance'])
-	oby = float(j['opening_balance_year'])
-	calculation_income_year = div7a2_calculation_income_year(loan_year, repayments(records))
+	oby = int(j['opening_balance_year'])
+	last_calculation_income_year = div7a2_calculation_income_year(loan_year, full_term, repayments(records))
 	if oby < loan_year:
 		raise MyException('opening balance year must be after loan year')
 	if oby == loan_year:
@@ -454,10 +454,10 @@ def div7a2_ingest(j):
 	else:
 		principal = None
 		rec_add(records, opening_balance(date(oby, 7, 1), dict(amount=ob)))
-	rec_add(records, loan_start(date(loan_year, 6, 30), dict(principal=principal, term=full_term, calculation_income_year=calculation_income_year)))
+	rec_add(records, loan_start(date(loan_year, 6, 30), dict(principal=principal, term=full_term, calculation_income_year=last_calculation_income_year)))
 	# calculation_start is wrong..
-	# rec_add(records, calculation_start(date(ciy-1, 7, 1)))
-	# rec_add(records, calculation_end(date(ciy, 6, 30)))
+	rec_add(records, calculation_start(date(oby, 7, 1)))
+	rec_add(records, calculation_end(date(last_calculation_income_year, 6, 30)))
 	rec_add(records, loan_term_end(date(loan_year + full_term, 6, 30)))
 	ld = j['lodgement_date']
 	if ld == -1:
@@ -469,11 +469,18 @@ def div7a2_ingest(j):
 	return full_term, principal, records
 
 
-def div7a2_calculation_income_year(loan_year, repayments):
+def div7a2_calculation_income_year(loan_year, term, repayments):
 	"""
 	find the last year in which a repayment was made, then add 1
 	""" 
 	if len(repayments) == 0:
 		return loan_year + 1
-	return repayments[-1].income_year + 1
-	
+	year = repayments[-1].income_year + 1
+	last_year = loan_year + term
+	if year > last_year:
+		year = last_year
+	while year not in benchmark_rates:
+		year -= 1
+		if year < 1999:
+			break
+	return year
