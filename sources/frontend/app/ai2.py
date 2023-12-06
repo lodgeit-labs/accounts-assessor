@@ -84,6 +84,8 @@ async def div7a(
 	r.raise_for_status()
 	r=r.json()
 	logging.getLogger().info(r)
+	if 'error' in r:
+		return dict(error=r['error_message'])
 	return r['result']
 
 	

@@ -430,7 +430,6 @@ def div7a2_from_json2(ooo,j):
 			myr_info = get_myr_check_of_income_year(records, year).info
 			
 			y['opening_balance'] = loan_agr_year_opening_balance(records, year)
-			y['interest_rate'] = benchmark_rate(year)
 			y['minimum_yearly_repayment'] = myr_info['myr_required']
 			y['total_repaid'] = total_repayment_in_income_year(records, year)
 			if repayments(iyr) != []:
@@ -438,8 +437,9 @@ def div7a2_from_json2(ooo,j):
 					y['repayment_shortfall'] = myr_info['shortfall']
 				if myr_info['excess'] > 0:
 					y['repayment_excess'] = myr_info['excess']
-				y['total_principal_paid'] = total_principal_paid(records, year)
+			y['interest_rate'] = benchmark_rate(year)
 			y['total_interest_accrued'] = total_interest_accrued(records, year)
+			y['total_principal_paid'] = total_principal_paid(records, year)
 			y['closing_balance'] = closing_balance(records, year)
 			#y['closing_balance'] = income_year_closing_balance(records, year)
 
@@ -463,7 +463,7 @@ def div7a2_ingest(j):
 		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
 		r = repayment(d, {'amount': float(r['amount'])})
 		if r.income_year not in benchmark_rates:
-			raise MyException(f'Cannot calculate with repayments in income year {r.income_year}')
+			raise MyException(f'Cannot calculate with repayments in income year {r.income_year}. Please do not specify repayments beyond the income year {max(benchmark_rates.keys())}.')
 		rec_add(records, r)
 	loan_year = int(j['loan_year'])
 	full_term = int(j['full_term'])
