@@ -61,7 +61,7 @@ async def div7a(
 		
 ):
 	"""
-	Calculate the Div 7A minimum yearly repayment, balance, shortfall and interest for a loan.
+	Return a breakdown, year by year, of relevant events and values of a Division 7A loan. Calculate the minimum yearly repayment, opening and closing balance, repayment shortfall, interest, and other information for each year.
 	"""
 	
 	# todo, optionally create job directory if needed. This isn't much of a blocking operation, and it's done exactly the same in /upload etc.
@@ -80,7 +80,11 @@ async def div7a(
 		),
 		tmp_dir_path='/app/server_root/tmp/'#fixme
 	)
-	return requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=jsonable_encoder(request)).raise_for_status()
+	r = requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=jsonable_encoder(request))
+	r.raise_for_status()
+	r=r.json()
+	logging.getLogger().info(r)
+	return r['result']
 
 	
 	

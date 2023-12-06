@@ -1,5 +1,4 @@
 from datetime import timedelta
-
 from .div7a_impl import *
 
 

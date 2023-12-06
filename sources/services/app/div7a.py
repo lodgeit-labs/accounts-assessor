@@ -380,26 +380,24 @@ def div7a2_from_json2(ooo,j):
 
 	# answer
 	
-	overview = []
+	overview = {}
 
 	loan_start_record = get_loan_start_record(records)
 	first_year = loan_start_record.income_year
 	
-	overview.append(dict(
-		year=first_year,
+	overview[first_year] = dict(
 		events=[dict(
 			type="loan created", 
 			date=loan_start_record.date, 
 			loan_principal=principal if principal is not None else "unknown",
 			loan_term=loan_start_record.info['term'],
 		)],
-	))
+	)
 	
 	year = first_year + 1
 	
 	while year <= first_year + full_term:
 		y = dict(
-			year=year,
 			events=[]
 		)
 
@@ -429,7 +427,7 @@ def div7a2_from_json2(ooo,j):
 			y['total_repaid_after_lodgement'] = repayments_amount_after_lodgement(records, year)
 
 		if ob is not None:
-			myr_infol = get_myr_check_of_income_year(records, year).info
+			myr_info = get_myr_check_of_income_year(records, year).info
 			
 			y['opening_balance'] = loan_agr_year_opening_balance(records, year)
 			y['interest_rate'] = benchmark_rate(year)
@@ -445,9 +443,13 @@ def div7a2_from_json2(ooo,j):
 			y['closing_balance'] = closing_balance(records, year)
 			#y['closing_balance'] = income_year_closing_balance(records, year)
 
-		overview.append(y)
+		overview[year] = y
+		#print(y)
 		
 		if y.get('repayment_shortfall') not in [None, 0]:
+			break
+
+		if repayments(iyr) == []:
 			break
 
 		year += 1
