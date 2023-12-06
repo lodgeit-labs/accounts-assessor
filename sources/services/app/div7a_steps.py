@@ -222,7 +222,7 @@ def evaluate_myr_checks(records):
 									  (1-(1/(1+(br/100)))**remaining_term))
 			
 			#if r.info['myr_required'] < r.info['total_repaid_for_myr_calc']:
-			r.info['excess'] = min(0, r.info['total_repaid'] - r.info['myr_required'])
+			r.info['excess'] = max(0, r.info['total_repaid'] - r.info['myr_required'])
 
 			#elif r.info['myr_required'] > r.info['total_repaid_for_myr_calc']:
 			r.info['shortfall'] = max(0, r.info['myr_required'] - r.info['total_repaid'])

@@ -404,7 +404,9 @@ def div7a2_from_json2(ooo,j):
 		)
 
 		iyr = records_of_income_year(records, year)
-		ob = iyr[-1].final_balance
+
+		ob = records_of_income_year(records, year-1)[-1].final_balance
+
 		if ob is not None:
 			y['opening_balance'] = ob
 		
@@ -427,7 +429,7 @@ def div7a2_from_json2(ooo,j):
 			y['total_repaid_after_lodgement'] = repayments_amount_after_lodgement(records, year)
 
 		if ob is not None:
-			myr_info = get_myr_check_of_income_year(records, year).info
+			myr_infol = get_myr_check_of_income_year(records, year).info
 			
 			y['opening_balance'] = loan_agr_year_opening_balance(records, year)
 			y['interest_rate'] = benchmark_rate(year)
