@@ -449,6 +449,11 @@ def div7a2_from_json2(ooo,j):
 		#print(y)
 		
 		if y.get('repayment_shortfall') not in [None, 0]:
+			y['events'].append(dict(
+				date=date(year, 6, 30),
+				type='end',
+				note="This concludes the calculation. Calculation for subsequent years is not possible because the minimum yearly repayment was not met in this year."
+			))
 			break
 
 		if repayments(iyr) == []:
