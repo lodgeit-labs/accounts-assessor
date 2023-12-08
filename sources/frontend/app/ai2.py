@@ -1,5 +1,3 @@
-from fastapi.encoders import jsonable_encoder
-
 from div7a2 import *
 
 
@@ -13,6 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
+from fastapi.encoders import jsonable_encoder
 import os
 
 
