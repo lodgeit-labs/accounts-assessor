@@ -6,7 +6,7 @@ from datetime import datetime, date
 
 from pandas.io.formats.style import Styler
 import pandas as pd
-from sortedcontainers import sortedset
+from sortedcontainers import SortedSet
 
 from .div7a_steps import *
 from .div7a_checks import *
@@ -461,7 +461,7 @@ def div7a2_from_json2(ooo,j):
 
 		year += 1
 
-	if not warnings.is_empty():
+	if len(warnings) != 0:
 		overview['warnings'] = ' '.join(warnings)
 		
 	return overview
@@ -469,16 +469,19 @@ def div7a2_from_json2(ooo,j):
 
 def div7a2_ingest(j):
 	records = []
-	warnings = sortedset()
+	warnings = SortedSet()
 
 	for rep in j['repayments']:
 		rep['date'] = datetime.strptime(rep['date'], '%Y-%m-%d').date()
 
-	if j['repayments'].sort(key=date) != j['repayments']:
+	rrr = j['repayments']
+	srrr = sorted(rrr, key=lambda x: x['date'])
+
+	if srrr != rrr:
 		warnings.add("Repayments are not sorted by date.")
 
 	for r in j['repayments']:
-		r = repayment(i['date'], {'amount': float(r['amount'])})
+		r = repayment(r['date'], {'amount': float(r['amount'])})
 		if r.income_year not in benchmark_rates:
 			#raise MyException(f'Cannot calculate with repayments in income year {r.income_year}. Please do not specify repayments beyond the income year {max(benchmark_rates.keys())}.')
 			warnings.add(f'Cannot calculate with repayments in income year {r.income_year}.')
