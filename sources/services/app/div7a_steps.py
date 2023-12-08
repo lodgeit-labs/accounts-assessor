@@ -162,7 +162,7 @@ def with_myr_checks(records):
 			continue
 
 		if income_year < benchmark_rate_years()[0]:
-			raise MyException('Cannot calculate before income year {}'.format(income_year))
+			raise MyException('Cannot calculate before income year {}'.format(benchmark_rate_years()[0]))
 
 		# skip checks in future
 		if income_year > benchmark_rate_years()[-1]:
