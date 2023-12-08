@@ -6,6 +6,8 @@ from datetime import datetime, date
 
 from pandas.io.formats.style import Styler
 import pandas as pd
+from sortedcontainers import sortedset
+
 from .div7a_steps import *
 from .div7a_checks import *
 
@@ -367,7 +369,7 @@ def repayments_amount_after_lodgement(records, year):
 
 def div7a2_from_json2(ooo,j):
 
-	full_term, principal, records = div7a2_ingest(j)
+	full_term, principal, records, warnings = div7a2_ingest(j)
 
 	# debug
 
@@ -453,18 +455,31 @@ def div7a2_from_json2(ooo,j):
 			break
 
 		year += 1
+
+	if not warnings.is_empty():
+		overview['warnings'] = ' '.join(warnings)
 		
 	return overview
 
 
 def div7a2_ingest(j):
 	records = []
+	warnings = sortedset()
+
+	for rep in j['repayments']:
+		rep['date'] = datetime.strptime(rep['date'], '%Y-%m-%d').date()
+
+	if j['repayments'].sort(key=date) != j['repayments']:
+		warnings.add("Repayments are not sorted by date.")
+
 	for r in j['repayments']:
-		d = datetime.strptime(r['date'], '%Y-%m-%d').date()
-		r = repayment(d, {'amount': float(r['amount'])})
+		r = repayment(i['date'], {'amount': float(r['amount'])})
 		if r.income_year not in benchmark_rates:
-			raise MyException(f'Cannot calculate with repayments in income year {r.income_year}. Please do not specify repayments beyond the income year {max(benchmark_rates.keys())}.')
-		rec_add(records, r)
+			#raise MyException(f'Cannot calculate with repayments in income year {r.income_year}. Please do not specify repayments beyond the income year {max(benchmark_rates.keys())}.')
+			warnings.add(f'Cannot calculate with repayments in income year {r.income_year}.')
+		else:
+			rec_add(records, r)
+
 	loan_year = int(j['loan_year'])
 	full_term = int(j['full_term'])
 	ob = float(j['opening_balance'])
@@ -478,10 +493,11 @@ def div7a2_ingest(j):
 		principal = None
 		rec_add(records, opening_balance(date(oby, 7, 1), dict(amount=ob)))
 	rec_add(records, loan_start(date(loan_year, 6, 30), dict(principal=principal, term=full_term, calculation_income_year=last_calculation_income_year)))
-	# calculation_start is wrong..
+
 	rec_add(records, calculation_start(date(oby, 7, 1)))
 	rec_add(records, calculation_end(date(last_calculation_income_year, 6, 30)))
 	rec_add(records, loan_term_end(date(loan_year + full_term, 6, 30)))
+
 	ld = j['lodgement_date']
 	if ld == -1:
 		if oby == loan_year:
@@ -489,7 +505,7 @@ def div7a2_ingest(j):
 	else:
 		lodgement_date = datetime.strptime(ld, '%Y-%m-%d').date()
 		rec_add(records, lodgement(lodgement_date))
-	return full_term, principal, records
+	return full_term, principal, records, warnings
 
 
 def div7a2_calculation_income_year(loan_year, term, repayments):
