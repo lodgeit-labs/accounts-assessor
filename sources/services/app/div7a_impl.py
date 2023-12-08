@@ -84,6 +84,11 @@ def benchmark_rate(year):
 		raise MyException(f'No benchmark rate for year {year}')
 
 
+def benchmark_rate_years():
+	keys = list(benchmark_rates.keys())
+	keys.sort()
+	return keys
+
 
 def get_remaining_term(records, r):
 	"""

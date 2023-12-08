@@ -161,8 +161,11 @@ def with_myr_checks(records):
 			# no myr check for year of opening balance either. But this relies on the fact that opening balance is set on the last day of the preceding income year.
 			continue
 
+		if income_year < benchmark_rate_years()[0]:
+			raise MyException('Cannot calculate before income year {}'.format(income_year))
+
 		# skip checks in future
-		if income_year not in benchmark_rates:
+		if income_year > benchmark_rate_years()[-1]:
 			break
 
 		repayments = [r for r in records_of_income_year(records, income_year) if r.__class__ == repayment]

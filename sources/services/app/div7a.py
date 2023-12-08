@@ -403,6 +403,8 @@ def div7a2_from_json2(ooo,j):
 			events=[]
 		)
 
+		overview[year] = y
+
 		iyr = records_of_income_year(records, year)
 
 		ob = records_of_income_year(records, year-1)[-1].final_balance
@@ -411,18 +413,17 @@ def div7a2_from_json2(ooo,j):
 			y['opening_balance'] = ob
 		
 		for r in iyr:
-			if r.__class__ in [lodgement, repayment]:
-				if r.__class__ == lodgement:
-					y['events'].append(dict(
-						type='lodgement',
-						date=r.date
-					))
-				elif r.__class__ == repayment:
-					y['events'].append(dict(
-						type='repayment',
-						date=r.date,
-						amount=r.info['amount']
-					))
+			if r.__class__ == lodgement:
+				y['events'].append(dict(
+					type='lodgement',
+					date=r.date
+				))
+			elif r.__class__ == repayment:
+				y['events'].append(dict(
+					type='repayment',
+					date=r.date,
+					amount=r.info['amount']
+				))
 
 		if year is first_year + 1:
 			y['total_repaid_before_lodgement'] = repayments_amount_before_lodgement(records, year)
@@ -445,9 +446,6 @@ def div7a2_from_json2(ooo,j):
 			y['closing_balance'] = closing_balance(records, year)
 			#y['closing_balance'] = income_year_closing_balance(records, year)
 
-		overview[year] = y
-		#print(y)
-		
 		if y.get('repayment_shortfall') not in [None, 0]:
 			y['events'].append(dict(
 				date=date(year, 6, 30),
