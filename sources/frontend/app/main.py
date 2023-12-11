@@ -308,17 +308,14 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 	logger.info('/reference url: ' + str(url))
 	logger.info('netloc: ' + str(netloc))
 
-	# is this a onedrive url? 5dd1qg.dm.files.1drv.com
-	#if not netloc.endswith(        "db.files.1drv.com"):
-	
-	#if not netloc.endswith(".files.1drv.com"):
-	#	return {"error": "only onedrive urls are supported at this time"}
-
+	if not netloc.endswith(".files.1drv.com"):
+		return {"error": "only onedrive urls are supported at this time"}
+	# todo use bastion!
 	r = requests.get(fileurl)
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 	
 	# save r into request_tmp_directory_path
-	# todo sanitize filename later
+	# todo sanitize filename. if file.endswith('/.htaccess')...
 	fn = request_tmp_directory_path + '/file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
 	with open(fn, 'wb') as f:
 		f.write(r.content)
@@ -604,7 +601,9 @@ def python_date_to_xml(date):
 
 
 
-
+"""
+these are separate sub-apps mainly so that they have their own openapi schema, with just what makes sense for custom gpts. It also makes it easy to experiment with different versions, simply by changing the openapi.json path inside chatgpt config. 
+"""
 
 
 ai3 = FastAPI(
@@ -617,10 +616,11 @@ ai3 = FastAPI(
 
 @app.get("/", include_in_schema=False)
 async def read_root():
-	"""
-	nothing to see here
-	"""
 	return {"Hello": "World"}
+
+
+@app.get('/process_accounting_file')
+async def process_accounting_file(
 
 
 @app.get('/div7a')
@@ -700,6 +700,23 @@ async def div7a(
 # 	# now, invoke services to do the actual work.
 # 	return requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=request).raise_for_status()
 #
+
+
+
+@app.post("/process_file")
+def process_file(request: Request, file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
+	"""
+	Trigger an accounting calculator by uploading one or more input files.
+	"""
+
+	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
+
+	for file in filter(None, [file1, file2]):
+		logger.info('uploaded: %s' % file.filename)
+		uploaded = save_uploaded_file(request_tmp_directory_path, file)
+
+	return process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format)[0]
+
 
 
 app.mount('/ai3', ai3)

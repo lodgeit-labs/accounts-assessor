@@ -25,10 +25,10 @@ def convert_request_file(file):
 		return file
 
 
-def convert_excel_to_rdf(uploaded, to_be_processed):
+def convert_excel_to_rdf(uploaded, to_be_processed, root="ic_ui:investment_calculator_sheets"):
 	"""run a POST request to csharp-services to convert the file"""
 	logging.getLogger().info('xlsx_to_rdf: %s -> %s' % (uploaded, to_be_processed))
-	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": "ic_ui:investment_calculator_sheets", "input_fn": str(uploaded), "output_fn": str(to_be_processed)}).raise_for_status()
+	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": root, "input_fn": str(uploaded), "output_fn": str(to_be_processed)}).raise_for_status()
 
 
 
