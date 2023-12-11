@@ -619,10 +619,6 @@ async def read_root():
 	return {"Hello": "World"}
 
 
-@app.get('/process_accounting_file')
-async def process_accounting_file(
-
-
 @app.get('/div7a')
 async def div7a(
 
@@ -700,7 +696,6 @@ async def div7a(
 # 	# now, invoke services to do the actual work.
 # 	return requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=request).raise_for_status()
 #
-
 
 
 @app.post("/process_file")
