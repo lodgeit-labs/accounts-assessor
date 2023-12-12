@@ -48,7 +48,6 @@ from tmp_dir_path import create_tmp_for_user, get_tmp_directory_absolute_path
 
 
 
-
 class UploadedFileException(Exception):
 	pass
 
@@ -134,6 +133,14 @@ app = FastAPI(
 
 
 
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+	exc_str = f'{exc}'.replace('\n', ' ').replace('   ', ' ')
+	logging.error(f"{request}: {exc_str}")
+	content = {'status_code': 10422, 'message': exc_str, 'data': None}
+	return JSONResponse(content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 
