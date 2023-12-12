@@ -21,4 +21,4 @@ ENV WATCHMEDO=true
 WORKDIR /app/sources/download_bastion
 
 CMD ["./start.sh"]
-HEALTHCHECK CMD curl http://127.0.0.1:6457
+HEALTHCHECK CMD curl http://127.0.0.1:6457/health
