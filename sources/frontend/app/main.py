@@ -716,15 +716,18 @@ async def div7a(
 
 
 @ai3.post("/process_file")
-def process_file(request: Request, file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
+def process_file(request: Request, file1: UploadFile, file2: Optional[UploadFile]=None):
 	"""
-	Trigger an accounting calculator by uploading one or more input files.
+	Trigger an accounting calculator by uploading one or more files.
 	"""
+	request_format = None
+	requested_output_format:str='job_handle'
+
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 
 	for file in filter(None, [file1, file2]):
 		logger.info('uploaded: %s' % file.filename)
-		uploaded = save_uploaded_file(request_tmp_directory_path, file)
+		_uploaded = save_uploaded_file(request_tmp_directory_path, file)
 
 	return process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format)[0]
 

@@ -5,6 +5,7 @@
     <mapping directory="$PROJECT_DIR$/CsharpServices" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/common/libs/remoulade" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/depr" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/download_bastion" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/public_lib/lodgeit_solvers" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/super-bowl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/wait-for-it" vcs="Git" />
