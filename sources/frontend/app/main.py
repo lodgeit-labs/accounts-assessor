@@ -333,6 +333,14 @@ def file_download(url, path, filename_hint=None):
 	return r.json()['filename']
 
 
+@app.get("/view/upload_form")
+def upload_form(request: Request):
+	return templates.TemplateResponse("upload.html", {
+		"public_url": os.environ['PUBLIC_URL'],
+		"request": request,
+	})
+
+
 
 @app.post("/upload")
 def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
@@ -342,8 +350,12 @@ def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[U
 	
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 
-	for file in filter(None, [file1, file2]):
-		logger.info('uploaded: %s' % file.filename)
+	for file in [file1, file2]:
+		if file is None:
+			continue
+		if file.filename == '':
+			continue
+		logger.info('uploaded: %s' % repr(file.filename))
 		uploaded = save_uploaded_file(request_tmp_directory_path, file)
 
 	return process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format)[0]
@@ -419,7 +431,9 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 
 
 def save_uploaded_file(tmp_directory_path, src):
-	logger.info('src: %s' % src.filename)
+
+	logger.info('save_uploaded_file tmp_directory_path: %s, src: %s' % (tmp_directory_path, src.filename))
+
 	if src.filename in ['.htaccess', '.', '..', 'converted']:
 		raise Exception('invalid file name')
 	
