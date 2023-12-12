@@ -631,12 +631,12 @@ ai3 = FastAPI(
 )
 
 
-@app.get("/", include_in_schema=False)
+@ai3.get("/", include_in_schema=False)
 async def read_root():
 	return {"Hello": "World"}
 
 
-@app.get('/div7a')
+@ai3.get('/div7a')
 async def div7a(
 
 	loan_year: Annotated[int, Query(
@@ -715,7 +715,7 @@ async def div7a(
 #
 
 
-@app.post("/process_file")
+@ai3.post("/process_file")
 def process_file(request: Request, file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
 	"""
 	Trigger an accounting calculator by uploading one or more input files.
