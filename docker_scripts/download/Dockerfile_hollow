@@ -3,10 +3,8 @@ FROM koo5/ubuntu
 WORKDIR /app/
 ARG REQUIREMENTS_FILE=requirements.txt
 
-COPY download_bastion/${REQUIREMENTS_FILE} /app/sources/download_bastion/
+COPY ${REQUIREMENTS_FILE} /app/sources/download_bastion/
 RUN python3 -m pip install --upgrade --no-cache-dir -r /app/sources/download_bastion/${REQUIREMENTS_FILE}
-
-COPY common/ /app/sources/common/
 
 EXPOSE 6457
 RUN mkdir -p /app/server_root/tmp

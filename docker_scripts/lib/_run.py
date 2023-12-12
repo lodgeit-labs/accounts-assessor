@@ -228,6 +228,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		'REMOULADE_API': 'http://localhost:5005' if hn else 'http://remoulade-api:5005',
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
 		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
+		'DOWNLOAD_BASTION_URL': 'http://localhost:6457' if hn else 'http://download:6457',
 	}
 	#
 	# if choices['display']:
@@ -669,7 +670,7 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 
 	join([ubuntu])
 
-	svc('download',				'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/download/Dockerfile_hollow")
+	svc('download',				'../sources/download_bastion', dbtks+'-hlw{port_postfix}"', "../../docker_scripts/download/Dockerfile_hollow")
 	svc('remoulade-api', 		'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/remoulade_api/Dockerfile_hollow")
 	svc('workers', 				'../sources/', dbtks+'-hlw{port_postfix}"', "workers/Dockerfile_hollow")
 	svc('internal-services',		'../sources/', dbtks+'-hlw{port_postfix}"', "internal_services/Dockerfile_hollow")

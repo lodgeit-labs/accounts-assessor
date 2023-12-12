@@ -6,6 +6,7 @@ import os, sys
 import urllib.parse
 import json
 import datetime
+from datetime import date
 import ntpath
 import shutil
 import re
@@ -309,17 +310,12 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 	logger.info('netloc: ' + str(netloc))
 
 	if not netloc.endswith(".files.1drv.com"):
-		return {"error": "only onedrive urls are supported at this time"}
-	# todo use bastion!
-	r = requests.get(fileurl)
-	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
-	
-	# save r into request_tmp_directory_path
-	# todo sanitize filename. if file.endswith('/.htaccess')...
-	fn = request_tmp_directory_path + '/file1.xlsx' # hack! we assume everything coming through this endpoint is an excel file
-	with open(fn, 'wb') as f:
-		f.write(r.content)
+		return {"error": "only onedrive urls are allowed at this time"}
 
+	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
+
+	_fn = file_download(fileurl, request_tmp_directory_path, 'file1.xlsx', ['.htaccess', 'request.json'])
+	logger.info('fn: %s' % _fn)
 	r = process_request(request, request_tmp_directory_name, request_tmp_directory_path)[1]
 
 	jv = find_report_by_key(r['reports'], 'job_view_url')
@@ -328,7 +324,14 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 
 	return r
 
-	
+
+def file_download(url, path, filename_hint=None):
+	r = requests.get(os.environ['DOWNLOAD_BASTION_URL'] + '/get_into_dir', params=dict(url=url, dir=path))
+	r.raise_for_status()
+	if 'error' in r:
+		raise Exception(r['error'])
+	return r.json()['filename']
+
 
 
 @app.post("/upload")
@@ -703,7 +706,6 @@ def process_file(request: Request, file1: Optional[UploadFile]=None, file2: Opti
 	"""
 	Trigger an accounting calculator by uploading one or more input files.
 	"""
-
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 
 	for file in filter(None, [file1, file2]):

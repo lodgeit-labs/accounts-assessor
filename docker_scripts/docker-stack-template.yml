@@ -53,6 +53,7 @@ services:
       AGRAPH_HOST:
       AGRAPH_PORT:
       SERVICES_URL:
+      DOWNLOAD_BASTION_URL:
       WATCHMEDO:
     #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by copying the dev one
     #  REQUIREMENTS_FILE: requirements.txt
@@ -319,6 +320,7 @@ services:
       - AGRAPH_SUPER_PASSWORD
 
 
+#bastion
   download:
     image: koo5/download${PP}:latest
     environment:
