@@ -142,7 +142,6 @@ def xml_xsd_validator(xml: str, xsd:str):
 def fetch_remote_file(tmp_dir_path: str, url: str):
 	log.debug(url)
 
-	url = correct_onedrive_url(url)
 
 	path = P(tmp_dir_path) / 'remote_files'
 	path.mkdir(exist_ok=True)
@@ -169,8 +168,3 @@ def fetch_remote_file(tmp_dir_path: str, url: str):
 	log.info(r)
 	return JSONResponse(r)
 
-def correct_onedrive_url(url):
-	try:
-		return 'https://api.onedrive.com/v1.0/shares/s!'+re.search(r'https://1drv.ms/u/s\!(.*?)\?.*', url).group(1)+'/root/content'
-	except:
-		return url
