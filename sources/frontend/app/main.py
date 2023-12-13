@@ -258,7 +258,13 @@ async def get_job_by_id(request: Request, id: str):
 
 	user = get_user(request)
 	logger.info('job: %s' % message)
-	# todo check auth here
+	
+	# check auth
+	job_user = message.get('kwargs', {}).get('user', None)
+	if job_user is not None and job_user != user:
+		r = dict(error='not authorized', job_user=job_user, user=user)
+		logger.info('not authorized: %s' % r)
+		return r
 
 	await enrich_job_json_with_duration(message)
 
@@ -312,17 +318,18 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 
 	_fn = file_download(fileurl, request_tmp_directory_path, 'file1.xlsx', ['.htaccess', 'request.json'])
 	logger.info('fn: %s' % _fn)
+	
 	r = process_request(request, request_tmp_directory_name, request_tmp_directory_path)[1]
-
-	jv = find_report_by_key(r['reports'], 'job_view_url')
-	if jv is not None:
-		return RedirectResponse(jv, status_code=status.HTTP_303_SEE_OTHER)
+	
+	job_view_url = find_report_by_key(r['reports'], 'job_view_url')
+	if job_view_url is not None:
+		return RedirectResponse(job_view_url, status_code=status.HTTP_303_SEE_OTHER)
 
 	return r
 
 
-def file_download(url, path, filename_hint=None):
-	r = requests.get(os.environ['DOWNLOAD_BASTION_URL'] + '/get_into_dir', params=dict(url=url, dir=path))
+def file_download(url, dir, filename_hint=None, disallowed_filenames=[]):
+	r = requests.get(os.environ['DOWNLOAD_BASTION_URL'] + '/get_into_dir', params=dict(url=url, dir=dir, filename_hint=filename_hint, disallowed_filenames=disallowed_filenames))
 	r.raise_for_status()
 	if 'error' in r:
 		raise Exception(r['error'])
