@@ -1,0 +1,66 @@
+
+
+
+
+
+"""
+User
+Pass array of objects (each with two fields) as query parameter in Swagger OpenApi 3.0
+ChatGPT
+
+To define an array of objects as a query parameter in Swagger OpenAPI 3.0, you need to specify the parameter in your OpenAPI (formerly known as Swagger) specification file. Here's a step-by-step guide on how to do it:
+
+    Define the Parameter in the Path: You need to define the parameter in the path of your API endpoint. OpenAPI 3.0 supports complex structures as query parameters, which means you can define an array of objects.
+
+    Specify the Parameter as an Array: Indicate that the parameter is an array and define the items (objects) in the array.
+
+    Describe the Objects in the Array: Each object in the array should be defined with its respective fields.
+
+Here's an example of how you could define such a parameter in your OpenAPI specification:
+
+yaml
+
+paths:
+  /your-api-endpoint:
+    get:
+      summary: Your API endpoint summary
+      description: Description of your API endpoint
+      operationId: yourOperationId
+      parameters:
+        - name: yourParameterName
+          in: query
+          description: Description of your array of objects
+          required: true
+          explode: true
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                field1:
+                  type: string
+                  description: Description of field1
+                field2:
+                  type: integer
+                  description: Description of field2
+
+In this example:
+
+    your-api-endpoint is the endpoint of your API.
+    yourParameterName is the name of your query parameter.
+    field1 and field2 are the fields of each object in the array.
+    explode: true ensures that each object in the array is a separate parameter pair in the query string.
+
+Remember, the actual implementation of how these objects are serialized and parsed in the query string might depend on the specific framework or library you are using on the server side. Some frameworks may require a specific format for passing arrays of objects in query parameters.
+"""
+
+"""
+https://swagger.io/docs/specification/describing-parameters/
+https://stackoverflow.com/questions/68452127/pass-array-as-query-parameter-in-swagger-openapi-3-0
+https://stackoverflow.com/questions/22080770/sending-an-array-of-values-through-the-query-parameters-of-a-get-request/47557828#47557828
+
+
+All this makes it seem like it might be possible to pass an array of objects in query, but it's not clear to how to declare this in FastAPI to make it work. Hence the current double array approach. (which seems to work well).
+
+"""
+
