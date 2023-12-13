@@ -359,7 +359,7 @@ def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[U
 		if file.filename == '':
 			continue
 		logger.info('uploaded: %s' % repr(file.filename))
-		uploaded = save_uploaded_file(request_tmp_directory_path, file)
+		_uploaded = save_uploaded_file(request_tmp_directory_path, file)
 
 	return process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format)[0]
 
@@ -385,7 +385,8 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 		request_format=request_format,
 		request_directory=request_tmp_directory_name,
 		public_url=public_url,
-		worker_options=options | dict(user=user)  
+		worker_options=options,
+		user=user
 	)
 
 	logger.info('requested_output_format: %s' % requested_output_format)
@@ -448,10 +449,6 @@ def save_uploaded_file(tmp_directory_path, src):
 
 
 
-
-	
-
-
 # also: def fill_workbook_with_template():
 	# either generate a xlsx file and return it to client, to be saved to onedrive (or to overwrite the selected onedrive xlsx file)
 	# or run a direct request to msft graph api here
@@ -499,124 +496,6 @@ async def ai_plugin_json():
 # repayments: list[Div7aRepayment],
 #repayments: Annotated[Div7aRepayments, Query(title="exhaustive list of repayments performed in enquiry year")],
 # repayments: Annotated[Div7aRepayments, Query(title="exhaustive list of repayments performed in enquiry year")],
-
-
-@app.post('/div7a')
-async def div7a(
-	loan_year: Annotated[int, Query(title="The income year in which the amalgamated loan was made")],
-	full_term: Annotated[int, Query(title="The length of the loan, in years")],
-	enquiry_year: Annotated[int, Query(title="The income year to calculate the summary for")],
-	
-	opening_balance: Annotated[float, Query(title="Opening balance of enquiry_year")],
-	#opening_balance_year: int,
-	
-	# hack, OpenAI does not like a naked list for body
-	repayments: Div7aRepayments,
-	lodgement_date: Annotated[Optional[datetime.date], Query(title="Date of lodgement of the income year in which the loan was made. Required for calculating for the first year of loan.")]
-
-):
-	
-	"""
-	calculate Div7A loan summary
-	"""
-
-	request_tmp_directory_name, request_tmp_directory_path = create_tmp()
-
-	with open(request_tmp_directory_path + '/ai-request.xml', 'wb') as f:
-
-		# if isinstance(starting_amount, Div7aOpeningBalanceForCalculationYear):
-		# 	ob = starting_amount.opening_balance
-		# 	principal = None
-		# elif isinstance(starting_amount, Div7aPrincipal):
-		# 	ob = None
-		# 	principal = starting_amount.principal
-		principal=None
-		ob=opening_balance
-
-		logger.info('rrrr %s' % repayments)
-		
-		x = div7a_request_xml(loan_year, full_term, lodgement_date, ob, principal, repayments.relevant_repayments, enquiry_year)
-		f.write(x.toprettyxml(indent='\t').encode('utf-8'))
-
-	reports = process_request(request_tmp_directory_name, request_tmp_directory_path, request_format='xml', requested_output_format = 'immediate_json_reports_list')[1]
-
-	if reports['alerts'] != []:
-		e = '. '.join(reports['alerts'])
-		if 'reports' in reports:
-			e += ' - ' + find_report_by_key(reports['reports'], 'task_directory')
-		else:
-			e += ' - ' + job.message_id
-		return JSONResponse(dict(error=e))
-
-	result_url = find_report_by_key(reports['reports'], 'result')
-	expected_prefix = os.environ['PUBLIC_URL'] + '/tmp/'
-	if not result_url.startswith(expected_prefix):
-		raise Exception('unexpected result_url prefix: ' + result_url)
-
-	xml = ElementTree.parse(get_tmp_directory_absolute_path(result_url[len(expected_prefix):]))
-	j = {}
-	for tag in ['OpeningBalance','InterestRate','MinYearlyRepayment','TotalRepayment','RepaymentShortfall','TotalInterest','TotalPrincipal','ClosingBalance']:
-		j[tag] = float(xml.find(tag).text)
-	
-	return j
-
-
-def div7a_request_xml(
-		income_year_of_loan_creation,
-		full_term_of_loan_in_years,
-		lodgement_day_of_private_company,
-		opening_balance,
-		principal,
-		repayment_dicts,
-		income_year_of_computation
-):
-	"""
-	create a request xml dom, given loan details.	 
-	"""
-
-	doc = impl.createDocument(None, "reports", None)
-	loan = doc.documentElement.appendChild(doc.createElement('loanDetails'))
-
-	agreement = loan.appendChild(doc.createElement('loanAgreement'))
-	repayments = loan.appendChild(doc.createElement('repayments'))
-
-	def field(name, value):
-		field = agreement.appendChild(doc.createElement('field'))
-		field.setAttribute('name', name)
-		field.setAttribute('value', str(value))
-
-	field('Income year of loan creation', income_year_of_loan_creation)
-	field('Full term of loan in years', full_term_of_loan_in_years)
-	if lodgement_day_of_private_company is not None:
-		field('Lodgement day of private company', (lodgement_day_of_private_company))
-	field('Income year of computation', income_year_of_computation)
-
-	if opening_balance is not None:
-		field('Opening balance of computation', opening_balance)
-	if principal is not None:
-		field('Principal amount of loan', principal)
-
-	for r in repayment_dicts:
-		repayment = repayments.appendChild(doc.createElement('repayment'))
-		repayment.setAttribute('date', python_date_to_xml(r.date))
-		repayment.setAttribute('value', str(r.amount))
-
-	return doc
-
-
-def python_date_to_xml(date):
-	y = date.year
-	m = date.month
-	d = date.day
-	if not (0 < m <= 12):
-		raise Exception(f'invalid month: {m}')
-	if not (0 < d <= 31):
-		raise Exception(f'invalid day: {d}')
-	if not (1980 < y <= 2050):
-		raise Exception(f'invalid year: {y}')
-	return f'{y}-{m:02}-{d:02}' # ymd
-
-
 
 
 
@@ -706,16 +585,6 @@ async def div7a(
 # 	repayments: Annotated[Div7aRepayments, Query(title="Repayments")] = Depends(Div7aRepayments)
 # ):
 # 	"""
-# 	Calculate the Div 7A minimum yearly repayment, balance, shortfall and interest for a loan.
-# 	"""
-#
-# 	# todo, optionally create job directory if needed. This isn't much of a blocking operation, and it's done exactly the same in /upload etc.
-#
-# 	logging.getLogger().info(request)
-#
-# 	# now, invoke services to do the actual work.
-# 	return requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=request).raise_for_status()
-#
 
 
 @ai3.post("/process_file")

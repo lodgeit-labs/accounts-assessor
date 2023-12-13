@@ -2,7 +2,8 @@
 
 frontend or worker creates directories with appropriate .(ht)access files.
 these are obeyed by apache. 
-/api/job is checked wrt 'user' in kwargs of job. 'user' is supplied in 
+/api/job is checked wrt 'user' in kwargs of job. 'user' is assigned to job in process_request().
+
 
 
 
