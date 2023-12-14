@@ -137,34 +137,3 @@ def xml_xsd_validator(xml: str, xsd:str):
 		response['result'] = 'error'
 	return JSONResponse(response)
 
-
-@app.post('/fetch_remote_file')
-def fetch_remote_file(tmp_dir_path: str, url: str):
-	log.debug(url)
-
-
-	path = P(tmp_dir_path) / 'remote_files'
-	path.mkdir(exist_ok=True)
-
-
-	existing_items = list(path.glob('*'))
-	log.debug(existing_items)
-
-
-	existing_items_count = len(existing_items)
-	path = path / str(existing_items_count)
-	log.debug(path)
-
-	path.mkdir(exist_ok=True)
-	log.debug(url)
-	proc = subprocess.run(['wget', url], cwd=path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-	files = list(path.glob('*'))
-
-	if len(files) == 1:
-		r = dict(result='ok', file_path=str(path / files[0]))
-	else:
-		r = dict(result='error', error_message=proc.stdout)
-
-	log.info(r)
-	return JSONResponse(r)
-

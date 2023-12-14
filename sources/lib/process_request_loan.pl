@@ -131,10 +131,7 @@
  loan_agr_summary_python(LA, Summary_dict) :-
 	!ground(LA),
 	my_request_tmp_dir_path(Tmp_Dir_Path),
-	services_rpc('div7a', _{tmp_dir_path:Tmp_Dir_Path,data:LA}, R),
-	(	(get_dict(result, R, Summary_dict0), Summary_dict0 \= "error")
-	->	true
-	;	throw_string(R.error_message)),
+	services_rpc('div7a', _{tmp_dir_path:Tmp_Dir_Path,data:LA}, Summary_dict),
 	Summary_dict = _{
 				opening_balance: _,
 				interest_rate: _,
