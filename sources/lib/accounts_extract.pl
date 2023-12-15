@@ -63,15 +63,15 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 		;	arelle(taxonomy, Url_Or_Path, AccountHierarchy_Elements))
 	.
 
- arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
-	services_rpc('arelle_extract', j{'taxonomy_locator':Taxonomy_URL}, Result),
-	absolute_tmp_path(loc(file_name,'account_hierarchy_from_taxonomy.xml'), Fn),
-	write_file(Fn, Result),
-	call_with_string_read_stream(Result, load_extracted_account_hierarchy_xml(AccountHierarchy_Elements)).
+ arelle(taxonomy, Taxonomy_URL, Dom) :-
+	/* get xml text */
+	services_post_result('arelle_extract', _{'taxonomy_locator':Taxonomy_URL}, Result),
+	_{xml_text: Xml_text} :< Result,
 
-/* todo maybe unify with xml_from_path_or_url */
- load_extracted_account_hierarchy_xml(/*-*/AccountHierarchy_Elements, /*+*/Stream) :-
-	load_structure(Stream, AccountHierarchy_Elements, [dialect(xml),space(remove)]).
+	absolute_tmp_path(loc(file_name,'account_hierarchy_from_taxonomy.xml'), Filepath),
+	write_file(Filepath, Xml_text),
+
+	xml_from_path(Filepath, Dom).
 
 
 

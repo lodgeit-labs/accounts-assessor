@@ -10,7 +10,7 @@ extract_german_bank_csv0(Bn, S_Transactions) :-
 	trim_string(Url0, Url),
 	exclude_file_location_from_filename(loc(_,Url), Fn),
 	absolute_tmp_path(Fn, Tmp_File_Path),
-	fetch_file_from_url(loc(absolute_url, Url), Tmp_File_Path),
+	get_file_from_url_into_dir(loc(absolute_url, Url), Tmp_File_Path),
 	extract_german_bank_csv1(Tmp_File_Path, S_Transactions).
 
 extract_german_bank_csv1(File_Path, S_Transactions) :-

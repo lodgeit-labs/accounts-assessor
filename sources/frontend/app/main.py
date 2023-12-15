@@ -329,7 +329,7 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 
 
 def file_download(url, dir, filename_hint=None, disallowed_filenames=[]):
-	r = requests.get(os.environ['DOWNLOAD_BASTION_URL'] + '/get_into_dir', params=dict(url=url, dir=dir, filename_hint=filename_hint, disallowed_filenames=disallowed_filenames))
+	r = requests.get(os.environ['DOWNLOAD_BASTION_URL'] + '/get_file_from_url_into_dir', params=dict(url=url, dir=dir, filename_hint=filename_hint, disallowed_filenames=disallowed_filenames))
 	r.raise_for_status()
 	if 'error' in r:
 		raise Exception(r['error'])
