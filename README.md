@@ -84,19 +84,28 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 
 ## running the server with docker
 
-* `git clone --recurse-submodules https://github.com/lodgeit-labs/accounts-assessor/`
-* `docker_scripts/first_run.sh`
-* `docker_scripts/up.sh`
+1) `git clone --recurse-submodules https://github.com/lodgeit-labs/accounts-assessor/`
+2) `docker_scripts/up.sh`
 
 ## usage
 
 #### with Excel and LSU plugin
 [https://github.com/koo5/accounts-assessor-public-wiki/blob/master/excel_usage/README.md](https://github.com/koo5/accounts-assessor-public-wiki/blob/master/excel_usage/README.md)
- 
+
+#### with OneDrive explorer
+
+
 #### through file upload form
 1) Load http://localhost:8877/view/upload_form in your browser
 2) upload one of the example input files
 
+#### with curl
+```
+
+```
+
+#### with test runner
+see [tests2/runner/README.md](tests2/runner/README.md)
 
 
 
