@@ -8,16 +8,26 @@ def convert_request_files(files):
 	return list(filter(None, map(convert_request_file, files)))
 
 
+def make_converted_dir(file):
+	converted_dir = PurePath('/'.join(PurePath(file).parts[:-1] + ('converted',)))
+	os.makedirs(converted_dir, exist_ok=True)
+	return converted_dir
+
+
 def convert_request_file(file):
-	logging.getLogger().info('convert_request_file: %s' % file)
+	logging.getLogger().info('convert_request_file?: %s' % file)
 
 	if file.endswith('/.htaccess'):
 		return None
 	if file.endswith('/request.json'):
 		return None # effectively hide the file from further processing
+	if file.endswith('/request.xml'):
+		converted_dir = make_converted_dir(file)
+		converted_file = Xml2rdf().xml2rdf(input_file, converted_dir)
+		if converted_file is not None:
+			return converted_file
 	if file.lower().endswith('.xlsx'):
-		converted_dir = PurePath('/'.join(PurePath(file).parts[:-1] + ('converted',)))
-		os.makedirs(converted_dir, exist_ok=True)
+		converted_dir = make_converted_dir(file)
 		converted_file = str(converted_dir.joinpath(str(PurePath(file).name) + '.n3'))
 		convert_excel_to_rdf(file, converted_file)
 		return converted_file
@@ -52,12 +62,4 @@ def env_string(dict):
 	for k,v in dict.items():
 		r += f"""{k}={shlex.quote(v)} \\\n"""
 	return r
-
-
-
-#logging.getLogger().warn(os.getcwd())
-#logging.getLogger().warn(os.path.abspath(git('sources/static/git_info.txt')))
-#logging.getLogger().warn(git('sources/static/git_info.txt'))
-#logging.getLogger().warn(os.path.join(result_tmp_path))
-
 

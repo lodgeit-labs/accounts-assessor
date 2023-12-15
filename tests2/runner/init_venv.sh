@@ -6,4 +6,4 @@ virtualenv -p /usr/bin/python3.10 venv ;_
 . ./venv/bin/activate.fish ;_
 
 python3 -m pip install --no-cache-dir -r requirements-dev.txt ;_
-pip install -e ../../sdk/
+pip install -e ../../sources/common/sdk/

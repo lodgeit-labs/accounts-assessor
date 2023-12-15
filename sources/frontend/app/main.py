@@ -316,7 +316,7 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 
-	_fn = file_download(fileurl, request_tmp_directory_path, 'file1.xlsx', ['.htaccess', 'request.json'])
+	_fn = file_download(fileurl, request_tmp_directory_path, 'file1.xlsx')
 	logger.info('fn: %s' % _fn)
 	
 	r = process_request(request, request_tmp_directory_name, request_tmp_directory_path)[1]
@@ -328,7 +328,7 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 	return r
 
 
-def file_download(url, dir, filename_hint=None, disallowed_filenames=[]):
+def file_download(url, dir, filename_hint=None, disallowed_filenames=['.htaccess', 'request.json']):
 	r = requests.get(os.environ['DOWNLOAD_BASTION_URL'] + '/get_file_from_url_into_dir', params=dict(url=url, dir=dir, filename_hint=filename_hint, disallowed_filenames=disallowed_filenames))
 	r.raise_for_status()
 	if 'error' in r:

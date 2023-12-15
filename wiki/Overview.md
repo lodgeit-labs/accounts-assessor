@@ -10,7 +10,6 @@
 #### proxied routes
 ## frontend server
 #### chat(json) endpoints
-
 #### calculator jobs
 ###### /upload and /reference
 ###### request_tmp_directory / result directory

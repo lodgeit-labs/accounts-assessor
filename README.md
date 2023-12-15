@@ -12,7 +12,8 @@ codebases:labs_accounts_assessor
 ")
 
 This repository hosts practical research into leveraging logic programming to solve accounting problems.
-The core logic runs in SWI-Prolog, and is aided by a python webserver.
+The core logic runs in SWI-Prolog, and is aided by several smaller python codebases.
+
 Several services are available:
 
 [](mrkev2extra: "
@@ -30,28 +31,28 @@ investment calculator kb:investment_calculator rdfs:label ?x.
 * livestock (standalone)
 * division 7A loan calculator
 
-We use it at http://www.nobleaccounting.com.au, along with a proprietary (but free) frontend in the form of a Microsoft Excel plugin, to automate accounting tasks.
+We use it at http://www.nobleaccounting.com.auto automate reporting and auditing tasks.
 
-
+, along with a proprietary (but free) frontend in the form of a Microsoft Excel plugin, 
 
 ## investment calculator
 The most complex endpoint is the investment calculator; it validates and processes financial data of a financial entity for a given period:
 * bank statements
-* raw general ledger input
-* change in investment unit values
-* (SMSF member accounting - fixme)
-* (livestock accounting information - fixme)
+* general ledger transactions
+* forex and investments
+* Australian SMSF accounting
+* livestock accounting
 
 ![screenshot](sources/static/docs/readme/ic-sheets.png?raw=true)
 
-It automates some of the usual accounting procedures, like tax calculations, and it generates balance sheets, trial balances, investment report and other types of reports.
+It automates some accounting procedures, like tax calculations, and generates balance sheets, trial balances, investment report and other types of reports.
 
 ![screenshot](sources/static/docs/readme/ic-result.png?raw=true)
+
 
 ## livestock calculator
 ![screenshot](sources/static/docs/readme/livestock-standalone-sheet.png?raw=true)
 ![screenshot](sources/static/docs/readme/livestock-standalone-result.png?raw=true)
-
 
 
 ## depreciation calculator
@@ -83,21 +84,29 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 
 ## running the server with docker
 
-1) clone the repo,
-2) `git submodule update --init --recursive`
-3) `cd docker_scripts`
-4) see docker_scripts/README.md
+* `git clone --recurse-submodules https://github.com/lodgeit-labs/accounts-assessor/`
+* `docker_scripts/first_run.sh`
+* `docker_scripts/up.sh`
 
 ## usage
 
 #### with Excel and LSU plugin
 [https://github.com/koo5/accounts-assessor-public-wiki/blob/master/excel_usage/README.md](https://github.com/koo5/accounts-assessor-public-wiki/blob/master/excel_usage/README.md)
+ 
+#### through file upload form
+1) Load http://localhost:8877/view/upload_form in your browser
+2) upload one of the example input files
 
-#### without Excel
-1) Load http://localhost:88/ in your browser
-2) upload one of the request files found in tests/endpoint_tests/ (todo: needs updating)
-3) you should get back a json with links to generated report files
 
+
+
+## example input files
+* `tests2/endpoint_tests/**/request/*`
+* todo make sure that this includes whatever we generate from rdf templates
+* todo add new ledger demo file
+
+
+## how to generate an input file from template
 
 
 
