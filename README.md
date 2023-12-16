@@ -93,7 +93,7 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 [https://github.com/koo5/accounts-assessor-public-wiki/blob/master/excel_usage/README.md](https://github.com/koo5/accounts-assessor-public-wiki/blob/master/excel_usage/README.md)
 
 #### with OneDrive explorer
-
+navigate to https://robust1.ueueeu.eu/static/onedrive-explorer-js/ and log in. Log into OneDrive, the choose a file and click "run investment calculator".
 
 #### through file upload form
 1) Load http://localhost:8877/view/upload_form in your browser
@@ -101,11 +101,14 @@ Given a hire purchase arrangement, it can track the balance of a hire purchase a
 
 #### with curl
 ```
-
+curl -F file1=@'tests2/endpoint_tests/loan/single_step/loan-0/request/request.xml' http://localhost:8877/upload
 ```
 
 #### with test runner
 see [tests2/runner/README.md](tests2/runner/README.md)
+
+#### through a custom GPT
+we have an experimental endpoint for [custom GPT](https://openai.com/blog/introducing-gpts), which you can register as an "action" - https://robust1.ueueeu.eu/ai3/openapi.json
 
 
 
