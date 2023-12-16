@@ -108,8 +108,7 @@ curl -F file1=@'tests2/endpoint_tests/loan/single_step/loan-0/request/request.xm
 see [tests2/runner/README.md](tests2/runner/README.md)
 
 #### through a custom GPT
-we have an experimental endpoint for [custom GPT](https://openai.com/blog/introducing-gpts), which you can register as an "action" - https://robust1.ueueeu.eu/ai3/openapi.json
-
+we have an experimental endpoint for [custom GPT](https://openai.com/blog/introducing-gpts), which you can register as an "action" - https://robust1.ueueeu.eu/ai3/openapi.json - see [/wiki/CustomGPT.md]
 
 
 ## example input files
