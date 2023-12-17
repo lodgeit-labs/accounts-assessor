@@ -6,6 +6,7 @@ import agraph
 from atomic_integer import AtomicInteger
 server_started_time = time.time()
 client_request_id = AtomicInteger()
+from auth import write_htaccess
 
 
 def git(Suffix = ""):
@@ -50,32 +51,6 @@ def create_tmp_for_user(user):
 	write_htaccess(user, path)
 	return name, path
 
-
-def write_htaccess(user, path):
-
-	#i think we'll eventually replace the role of apache here, with python.
-	#https://stackoverflow.com/questions/71276790/list-files-from-a-static-folder-in-fastapi
-
-	with open(P(path) / '.access', 'w') as f:
-		f.write(f"""{user}\n""")
-	
-	user = re.escape(user)
-
-	if user != 'nobody':
-		with open(P(path) / '.htaccess', 'w') as f:
-			f.write(f"""
-
-RewriteEngine On
-
-SetEnvIf BasicAuthUser "^{user}$" BasicAuthUser=$1
-Allow from env=BasicAuthUser
-
-SetEnvIf X-Forwarded-Email "^{user}$" OauthUser=$1
-Allow from env=OauthUser
-
-Deny from all
-		
-""")
 
 
 def copy_request_files_to_tmp(tmp_directory_absolute_path, files):

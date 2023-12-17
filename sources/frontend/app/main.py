@@ -47,7 +47,7 @@ import invoke_rpc
 from tasking import remoulade
 from fs_utils import directory_files, find_report_by_key
 from tmp_dir_path import create_tmp_for_user, get_tmp_directory_absolute_path
-
+from auth import get_user
 
 
 class UploadedFileException(Exception):
@@ -99,30 +99,6 @@ logger.addHandler(ch)
 # def sparql_proxy(request):
 # 	if request.method == 'POST':
 # 		return JsonResponse({"x":agc().executeGraphQuery(request.body)})
-
-
-import base64
-
-def get_user(request: Request):
-	# get user from header coming from caddy, which is Authorization: Basic <base64-encoded username:password>
-
-	authorization = request.headers.get('Authorization', None)
-	logger.info('authorization: %s' % authorization)
-	if authorization is not None:
-		authorization = authorization.split(' ')
-		if len(authorization) == 2 and authorization[0] == 'Basic':
-			logger.info('authorization: %s' % authorization)
-			token = base64.b64decode(authorization[1]).decode()
-			token = token.split(':')
-			if len(token) == 2:
-				return token[0]# + '@basicauth'
-
-	authorization = request.headers.get('X-Forwarded-Email', None)
-	if authorization is not None:
-		return authorization
-
-	return 'nobody'
-
 
 
 

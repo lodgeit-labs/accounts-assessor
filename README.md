@@ -111,10 +111,11 @@ see [tests2/runner/README.md](tests2/runner/README.md)
 we have an experimental endpoint for [custom GPT](https://openai.com/blog/introducing-gpts), which you can register as an "action" - https://robust1.ueueeu.eu/ai3/openapi.json - see [/wiki/CustomGPT.md]
 
 
-## example input files
-* `tests2/endpoint_tests/**/request/*`
-* todo make sure that this includes whatever we generate from rdf templates
-* todo add new ledger demo file
+## input files
+#### endpoint_tests
+* `tests/endpoint_tests/**/request/*`
+* todo make sure that this includes whatever we generate from rdf templates - Robust Input Example 8.7.2021
+
 
 
 ## how to generate an input file from template
