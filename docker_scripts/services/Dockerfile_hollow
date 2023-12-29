@@ -15,6 +15,11 @@ ENV PYTHONUNBUFFERED=1
 ENV WATCHMEDO_INTERVAL=5
 ENV WATCHMEDO=true
 
+# test proxying
+ENV ALL_PROXY="http://webproxy:8122"
+ENV all_proxy="http://webproxy:8123"
+ENV http_proxy="http://webproxy:8124"
+ENV HTTPS_PROXY="http://webproxy:8125"
 
 WORKDIR /app/sources/services
 COPY services/requirements.txt .
