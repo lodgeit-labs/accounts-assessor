@@ -2,8 +2,11 @@
 
 import os, sys
 import threading
+import time
 
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/python')))
+from remoulade import get_broker, Worker
+
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 from tasking import remoulade
 
 
@@ -102,12 +105,32 @@ from app.dotdict import Dotdict
 from remoulade.__main__ import start_worker
 
 def start_worker2():
-	remoulade_worker_args = Dotdict(dict(
-		modules=[],
-		queues=['default'],
-		threads=1,
-		prefetch_multiplier=1))
-	print(start_worker(remoulade_worker_args, logging.getLogger('remoulade')))
+	"""
+	this is a copy of remoulade.__main__.start_worker that works inside
+	"""
+
+	logger = logging.getLogger('remoulade')
+
+	broker = get_broker()
+	broker.emit_after("process_boot")
+
+	worker = Worker(broker, queues=['default'], worker_threads=1, prefetch_multiplier=1)
+	worker.start()
+
+	running = True
+	while running:
+		if worker.consumer_stopped:
+			running = False
+		if worker.worker_stopped:
+			running = False
+			logger.info("Worker thread is not running anymore, stopping Worker.")
+		else:
+			time.sleep(1)
+
+	worker.stop(5 * 1000)
+	broker.emit_before("process_stop")
+	broker.close()
+
 
 
 print(threading.Thread(target=start_worker2, daemon=True).start())
