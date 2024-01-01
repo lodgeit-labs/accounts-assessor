@@ -1,10 +1,40 @@
 #!/usr/bin/env python3
 
 import os, sys
+import threading
 
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
-
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/python')))
 from tasking import remoulade
+
+
+
+
+
+
+from json import JSONDecodeError
+from fastapi.encoders import jsonable_encoder
+import dateutil.parser
+import logging
+import os, sys
+import urllib.parse
+import json
+import datetime
+from datetime import date
+import ntpath
+import shutil
+import re
+from pathlib import Path as P
+from typing import Optional, Any, List, Annotated
+from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status, Query, Header
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import PlainTextResponse, JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
+from pydantic import BaseModel
+from fastapi.templating import Jinja2Templates
+
+
+
 
 
 
@@ -63,20 +93,22 @@ remoulade.declare_actors([local_rpc, local_calculator])
 app = FastAPI(
 	title="Robust API",
 	summary="invoke accounting calculators and other endpoints",
-	servers = [dict(url=os.environ['PUBLIC_URL'][:-1])],
-
+	#servers = [dict(url=os.environ['PUBLIC_URL'][:-1])],
 )
 
 
-from dotdict import Dotdict
+from app.dotdict import Dotdict
 
-remoulade_worker_args = Dotdict(dict(
-	modules=[],
-	queues=['default'],
-	threads=1,
-	prefetch_multiplier=1))
+from remoulade.__main__ import start_worker
 
-print(start_worker(remoulade_worker_args, logging.get_logger('remoulade')))
+def start_worker2():
+	remoulade_worker_args = Dotdict(dict(
+		modules=[],
+		queues=['default'],
+		threads=1,
+		prefetch_multiplier=1))
+	print(start_worker(remoulade_worker_args, logging.getLogger('remoulade')))
 
 
+print(threading.Thread(target=start_worker2, daemon=True).start())
 

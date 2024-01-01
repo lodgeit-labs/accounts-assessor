@@ -1,3 +1,12 @@
+
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../workers')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
+
+
+import worker
+
+
+
 from json import JSONDecodeError
 
 from fastapi.encoders import jsonable_encoder
@@ -34,12 +43,6 @@ impl = getDOMImplementation()
 
 
 templates = Jinja2Templates(directory="templates")
-
-
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
-import worker
-
 
 
 from agraph import agc
