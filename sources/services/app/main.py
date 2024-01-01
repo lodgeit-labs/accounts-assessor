@@ -1,5 +1,5 @@
 import os, sys, logging, re
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 import div7a2
 import urllib.parse
 import json

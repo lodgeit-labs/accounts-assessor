@@ -1,5 +1,5 @@
 import sys, os
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common/libs/misc')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common/libs/remoulade')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../workers')))
 import invoke_rpc

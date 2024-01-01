@@ -1,7 +1,7 @@
 from pathlib import Path as P
 import time, shutil, ntpath, os, re
 import sys, subprocess
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common/libs/misc')))
 import agraph
 from atomic_integer import AtomicInteger
 server_started_time = time.time()
