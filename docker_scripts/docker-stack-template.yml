@@ -365,8 +365,16 @@ services:
 
 
   webproxy:
-    image: squ
-
+    image: distahl/squid # byt we'll need to roll our own to include configs eventually.
+    environment:
+       PROXY_UID: 13
+       PROXY_GID: 13
+    volumes:
+      - "${PWD}/squid/etc/:/etc/squid
+    hostnet_ports:
+      - 3128
+      - 3129
+           
 
 
 networks:
