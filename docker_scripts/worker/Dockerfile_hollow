@@ -1,20 +1,14 @@
 FROM koo5/ubuntu
 
-RUN apt-get install -y libpq-dev
-
 WORKDIR /app/
 ARG REQUIREMENTS_FILE=requirements-dev.txt
 
-COPY frontend/${REQUIREMENTS_FILE} /app/sources/frontend/
-RUN python3 -m pip install --upgrade --no-cache-dir -r /app/sources/frontend/${REQUIREMENTS_FILE}
+COPY worker/${REQUIREMENTS_FILE} /app/sources/worker/
+RUN python3 -m pip install --upgrade --no-cache-dir -r /app/sources/worker/${REQUIREMENTS_FILE}
 
-# dont think we still need to install this separately?
 COPY common/ /app/sources/common/
-RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
 
 
-
-EXPOSE 7788
 RUN mkdir -p /app/server_root/tmp
 RUN chown myuser:myuser /app/server_root/tmp
 USER myuser
@@ -27,7 +21,7 @@ ENV WATCHMEDO_INTERVAL=5
 ENV WATCHMEDO=true
 
 
-WORKDIR /app/sources/frontend
+WORKDIR /app/sources/worker
 
 CMD ["./start.sh"]
-HEALTHCHECK CMD curl http://127.0.0.1:7788
+HEALTHCHECK CMD curl http://127.0.0.1:1111 --fail

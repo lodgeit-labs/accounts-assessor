@@ -53,7 +53,7 @@ services:
       AGRAPH_HOST:
       AGRAPH_PORT:
       SERVICES_URL:
-      DOWNLOAD_BASTION_URL:
+      DOWNLOAD_BASTION_URL: # thus frontend shouldn't need ALL_PROXY 
       WATCHMEDO:
     #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by copying the dev one
     #  REQUIREMENTS_FILE: requirements.txt
@@ -81,7 +81,10 @@ services:
       - AGRAPH_SUPER_PASSWORD
 
 
-  workers: # at this point, it should be called worker
+  workers:
+  
+    # "workers" will be replaced by "worker" 
+    
     image: koo5/workers${PP}:latest
     environment:
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
@@ -104,7 +107,7 @@ services:
     networks:
       - backend
     depends_on:
-      # workers don't have a good way to healthcheck. So instead of sequencing other containers after workers, we sequence workers after everything else. Theres a small risk of a deadlock if we run frontend with no parallelism (only makes sense for debugging) and somebody comes along and makes a request just before the healthcheck is about to make a request. And users running synchronous requests could experience timeouts when the stack is starting up.
+      # workers don't have a good way to healthcheck. So instead of sequencing other containers after workers, we sequence workers after everything else. Theres a small risk of a deadlock if we run frontend with no parallelism (only makes sense for debugging) and somebody comes along and makes a request just before the healthcheck is about to make a request. And users running synchronous requests could experience timeouts when the stack is starting up. But in practice, we dont enable container sequencing unless debugging container startup problems.
       services:
         condition: service_healthy
       remoulade-api:
@@ -128,10 +131,32 @@ services:
       - AGRAPH_SUPER_PASSWORD
 
 
+  worker:
+    image: koo5/worker${PP}:latest
+    environment:
+      WATCHMEDO:
+      ALL_PROXY:
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+    depends_on:
+      - manager
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+   
+
+
   services:
     image: koo5/services${PP}:latest
     environment:
       WATCHMEDO:
+      ALL_PROXY:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -141,15 +166,14 @@ services:
       - 17788
     depends_on:
       - redis
+      - agraph:
+          condition: service_healthy
     deploy:
       replicas: 1
       placement:
         constraints: [node.role == manager]
       restart_policy:
         condition: any
-    depends_on:
-      agraph:
-        condition: service_healthy
 
 
   csharp-services:
@@ -320,11 +344,11 @@ services:
       - AGRAPH_SUPER_PASSWORD
 
 
-#bastion
-  download:
+  download: #bastion
     image: koo5/download${PP}:latest
     environment:
       WATCHMEDO:
+      ALL_PROXY: # still useful for, say, caching, right? not sure if download bastion is useful for anything though.
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -338,6 +362,10 @@ services:
         constraints: [node.role == manager]
       restart_policy:
         condition: any
+
+
+  webproxy:
+    image: squ
 
 
 

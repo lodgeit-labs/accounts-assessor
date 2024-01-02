@@ -229,6 +229,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
 		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
 		'DOWNLOAD_BASTION_URL': 'http://localhost:6457' if hn else 'http://download:6457',
+		'ALL_PROXY': 'http://localhost:3128' if hn else 'http://webproxy:3128',
+
 	}
 	#
 	# if choices['display']:
