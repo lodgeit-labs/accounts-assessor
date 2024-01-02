@@ -393,16 +393,29 @@ services:
         condition: any
 
 
+#  webproxy:
+#    image: distahl/squid 
+# ^ needs soources
+#    environment:
+#       PROXY_UID: 13
+#       PROXY_GID: 13
+#    volumes:
+#      - "${PWD}/squid/etc/:/etc/squid"
+#    hostnet_ports:
+#      - 3128
+#      - 3129
+#    networks:
+#      - webproxy           
+
+
   webproxy:
-    image: distahl/squid # byt we'll need to roll our own to include configs eventually.
+    image: ubuntu/squid # but we'll need to roll our own to eventually copy the configs in, so it can run in the cloud.
     environment:
-       PROXY_UID: 13
-       PROXY_GID: 13
+       TZ: UTC
     volumes:
-      - "${PWD}/squid/etc/:/etc/squid"
+      - "${PWD}/squid/etc/squid.conf:/etc/squid/squid.conf"
     hostnet_ports:
       - 3128
-      - 3129
     networks:
       - webproxy           
 
