@@ -8,5 +8,5 @@ else
   start2.sh
 fi
 
-echo "end"
+echo ".process end ======================================================================= end process ."
 

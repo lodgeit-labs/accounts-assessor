@@ -10,5 +10,5 @@ trap _term SIGTERM
 flask run -h "0.0.0.0" --port 5005 --no-debugger & #--no-reload
 child=$! 
 wait "$child"
-echo "end"
+echo ".process end ======================================================================= end process ."
 

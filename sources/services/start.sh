@@ -15,5 +15,5 @@ fi
 
 child=$!
 wait "$child"
-echo "end"
+echo ".process end ======================================================================= end process ."
 

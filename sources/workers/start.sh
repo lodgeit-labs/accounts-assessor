@@ -33,7 +33,7 @@ wait "$child1"
 kill -TERM "$child0"
 wait "$child0"
 
-echo "end"
+echo ".process end ======================================================================= end process ."
 
 
 

@@ -12,7 +12,7 @@ trap _term SIGTERM
 ./manage.py $CMD &
 child=$!
 wait "$child"
-echo "end"
+echo ".process end ======================================================================= end process ."
 
 
 
