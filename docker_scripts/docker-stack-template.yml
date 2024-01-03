@@ -409,7 +409,8 @@ services:
 
 
   webproxy:
-    image: ubuntu/squid # but we'll need to roll our own to eventually copy the configs in, so it can run in the cloud.
+    # but we'll need to roll our own to eventually copy the configs in, so it can run in the cloud.  
+    image: ubuntu/squid 
     environment:
        TZ: UTC
     volumes:
