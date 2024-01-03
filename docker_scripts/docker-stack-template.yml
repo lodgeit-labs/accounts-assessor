@@ -415,6 +415,7 @@ services:
        TZ: UTC
     volumes:
       - "${PWD}/squid/etc/squid.conf:/etc/squid/squid.conf"
+      - squid_cache:/var/cache/squid
     hostnet_ports:
       - 3128
     networks:
@@ -444,4 +445,5 @@ volumes:
   caddy_data:
   caddy_config:
   postgresql_data:
+  squid_cache:
 
