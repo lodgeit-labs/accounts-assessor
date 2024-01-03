@@ -8,6 +8,8 @@ ARG REQUIREMENTS_FILE=requirements-dev.txt
 COPY frontend/${REQUIREMENTS_FILE} /app/sources/frontend/
 RUN python3 -m pip install --upgrade --no-cache-dir -r /app/sources/frontend/${REQUIREMENTS_FILE}
 
+
+
 # dont think we still need to install this separately?
 COPY common/ /app/sources/common/
 RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
