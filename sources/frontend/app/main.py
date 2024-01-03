@@ -1,8 +1,10 @@
 import sys, os
 
 
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../workers')))
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common/libs/misc')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
+xxx = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc'))
+print(xxx)
+sys.path.append(xxx)
 
 
 import worker
@@ -52,7 +54,7 @@ import invoke_rpc
 from tasking import remoulade
 from fs_utils import directory_files, find_report_by_key
 from tmp_dir_path import create_tmp_for_user, get_tmp_directory_absolute_path
-from auth import get_user
+from auth_fastapi import get_user
 
 
 class UploadedFileException(Exception):
