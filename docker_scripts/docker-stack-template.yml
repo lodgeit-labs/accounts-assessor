@@ -393,41 +393,53 @@ services:
         condition: any
 
 
- webproxy:
-   image: distahl/squid 
-   #^ needs soources
-   environment:
-      PROXY_UID: 13
-      PROXY_GID: 13
-   volumes:
-     - "${PWD}/squid/etc/:/etc/squid"
-   hostnet_ports:
-     - 3128
-     - 3129
-   networks:
-     - webproxy           
-
-
-  webproxy2:
-    image: ubuntu/squid 
+  webproxy:
+    image: distahl/squid 
+    #^ needs soources
     environment:
-       TZ: UTC
+       PROXY_UID: 13
+       PROXY_GID: 13
     volumes:
-      - "${PWD}/squid/etc/squid.conf:/etc/squid/squid.conf"
-      - squid_cache:/var/cache/squid
+      - "${PWD}/squid/etc/:/etc/squid"
     hostnet_ports:
       - 3128
+      - 3129
     networks:
       - webproxy           
+
+# ^
+# docker run \
+#       --name squid \
+#       -e TZ=Europe/London \
+#       -e PROXY_UID=13 \
+#       -e PROXY_GID=13 \
+#       -v (pwd)/squid/etc/:/etc/squid \
+#       -v (pwd)/squid/logs/:/var/log/ \
+#       -p 3128:3128 \
+#       -p 3129:3129 \
+#       -it --rm distahl/squid
+
+#  webproxy2:
+#    image: ubuntu/squid 
+#    environment:
+#       TZ: UTC
+#    volumes:
+#      - "${PWD}/squid/etc/squid.conf:/etc/squid/squid.conf"
+#      - squid_cache:/var/cache/squid
+#    hostnet_ports:
+#      - 3128
+#    networks:
+#      - webproxy           
 
 # ^
 # docker run --rm -it --name squid -e TZ=UTC -p 3128:3128 -v (pwd)/squid/etc/:/etc/squid/  -v sss:/var/spool/squid ubuntu/squid:5.2-22.04_beta
 # this works, but how to mount cache dir without permission errors?
 # 1704298510.574    101 172.17.0.1 TCP_DENIED/403 3865 CONNECT www.root.cz:443 - HIER_NONE/- text/html
 
-
-
 # ^  # but we'll need to roll our own to eventually copy the configs in, so it can run in the cloud.
+
+# ALL_PROXY=localhost:3128 curl https://www.root.cz/
+
 
 
 networks:
