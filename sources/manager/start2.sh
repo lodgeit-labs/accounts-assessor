@@ -2,5 +2,8 @@
 set -xv
 
 export PYTHONPATH=../common/libs/remoulade/
-remoulade-gevent --prefetch-multiplier 1 --threads 1 --queues $1 manager
+python3 -O (which uvicorn) app.main:app --proxy-headers --host 0.0.0.0 --port 9111 --workers 1 --log-level trace
+
+
+
 

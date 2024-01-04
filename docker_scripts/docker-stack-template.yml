@@ -406,6 +406,13 @@ services:
       - 3129
     networks:
       - webproxy           
+    healthcheck:
+      test: ["CMD-SHELL", "curl -x localhost:3128 --proxy-basic http://127.0.0.1:3128/healthcheck | grep healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 5  
+
+
 
 # ^
 # docker run \

@@ -6,3 +6,4 @@ fire
 memory-profiler
 uvicorn
 FastAPI
+gevent
