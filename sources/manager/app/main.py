@@ -4,6 +4,7 @@
 
 import logging
 import os, sys
+import queue
 import threading
 import time
 from collections import defaultdict
@@ -13,48 +14,40 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 from tasking import remoulade
 
 from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status, Query, Header
+from manager import *
+
+app = FastAPI(
+	title="Robust API",
+	summary="invoke accounting calculators and other endpoints",
+)
 
 
-workers = defaultdict(stack)
 
-def do_job(job):
+@app.post("/worker/{id}/messages")
+def messages(id: str):
 	"""
-	runs in remoulade actor thread.
-	two options here:
-	1) worker is trusted, it is running in compose/stack. It repeatedly connects to manager and asks for jobs. There is no need to spawn it, it is already running.
-	2) worker is not trusted, it will be spawned as a fly.io machine here.
-	at either case, we first wait for worker to register with Manager's FastAPI endpoint.
+	Hangs until a message is available. Worker can call this in a loop.
 	"""
+	worker = get_worker(id)
+	return(worker.toworker.pop())
 
-	org = job['options']['org']
 
-	if fly:
-		# spawn fly.io machine.
-		fly_machine = requsts.post('https://api.fly.io/v6/apps/robust/instances', json={
-		# If it does not come up in reasonable time, something went wrong.
-		timeout=100
-	else:
-		# assume a worker is already running in compose/stack, and will register when it's free
-		timeout=None
+@app.post("/worker/{id}/result")
+def result(id: str, result):
+	events.push(dict(type='job_result', worker=get_worker(id), result=result))
 
-	try:
-		worker = workers['org'].pop(timeout=timeout)
-		worker['toworker'].append(job)
-		while True:
-			if len(worker['fromworker']) == 1:
-				return worker['fromworker'].pop()
-			elif len(worker['fromworker']) > 1:
-				raise Exception('worker returned more than one result')
-			time.sleep(10)
-			if time.now() - worker['lastseen'] > 60 * 10:
-				raise Exception('worker timed out')
-	finally:
-		if fly:
-			fly_machine.delete()
+
+@app.port("/worker_sends_message")
+def worker_sends_message(org: str, id: str, message):
+	worker = get_worker(id, org)
+	synchronization_queue.push(dict(worker=w, message=message))
 
 
 
-# not sure how to compose this cleanly
+
+
+
+# not sure how to compose this cleanly. We dont want fronted to import the whole queueing shebang.
 import manager_actors
 manager_actors.do_job = do_job
 
@@ -90,127 +83,4 @@ def start_worker2():
 
 
 print(threading.Thread(target=start_worker2, daemon=True).start())
-
-
-
-app = FastAPI(
-	title="Robust API",
-	summary="invoke accounting calculators and other endpoints",
-)
-
-@app.post("/connect")
-def connect(org: str, id: str):
-	"""
-	worker calls this to register itself with manager.
-	This form should only be allowed from trusted workers, because untrusted workers should be required to send a jwt instead of passing these parameters plaintext
-	"""
-
-	w = Worker(
-			id = id,
-			org = org,
-			toworker = fifo(),
-			fromworker = fifo(),
-			lastseen = time.now()
-	)
-
-	worker_registrator_queue.push(w)
-
-
-
-@app.post("/messages")
-def messages(org: str, id: str):
-	return(toworker[id].pop())
-
-
-def result(org: str, id: str, result):
-	fromworker[id].push(result)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-pending_jobs = []
-
-def synchronization_thread():
-	while True:
-		e = events.pop()
-		event(e)
-
-def event(e):
-	if e.type == 'job_result':
-		e.worker.job = None
-		e.worker.fromworker.push(message) # actor pops it
-
-	if msg.type == 'worker_asks_for_job':
-		worker = msg.worker
-		if worker.job:
-			worker.fromworker.push(dict(type='failure', reason='worker reset'))
-		for job in pending_jobs:
-			if match(job, worker):
-				worker.job = job
-				worker.toworker.push(job)
-				break
-
-	elif msg.type == 'add_job':
-		for worker in workers:
-			if worker.job is None and match(msg.job, worker):
-				worker.job = job
-				worker.toworker.push(msg.job)
-				break
-		else:
-			pending_jobs.append(msg.job)
-
-
-
-
-def match(job, worker):
-	return job.org == worker.org and job.size in worker.sizes
-
-
-
-workers = []
-pending_jobs = []
-
-
-def get_worker(id, org):
-	worker = workers.get(id)
-	if worker is None:
-		worker = Worker(
-			id = id,
-			org = org,
-			toworker = fifo(),
-			fromworker = fifo(),
-			lastseen = time.now()
-		)
-		workers[id] = worker
-	return worker
-
-
-@app.port("/worker_sends_message")
-def worker_sends_message(org: str, id: str, message):
-	worker = get_worker(id, org)
-	synchronization_queue.push(dict(worker=w, message=message))
 
