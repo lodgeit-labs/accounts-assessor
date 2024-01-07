@@ -41,32 +41,37 @@ app = FastAPI(
 )
 
 
+
+@app.post("/worker/{id}/heartbeat")
+def heartbeat(id: str):
+	"""
+	While worker is processing a job, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no job.
+	"""
+	events.push(dict(type='heartbeat', worker=get_worker(id), ts=time.now()))
+
+
 @app.post("/worker/{id}/messages")
-def messages(id: str):
+def messages(id: str, job_result=None):
 	"""	Hangs until a message is available. Worker calls this in a loop.
 	 the messages are:
 	 "ping" - worker should respond with "pong"
-	 "job" - worker should respond with "job_result" with the result.
-
-	 While worker is processing a job, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no job.
-
-
-	 """
+	 "job" - worker should start processing the job, and when it's done do one of:
+	 	* call /worker/{id}/result
+	 	* submit job_result in next call to /worker/{id}/messages
+	"""
 	worker = get_worker(id)
+	events.push(dict(type='heartbeat', worker=worker, ts=time.now()))
+	if job_result:
+		events.push(dict(type='job_result', worker=worker, result=job_result))
 	return(worker.toworker.pop())
 
 
-@app.post("/worker/{id}/heartbeat")
-def messages(id: str):
-	"""	Hangs until a message is available. Worker can call this in a loop. """
-	worker = get_worker(id)
-	return(worker.toworker.pop())
-
-
-@app.post("/worker/{id}/result")
-def result(id: str, result):
+@app.post("/worker/{id}/job_result")
+def job_result(id: str, job_result):
 	""" Worker calls this when it's done with a job. """
-	events.push(dict(type='job_result', worker=get_worker(id), result=result))
+	worker = get_worker(id)
+	events.push(dict(type='heartbeat', worker=worker, ts=time.now()))
+	events.push(dict(type='job_result', worker=worker, result=job_result))
 
 
 
@@ -81,7 +86,6 @@ def start_worker2():
 	"""
 	this is a copy of remoulade.__main__.start_worker that works inside a thread
 	"""
-
 	logger = logging.getLogger('remoulade')
 
 	broker = get_broker()
