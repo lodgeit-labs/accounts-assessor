@@ -1,3 +1,6 @@
+import queue
+
+
 workers = []
 events = queue.Queue()
 pending_jobs = []
@@ -8,7 +11,7 @@ def match(job, worker):
 
 
 
-def get_worker(id, org):
+def get_worker(id):
 	worker = workers.get(id)
 	if worker is None:
 		worker = Worker(

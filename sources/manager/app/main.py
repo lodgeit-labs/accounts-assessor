@@ -23,7 +23,6 @@ Any metadata like "org" can be looked up from the id.
 
 import logging
 import os, sys
-import queue
 import threading
 import time
 from collections import defaultdict
