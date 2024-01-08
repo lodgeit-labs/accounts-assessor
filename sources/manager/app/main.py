@@ -40,16 +40,18 @@ app = FastAPI(
 
 
 @app.post("/worker/{id}/heartbeat")
-def heartbeat(id: str):
+def heartbeat(worker_id: str, job_id: str = None):
 	"""
 	While worker is processing a job, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no job.
 	"""
-	get_worker(id, lastseen=time.now())
+	worker = get_worker(id, last_seen=time.now())
+	worker.last_reported_job = job_id
+	worker.last_reported_job_ts = time.now()
 
 
 
 @app.post("/worker/{id}/messages")
-def messages(id: str, job_result=None):
+async def messages(request: Request, id: str, job_result=None):
 	"""
 	Hangs until a message is available. Worker calls this in a loop.
 	
@@ -63,22 +65,24 @@ def messages(id: str, job_result=None):
 	
 	IF the worker has been reset while processing a job:
 		manager detects this because it expects a job_result, but gets none. The remoulade job will be made to return with failure.
+		
+	It might be possible that a client issues two requests to /messages with some overlap. This might happen if the connection breaks or client disconnects, and immediately connects again (as it should), but the first request is still waiting on toworker.get(1).
+	In this case, the message will be lost. This is the same as if the worker never connected back again.
 	
+	# concievably, the events pushed here can be pushed multiple times, the client can invoke this multiple times, if a connection error occurs during handling		
 	"""
-	worker = get_worker(id, lastseen=time.now())
+
+	worker = get_worker(id, last_seen=time.now())
+	
 	if job_result:
 		events.push(dict(type='job_result', worker=worker, result=job_result))
-	elif worker.job:
-		# this worker has no result to submit, but it still hit /messages. This means that is has been reset, and it's trying to get a new job.
-		events.push(dict(type='worker_reset', worker=worker))
+	
+	while not await request.is_disconnected():
+		if worker.job:
+			return worker.job
+		time.sleep(1)
 
-	return worker.toworker.pop()
 
-
-
-# not sure how to compose this cleanly. We dont want fronted to import the whole queueing shebang.
-import manager_actors
-manager_actors.do_job = do_job
 
 
 
@@ -115,3 +119,7 @@ print(threading.Thread(target=remoulade_thread, daemon=True).start())
 print(threading.Thread(target=synchronization_thread, daemon=True).start())
 
 
+
+# not sure how to compose this cleanly. We dont want fronted to import the whole queueing shebang.
+import manager_actors
+manager_actors.do_job = do_job

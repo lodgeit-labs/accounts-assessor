@@ -1,62 +1,45 @@
 import queue, threading, time, requests
 
 
-
-
 class Job:
-	def __init__(self, proc, msg, worker_options):
+	def __init__(self, uuid, proc, msg, worker_options):
+		self.size = None
+		self.uuid = uuid
 		self.proc = proc
 		self.msg = msg
 		self.worker_options = worker_options
 		self.results = queue.Queue()
 
-	def match(job, worker):
-		return job.org == worker.org and job.size in worker.sizes
-
 
 class Worker:
-	def __init__(self, id, org, toworker, fromworker, lastseen):
+	def __init__(self, id):
 		self.id = id
-		self.org = org
-		self.toworker = toworker
-		self.fromworker = fromworker
-		self.lastseen = lastseen
+		self.sizes = [None]
+		self.last_seen = last_seen
 		self.job = None
-
-
+		self.last_reported_job_ts = None
+		self.last_reported_job = None
+		
+		
 
 events = queue.Queue()
-
-
-
 workers = {}
 workers_lock = threading.Lock()
-
-
-
-
 pending_jobs = []
 
 
 
-def get_worker(id, lastseen=None):
+def get_worker(id, last_seen=None):
 	""" runs in FastAPI thread. Only place where Worker is constructed """
 	workers_lock.acquire()
 	worker = workers.get(id)
 	if worker is None:
-		worker = Worker(
-			id = id,
-			org = org,
-			toworker = queue.Queue(),
-			fromworker = queue.Queue(),
-			lastseen = time.now()
-		)
+		worker = Worker(id)
 		workers[id] = worker
-	if lastseen:
-		worker.lastseen = lastseen
+	if last_seen:
+		worker.last_seen = last_seen
 	workers_lock.release()
 	return worker
-
 
 
 def do_job(job):
@@ -79,34 +62,56 @@ def do_job(job):
 
 
 
-
+def sort_workers():
+	workers.sort(key=lambda w: w.last_seen, reverse=True)
 
 
 def synchronization_thread():
 	while True:
 		e = events.pop()
 		workers_lock.acquire()
+
+		if e['type'] == 'add_job':
+			sort_workers()
+			job = e['job']
+			try_assign_any_worker_to_job(job)	
 	
 		if e['type'] == 'job_result':
 			if e['worker'].job:
-				e['worker'].job.results.push(e['result'])
+				if e['job_result']['uuid'] == e['worker'].job.uuid:
+					e['worker'].job.results.push(e['result'])
 				e['worker'].job = None
-	
-		if e['type'] == 'worker_reset':
-			worker = e['worker']
-			if worker.job:
-				worker.job.push(dict(type='failure', reason='worker reset'))
-				worker.job = None			
-	
-		elif e['type'] == 'add_job':
-			job = e['job']
-			for worker in workers:
-				if worker.job is None and job.match(worker):
-					worker.job = job
-					worker.toworker.push(job.json())
-					break
-			else:
-				pending_jobs.append(msg.job)
+				find_new_job_for_worker(e['worker'])
 
 		workers_lock.release()
+
+
+def find_new_job_for_worker(worker):
+	for job in pending_jobs:
+		if try_assign_worker_to_job(worker, job):
+			break
+			
+def match_worker_to_job(worker, job):
+	return job.org == worker.org and job.size in worker.sizes
+
+def try_assign_any_worker_to_job(job):
+	for worker in workers:
+		if try_assign_worker_to_job(worker, job):
+			return
+
+def try_assign_worker_to_job(worker, job):
+	if match_worker_to_job(worker, job):
+		assign_worker_to_job(worker, job)
+		return True
+
+def assign_worker_to_job(worker, job):
+	worker.job = job
+	pending_jobs.remove(job)
+	
+
+
+
+
+
+
 
