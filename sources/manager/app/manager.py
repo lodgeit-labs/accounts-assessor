@@ -1,28 +1,6 @@
-import queue
+import queue, threading, time, requests
 
 
-workers = []
-events = queue.Queue()
-pending_jobs = []
-
-
-def match(job, worker):
-	return job.org == worker.org and job.size in worker.sizes
-
-
-
-def get_worker(id):
-	worker = workers.get(id)
-	if worker is None:
-		worker = Worker(
-			id = id,
-			org = org,
-			toworker = fifo(),
-			fromworker = fifo(),
-			lastseen = time.now()
-		)
-		workers[id] = worker
-	return worker
 
 
 class Job:
@@ -32,14 +10,64 @@ class Job:
 		self.worker_options = worker_options
 		self.results = queue.Queue()
 
+	def match(job, worker):
+		return job.org == worker.org and job.size in worker.sizes
+
+
+class Worker:
+	def __init__(self, id, org, toworker, fromworker, lastseen):
+		self.id = id
+		self.org = org
+		self.toworker = toworker
+		self.fromworker = fromworker
+		self.lastseen = lastseen
+		self.job = None
+
+
+
+events = queue.Queue()
+
+
+
+workers = {}
+workers_lock = threading.Lock()
+
+
+
+
+pending_jobs = []
+
+
+
+def get_worker(id, lastseen=None):
+	""" runs in FastAPI thread. Only place where Worker is constructed """
+	workers_lock.acquire()
+	worker = workers.get(id)
+	if worker is None:
+		worker = Worker(
+			id = id,
+			org = org,
+			toworker = queue.Queue(),
+			fromworker = queue.Queue(),
+			lastseen = time.now()
+		)
+		workers[id] = worker
+	if lastseen:
+		worker.lastseen = lastseen
+	workers_lock.release()
+	return worker
+
+
 
 def do_job(job):
 	"""called from actors. The only place where Job is constructed"""
 	job = Job(**job)
-
+	
+	fly = False
+	
 	try:
 		if fly:
-			fly_machine = requsts.post('https://api.fly.io/v6/apps/robust/instances', json={})
+			fly_machine = requests.post('https://api.fly.io/v6/apps/robust/instances', json={})
 			fly_machine.raise_for_status()
 
 		events.push(dict(type='add_job', job=job))
@@ -51,33 +79,34 @@ def do_job(job):
 
 
 
+
+
+
 def synchronization_thread():
 	while True:
 		e = events.pop()
-		event(e)
+		workers_lock.acquire()
+	
+		if e['type'] == 'job_result':
+			if e['worker'].job:
+				e['worker'].job.results.push(e['result'])
+				e['worker'].job = None
+	
+		if e['type'] == 'worker_reset':
+			worker = e['worker']
+			if worker.job:
+				worker.job.push(dict(type='failure', reason='worker reset'))
+				worker.job = None			
+	
+		elif e['type'] == 'add_job':
+			job = e['job']
+			for worker in workers:
+				if worker.job is None and job.match(worker):
+					worker.job = job
+					worker.toworker.push(job.json())
+					break
+			else:
+				pending_jobs.append(msg.job)
 
-def event(e):
-	if e.type == 'job_result':
-		job.worker.job = None
-		job.results.push(message)
-
-
-	if msg.type == 'worker_asks_for_job':
-		worker = msg.worker
-		if worker.job:
-			worker.fromworker.push(dict(type='failure', reason='worker reset'))
-		for job in pending_jobs:
-			if match(job, worker):
-				worker.job = job
-				worker.toworker.push(job)
-				break
-
-	elif msg.type == 'add_job':
-		for worker in workers:
-			if worker.job is None and match(msg.job, worker):
-				worker.job = job
-				worker.toworker.push(msg.job)
-				break
-		else:
-			pending_jobs.append(msg.job)
+		workers_lock.release()
 

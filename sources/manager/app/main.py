@@ -25,9 +25,7 @@ import logging
 import os, sys
 import threading
 import time
-from collections import defaultdict
 
-from remoulade import get_broker, Worker
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 from tasking import remoulade
 
@@ -46,32 +44,35 @@ def heartbeat(id: str):
 	"""
 	While worker is processing a job, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no job.
 	"""
-	events.push(dict(type='heartbeat', worker=get_worker(id), ts=time.now()))
+	get_worker(id, lastseen=time.now())
+
 
 
 @app.post("/worker/{id}/messages")
 def messages(id: str, job_result=None):
-	"""	Hangs until a message is available. Worker calls this in a loop.
-	 the messages are:
-	 "ping" - worker should respond with "pong"
-	 "job" - worker should start processing the job, and when it's done do one of:
-	 	* call /worker/{id}/result
-	 	* submit job_result in next call to /worker/{id}/messages
 	"""
-	worker = get_worker(id)
-	events.push(dict(type='heartbeat', worker=worker, ts=time.now()))
+	Hangs until a message is available. Worker calls this in a loop.
+	
+	Always at most one message in the queue. The messages are:
+		"ping" - worker should respond with "pong"
+		a job - worker should start processing the job, and when it's done submit job_result in next call to /worker/{id}/messages
+	
+	If the manager has been reset while worker is processing a job:
+		* this job_result will be ignored, worker will go on to the next job.
+		* the remoulade job will eventually get marked as failed.
+	
+	IF the worker has been reset while processing a job:
+		manager detects this because it expects a job_result, but gets none. The remoulade job will be made to return with failure.
+	
+	"""
+	worker = get_worker(id, lastseen=time.now())
 	if job_result:
 		events.push(dict(type='job_result', worker=worker, result=job_result))
-	return(worker.toworker.pop())
+	elif worker.job:
+		# this worker has no result to submit, but it still hit /messages. This means that is has been reset, and it's trying to get a new job.
+		events.push(dict(type='worker_reset', worker=worker))
 
-
-@app.post("/worker/{id}/job_result")
-def job_result(id: str, job_result):
-	""" Worker calls this when it's done with a job. """
-	worker = get_worker(id)
-	events.push(dict(type='heartbeat', worker=worker, ts=time.now()))
-	events.push(dict(type='job_result', worker=worker, result=job_result))
-
+	return worker.toworker.pop()
 
 
 
@@ -81,16 +82,17 @@ manager_actors.do_job = do_job
 
 
 
-def start_worker2():
+def remoulade_thread():
 	"""
-	this is a copy of remoulade.__main__.start_worker that works inside a thread
+	this is a copy of remoulade.__main__.start_worker that works inside a thread.
+	Spawn a remoulade worker and periodically check if it's still running.
 	"""
 	logger = logging.getLogger('remoulade')
 
-	broker = get_broker()
+	broker = remoulade.get_broker()
 	broker.emit_after("process_boot")
 
-	worker = Worker(broker, queues=['default'], worker_threads=1, prefetch_multiplier=1)
+	worker = remoulade.Worker(broker, queues=['default'], worker_threads=1, prefetch_multiplier=1)
 	worker.start()
 
 	running = True
@@ -109,5 +111,7 @@ def start_worker2():
 
 
 
-print(threading.Thread(target=start_worker2, daemon=True).start())
+print(threading.Thread(target=remoulade_thread, daemon=True).start())
+print(threading.Thread(target=synchronization_thread, daemon=True).start())
+
 
