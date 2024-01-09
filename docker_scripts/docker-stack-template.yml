@@ -81,8 +81,9 @@ services:
       - AGRAPH_SUPER_PASSWORD
 
 
+ 
   workers:
-  
+ 
     # "workers" will be replaced by "worker" 
     
     image: koo5/workers${PP}:latest
@@ -133,49 +134,57 @@ services:
 
 
 
-  # manager:
-    #   image: koo5/manager${PP}:latest
-    #   environment:
-    #     WATCHMEDO:
-    #   volumes:
-    #     - tmp:/app/server_root/tmp
-    #     - "/etc/localtime:/etc/localtime:ro"
-    #   networks:
-    #     - backend
-    #
-    #   deploy:
-    #     replicas: 1
-    #     placement:
-    #       constraints: [node.role == manager]
-    #     restart_policy:
-    #       condition: any
-    #   depends_on:
-    #     - remoulade-api
-    #
-    #      
+  manager:
+    image: koo5/manager${PP}:latest
+    environment:
+      RABBITMQ_URL:
+      REMOULADE_PG_URI:
+      REMOULADE_API:
+      REDIS_HOST:
+      WATCHMEDO:
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend  
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+        
+   
+       
     
-
-
-
-#  worker:
-#    image: koo5/worker${PP}:latest
-#    environment:
-#      WATCHMEDO:
-#      ALL_PROXY:
-#    volumes:
-#      - tmp:/app/server_root/tmp
-#      - "/etc/localtime:/etc/localtime:ro"
-#    networks:
-#      - backend
-#      - webproxy           
-#    depends_on:
-#      - manager
-#    deploy:
-#      replicas: 1
-#      placement:
-#        constraints: [node.role == manager]
-#      restart_policy:
-#        condition: any
+  worker:
+    image: koo5/worker${PP}:latest
+    environment:
+      WATCHMEDO:
+      ALL_PROXY:
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+      - webproxy           
+    depends_on:
+      manager:
+        condition: service_healthy
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+   
    
 
 
@@ -193,9 +202,10 @@ services:
     hostnet_ports:
       - 17788
     depends_on:
-      - redis
-      - agraph:
-          condition: service_healthy
+      redis:
+        condition: service_healthy
+      agraph:
+        condition: service_healthy
     deploy:
       replicas: 1
       placement:
@@ -395,7 +405,6 @@ services:
 
   webproxy:
     image: distahl/squid 
-    #^ needs soources
     environment:
        PROXY_UID: 13
        PROXY_GID: 13
@@ -411,9 +420,6 @@ services:
       interval: 30s
       timeout: 5s
       retries: 5  
-
-
-
 # ^
 # docker run \
 #       --name squid \
@@ -425,6 +431,9 @@ services:
 #       -p 3128:3128 \
 #       -p 3129:3129 \
 #       -it --rm distahl/squid
+#^ distahl/squid needs soources
+
+
 
 #  webproxy2:
 #    image: ubuntu/squid 
@@ -437,7 +446,6 @@ services:
 #      - 3128
 #    networks:
 #      - webproxy           
-
 # ^
 # docker run --rm -it --name squid -e TZ=UTC -p 3128:3128 -v (pwd)/squid/etc/:/etc/squid/  -v sss:/var/spool/squid ubuntu/squid:5.2-22.04_beta
 # this works, but how to mount cache dir without permission errors?
