@@ -27,6 +27,7 @@ def call_remote_rpc_job(msg, queue='default'):
 
 @remoulade.actor(alternative_queues=["health"])
 def local_rpc(msg, options=None):
+	""" json msg in, json msg out, no files. """
 	return invoke_rpc.call_prolog(msg, options)
 
 def trigger_remote_calculator_job(**kwargs):

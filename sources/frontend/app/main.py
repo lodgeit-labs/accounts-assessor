@@ -298,6 +298,7 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 
 	if not netloc.endswith(".files.1drv.com"):
 		return {"error": "only onedrive urls are allowed at this time"}
+		# we should be able to loosen this up now that we have a proxy in place
 
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 
@@ -314,6 +315,11 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 
 
 def file_download(url, dir, filename_hint=None, disallowed_filenames=['.htaccess', 'request.json']):
+	"""
+	here we could call out to an actor (potentially inside an untrusted worker) with the same functionality, but this
+	1) seems unnecessary, as download_bastion and/or a webproxy takes care of security
+	2) would add some complexity, as we'd have to (remoulade-)compose that invocation with the rest of the pipeline...
+	"""
 	r = requests.get(os.environ['DOWNLOAD_BASTION_URL'] + '/get_file_from_url_into_dir', params=dict(url=url, dir=dir, filename_hint=filename_hint, disallowed_filenames=disallowed_filenames))
 	r.raise_for_status()
 	if 'error' in r:
@@ -350,11 +356,7 @@ def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[U
 
 
 
-
-def process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format='rdf', requested_output_format = 'job_handle'):
-	
-	public_url=os.environ['PUBLIC_URL']
-
+def load_worker_options_from_request_json(request_tmp_directory_path):
 	request_json = os.path.join(request_tmp_directory_path, 'request.json')
 	if os.path.exists(request_json):
 		with open(request_json) as f:
@@ -363,14 +365,19 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 		logger.info('no %s' % request_json)
 		options = {}
 	logger.info('options: %s' % str(options))
+	return options
 
+def process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format='rdf', requested_output_format = 'job_handle'):
+	
+	public_url=os.environ['PUBLIC_URL']
+	worker_options = load_worker_options_from_request_json(request_tmp_directory_path)
 	user = get_user(request)
 
 	job = worker.trigger_remote_calculator_job(
 		request_format=request_format,
 		request_directory=request_tmp_directory_name,
 		public_url=public_url,
-		worker_options=options,
+		worker_options=worker_options,
 		user=user
 	)
 
