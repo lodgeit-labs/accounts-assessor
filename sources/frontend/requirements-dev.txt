@@ -28,7 +28,7 @@ idna==3.4
     #   requests
 iso8601==2.0.0
     # via agraph-python
-jinja2==3.1.2
+jinja2==3.1.3
     # via frontend (pyproject.toml)
 markupsafe==2.1.3
     # via jinja2
