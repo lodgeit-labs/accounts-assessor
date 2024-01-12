@@ -1,14 +1,5 @@
 import queue, threading, time, requests
-
-
-class Job:
-	def __init__(self, uuid, proc, msg, worker_options):
-		self.size = None
-		self.uuid = uuid
-		self.proc = proc
-		self.msg = msg
-		self.worker_options = worker_options
-		self.results = queue.Queue()
+from untrusted_job import *
 
 
 class Worker:
@@ -22,7 +13,6 @@ class Worker:
 		
 		
 
-events = queue.Queue()
 workers = {}
 workers_lock = threading.Lock()
 pending_jobs = []
@@ -41,27 +31,6 @@ def get_worker(id, last_seen=None):
 	workers_lock.release()
 	return worker
 
-
-def do_untrusted_job(job):
-	"""called from actors. The only place where Job is constructed"""
-	job = Job(**job)
-	
-	fly = False
-	
-	try:
-		if fly:
-			fly_machine = requests.post('https://api.fly.io/v6/apps/robust/instances', json={})
-			fly_machine.raise_for_status()
-
-		events.push(dict(type='add_job', job=job))
-		return job.results.pop()
-
-	finally:
-	
-		# need to figure out a script that can tell that a fly container is not in use. This can happen if manager crashes here.
-		
-		if fly:
-			fly_machine.delete()
 
 
 

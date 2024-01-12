@@ -9,65 +9,15 @@ from misc import uri_params, env_string
 
 
 
-def call_prolog_calculator(**kwargs):
-	msg = kwargs['msg']
-	params = msg['params']
-	worker_options = kwargs['worker_options']
 
-	if params.get('request_format') is None:
-		if len(params['request_files']) == 1 and params['request_files'][0].lower().endswith('.xml'):
-			params['request_format']='xml'
-		else:
-			params['request_format']='rdf'
-
-
-	# this is where prolog will put reports:
-	result_tmp_directory_name, result_tmp_path = create_tmp_for_user(worker_options['user'])
-	params['result_tmp_directory_name'] = result_tmp_directory_name
-
-	params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id
-	if params['final_result_tmp_directory_name'] is None:
-		params['final_result_tmp_directory_name'] = 'cli'
-	params['final_result_tmp_directory_path'] = get_tmp_directory_absolute_path(params['final_result_tmp_directory_name'])
-	Path(params['final_result_tmp_directory_path']).mkdir(parents=True, exist_ok=True)
-
-	print("final_result_tmp_directory_path: " + params['final_result_tmp_directory_path'])
-
-	# link the result dir from the final_result(job_handle) dir
-	ln('../'+result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/' + result_tmp_directory_name)
-
-	# symlink tmp/last_result to tmp/xxxxx:
-	last_result_symlink_path = get_tmp_directory_absolute_path('last_result')
-	try:
-		if os.path.exists(last_result_symlink_path):
-			subprocess.call(['/bin/rm', last_result_symlink_path])
-		ln(
-			result_tmp_directory_name,
-			last_result_symlink_path)
-	except Exception as e:
-		print(e)
-
-	# copy repo status txt to result dir
-	shutil.copyfile(
-		os.path.abspath(git('sources/static/git_info.txt')),
-		os.path.join(result_tmp_path, 'git_info.txt'))
-
-	msg['params'].update(
-		uri_params(result_tmp_directory_name)
-	)
-
-	result = call_prolog(**kwargs)
-
-	# if result['status'] != 'error':
-	# 	print('postprocess_doc...')
-	# 	print('todo...')
-	# 	#celery_app.signature('internal_workers.postprocess_doc').apply_async(args=(result_tmp_path,))
-	# 	print('postprocess_doc..')
-
-	ln('../' + result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/completed')
-
-	return result
-
+def call_prolog_calculator(params, worker_options):
+	
+	# just some easy preparation we can do on the worker:
+	params |= uri_params(result_tmp_directory_name) | dict(request_format=guess_request_format_rdf_or_xml(params))	
+		
+	msg = dict(method='calculator', params=params) 
+	return call_prolog(msg, worker_options)
+	
 
 
 def call_prolog(
@@ -75,7 +25,6 @@ def call_prolog(
 		worker_options = None
 ):
 	result_tmp_path = get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']) if 'result_tmp_directory_name' in msg['params'] else None
-
 
 
 	if worker_options is None:
@@ -97,7 +46,6 @@ def call_prolog(
 
 	worker_options = default_options | config | worker_options
 
-
 	
 	logging.getLogger().info('worker_options: ' + str(worker_options))
 	logging.getLogger().info('msg: ' + str(msg))
@@ -105,8 +53,8 @@ def call_prolog(
 	sys.stdout.flush()
 	sys.stderr.flush()
 
-	# write call info txt:
 
+	# write call info txt:
 	ROBUST_CALL_INFO_TXT_PATH = result_tmp_path+'/rpc_call_info.txt' if result_tmp_path else '/tmp/robust_rpc_call_info.txt'
 	with open(ROBUST_CALL_INFO_TXT_PATH, 'w') as info_fd:
 		info_fd.write('options:\n')
