@@ -1,6 +1,7 @@
 import threading
 from datetime import time
 
+from app.machine import list_machines
 from untrusted_task import *
 
 
@@ -47,11 +48,11 @@ def sort_workers():
 	workers.sort(key=lambda w: w.last_seen, reverse=True)
 
 
-def review_thread():
+def worker_janitor():
 	while True:
 		workers_lock.acquire()
 		for worker in reversed(workers):
-			if not worker.alive()
+			if not worker.alive():
 				if worker.task:
 					events.push(dict(type='task_result', worker=worker, result=dict(
 						result=dict(error='worker died'),
@@ -61,8 +62,29 @@ def review_thread():
 				if worker.fly_machine:
 					worker.fly_machine.delete()
 				
-		workers_lock.release()	
+		workers_lock.release()
+		time.sleep(10)
 
+threading.Thread(target=worker_janitor, daemon=True).start()
+
+
+
+def fly_machine_janitor():
+	if fly:
+		while True:
+	
+			for machine in list_machines():
+				for worker in workers:
+					if worker.fly_machine.id == machine.id:
+						break
+				else:
+					machine.delete()
+
+	
+			time.sleep(60)
+			
+threading.Thread(target=fly_machine_janitor, daemon=True).start()
+		
 
 def synchronization_thread():
 	while True:

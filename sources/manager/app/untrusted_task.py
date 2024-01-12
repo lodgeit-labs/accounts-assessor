@@ -1,4 +1,5 @@
 import queue
+import uuid
 
 import requests
 
@@ -18,12 +19,14 @@ class Task:
 
 
 
-def do_untrusted_task(task, task_id=None):
+def do_untrusted_task(task, task_id=None, input_directories=[], output_directories=[]):
 	"""called from actors. The only place where Task is constructed"""
 	
 	if task_id is None:
 		# this is gonna work as long as we dont call multiple tasks from one actor invocation. Maybe just use uuid?
-		task_id = CurrentMessage.get_current_message().message_id
+		#task_id = CurrentMessage.get_current_message().message_id
+		task_id = uuid.uui
+		
 	task = Task(task_id=task_id, **task)
 	
 	fly = False
@@ -31,6 +34,7 @@ def do_untrusted_task(task, task_id=None):
 	try:
 		if fly:
 			fly_machine = requests.post('https://api.fly.io/v6/apps/robust/instances', json={})
+			# todo copy request files to fly machine
 			fly_machine.raise_for_status()
 
 		events.push(dict(type='add_task', task=task))
@@ -41,5 +45,6 @@ def do_untrusted_task(task, task_id=None):
 		# need to figure out a script that can tell that a fly container is not in use. This can happen if manager crashes here.
 		
 		if fly:
+			# todo copy result files from fly machine
 			fly_machine.delete()
 

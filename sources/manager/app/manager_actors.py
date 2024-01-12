@@ -45,10 +45,12 @@ def call_prolog_calculator(
 	xlsx_extraction_rdf_root="ic_ui:investment_calculator_sheets"
 ):
 	
+
 	# create a tmp directory for results files created by this invocation of the calculator
 	result_tmp_directory_name, result_tmp_directory_path = create_tmp_for_user(worker_options['user'])
 	# potentially convert request files to rdf (this invokes other actors)
 	converted_request_files = preprocess_request_files(files_in_dir(get_tmp_directory_absolute_path(request_directory)), xlsx_extraction_rdf_root)
+
 
 	# the params that will be passed to the prolog calculator
 	params=dict(
@@ -84,7 +86,10 @@ def call_prolog_calculator(
 	result = do_untrusted_task(dict(
 		proc='call_prolog_calculator',
 		args=dict(params=params),
-		worker_options=worker_options))
+		worker_options=worker_options,
+		input_paths=[get_tmp_directory_absolute_path(request_directory), result_tmp_directory_path],
+		output_paths=[result_tmp_directory_path]
+	)
 
 
 	# mark this calculator result as finished, and the job as completed
