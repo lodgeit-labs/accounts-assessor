@@ -29,8 +29,12 @@ import time
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 from tasking import remoulade
 
-from fastapi import FastAPI, Request, File, UploadFile, HTTPException, Form, status, Query, Header
-from manager import *
+from fastapi import FastAPI, Request
+
+
+from isolated_worker import *
+from untrusted_task import *
+
 
 app = FastAPI(
 	title="Robust API",
@@ -78,6 +82,7 @@ async def messages(request: Request, id: str, task_result=None):
 		events.push(dict(type='task_result', worker=worker, result=task_result))
 	
 	while not await request.is_disconnected():
+		heartbeat(worker)
 		if worker.task:
 			return worker.task
 		time.sleep(1)
@@ -122,4 +127,4 @@ print(threading.Thread(target=synchronization_thread, daemon=True).start())
 
 # not sure how to compose this cleanly. We dont want fronted to import the whole queueing shebang.
 import manager_actors
-manager_actors.do_untrusted_task = do_untrusted_task
+
