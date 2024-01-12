@@ -42,7 +42,7 @@ def get_worker(id, last_seen=None):
 	return worker
 
 
-def do_job(job):
+def do_untrusted_job(job):
 	"""called from actors. The only place where Job is constructed"""
 	job = Job(**job)
 	
@@ -57,6 +57,9 @@ def do_job(job):
 		return job.results.pop()
 
 	finally:
+	
+		# need to figure out a script that can tell that a fly container is not in use. This can happen if manager crashes here.
+		
 		if fly:
 			fly_machine.delete()
 

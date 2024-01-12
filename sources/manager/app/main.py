@@ -122,4 +122,4 @@ print(threading.Thread(target=synchronization_thread, daemon=True).start())
 
 # not sure how to compose this cleanly. We dont want fronted to import the whole queueing shebang.
 import manager_actors
-manager_actors.do_job = do_job
+manager_actors.do_untrusted_job = do_untrusted_job
