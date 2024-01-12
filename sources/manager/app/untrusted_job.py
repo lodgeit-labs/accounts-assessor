@@ -7,10 +7,10 @@ from remoulade.middleware import CurrentMessage
 events = queue.Queue()
 
 
-class Job:
-	def __init__(self, job_id, proc, msg, worker_options):
+class Task:
+	def __init__(self, task_id, proc, msg, worker_options):
 		self.size = None
-		self.job_id = job_id
+		self.task_id = task_id
 		self.proc = proc
 		self.msg = msg
 		self.worker_options = worker_options
@@ -18,12 +18,13 @@ class Job:
 
 
 
-def do_untrusted_job(job, job_id=None):
-	"""called from actors. The only place where Job is constructed"""
+def do_untrusted_task(task, task_id=None):
+	"""called from actors. The only place where Task is constructed"""
 	
-	if job_id is None:
-		job_id = CurrentMessage.get_current_message().message_id
-	job = Job(job_id=job_id, **job)
+	if task_id is None:
+		# this is gonna work as long as we dont call multiple tasks from one actor invocation. Maybe just use uuid?
+		task_id = CurrentMessage.get_current_message().message_id
+	task = Task(task_id=task_id, **task)
 	
 	fly = False
 	
@@ -32,8 +33,8 @@ def do_untrusted_job(job, job_id=None):
 			fly_machine = requests.post('https://api.fly.io/v6/apps/robust/instances', json={})
 			fly_machine.raise_for_status()
 
-		events.push(dict(type='add_job', job=job))
-		return job.results.pop()
+		events.push(dict(type='add_task', task=task))
+		return task.results.pop()
 
 	finally:
 	

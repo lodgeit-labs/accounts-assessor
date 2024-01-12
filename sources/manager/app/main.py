@@ -40,31 +40,31 @@ app = FastAPI(
 
 
 @app.post("/worker/{id}/heartbeat")
-def heartbeat(worker_id: str, job_id: str = None):
+def heartbeat(worker_id: str, task_id: str = None):
 	"""
-	While worker is processing a job, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no job.
+	While worker is processing a task, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no task.
 	"""
 	worker = get_worker(id, last_seen=time.now())
-	worker.last_reported_job = job_id
-	worker.last_reported_job_ts = time.now()
+	worker.last_reported_task = task_id
+	worker.last_reported_task_ts = time.now()
 
 
 
 @app.post("/worker/{id}/messages")
-async def messages(request: Request, id: str, job_result=None):
+async def messages(request: Request, id: str, task_result=None):
 	"""
 	Hangs until a message is available. Worker calls this in a loop.
 	
 	Always at most one message in the queue. The messages are:
 		"ping" - worker should respond with "pong"
-		a job - worker should start processing the job, and when it's done submit job_result in next call to /worker/{id}/messages
+		a task - worker should start processing the task, and when it's done submit task_result in next call to /worker/{id}/messages
 	
-	If the manager has been reset while worker is processing a job:
-		* this job_result will be ignored, worker will go on to the next job.
-		* the remoulade job will eventually get marked as failed.
+	If the manager has been reset while worker is processing a task:
+		* this task_result will be ignored, worker will go on to the next task.
+		* the remoulade task will eventually get marked as failed.
 	
-	IF the worker has been reset while processing a job:
-		manager detects this because it expects a job_result, but gets none. The remoulade job will be made to return with failure.
+	IF the worker has been reset while processing a task:
+		manager detects this because it expects a task_result, but gets none. The remoulade task will be made to return with failure.
 		
 	It might be possible that a client issues two requests to /messages with some overlap. This might happen if the connection breaks or client disconnects, and immediately connects again (as it should), but the first request is still waiting on toworker.get(1).
 	In this case, the message will be lost. This is the same as if the worker never connected back again.
@@ -74,12 +74,12 @@ async def messages(request: Request, id: str, job_result=None):
 
 	worker = get_worker(id, last_seen=time.now())
 	
-	if job_result:
-		events.push(dict(type='job_result', worker=worker, result=job_result))
+	if task_result:
+		events.push(dict(type='task_result', worker=worker, result=task_result))
 	
 	while not await request.is_disconnected():
-		if worker.job:
-			return worker.job
+		if worker.task:
+			return worker.task
 		time.sleep(1)
 
 
@@ -122,4 +122,4 @@ print(threading.Thread(target=synchronization_thread, daemon=True).start())
 
 # not sure how to compose this cleanly. We dont want fronted to import the whole queueing shebang.
 import manager_actors
-manager_actors.do_untrusted_job = do_untrusted_job
+manager_actors.do_untrusted_task = do_untrusted_task

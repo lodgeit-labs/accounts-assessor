@@ -1,5 +1,5 @@
 import queue, threading, time, requests
-from untrusted_job import *
+from untrusted_task import *
 
 
 class Worker:
@@ -7,15 +7,15 @@ class Worker:
 		self.id = id
 		self.sizes = [None]
 		self.last_seen = last_seen
-		self.job = None
-		self.last_reported_job_ts = None
-		self.last_reported_job = None
+		self.task = None
+		self.last_reported_task_ts = None
+		self.last_reported_task = None
 		
 		
 
 workers = {}
 workers_lock = threading.Lock()
-pending_jobs = []
+pending_tasks = []
 
 
 
@@ -43,42 +43,42 @@ def synchronization_thread():
 		e = events.pop()
 		workers_lock.acquire()
 
-		if e['type'] == 'add_job':
+		if e['type'] == 'add_task':
 			sort_workers()
-			job = e['job']
-			try_assign_any_worker_to_job(job)	
+			task = e['task']
+			try_assign_any_worker_to_task(task)	
 	
-		if e['type'] == 'job_result':
-			if e['worker'].job:
-				if e['job_result']['uuid'] == e['worker'].job.uuid:
-					e['worker'].job.results.push(e['result'])
-				e['worker'].job = None
-				find_new_job_for_worker(e['worker'])
+		if e['type'] == 'task_result':
+			if e['worker'].task:
+				if e['task_result']['uuid'] == e['worker'].task.uuid:
+					e['worker'].task.results.push(e['result'])
+				e['worker'].task = None
+				find_new_task_for_worker(e['worker'])
 
 		workers_lock.release()
 
 
-def find_new_job_for_worker(worker):
-	for job in pending_jobs:
-		if try_assign_worker_to_job(worker, job):
+def find_new_task_for_worker(worker):
+	for task in pending_tasks:
+		if try_assign_worker_to_task(worker, task):
 			break
 			
-def match_worker_to_job(worker, job):
-	return job.org == worker.org and job.size in worker.sizes
+def match_worker_to_task(worker, task):
+	return task.org == worker.org and task.size in worker.sizes
 
-def try_assign_any_worker_to_job(job):
+def try_assign_any_worker_to_task(task):
 	for worker in workers:
-		if try_assign_worker_to_job(worker, job):
+		if try_assign_worker_to_task(worker, task):
 			return
 
-def try_assign_worker_to_job(worker, job):
-	if match_worker_to_job(worker, job):
-		assign_worker_to_job(worker, job)
+def try_assign_worker_to_task(worker, task):
+	if match_worker_to_task(worker, task):
+		assign_worker_to_task(worker, task)
 		return True
 
-def assign_worker_to_job(worker, job):
-	worker.job = job
-	pending_jobs.remove(job)
+def assign_worker_to_task(worker, task):
+	worker.task = task
+	pending_tasks.remove(task)
 	
 
 

@@ -10,7 +10,7 @@ from pathlib import Path
 from fs_utils import files_in_dir
 from tasking import remoulade
 from tmp_dir_path import get_tmp_directory_absolute_path, symlink, create_tmp_for_user, ln
-from untrusted_job import *
+from untrusted_task import *
 from helpers import *
 
 
@@ -27,7 +27,7 @@ def trigger_remote__call_prolog_calculator(**kwargs):
 
 @remoulade.actor(alternative_queues=["health"])
 def call_prolog(msg, worker_options=None):	
-	return do_untrusted_job(dict(
+	return do_untrusted_task(dict(
 		proc='call_prolog',
 		args=dict(msg=msg),
 		worker_options=worker_options
@@ -81,7 +81,7 @@ def call_prolog_calculator(
 	ln('../'+result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/' + result_tmp_directory_name)
 
 
-	result = do_untrusted_job(dict(
+	result = do_untrusted_task(dict(
 		proc='call_prolog_calculator',
 		args=dict(params=params),
 		worker_options=worker_options))
