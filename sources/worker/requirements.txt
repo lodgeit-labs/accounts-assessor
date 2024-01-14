@@ -80,3 +80,4 @@ watchfiles==0.21.0
     # via uvicorn
 websockets==12.0
     # via uvicorn
+watchdog==3.0.0

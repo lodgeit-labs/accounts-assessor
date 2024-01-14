@@ -101,7 +101,8 @@ def remoulade_thread():
 	broker = remoulade.get_broker()
 	broker.emit_after("process_boot")
 
-	worker = remoulade.Worker(broker, queues=['default'], worker_threads=1, prefetch_multiplier=1)
+	# i'm afraid there isnt a good way to healthcheck manager in the same way that we healthcheck the (trusted) workers container. I mean, we could run two manager processes, and devise one worker to serve it....idk
+	worker = remoulade.Worker(broker, queues=['default'], worker_threads=12, prefetch_multiplier=1)
 	worker.start()
 
 	running = True

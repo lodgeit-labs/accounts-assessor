@@ -3,6 +3,7 @@
 frontend (or other caller) imports this file.
 
 """
+
 import logging
 import time
 from pathlib import Path
@@ -13,7 +14,8 @@ from tmp_dir_path import get_tmp_directory_absolute_path, symlink, create_tmp_fo
 from untrusted_task import *
 from helpers import *
 
-
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/sdk')))
+import xml2rdf
 
 
 def trigger_remote__call_prolog(msg, queue='default'):
@@ -113,7 +115,7 @@ def preprocess_request_file(file, xlsx_extraction_rdf_root):
 		
 	if file.endswith('/request.xml'):
 		converted_dir = make_converted_dir(file)
-		converted_file = Xml2rdf().xml2rdf(file, converted_dir)
+		converted_file = xml2rdf.Xml2rdf().xml2rdf(file, converted_dir)
 		if converted_file is not None:
 			return converted_file
 			
@@ -137,11 +139,4 @@ def convert_excel_to_rdf(uploaded, to_be_processed, root):
 
 
 
-remoulade.declare_actors([prolog_rpc, prolog_calculator])
-
-
-
-
-
-
-
+remoulade.declare_actors([call_prolog, call_prolog_calculator])

@@ -1,83 +1,10 @@
 FROM koo5/ubuntu
 
 WORKDIR /app
-RUN     apt-get install -y \
-        git \
-        build-essential cmake ninja-build pkg-config \
-        ncurses-dev libreadline-dev libedit-dev \
-        libunwind-dev \
-        libgmp-dev \
-        libssl-dev \
-        unixodbc-dev \
-        zlib1g-dev libarchive-dev \
-        libossp-uuid-dev \
-        libxext-dev libice-dev libjpeg-dev libxinerama-dev libxft-dev \
-        libxpm-dev libxt-dev \
-        libdb-dev \
-        libpcre3-dev \
-        libpcre2-8-0 libpcre2-dev \
-        libyaml-dev \
-        libtcmalloc-minimal4
 
 
 RUN apt-get install -y libpq-dev libtcmalloc-minimal4
 #RUN rm -rf /var/lib/apt/lists/*
-
-
-RUN chown myuser:myuser /app/
-RUN chown -R myuser:myuser /home/myuser
-RUN ls -thrlsa /home/myuser/
-RUN touch /home/myuser/.gitconfig
-RUN chown -R myuser:myuser /home/myuser
-RUN ls -thrlsa /home/myuser/.gitconfig
-RUN df -Tha
-
-USER myuser
-
-RUN git config --global --add safe.directory /app/swipl/packages/xpce
-
-RUN uname -a
-RUN gcc -v 2>&1
-
-#RUN git clone --depth 1 -b master  "https://github.com/SWI-Prolog/swipl-devel.git"       swipl
-#RUN git clone --branch V8.3.10 https://github.com/SWI-Prolog/swipl.git swipl
-#RUN git clone --branch V8.1.15 https://github.com/SWI-Prolog/swipl.git swipl
-#RUN git clone --recurse-submodules  --depth 1 -b V8.3.28  "https://github.com/koo5/swipl-devel.git"       swipl
-RUN git clone --recurse-submodules  --depth 1 -b V9.0.4  "https://github.com/SWI-Prolog/swipl.git"       swipl
-
-WORKDIR swipl
-#RUN git reset a624386fa4c4718866a906e597e92b8b1b048382 --hard
-#RUN git submodule update --init --recursive
-
-#RUN git remote add koo5 "https://github.com/koo5/swipl-devel.git"
-#RUN git fetch koo5
-#RUN git cherry-pick -n koo5/dev1
-##RUN git cherry-pick -n origin/dev1
-
-#RUN git clone "https://github.com/SWI-Prolog/swipl-devel.git" 	 swipl
-#RUN git reset 32f8079a1c6d9651d0825dcadce9f80231b01648 --hard
-#RUN git submodule update --init --recursive
-
-#RUN git checkout V8.3.20
-#RUN git checkout 9defc51a1e328f095c6e51bb41693d2115ab0cff
-#RUN git checkout 6d26b69c9f1ce6304683e86afc5bcf1621150524
-#RUN git submodule update --init --recursive
-
-WORKDIR packages/xpce
-RUN git remote add koo5 https://github.com/koo5/packages-xpce.git #
-RUN git fetch koo5
-RUN git cherry-pick -n koo5/more_eye_friendly_gtrace_color_theme5
-#RUN git cherry-pick -n koo5/dev1
-
-WORKDIR /app/swipl
-RUN mkdir build
-WORKDIR build
-RUN cmake -G Ninja ..
-RUN ninja
-RUN ctest -j 24 --output-on-failure; true
-USER root
-RUN ninja install
-USER myuser
 
 
 
@@ -119,11 +46,9 @@ VOLUME /app/cache
 
 VOLUME /app/sources/
 VOLUME /app/tests/
-#VOLUME /root/.config/swi-prolog/xpce/
+
 RUN chown myuser:myuser /app/server_root/
-USER myuser
-COPY init_prolog.sh .
-RUN ./init_prolog.sh
+
 
 ENV WATCHMEDO_INTERVAL=5
 ENV WATCHMEDO=true

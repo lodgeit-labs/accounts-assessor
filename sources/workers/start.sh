@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -x
+
+
 ../wait-for-it/wait-for-it.sh $RABBITMQ_URL -t 0
 ../wait-for-it/wait-for-it.sh $(echo "$REMOULADE_API" | sed -e "s/[^/]*\/\/\([^@]*@\)\?\([^:/]*\)\(:\([0-9]\{1,5\}\)\)\?.*/\2\3/") -t 0
 
@@ -12,21 +14,21 @@ _term() {
 trap _term SIGTERM
 
 
-
 export PYTHONPATH=/app/sources/common/libs/remoulade/
 
 
 if [ ! -z $WATCHMEDO ]; then
-  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --prefetch-multiplier 1 --queues health  --threads 1 worker &
+  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  start2.sh health &
   child0=$!
-  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  remoulade --prefetch-multiplier 1 --queues default --threads 1 worker &
+  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  start2.sh default &
   child1=$!
 else
-  remoulade --prefetch-multiplier 1 --queues health  --threads 1 worker &
+  start2.sh health &
   child0=$!
-  remoulade --prefetch-multiplier 1 --queues default --threads 1 worker &
+  start2.sh default &
   child1=$!
 fi
+
 
 
 wait "$child1"
@@ -34,8 +36,4 @@ kill -TERM "$child0"
 wait "$child0"
 
 echo ".process end ======================================================================= end process ."
-
-
-
-
 
