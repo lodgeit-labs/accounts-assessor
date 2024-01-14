@@ -458,38 +458,6 @@ def job_tmp_url(job):
 
 
 
-@app.get('/.well-known/ai-plugin.json')
-async def ai_plugin_json():
-	return {
-    "schema_version": "v1",
-    "name_for_human": "Div7A",
-    "name_for_model": "Div7A",
-    "description_for_human": "Plugin for calculating loan summary, including minimum repayment and loan balance, under Division 7A.",
-    "description_for_model": "Plugin for calculating loan summary, including minimum repayment and loan balance, under Division 7A.",
-    "auth": {
-      "type": "none"
-    },
-    "api": {
-      "type": "openapi",
-      "url": os.environ['PUBLIC_URL'] + "openapi.json"
-    },
-    "logo_url": os.environ['PUBLIC_URL'] + "static/logo.png",
-    "contact_email": "ook519951@gmail.com",
-    "legal_info_url": "https://github.com/lodgeit-labs/accounts-assessor/"
-  }
-
-
-
-#  >> curl -H "Content-Type: application/json" -X GET "http://localhost:7788/div7a?loan_year=2000&full_term=7&enquiry_year=2005&lodgement_date=2001-04-23" -d '{"starting_amount":{"principal":10000},"repayments":[]}'
-#  {"OpeningBalance":13039.97419956,"InterestRate":7.05,"MinYearlyRepayment":4973.4437243,"TotalRepayment":0.0,"RepaymentShortfall":4973.4437243,"TotalInterest":919.31818107,"TotalPrincipal":0.0,"ClosingBalance":13039.97419956}⏎
-#
-
-# starting_amount: Annotated[Div7aOpeningBalanceForCalculationYear | Div7aPrincipal, Query(title="Either loan principal amount, as of loan start year, or the opening balance as of enquiry_year")],
-# repayments: list[Div7aRepayment],
-#repayments: Annotated[Div7aRepayments, Query(title="exhaustive list of repayments performed in enquiry year")],
-# repayments: Annotated[Div7aRepayments, Query(title="exhaustive list of repayments performed in enquiry year")],
-
-
 
 
 """
