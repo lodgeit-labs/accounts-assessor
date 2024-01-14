@@ -1,7 +1,9 @@
 from app import call_prolog
 
 
-import logging, threading
+import logging, threading, subprocess, os, requests
+
+
 from dotdict import Dotdict
 
 
@@ -37,7 +39,7 @@ def manager_proxy_thread():
 
 # the debuggability here might suffer from the fact that the whole work is done in a background thread. But it should be easy to run this in a separate process, there is no shared state, nothing, it's just that it seems convenient that the whole service is a single process. But it's not a requirement.
 
-threading.Thread(target=manager_proxy_thread, name='manager_proxy_thread', daemon=True).start()
+#threading.Thread(target=manager_proxy_thread, name='manager_proxy_thread', daemon=True).start()
 
 
 

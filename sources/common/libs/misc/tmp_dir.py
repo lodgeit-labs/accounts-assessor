@@ -1,4 +1,8 @@
 import agraph
+from atomic_integer import AtomicInteger
+server_started_time = time.time()
+client_request_id = AtomicInteger()
+from auth import write_htaccess
 
 def get_unique_id():
 	"""

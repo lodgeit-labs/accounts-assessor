@@ -2,10 +2,6 @@ from pathlib import Path as P
 import time, shutil, ntpath, os, re
 import sys, subprocess
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common/libs/misc')))
-from atomic_integer import AtomicInteger
-server_started_time = time.time()
-client_request_id = AtomicInteger()
-from auth import write_htaccess
 
 
 def git(suffix = ""):
