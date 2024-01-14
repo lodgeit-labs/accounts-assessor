@@ -10,14 +10,11 @@ todo: continue migrating from https://github.com/lodgeit-labs/accounts-assessor/
 
 # new architecture with untrusted workloads and isolated workers
 
-internetwork these "local" services with worker containers running in fly.io:
+## internetwork these "local" services with worker containers running in fly.io:
 * manager
 * webproxy
 * csharp_services 
 * download_bastion? can probably be thrown away
-
-
-
 
 
 
@@ -31,9 +28,11 @@ potential alternative: https://stackoverflow.com/questions/28458590/upload-files
 
 
 
-
-
-
+### migrations from services
+### div7a
+leaving this for later. We should simplify the convolution that came about from making the python implementation be called from prolog, all the versions and integrations..
+### shell
+will see what's really needed on prolog end. Probably just some useful symlinking, and some essential symlinking too. Given that worker is isolated now, we *could* leave the shell endpoint open-ended like that. The other option is to provide special-purpose functions.
 
 
 

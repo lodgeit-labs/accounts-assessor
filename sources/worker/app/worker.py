@@ -3,12 +3,13 @@
 def manager_proxy_thread():
 	client_id = subprocess.check_output(['hostname'], text=True).strip() + '-' + str(os.getpid())
 	while True:
-		r = requests.post(os.environ['MANAGER_URL'] + '/messages', json=dict(id=client_id, procs=['call_prolog',
+		r = requests.post(os.environ['MANAGER_URL'] + '/messages', json=dict(id=client_id, procs=[
+			'call_prolog',
 
-																								  # should be handled in worker helper api
-																								#  'arelle',
-																								  # we should be able to safely route from worker fly machine to download bastion, making this unnecessary as well
-																								#  'download',
+		  # should be handled in worker helper api
+		#  'arelle',
+		  # we should be able to safely route from worker fly machine to download bastion, making this unnecessary as well
+		#  'download',
 
 		]))
 		r.raise_for_status()

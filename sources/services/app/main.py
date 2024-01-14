@@ -93,9 +93,6 @@ def shell(shell_request: ShellRequest):
 
 def parse_schema(xsd):
 	"""
-
-	"""
-	"""
 	:param source: an URI that reference to a resource or a file path or a file-like \
 	    object or a string containing the schema or an Element or an ElementTree document \
 	    or an :class:`XMLResource` instance. A multi source initialization is supported \
@@ -107,9 +104,6 @@ def parse_schema(xsd):
 	    only file paths and URLs are allowed. With 'sandbox' only file paths and URLs that \
 	    are under the directory path identified by source or by the *base_url* argument \
 	    are allowed.
-	
-	
-	
 	"""
 
 	# this is overly strict, we will need to allow our schemes directory, at least
