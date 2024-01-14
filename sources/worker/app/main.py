@@ -1,14 +1,18 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-
+import logging
+import os, sys, logging, re
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 
 
 # this will run in background thread
-from worker import *
+from app import worker
+
+
 
 # these are helper api
 from app import account_hierarchy
-from app import xml
+from app import xml_xsd
 
 
 
@@ -30,7 +34,7 @@ def post_arelle_extract(taxonomy_locator: str):
 
 @app.post('/xml_xsd_validator')
 def xml_xsd_validator(xml: str, xsd: str):
-	schema = xml.get_schema(xsd)
+	schema = xml_xsd.get_schema(xsd)
 	response = {}
 	try:
 		schema.validate(xml)

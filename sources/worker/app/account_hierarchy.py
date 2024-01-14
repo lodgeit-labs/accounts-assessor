@@ -12,8 +12,8 @@ https://arelle.org/arelle/documentation/model/
 
 from arelle import (XPathParser, Cntlr, FileSource, ModelManager, ModelXbrl, ModelDocument, XmlUtil, Version, ViewFileFactTable,
 					ViewFileRelationshipSet, XbrlConst, ModelFormulaObject)
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
+import xml_xsd.etree.ElementTree as ET
+from xml_xsd.dom import minidom
 import sys
 import argparse, logging
 
