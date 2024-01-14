@@ -1,7 +1,7 @@
 FROM koo5/ubuntu
 
 WORKDIR /app/
-ARG REQUIREMENTS_FILE=requirements-dev.txt
+ARG REQUIREMENTS_FILE=requirements.txt
 
 COPY worker/${REQUIREMENTS_FILE} /app/sources/worker/
 RUN python3 -m pip install --upgrade --no-cache-dir -r /app/sources/worker/${REQUIREMENTS_FILE}

@@ -6,6 +6,7 @@ from pathlib import Path
 from app.misc import uri_params, env_string
 
 
+
 def call_prolog_calculator(params, worker_options):
 
 	# just some easy preparation we can do on the worker:
@@ -20,6 +21,17 @@ def call_prolog(
 		msg,
 		worker_options = None
 ):
+	"""
+	We have two main ways of invoking prolog:
+	1. "RPC" - we send a json request to a server, and get a json response back - or at least it could be a server. 
+	In practice, the overhead of launching swipl (twice when debugging) is minimal, so we just launch it for each request.
+	( - a proper tcp (http?) server plumbing for our RPC was never written or needed yet).
+	
+	There are also two ways to pass the goal to swipl, either it's passed on the command line, or it's sent to stdin.
+	The stdin method causes problems when the toplevel breaks on an exception, so it's not used, but a bit of the code
+	might get reused now, because we will again be generating a goal string that can be copy&pasted into swipl..
+	"""
+
 	result_tmp_path = get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']) if 'result_tmp_directory_name' in msg['params'] else None
 
 
@@ -135,3 +147,21 @@ def call_prolog(
 			print()
 			return {'status':'error', 'message': f'invoke_rpc: {e}'}
 
+
+
+
+
+# def run_last_request_outside_of_docker(self):
+# 	"""
+# 	you should run this script from server_root/
+# 	you should also have `services` running on the host (it doesnt matter that it's simultaneously running in docker), because they have to access files by the paths that `workers` sends them.
+# 	"""
+# 	tmp_volume_data_path = '/var/lib/docker/volumes/robust_tmp/_data/'
+# 	os.system('sudo chmod -R o+rX '+shlex.quote(tmp_volume_data_path))
+# 	last_request_host_path = tmp_volume_data_path + os.path.split(os.readlink(tmp_volume_data_path+'last_request'))[-1]
+# 	local_calculator(last_request_host_path)
+# 
+# 
+# """
+# >> #PP='' DISPLAY='' RABBITMQ_URL='localhost:5672' REDIS_HOST='redis://localhost' AGRAPH_HOST='localhost' AGRAPH_PORT='10035' REMOULADE_PG_URI='postgresql://remoulade@localhost:5433/remoulade' REMOULADE_API='http://localhost:5005' SERVICES_URL='http://localhost:17788' CSHARP_SERVICES_URL='http://localhost:17789' FLASK_DEBUG='0' FLASK_ENV='production' WATCHMEDO='' ./run_last_request_in_docker_with_host_fs.py --dry_run True --request /app/server_root/tmp/1691798911.3167622.57.1.A52CC96x3070
+# """

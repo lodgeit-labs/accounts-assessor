@@ -478,7 +478,7 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 			v['depends_on'] = {}
 
 	if mount_host_sources_dir:
-		for x in ['workers','services','frontend', 'remoulade-api', 'download']:
+		for x in ['worker', 'workers', 'manager', 'services', 'frontend', 'remoulade-api', 'download']:
 			if x in services:
 				service = services[x]
 				if 'volumes' not in service:
@@ -675,6 +675,8 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 	svc('download',				'../sources/download_bastion', dbtks+'-hlw{port_postfix}"', "../../docker_scripts/download/Dockerfile_hollow")
 	svc('remoulade-api', 		'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/remoulade_api/Dockerfile_hollow")
 	svc('workers', 				'../sources/', dbtks+'-hlw{port_postfix}"', "workers/Dockerfile_hollow")
+	svc('worker', 				'../sources/', dbtks+'-hlw{port_postfix}"', "worker/Dockerfile_hollow")
+	svc('manager', 				'../sources/', dbtks+'-hlw{port_postfix}"', "manager/Dockerfile_hollow")
 	svc('internal-services',		'../sources/', dbtks+'-hlw{port_postfix}"', "internal_services/Dockerfile_hollow")
 	svc('services', 			'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/services/Dockerfile_hollow")
 	svc('frontend', 			'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/frontend/Dockerfile_hollow")
@@ -684,8 +686,11 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 	join_all()
 
 	if mode == "full": # not hollow
+		svc('manager',	'../sources/', dbtks+'{port_postfix}"', "manager/Dockerfile")
+		svc('worker',	'../sources/', dbtks+'{port_postfix}"', "worker/Dockerfile")
 		svc('workers',	'../sources/', dbtks+'{port_postfix}"', "workers/Dockerfile")
 		svc('services',	'../sources/', dbtks+'{port_postfix}"', "services/Dockerfile")
+		svc('csharp-services',	'../sources/', dbtks+'{port_postfix}"', "csharp-services/Dockerfile")
 		svc('frontend',	'../sources/', dbtks+'{port_postfix}"', "frontend/Dockerfile")
 
 	join_all()

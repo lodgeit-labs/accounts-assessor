@@ -9,5 +9,5 @@ python3 setup.py develop ;_
 
 mkdir -p ~/.config/fish/completions/
 _ROBUST_COMPLETE=source_fish robust > ~/.config/fish/completions/robust-complete.fish
-
+. ~/.config/fish/completions/robust-complete.fish
 ./init_configs.sh
