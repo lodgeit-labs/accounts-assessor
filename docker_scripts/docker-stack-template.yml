@@ -313,14 +313,16 @@ services:
       - 5433
     volumes:
       - 'postgresql_data:/bitnami/postgresql'
-#    command: ["postgres", "-c", "max_connections=2000", "-c", "shared_buffers=2048MB"]
     environment:
       POSTGRESQL_EXTRA_FLAGS: -c max_connections=2000 -c shared_buffers=2048MB -c port=5433
       #ALLOW_EMPTY_PASSWORD: "yes"
-      POSTGRESQL_PASSWORD: ""
-      POSTGRESQL_POSTGRES_PASSWORD: ""
+      POSTGRESQL_PASSWORD: "p"
+      POSTGRES_PASSWORD: "p"
+      POSTGRESQL_POSTGRES_PASSWORD: "max_connections"
       POSTGRESQL_DATABASE: remoulade
+      POSTGRES_DATABASE: remoulade
       POSTGRESQL_USERNAME: remoulade
+      POSTGRES_USERNAME: remoulade
     deploy:
       replicas: 1
       restart_policy:

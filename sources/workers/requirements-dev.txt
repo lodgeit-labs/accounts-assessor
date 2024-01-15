@@ -1,2 +1,3 @@
 fire
 memory-profiler
+watchdog==3.0.0

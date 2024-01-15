@@ -4,18 +4,19 @@ frontend (or other caller) imports this file.
 
 """
 
-import logging
+import logging, sys
 import time
 from pathlib import Path
 
 from fs_utils import files_in_dir
 from tasking import remoulade
-from tmp_dir_path import get_tmp_directory_absolute_path, symlink, create_tmp_for_user, ln
-from untrusted_task import *
-from helpers import *
+from tmp_dir_path import get_tmp_directory_absolute_path, symlink, ln
+from tmp_dir import create_tmp_for_user
+from app.untrusted_task import *
+from app.helpers import *
 
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/sdk')))
-import xml2rdf
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/sdk/src/')))
+import robust_sdk.xml2rdf
 
 
 def trigger_remote__call_prolog(msg, queue='default'):
@@ -91,7 +92,7 @@ def call_prolog_calculator(
 		worker_options=worker_options,
 		input_paths=[get_tmp_directory_absolute_path(request_directory), result_tmp_directory_path],
 		output_paths=[result_tmp_directory_path]
-	)
+	))
 
 
 	# mark this calculator result as finished, and the job as completed

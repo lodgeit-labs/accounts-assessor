@@ -6,7 +6,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../wor
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../manager')))
 
 import trusted_workers
-import manager_actors
+import app.manager_actors
 
 from remoulade.api.main import app
 

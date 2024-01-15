@@ -1,3 +1,4 @@
+import time
 import agraph
 from atomic_integer import AtomicInteger
 server_started_time = time.time()
