@@ -4,7 +4,7 @@ RUN apt-get install -y libpq-dev
 
 WORKDIR /app/sources/common
 COPY common/libs /app/sources/common/libs
-COPY requirements.txt .
+COPY internal_services/requirements.txt .
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /app

@@ -137,6 +137,7 @@ services:
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
       WATCHMEDO:
       ALL_PROXY:
+      MANAGER_URL: http://localhost:9111
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -305,7 +306,7 @@ services:
 
 
   postgres:
-    image: bitnami/postgresql:15.1.0
+    image: bitnami/postgresql:15.5.0
     networks:
       - backend
     hostnet_ports:
@@ -315,7 +316,8 @@ services:
 #    command: ["postgres", "-c", "max_connections=2000", "-c", "shared_buffers=2048MB"]
     environment:
       POSTGRESQL_EXTRA_FLAGS: -c max_connections=2000 -c shared_buffers=2048MB -c port=5433
-      ALLOW_EMPTY_PASSWORD: "yes"
+      #ALLOW_EMPTY_PASSWORD: "yes"
+      POSTGRESQL_PASSWORD: ""
       POSTGRESQL_POSTGRES_PASSWORD: ""
       POSTGRESQL_DATABASE: remoulade
       POSTGRESQL_USERNAME: remoulade
@@ -418,7 +420,8 @@ services:
     networks:
       - webproxy           
     healthcheck:
-      test: ["CMD-SHELL", "curl -x localhost:3128 --proxy-basic http://127.0.0.1:3128/healthcheck | grep healthcheck"]
+      #test: ["CMD-SHELL", "curl -x localhost:3128 --proxy-basic http://127.0.0.1:3128/healthcheck | grep healthcheck"] # no curl inside
+      test: ["CMD-SHELL", "true"]
       interval: 30s
       timeout: 5s
       retries: 5  

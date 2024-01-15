@@ -51,3 +51,4 @@ webargs==8.2.0
     # via flask-apispec
 werkzeug==3.0.1
     # via flask
+rdflib
