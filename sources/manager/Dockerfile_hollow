@@ -1,22 +1,18 @@
 FROM koo5/ubuntu
 
+RUN apt-get install -y libpq-dev
+
 WORKDIR /app
-
-
-RUN apt-get install -y libpq-dev libtcmalloc-minimal4
-#RUN rm -rf /var/lib/apt/lists/*
-
-
-
-WORKDIR /app/sources/workers
 
 COPY manager/requirements.txt .
 COPY manager/requirements-dev.txt .
 
-RUN python3 -m pip install --user --no-cache-dir -r requirements.txt
-RUN python3 -m pip install --user --no-cache-dir -r requirements-dev.txt
+RUN python3 -m pip install  --upgrade --no-cache-dir -r requirements.txt
+RUN python3 -m pip install  --upgrade --no-cache-dir -r requirements-dev.txt
 
-WORKDIR /app/sources/common
+
+
+
 COPY common/libs /app/sources/common/libs
 RUN chown myuser:myuser /app/
 RUN chown myuser:myuser /home/myuser
@@ -28,12 +24,12 @@ USER myuser
 
 USER root
 # you can't run this as non-root, because python insists on writing some random stuff somewhere random around the filesystem. Also, you can't install in develop mode (-e), because python insists on writing random stuff into the sources directory and then expects to find it there (which it wont if the sources directory gets mounted over by a volume for runtime). 2023, people, 2023.
-RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v -v -v --upgrade --ignore-installed --user  libs/remoulade/[rabbitmq,redis,postgres]
+RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user  /app/sources/common/libs/remoulade/[rabbitmq,redis,postgres]
+
 USER myuser
 
 
-
-WORKDIR /app/sources/workers/
+WORKDIR /app/sources/manager/
 RUN mkdir -p /app/server_root/tmp
 RUN mkdir -p /app/server_root/control
 RUN chown myuser:myuser /app/server_root/tmp
@@ -56,5 +52,5 @@ RUN chown myuser:myuser /app/server_root/
 ENV WATCHMEDO_INTERVAL=5
 ENV WATCHMEDO=true
 
-CMD ["/app/sources/workers/start.sh"]
+CMD ["/app/sources/manager/start.sh"]
 HEALTHCHECK CMD /bin/true

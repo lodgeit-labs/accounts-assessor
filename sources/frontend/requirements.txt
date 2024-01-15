@@ -78,3 +78,4 @@ watchfiles==0.21.0
     # via uvicorn
 websockets==12.0
     # via uvicorn
+rdflib

@@ -7,7 +7,7 @@ xxx = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/lib
 sys.path.append(xxx)
 
 
-import manager_actors
+import app.manager_actors
 
 
 

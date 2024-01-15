@@ -2,7 +2,7 @@ import threading
 from datetime import time
 
 from app.machine import list_machines
-from untrusted_task import *
+from app.untrusted_task import *
 
 
 class Worker:

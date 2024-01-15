@@ -32,8 +32,9 @@ from tasking import remoulade
 from fastapi import FastAPI, Request
 
 
-from isolated_worker import *
-from untrusted_task import *
+from app.isolated_worker import *
+from app.untrusted_task import *
+import app.manager_actors
 
 
 app = FastAPI(
@@ -125,7 +126,4 @@ print(threading.Thread(target=remoulade_thread, daemon=True).start())
 print(threading.Thread(target=synchronization_thread, daemon=True).start())
 
 
-
-# not sure how to compose this cleanly. We dont want fronted to import the whole queueing shebang.
-import manager_actors
 

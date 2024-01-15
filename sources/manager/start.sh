@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -x
 ../wait-for-it/wait-for-it.sh $RABBITMQ_URL -t 0
 ../wait-for-it/wait-for-it.sh $(echo "$REMOULADE_API" | sed -e "s/[^/]*\/\/\([^@]*@\)\?\([^:/]*\)\(:\([0-9]\{1,5\}\)\)\?.*/\2\3/") -t 0
@@ -12,17 +13,17 @@ _term() {
 trap _term SIGTERM
 
 
-
+pwd
 
 if [ ! -z $WATCHMEDO ]; then
-  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  start2.sh  health &
+  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  ./start2.sh  health &
   child0=$!
-  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  start2.sh default &
+  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  ./start2.sh default &
   child1=$!
 else
-  start2.sh health &
+  ./start2.sh health &
   child0=$!
-  start2.sh default &
+  ./start2.sh default &
   child1=$!
 fi
 

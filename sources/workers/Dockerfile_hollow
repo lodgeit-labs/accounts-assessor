@@ -8,8 +8,10 @@ RUN apt-get install -y libpq-dev libtcmalloc-minimal4
 
 
 WORKDIR /app/sources/workers
+
 COPY workers/requirements.txt .
 COPY workers/requirements-dev.txt .
+
 RUN python3 -m pip install --user --no-cache-dir -r requirements.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements-dev.txt
 

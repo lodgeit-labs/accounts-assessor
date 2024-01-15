@@ -3,18 +3,20 @@ FROM koo5/ubuntu
 RUN apt-get install -y libpq-dev
 
 WORKDIR /app/
-ARG REQUIREMENTS_FILE=requirements-dev.txt
 
-COPY frontend/${REQUIREMENTS_FILE} /app/sources/frontend/
-RUN python3 -m pip install --upgrade --no-cache-dir -r /app/sources/frontend/${REQUIREMENTS_FILE}
+USER myuser
 
+COPY frontend/requirements.txt .
+COPY frontend/requirements-dev.txt .
 
-
+RUN python3 -m pip install  --upgrade --no-cache-dir -r requirements.txt
+RUN python3 -m pip install  --upgrade --no-cache-dir -r requirements-dev.txt
 # dont think we still need to install this separately?
 COPY common/ /app/sources/common/
-RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
 
-
+USER root
+# you can't run this as non-root, because python insists on writing some random stuff somewhere random around the filesystem. Also, you can't install in develop mode (-e), because python insists on writing random stuff into the sources directory and then expects to find it there (which it wont if the sources directory gets mounted over by a volume for runtime). 2023, people, 2023.
+RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user  /app/sources/common/libs/remoulade/[rabbitmq,redis,postgres]
 
 EXPOSE 7788
 RUN mkdir -p /app/server_root/tmp

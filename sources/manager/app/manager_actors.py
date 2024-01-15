@@ -5,7 +5,6 @@ frontend (or other caller) imports this file.
 """
 
 import logging, sys
-import time
 from pathlib import Path
 
 from fs_utils import files_in_dir
