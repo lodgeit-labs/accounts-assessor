@@ -18,14 +18,14 @@ export PYTHONPATH=/app/sources/common/libs/remoulade/
 
 
 if [ ! -z $WATCHMEDO ]; then
-  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  start2.sh health &
+  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  ./start2.sh health &
   child0=$!
-  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  start2.sh default &
+  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  ./start2.sh default &
   child1=$!
 else
-  start2.sh health &
+  ./start2.sh health &
   child0=$!
-  start2.sh default &
+  ./start2.sh default &
   child1=$!
 fi
 
