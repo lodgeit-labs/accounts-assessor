@@ -1,5 +1,8 @@
 import threading
-from datetime import time
+
+
+import datetime
+import time
 
 from app.machine import list_machines
 from app.untrusted_task import *
@@ -15,7 +18,7 @@ class Worker:
 		self.last_reported_task = None
 		self.fly_machine = None
 	def alive(self):
-		return self.last_seen > time.now() - 120		
+		return self.last_seen > datetime.time.now() - 120
 		
 
 workers = {}
@@ -39,7 +42,7 @@ def get_worker(id, last_seen=None):
 
 def heartbeat(worker):
 	workers_lock.acquire()
-	worker.last_seen = time.now()
+	worker.last_seen = datetime.time.now()
 	workers_lock.release()
 
 
@@ -88,7 +91,7 @@ threading.Thread(target=fly_machine_janitor, daemon=True).start()
 
 def synchronization_thread():
 	while True:
-		e = events.pop()
+		e = events.get()
 		workers_lock.acquire()
 
 		if e['type'] == 'add_task':

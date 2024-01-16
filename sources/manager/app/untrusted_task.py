@@ -5,6 +5,10 @@ import requests
 
 from remoulade.middleware import CurrentMessage
 
+
+fly = False
+
+
 events = queue.Queue()
 
 
@@ -28,9 +32,7 @@ def do_untrusted_task(task, task_id=None, input_directories=[], output_directori
 		task_id = uuid.uui
 		
 	task = Task(task_id=task_id, **task)
-	
-	fly = False
-	
+
 	try:
 		if fly:
 			fly_machine = requests.post('https://api.fly.io/v6/apps/robust/instances', json={})
