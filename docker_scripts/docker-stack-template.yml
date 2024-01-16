@@ -304,7 +304,7 @@ services:
 
 
   postgres:
-    image: bitnami/postgresql:16
+    image: bitnami/postgresql:16.1.0-debian-11-r20
     networks:
       - backend
     hostnet_ports:
