@@ -487,11 +487,9 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 				assert service['image'] == f'koo5/{x}${{PP}}:latest', service['image']
 				service['image'] = f'koo5/{x}-hlw{port_postfix}:latest'
 
-		services['workers']['volumes'].append('../sources/swipl/xpce:/home/myuser/.config/swi-prolog/xpce')
-
 	if 'DISPLAY' in os.environ:
-		if 'workers' in services:
-			services['workers']['environment']['DISPLAY'] = "${DISPLAY}"
+		if 'worker' in services:
+			services['worker']['environment']['DISPLAY'] = "${DISPLAY}"
 
 	for s in omit_services:
 		delete_service(services, s)

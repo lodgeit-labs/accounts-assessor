@@ -82,10 +82,7 @@ services:
 
 
  
-  workers:
- 
-    # "workers" will be kept for whatever trusted actors there might be 
-    
+  workers:   
     image: koo5/workers${PP}:latest
     environment:
       SERVICES_URL:
@@ -144,6 +141,7 @@ services:
       - cache:/app/cache
       - ./../tests:/app/tests
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw" # for gtrace
+      - '../sources/swipl/xpce:/home/myuser/.config/swi-prolog/xpce'      
     networks:
       - backend
       - webproxy           

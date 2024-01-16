@@ -89,6 +89,7 @@ WORKDIR $APPPATH
 
 COPY init_prolog.sh .
 RUN ./init_prolog.sh
+USER root
 
 
 
@@ -97,9 +98,6 @@ RUN ./init_prolog.sh
 
 # set up dirs for calculator
 
-
-VOLUME /app/sources/
-VOLUME /app/tests/
 RUN mkdir -p /app/server_root/tmp
 RUN mkdir -p /app/server_root/control
 RUN chown myuser:myuser /app/server_root/tmp
