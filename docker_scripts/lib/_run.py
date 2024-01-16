@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 import queue
 import libtmux
 import io
-
+import lib.remove_all_anonymous_volumes
 
 
 #l = logging.getLogger()
@@ -146,6 +146,8 @@ def cli():
 @click.option('-rm', '--rm_stack', type=bool, default=True,
 	help="rm the stack and deploy it afresh.")
 
+@click.option('-rmav', '--remove_anonymous_volumes', type=bool, default=False, help='remove unlabelled volumes before deploying. This is useful for development, but dangerous. There is currently no easy way to delete just volumes created by the stack..') # we would have to inspect the running stack i guess.
+
 @click.option('-co', '--compose', type=bool, default=False,
 	help="use docker-compose instead of stack/swarm. Implies use_host_network. ")
 
@@ -180,6 +182,8 @@ def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_bui
 	del choices['no_cache']
 	omit_images = choices['omit_images']
 	del choices['omit_images']
+	remove_anonymous_volumes = choices['remove_anonymous_volumes']
+	del choices['remove_anonymous_volumes']
 
 	public_host = urlparse(public_url).hostname
 	compose = choices['compose']
@@ -250,6 +254,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		#f'svcenv_{service}_{var}'
 
 
+
 	stack_fn = generate_stack_file(port_postfix, public_url, choices, e)
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
@@ -265,6 +270,10 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	build(offline, **{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images})
 
 	if rm_stack:
+
+		if remove_anonymous_volumes:
+			lib.remove_all_anonymous_volumes.remove_anonymous_volumes()
+
 		print('wait for old network to disappear..')
 		while True:
 			cmdxxx = "docker network ls | grep robust" + pp
@@ -282,7 +291,6 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	if compose:
 
-
 		if stay_running:
 			import atexit
 			def shutdown():
@@ -291,8 +299,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 		try:
 			threading.Thread(daemon=True, target = logtail, args = (compose_cmd,)).start()
-			
 			ccd(ss(compose_cmd + ' up --remove-orphans ' + ('' if stay_running else ' --detach')), env={})
+
 		except subprocess.CalledProcessError:
 			ccd(ss('docker ps'), env={})
 
