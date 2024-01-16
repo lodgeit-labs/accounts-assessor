@@ -318,7 +318,7 @@ services:
       POSTGRESQL_USERNAME: remoulade
 
       POSTGRESQL_PGAUDIT_LOG: "READ,WRITE"
-      POSTGRESQL_LOG_HOSTNAME: true
+      POSTGRESQL_LOG_HOSTNAME: "true"
     deploy:
       replicas: 1
       restart_policy:
