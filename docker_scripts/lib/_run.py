@@ -477,10 +477,10 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 		if not container_startup_sequencing:
 			v['depends_on'] = {}
 
-	if mount_host_sources_dir:
-		for x in ['worker', 'workers', 'manager', 'services', 'frontend', 'remoulade-api', 'download']:
-			if x in services:
-				service = services[x]
+	for x in ['worker', 'workers', 'manager', 'services', 'frontend', 'remoulade-api', 'download']:
+		if x in services:
+			service = services[x]
+			if mount_host_sources_dir:
 				if 'volumes' not in service:
 					service['volumes'] = []
 				service['volumes'].append('../sources:/app/sources')
@@ -653,17 +653,28 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 
 	def svc(service_name, dir, cmd, dockerfile):
 		if service_name not in omit_images:
-			return task(service_name + '_build', dir, (cmd + ' -f "{dockerfile}" . ').format(
+			appdir = service_name.replace("-","_")
+			args = dict(
+				APPDIR=appdir, 
+				APPPATH = f'/app/sources/{appdir}'
+			)
+			return task(service_name + '_build', dir, (cmd + ' {args} -f "{dockerfile}" . ').format(
 				port_postfix=port_postfix,
 				service_name=service_name,
-				dockerfile=dockerfile
+				dockerfile=dockerfile,
+				args=' '.join([f'--build-arg {n}={v}' for n,v in args.items()])
 			))
+			
+					
+			
+
+			
 
 	pull = '' if offline else '--pull '
 	dbptks = f'docker build {pull} -t "koo5/{{service_name}}'
 	dbtks = 'docker build -t "koo5/{service_name}'
 
-	ubuntu = task('ubuntu' + '_build', 'ubuntu', f'docker build {pull} -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
+	ubuntu = task('ubuntu' + '_build', '../sources/', f'docker build {pull} -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "../docker_scripts/ubuntu/Dockerfile" . ')
 
 	svc('apache', 		  'apache', 						dbptks+'{port_postfix}"', 	"Dockerfile")
 	svc('agraph', 		  'agraph', 						dbptks+'{port_postfix}"', 	"Dockerfile")
@@ -672,26 +683,26 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 
 	join([ubuntu])
 
-	svc('download',				'../sources/download_bastion', dbtks+'-hlw{port_postfix}"', "../../docker_scripts/download/Dockerfile_hollow")
+	svc('download',				'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/download/Dockerfile_hollow")
 	svc('remoulade-api', 		'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/remoulade_api/Dockerfile_hollow")
-	svc('workers', 				'../sources/', dbtks+'-hlw{port_postfix}"', "workers/Dockerfile_hollow")
-	svc('worker', 				'../sources/', dbtks+'-hlw{port_postfix}"', "worker/Dockerfile_hollow")
-	svc('manager', 				'../sources/', dbtks+'-hlw{port_postfix}"', "manager/Dockerfile_hollow")
+	svc('workers',				'../sources/', dbtks+'-hlw{port_postfix}"', "workers/Dockerfile_hollow")
+	svc('worker',				'../sources/', dbtks+'-hlw{port_postfix}"', "worker/Dockerfile_hollow")
+	svc('manager',				'../sources/', dbtks+'-hlw{port_postfix}"', "manager/Dockerfile_hollow")
 	svc('internal-services',		'../sources/', dbtks+'-hlw{port_postfix}"', "internal_services/Dockerfile_hollow")
-	svc('services', 			'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/services/Dockerfile_hollow")
-	svc('frontend', 			'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/frontend/Dockerfile_hollow")
+	svc('services',				'../sources/', dbtks+'-hlw{port_postfix}"', "services/Dockerfile_hollow")
+	svc('frontend',				'../sources/', dbtks+'-hlw{port_postfix}"', "frontend/Dockerfile_hollow")
 
 	os.set_blocking(sys.stdout.fileno(), False)
 	print("ok?")
 	join_all()
 
 	if mode == "full": # not hollow
-		svc('manager',	'../sources/', dbtks+'{port_postfix}"', "manager/Dockerfile")
-		svc('worker',	'../sources/', dbtks+'{port_postfix}"', "worker/Dockerfile")
-		svc('workers',	'../sources/', dbtks+'{port_postfix}"', "workers/Dockerfile")
-		svc('services',	'../sources/', dbtks+'{port_postfix}"', "services/Dockerfile")
+		svc('manager',			'../sources/', dbtks+'{port_postfix}"', "manager/Dockerfile")
+		svc('worker',			'../sources/', dbtks+'{port_postfix}"', "worker/Dockerfile")
+		svc('workers',			'../sources/', dbtks+'{port_postfix}"', "workers/Dockerfile")
+		svc('services',			'../sources/', dbtks+'{port_postfix}"', "services/Dockerfile")
 		svc('csharp-services',	'../sources/', dbtks+'{port_postfix}"', "csharp-services/Dockerfile")
-		svc('frontend',	'../sources/', dbtks+'{port_postfix}"', "frontend/Dockerfile")
+		svc('frontend',			'../sources/', dbtks+'{port_postfix}"', "frontend/Dockerfile")
 
 	join_all()
 	print("ok!")

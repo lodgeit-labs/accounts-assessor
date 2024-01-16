@@ -5,7 +5,6 @@ ARG APPPATH
 
 
 
-
 # python requirements (common block)
 
 WORKDIR $APPPATH
@@ -19,9 +18,7 @@ RUN chown -vR myuser:myuser /home/myuser
 
 
 
-
-
 WORKDIR $APPPATH
 USER myuser
+HEALTHCHECK CMD curl http://127.0.0.1:17788/
 CMD ["./start.sh"]
-HEALTHCHECK CMD curl http://127.0.0.1:6457/health

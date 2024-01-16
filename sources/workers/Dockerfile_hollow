@@ -1,59 +1,42 @@
 FROM koo5/ubuntu
-
-WORKDIR /app
-
-
-RUN apt-get install -y libpq-dev libtcmalloc-minimal4
+ARG APPDIR
+ARG APPPATH
 
 
 
-WORKDIR /app/sources/workers
 
-COPY workers/requirements.txt .
-COPY workers/requirements-dev.txt .
 
+# python requirements (common block)
+
+WORKDIR $APPPATH
+COPY $APPDIR/requirements.txt .
+COPY $APPDIR/requirements-dev.txt .
 RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements.txt
 RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements-dev.txt
+RUN chown -vR myuser:myuser /home/myuser
 
-WORKDIR /app/sources/common
-COPY common/libs /app/sources/common/libs
-RUN chown myuser:myuser /app/
-RUN chown myuser:myuser /home/myuser
 
-USER root
+
+
+
+
+# remoulade (common block)
+
+RUN apt-get install -y libpq-dev
 # this has to be made writeable because python wants to write it's eggs in there
 RUN chown -R myuser:myuser /app/sources/common/libs/remoulade/
-USER myuser
-
-USER root
 # you can't run this as non-root, because python insists on writing some random stuff somewhere random around the filesystem. Also, you can't install in develop mode (-e), because python insists on writing random stuff into the sources directory and then expects to find it there (which it wont if the sources directory gets mounted over by a volume for runtime). 2023, people, 2023.
-RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ignore-installed --user  libs/remoulade/[rabbitmq,redis,postgres]
+RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ignore-installed --user /app/sources/common/libs/remoulade/[rabbitmq,redis,postgres]
+RUN chown -vR myuser:myuser /home/myuser
+
+
+
+
+
+
+
+
+WORKDIR $APPPATH
 USER myuser
-
-
-
-WORKDIR /app/sources/workers/
-RUN mkdir -p /app/server_root/tmp
-RUN mkdir -p /app/server_root/control
-RUN chown myuser:myuser /app/server_root/tmp
-RUN chown myuser:myuser /app/server_root/control
-VOLUME /app/server_root/tmp
-RUN chown myuser:myuser /app/server_root/tmp
-
-
-RUN mkdir -p /app/cache
-RUN chown myuser:myuser /app/cache
-VOLUME /app/cache
-
-
-VOLUME /app/sources/
-VOLUME /app/tests/
-#VOLUME /root/.config/swi-prolog/xpce/
-RUN chown myuser:myuser /app/server_root/
-
-
-ENV WATCHMEDO_INTERVAL=5
-ENV WATCHMEDO=true
-
-CMD ["/app/sources/workers/start.sh"]
+CMD ["$APPPATH/start.sh"]
 HEALTHCHECK CMD /bin/true

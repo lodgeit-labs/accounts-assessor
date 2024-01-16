@@ -6,6 +6,10 @@ ARG APPPATH
 
 
 
+
+
+
+
 # python requirements (common block)
 
 WORKDIR $APPPATH
@@ -34,19 +38,9 @@ RUN chown -vR myuser:myuser /home/myuser
 
 
 
-# flask stuff
-
-ENV FLASK_APP=main
-ENV FLASK_ENV=development
-ENV FLASK_DEBUG=1
-
-
-
-
-
 
 
 WORKDIR $APPPATH
 USER myuser
-ENTRYPOINT ["/app/sources/remoulade_api/start.sh"]
-HEALTHCHECK CMD curl http://127.0.0.1:5005/actors
+CMD ["./start.sh"]
+HEALTHCHECK CMD curl http://127.0.0.1:7788
