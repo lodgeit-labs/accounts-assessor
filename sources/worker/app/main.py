@@ -27,6 +27,11 @@ app = FastAPI(
 # helper functions that prolog can call
 
 
+@app.get("/")
+def root():
+	return "ok"
+
+
 @app.post("/arelle_extract")
 def post_arelle_extract(taxonomy_locator: str):
 	return account_hierarchy.ArelleController().run(taxonomy_locator)

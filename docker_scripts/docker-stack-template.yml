@@ -37,6 +37,9 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - tmp:/usr/local/apache2/htdocs/tmp/
       - ./../sources/static/:/usr/local/apache2/htdocs/static/
+    healthcheck:
+      start_interval: 3s
+      interval: 3000s
     depends_on:
       frontend:
         condition: service_healthy
@@ -249,6 +252,8 @@ services:
         condition: any
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_interval: 3s
+      interval: 3000s
     volumes:
       - "redis_data:/data"
     command: '/usr/local/bin/docker-entrypoint.sh --appendonly yes' # --save 60 1
@@ -304,19 +309,25 @@ services:
 
 
   postgres:
-    image: bitnami/postgresql:16.1.0-debian-11-r20
+    image: bitnami/postgresql:16
     networks:
       - backend
     hostnet_ports:
       - 5433
-    #volumes:
+    volumes:
       #- 'postgresql_data:/bitnami/postgresql'
+      - ${PWD}/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
-      POSTGRESQL_EXTRA_FLAGS: "-c max_connections=2000 -c shared_buffers=2048MB -c port=5433"
-      POSTGRESQL_PASSWORD: "p"
-      POSTGRESQL_DATABASE: remoulade
-      POSTGRESQL_USERNAME: remoulade
+      POSTGRESQL_EXTRA_FLAGS: "-c max_connections=2000 -c shared_buffers=2048MB"
+      POSTGRESQL_PORT_NUMBER: 5433
 
+      POSTGRESQL_PASSWORD: ""
+      #POSTGRESQL_DATABASE: remoulade
+      #POSTGRESQL_USERNAME: remoulade
+      #POSTGRESQL_POSTGRES_PASSWORD: "p"
+      
+      ALLOW_EMPTY_PASSWORD: "yes"      
+      
       POSTGRESQL_PGAUDIT_LOG: "READ,WRITE"
       POSTGRESQL_LOG_HOSTNAME: "true"
     deploy:

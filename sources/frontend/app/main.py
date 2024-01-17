@@ -161,7 +161,7 @@ def post(body: ChatRequest, request: Request):
 
 def json_prolog_rpc_call(request, msg, queue_name=None):
 	msg["client"] = request.client.host
-	return manager_actors.trigger_remote__call_prolog(msg, queue_name).result.get(block=True, timeout=1000 * 1000)
+	return app.manager_actors.trigger_remote__call_prolog(msg, queue_name).result.get(block=True, timeout=1000 * 1000)
 
 
 
@@ -373,7 +373,7 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 	worker_options = load_worker_options_from_request_json(request_tmp_directory_path)
 	user = get_user(request)
 
-	job = manager_actors.trigger_remote__call_prolog_calculator(
+	job = app.manager_actors.trigger_remote__call_prolog_calculator(
 		request_format=request_format,
 		request_directory=request_tmp_directory_name,
 		public_url=public_url,

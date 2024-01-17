@@ -2,6 +2,10 @@ from app import call_prolog
 
 
 import logging, threading, subprocess, os, requests
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logging.StreamHandler())
+log.info('worker.py started')
 
 
 from dotdict import Dotdict
@@ -10,7 +14,7 @@ from dotdict import Dotdict
 def manager_proxy_thread():
 
 	client_id = subprocess.check_output(['hostname'], text=True).strip() + '-' + str(os.getpid())
-	worker_info = dict(id=client_id, procs=[
+	worker_info = dict(procs=[
 			'call_prolog',
 		  # should be handled in worker helper api
 		#  'arelle',
@@ -18,8 +22,13 @@ def manager_proxy_thread():
 		#  'download',
 	])
 
+	task_result = None
+	
 	while True:
-		r = requests.post(os.environ['MANAGER_URL'] + '/messages', json=worker_info)
+		r = requests.post(os.environ['MANAGER_URL'] + f'/worker/{client_id}/messages', json=dict(
+			task_result=task_result,
+			worker_info=worker_info,
+		))
 		r.raise_for_status()
 		msg = Dotdict(r.json())
 

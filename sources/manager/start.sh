@@ -16,14 +16,14 @@ trap _term SIGTERM
 pwd
 
 if [ ! -z $WATCHMEDO ]; then
-  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  ./start2.sh  health &
+  QUEUE=health cat #watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  -- ./start2.sh 9112 &
   child0=$!
-  watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  --  ./start2.sh default &
+  QUEUE=default watchmedo auto-restart --debounce-interval 1 --interval $WATCHMEDO_INTERVAL -d .  -d ../common  --patterns="*.py;*.egg" --recursive  -- ./start2.sh 9111 &
   child1=$!
 else
-  ./start2.sh health &
+  QUEUE=health ./start2.sh 9112 &
   child0=$!
-  ./start2.sh default &
+  QUEUE=default ./start2.sh 9111 &
   child1=$!
 fi
 

@@ -12,7 +12,6 @@ class Worker:
 	def __init__(self, id):
 		self.id = id
 		self.sizes = [None]
-		self.last_seen = last_seen
 		self.task = None
 		self.last_reported_task_ts = None
 		self.last_reported_task = None

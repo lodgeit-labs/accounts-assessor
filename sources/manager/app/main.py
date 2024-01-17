@@ -49,14 +49,14 @@ def heartbeat(worker_id: str, task_id: str = None):
 	"""
 	While worker is processing a task, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no task.
 	"""
-	worker = get_worker(id, last_seen=time.now())
+	worker = get_worker(id, last_seen=datetime.datetime.now())
 	worker.last_reported_task = task_id
-	worker.last_reported_task_ts = time.now()
+	worker.last_reported_task_ts = datetime.datetime.now()
 
 
 
 @app.post("/worker/{id}/messages")
-async def messages(request: Request, id: str, task_result=None):
+async def messages(request: Request, id: str, task_result=None, worker_info=None):
 	"""
 	Hangs until a message is available. Worker calls this in a loop.
 	
@@ -77,7 +77,7 @@ async def messages(request: Request, id: str, task_result=None):
 	# concievably, the events pushed here can be pushed multiple times, the client can invoke this multiple times, if a connection error occurs during handling		
 	"""
 
-	worker = get_worker(id, last_seen=time.now())
+	worker = get_worker(id, last_seen=datetime.datetime.now())
 	
 	if task_result:
 		events.push(dict(type='task_result', worker=worker, result=task_result))
@@ -103,7 +103,7 @@ def remoulade_thread():
 	broker.emit_after("process_boot")
 
 	# i'm afraid there isnt a good way to healthcheck manager in the same way that we healthcheck the (trusted) workers container. I mean, we could run two manager processes, and devise one worker to serve it....idk
-	worker = remoulade.Worker(broker, queues=['default'], worker_threads=12, prefetch_multiplier=1)
+	worker = remoulade.Worker(broker, queues=[os.environ['QUEUE']], worker_threads=12, prefetch_multiplier=1)
 	worker.start()
 
 	running = True
