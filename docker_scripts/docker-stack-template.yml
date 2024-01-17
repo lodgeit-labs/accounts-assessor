@@ -37,9 +37,6 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - tmp:/usr/local/apache2/htdocs/tmp/
       - ./../sources/static/:/usr/local/apache2/htdocs/static/
-    healthcheck:
-      start_interval: 3s
-      interval: 3000s
     depends_on:
       frontend:
         condition: service_healthy
@@ -252,8 +249,9 @@ services:
         condition: any
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-      start_interval: 3s
-      interval: 3000s
+      interval: 13m
+      #start_interval: 3s
+      #interval: 3000s
     volumes:
       - "redis_data:/data"
     command: '/usr/local/bin/docker-entrypoint.sh --appendonly yes' # --save 60 1
