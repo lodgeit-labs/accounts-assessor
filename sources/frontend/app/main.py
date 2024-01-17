@@ -3,11 +3,12 @@ import sys, os
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../manager')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../manager')))
 xxx = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc'))
 sys.path.append(xxx)
 
 
-import app.manager_actors
+import app.manager_actors as manager_actors
 
 
 
@@ -161,7 +162,7 @@ def post(body: ChatRequest, request: Request):
 
 def json_prolog_rpc_call(request, msg, queue_name=None):
 	msg["client"] = request.client.host
-	return app.manager_actors.trigger_remote__call_prolog(msg, queue_name).result.get(block=True, timeout=1000 * 1000)
+	return manager_actors.trigger_remote__call_prolog(msg, queue_name).result.get(block=True, timeout=1000 * 1000)
 
 
 
@@ -373,7 +374,7 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 	worker_options = load_worker_options_from_request_json(request_tmp_directory_path)
 	user = get_user(request)
 
-	job = app.manager_actors.trigger_remote__call_prolog_calculator(
+	job = manager_actors.trigger_remote__call_prolog_calculator(
 		request_format=request_format,
 		request_directory=request_tmp_directory_name,
 		public_url=public_url,

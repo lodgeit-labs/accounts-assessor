@@ -29,7 +29,7 @@ def do_untrusted_task(task, task_id=None, input_directories=[], output_directori
 	if task_id is None:
 		# this is gonna work as long as we dont call multiple tasks from one actor invocation. Maybe just use uuid?
 		#task_id = CurrentMessage.get_current_message().message_id
-		task_id = uuid.uui
+		task_id = uuid.uuid4().hex
 		
 	task = Task(task_id=task_id, **task)
 

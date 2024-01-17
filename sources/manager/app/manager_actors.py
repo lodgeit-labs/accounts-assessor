@@ -87,7 +87,7 @@ def call_prolog_calculator(
 
 	result = do_untrusted_task(dict(
 		proc='call_prolog_calculator',
-		args=dict(params=params),
+		msg=dict(params=params),
 		worker_options=worker_options,
 		input_paths=[get_tmp_directory_absolute_path(request_directory), result_tmp_directory_path],
 		output_paths=[result_tmp_directory_path]
