@@ -52,7 +52,7 @@ def do_untrusted_task(task: Task):
 			# todo copy request files to fly machine
 			fly_machine.raise_for_status()
 
-		events.put(dict(type='add_task', task=task))
+		put_event(dict(type='add_task', task=task))
 		log.debug('task.results.get()..')
 		return task.results.get()
 		log.debug('task.results.get() returned')

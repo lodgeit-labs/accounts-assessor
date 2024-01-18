@@ -37,30 +37,39 @@ from app.untrusted_task import *
 import app.manager_actors
 
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logging.StreamHandler(sys.stderr))
+
+
+
 app = FastAPI(
 	title="Robust API",
 	summary="invoke accounting calculators and other endpoints",
 )
 
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-log.addHandler(logging.StreamHandler(sys.stderr))
+@app.get("/", include_in_schema=False)
+async def read_root():
+	"""	hello world	"""
+	return {"Hello": "World"}
 
-@app.post("/worker/{id}/heartbeat")
+
+
+@app.post("/worker/{worker_id}/heartbeat")
 def post_heartbeat(worker_id: str, task_id: str = None):
 	"""
 	While worker is processing a task, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no task.
 	"""
 	log.debug('heartbeat %s %s', worker_id, task_id)
-	worker = get_worker(id, last_seen=datetime.datetime.now())
+	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	worker.last_reported_task = task_id
 	worker.last_reported_task_ts = datetime.datetime.now()
 
 
 
-@app.post("/worker/{id}/messages")
-async def post_messages(request: Request, id: str, task_result=None, worker_info=None):
+@app.post("/worker/{worker_id}/messages")
+async def post_messages(request: Request, worker_id: str, task_result=None, worker_info=None):
 	"""
 	Hangs until a message is available. Worker calls this in a loop.
 	
@@ -78,20 +87,23 @@ async def post_messages(request: Request, id: str, task_result=None, worker_info
 	It might be possible that a client issues two requests to /messages with some overlap. This might happen if the connection breaks or client disconnects, and immediately connects again (as it should), but the first request is still waiting on toworker.get(1).
 	In this case, the message will be lost. This is the same as if the worker never connected back again.
 	
-	# concievably, the events pushed here can be pushed multiple times, the client can invoke this multiple times, if a connection error occurs during handling		
+	 Concievably, the events pushed here can be pushed multiple times, the client can invoke this multiple times, if a connection error occurs during handling
+	 
 	"""
-	log.debug('messages worker_id=%s task_result=%s', id, task_result)
+	log.debug('messages worker_id=%s task_result=%s', worker_id, task_result)
 	
-	worker = get_worker(id, last_seen=datetime.datetime.now())
+	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	
 	if task_result:
-		events.put(dict(type='task_result', worker=worker, result=task_result))
+		put_event(dict(type='task_result', worker=worker, result=task_result))
 	
 	while not await request.is_disconnected():
+		log.debug('worker %s not disconnected', worker_id)
 		heartbeat(worker)
 		if worker.task:
 			log.debug('messages: worker.task: %s', worker.task)
 			return worker.task
+		log.debug('sleep: %s', worker.task)
 		time.sleep(1)
 
 

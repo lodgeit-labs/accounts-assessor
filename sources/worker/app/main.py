@@ -15,9 +15,11 @@ from app import account_hierarchy
 from app import xml_xsd
 
 
-
-
 log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logging.StreamHandler(sys.stderr))
+
+
 
 app = FastAPI(
 	title="Robust worker private api"
