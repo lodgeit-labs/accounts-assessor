@@ -29,7 +29,7 @@ def trigger_remote__call_prolog_calculator(**kwargs):
 
 @remoulade.actor(alternative_queues=["health"])
 def call_prolog(msg, worker_options=None):	
-	return do_untrusted_task(dict(
+	return do_untrusted_task(Task(
 		proc='call_prolog',
 		args=dict(msg=msg),
 		worker_options=worker_options
@@ -85,9 +85,9 @@ def call_prolog_calculator(
 	ln('../'+result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/' + result_tmp_directory_name)
 
 
-	result = do_untrusted_task(dict(
+	result = do_untrusted_task(Task(
 		proc='call_prolog_calculator',
-		msg=dict(params=params),
+		args=dict(params=params),
 		worker_options=worker_options,
 		input_paths=[get_tmp_directory_absolute_path(request_directory), result_tmp_directory_path],
 		output_paths=[result_tmp_directory_path]

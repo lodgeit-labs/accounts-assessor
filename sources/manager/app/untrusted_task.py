@@ -13,25 +13,20 @@ events = queue.Queue()
 
 
 class Task:
-	def __init__(self, task_id, proc, msg, worker_options):
+	def __init__(self, proc, args, worker_options, input_directories=[], output_directories=[]):
 		self.size = None
-		self.task_id = task_id
+		
+		self.task_id = CurrentMessage.get_current_message().message_id + '_' + uuid.uuid4().hex
 		self.proc = proc
-		self.msg = msg
+		self.args = args
 		self.worker_options = worker_options
+		
 		self.results = queue.Queue()
 
 
 
-def do_untrusted_task(task, task_id=None, input_directories=[], output_directories=[]):
-	"""called from actors. The only place where Task is constructed"""
-	
-	if task_id is None:
-		# this is gonna work as long as we dont call multiple tasks from one actor invocation. Maybe just use uuid?
-		#task_id = CurrentMessage.get_current_message().message_id
-		task_id = uuid.uuid4().hex
-		
-	task = Task(task_id=task_id, **task)
+def do_untrusted_task(task: Task):
+	"""called from actors."""
 
 	try:
 		if fly:
@@ -39,8 +34,8 @@ def do_untrusted_task(task, task_id=None, input_directories=[], output_directori
 			# todo copy request files to fly machine
 			fly_machine.raise_for_status()
 
-		events.push(dict(type='add_task', task=task))
-		return task.results.pop()
+		events.put(dict(type='add_task', task=task))
+		return task.results.get()
 
 	finally:
 	

@@ -80,7 +80,7 @@ async def messages(request: Request, id: str, task_result=None, worker_info=None
 	worker = get_worker(id, last_seen=datetime.datetime.now())
 	
 	if task_result:
-		events.push(dict(type='task_result', worker=worker, result=task_result))
+		events.put(dict(type='task_result', worker=worker, result=task_result))
 	
 	while not await request.is_disconnected():
 		heartbeat(worker)

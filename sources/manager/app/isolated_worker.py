@@ -56,7 +56,7 @@ def worker_janitor():
 		for worker in reversed(workers):
 			if not worker.alive():
 				if worker.task:
-					events.push(dict(type='task_result', worker=worker, result=dict(
+					events.put(dict(type='task_result', worker=worker, result=dict(
 						result=dict(error='worker died'),
 						task_id=worker.task.task_id
 					)))
@@ -101,7 +101,7 @@ def synchronization_thread():
 		if e['type'] == 'task_result':
 			if e['worker'].task:
 				if e['result']['task_id'] == e['worker'].task.task_id:
-					e['worker'].task.results.push(dict(result=e['result']['result']))
+					e['worker'].task.results.put(dict(result=e['result']['result']))
 				e['worker'].task = None
 				find_new_task_for_worker(e['worker'])
 
