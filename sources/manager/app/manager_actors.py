@@ -25,10 +25,16 @@ def trigger_remote__call_prolog_calculator(**kwargs):
 	return call_prolog_calculator.send_with_options(kwargs=kwargs)
 
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logging.StreamHandler(sys.stderr))
 
+
+log.debug("hello from manager_actors.py")
 
 @remoulade.actor(alternative_queues=["health"])
-def call_prolog(msg, worker_options=None):	
+def call_prolog(msg, worker_options=None):
+	log.debug('manager_actors: call_prolog: ...')	
 	return do_untrusted_task(Task(
 		proc='call_prolog',
 		args=dict(msg=msg),

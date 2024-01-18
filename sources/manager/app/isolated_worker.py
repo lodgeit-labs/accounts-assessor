@@ -1,5 +1,8 @@
-import threading
+import threading, logging
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logging.StreamHandler())
 
 import datetime
 import time
@@ -46,21 +49,17 @@ def heartbeat(worker):
 
 
 
-def sort_workers():
-	workers.sort(key=lambda w: w.last_seen, reverse=True)
-
-
 def worker_janitor():
 	while True:
 		workers_lock.acquire()
-		for worker in reversed(workers):
+		for _,worker in workers:
 			if not worker.alive():
 				if worker.task:
 					events.put(dict(type='task_result', worker=worker, result=dict(
 						result=dict(error='worker died'),
 						task_id=worker.task.task_id
 					)))
-				workers.remove(worker)
+				del workers[worker.id]
 				if worker.fly_machine:
 					worker.fly_machine.delete()
 				
@@ -74,15 +73,12 @@ threading.Thread(target=worker_janitor, daemon=True).start()
 def fly_machine_janitor():
 	if fly:
 		while True:
-	
 			for machine in list_machines():
-				for worker in workers:
+				for _,worker in workers:
 					if worker.fly_machine.id == machine.id:
 						break
 				else:
 					machine.delete()
-
-	
 			time.sleep(60)
 			
 threading.Thread(target=fly_machine_janitor, daemon=True).start()
@@ -90,7 +86,10 @@ threading.Thread(target=fly_machine_janitor, daemon=True).start()
 
 def synchronization_thread():
 	while True:
+	
 		e = events.get()
+		log.debug('synchronization_thread: %s', e)
+		
 		workers_lock.acquire()
 
 		if e['type'] == 'add_task':
@@ -108,6 +107,17 @@ def synchronization_thread():
 		workers_lock.release()
 
 
+
+
+def sort_workers():
+	global workers
+	old = sorted(workers, key=lambda w: w.last_seen, reverse=True)
+	workers = {}
+	for w in old:
+		workers[w.id] = w
+	
+
+
 def find_new_task_for_worker(worker):
 	if not worker.alive():
 		return
@@ -119,11 +129,13 @@ def match_worker_to_task(worker, task):
 	return task.org == worker.org and task.size in worker.sizes
 
 def try_assign_any_worker_to_task(task):
-	for worker in workers:
+	log.debug('try_assign_any_worker_to_task: len(workers)=%s', len(workers))
+	for _,worker in workers.items():
 		if try_assign_worker_to_task(worker, task):
 			return
 
 def try_assign_worker_to_task(worker, task):
+	log.debug('try_assign_worker_to_task: %s, %s', worker, task)
 	if match_worker_to_task(worker, task):
 		assign_worker_to_task(worker, task)
 		return True

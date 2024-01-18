@@ -43,12 +43,16 @@ app = FastAPI(
 )
 
 
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logging.StreamHandler(sys.stderr))
 
 @app.post("/worker/{id}/heartbeat")
-def heartbeat(worker_id: str, task_id: str = None):
+def post_heartbeat(worker_id: str, task_id: str = None):
 	"""
 	While worker is processing a task, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no task.
 	"""
+	log.debug('heartbeat %s %s', worker_id, task_id)
 	worker = get_worker(id, last_seen=datetime.datetime.now())
 	worker.last_reported_task = task_id
 	worker.last_reported_task_ts = datetime.datetime.now()
@@ -56,7 +60,7 @@ def heartbeat(worker_id: str, task_id: str = None):
 
 
 @app.post("/worker/{id}/messages")
-async def messages(request: Request, id: str, task_result=None, worker_info=None):
+async def post_messages(request: Request, id: str, task_result=None, worker_info=None):
 	"""
 	Hangs until a message is available. Worker calls this in a loop.
 	
@@ -76,7 +80,8 @@ async def messages(request: Request, id: str, task_result=None, worker_info=None
 	
 	# concievably, the events pushed here can be pushed multiple times, the client can invoke this multiple times, if a connection error occurs during handling		
 	"""
-
+	log.debug('messages worker_id=%s task_result=%s', id, task_result)
+	
 	worker = get_worker(id, last_seen=datetime.datetime.now())
 	
 	if task_result:
@@ -85,6 +90,7 @@ async def messages(request: Request, id: str, task_result=None, worker_info=None
 	while not await request.is_disconnected():
 		heartbeat(worker)
 		if worker.task:
+			log.debug('messages: worker.task: %s', worker.task)
 			return worker.task
 		time.sleep(1)
 
@@ -108,9 +114,7 @@ def remoulade_thread():
 
 	running = True
 	while running:
-		if worker.consumer_stopped:
-			running = False
-		if worker.worker_stopped:
+		if worker.consumer_stopped or worker.worker_stopped:
 			running = False
 			logger.info("Worker thread is not running anymore, stopping Worker.")
 		else:
