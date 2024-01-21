@@ -36,23 +36,20 @@ def manager_proxy_thread():
 				worker_info=worker_info,
 			), timeout=100)
 			r.raise_for_status()
-			msg = Dotdict(r.json())
-			log.debug('worker %s got message %s', worker_id, msg)
+
+			task = Dotdict(r.json())
+			log.debug('worker %s got task %s', worker_id, task)
 	
-			if msg.type == 'job':
-				if msg.proc == 'call_prolog':
-					return call_prolog.call_prolog(msg.msg, msg.worker_options)
-				if msg.proc == 'call_prolog_calculator':
-					return call_prolog.call_prolog_calculator(msg.msg, msg.worker_options)
-				elif msg.proc == 'arelle':
-					return arelle(msg.msg, msg.worker_options)
-	#			elif msg['proc'] == 'download':
-	#				return download(msg['msg'], msg['worker_options'])
-	#				safely covered by download_bastion i think
-				else:
-					raise Exception('message bad, unknown proc: ' + msg.proc)
+			if task.proc == 'call_prolog':
+				return call_prolog.call_prolog(task.args['msg'], task.worker_options)
+			if task.proc == 'call_prolog_calculator':
+				return call_prolog.call_prolog_calculator(task.args['msg'], task.worker_options)
+			elif task.proc == 'arelle':
+				return arelle(task.args, task.worker_options)
+			else:
+				raise Exception('task bad, unknown proc: ' + msg.proc)
 		except requests.exceptions.ReadTimeout:
-			log.debug('worker %s manager read timeout', worker_id)
+			log.debug('worker %s /messages read timeout', worker_id)
 		except Exception as e:
 			log.exception('worker %s get exception', worker_id)
 			time.sleep(5)

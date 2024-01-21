@@ -99,15 +99,32 @@ async def post_messages(request: Request, worker_id: str, task_result=None, work
 	
 	if task_result:
 		put_event(dict(type='task_result', worker=worker, result=task_result))
-	
+	else:
+		if worker.task and worker.task_given_ts:
+			time_since_task_sent_to_worker = datetime.datetime.now() - worker.task_given_ts
+			log.debug(f'{time_since_task_sent_to_worker=}')
+			if time_since_task_sent_to_worker > datetime.timedelta(seconds=15):
+				# grace period, because in the loop below, we may think that we sent a response with task, but the worker might have been already disconnected. But we only record task_given_ts the first time we relay the task, so, if a worker keeps disconnecting, we eventually ...do...something?
+				log.warn(f"""{worker.id} should be working on {worker.task.task_id} and sending heartbeats, but it's asking for more tasks instead... {time_since_task_sent_to_worker=}""")
+		else:
+			put_event(dict(type='worker_available', worker=worker))
+			time.sleep(1)
+
 	while not await request.is_disconnected():
-		log.debug('id(workers)=%s', id(workers))
-		log.debug('workers:%s', workers)
-		log.debug('worker %s not disconnected', worker_id)
+		#log.debug('id(workers)=%s', id(workers))
+		log.debug(f'{len(workers)=}')
+		for _,v in workers.items():
+			log.debug('worker %s', v)
+		#log.debug('worker %s not disconnected', worker_id)
 		heartbeat(worker)
+		log.debug(f'{len(pending_tasks)=}')
+		for v in pending_tasks:
+			log.debug('%s', v)
 		if worker.task:
 			log.debug('give task: %s', worker.task)
-			return worker.task
+			if not worker.task_given_ts:
+				worker.task_given_ts = datetime.datetime.now()
+			return dict(proc=worker.task.proc, args=worker.task.args, worker_options=worker.task.worker_options)
 		log.debug('sleep')
 		log.debug('')
 		time.sleep(10)

@@ -39,10 +39,10 @@ class Task:
 		log.debug('task %s created', self)
 		
 	def __str__(self):
-		return f'Task({self.task_id}, msg:{self.proc}, {self.args}, worker_options:{self.worker_options})'
+		return f'Task({self.task_id}, proc:{self.proc}, args:{self.args}, worker_options:{self.worker_options})'
 
 	def __repr__(self):
-		return f'Task({self.task_id}, msg:{self.proc}, {self.args}, worker_options:{self.worker_options})'
+		return f'Task({self.task_id}, proc:{self.proc}, args:{self.args}, worker_options:{self.worker_options})'
 
 
 

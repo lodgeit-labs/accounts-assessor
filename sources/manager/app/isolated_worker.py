@@ -12,6 +12,7 @@ import time
 from app.machine import list_machines
 from app.untrusted_task import *
 
+from contextlib import contextmanager
 
 
 
@@ -28,8 +29,11 @@ class Worker:
 		self.id = id
 		self.sizes = [None]
 		self.task = None
+
 		self.last_reported_task_ts = None
 		self.last_reported_task = None
+		self.task_given_ts = None
+
 		self.fly_machine = None
 	def alive(self):
 		return self.last_seen > datetime.datetime.now() - datetime.timedelta(minutes=2)
@@ -41,8 +45,6 @@ class Worker:
 		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task})'
 
 
-
-from contextlib import contextmanager
 
 @contextmanager
 def wl(message):
@@ -59,6 +61,7 @@ def wl(message):
 		log.debug('wl release from: %s', message)
 
 
+
 def get_worker(id, last_seen=None):
 	""" runs in FastAPI thread. Only place where Worker is constructed """
 	with wl('get_worker'): 
@@ -70,6 +73,7 @@ def get_worker(id, last_seen=None):
 			worker.last_seen = last_seen
 		log.debug('get_worker: workers: %s', workers)
 		return worker
+
 
 
 def heartbeat(worker):
@@ -116,10 +120,9 @@ def synchronization_thread():
 	
 		e = Dotdict(events.get())
 		log.debug('synchronization_thread: %s', e)
-		
-		
+
 		with wl('synchronization_thread'):
-	
+
 			if e.type == 'add_task':
 				if try_assign_any_worker_to_task(e.task):
 					pass
@@ -127,18 +130,21 @@ def synchronization_thread():
 					log.debug(f'pending_tasks.append({e.task})')
 					pending_tasks.append(e.task)
 		
-			if e.type == 'task_result':
+			elif e.type == 'task_result':
 				if e.worker.task:
 					if e.result.task_id == e.worker.task.task_id:
 						e.worker.task.results.put(dict(result=e.result.result))
 					e.worker.task = None
 					find_new_task_for_worker(e.worker)
-	
-			if e.type == 'worker_died':
+
+			elif e.type == 'worker_died':
 					del workers[e.worker.id]
 					if e.worker.fly_machine:
 						e.worker.fly_machine.delete()
-	
+
+			elif e.type == 'worker_available':
+				find_new_task_for_worker(e.worker)
+
 
 def sorted_workers():
 	return sorted(workers.values(), key=lambda w: w.last_seen, reverse=True)
@@ -150,21 +156,22 @@ def sorted_workers():
 # 	workers = {}
 # 	for w in old:
 # 		workers[w.id] = w
-#
-#
+
 
 def find_new_task_for_worker(worker):
 	log.debug('find_new_task_for_worker: %s', worker)
 	if not worker.alive():
 		log.debug('find_new_task_for_worker: worker not alive')
 		return
-	log.debug('find_new_task_for_worker: leng(pending_tasks)=%s', len(pending_tasks))
+	log.debug('find_new_task_for_worker: len(pending_tasks)=%s', len(pending_tasks))
 	for task in pending_tasks:
 		if try_assign_worker_to_task(worker, task):
 			return True
-			
+
+
 def match_worker_to_task(worker, task):
-	return True#task.size in worker.sizes
+	return True#task.min_worker_available_mem <= worker.available_mem
+
 
 def try_assign_any_worker_to_task(task):
 	log.debug('try_assign_any_worker_to_task: len(workers)=%s', len(workers))
@@ -172,22 +179,16 @@ def try_assign_any_worker_to_task(task):
 		if try_assign_worker_to_task(worker, task):
 			return True
 
+
 def try_assign_worker_to_task(worker, task):
 	log.debug('try_assign_worker_to_task: %s, %s', worker, task)
 	if match_worker_to_task(worker, task):
 		assign_worker_to_task(worker, task)
 		return True
 
+
 def assign_worker_to_task(worker, task):
 	log.debug('assign_worker_to_task: %s, %s', worker, task)
 	worker.task = task
 	if task in pending_tasks:
 		pending_tasks.remove(task)
-	
-
-
-
-
-
-
-
