@@ -29,7 +29,7 @@ class Task:
 	def __init__(self, proc, args, worker_options, input_directories=[], output_directories=[]):
 		self.size = None
 		
-		self.task_id = CurrentMessage.get_current_message().message_id + '_' + uuid.uuid4().hex
+		self.id = CurrentMessage.get_current_message().message_id + '_' + uuid.uuid4().hex
 		self.proc = proc
 		self.args = args
 		self.worker_options = worker_options
@@ -39,10 +39,10 @@ class Task:
 		log.debug('task %s created', self)
 		
 	def __str__(self):
-		return f'Task({self.task_id}, proc:{self.proc}, args:{self.args}, worker_options:{self.worker_options})'
+		return f'Task({self.id}, proc:{self.proc}, args:{self.args}, worker_options:{self.worker_options})'
 
 	def __repr__(self):
-		return f'Task({self.task_id}, proc:{self.proc}, args:{self.args}, worker_options:{self.worker_options})'
+		return f'Task({self.id}, proc:{self.proc}, args:{self.args}, worker_options:{self.worker_options})'
 
 
 

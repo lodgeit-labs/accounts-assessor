@@ -35,14 +35,20 @@ class Worker:
 		self.task_given_ts = None
 
 		self.fly_machine = None
+
+
+	@property
+	def task_id(self):
+		return self.task.id if self.task else None
+
 	def alive(self):
 		return self.last_seen > datetime.datetime.now() - datetime.timedelta(minutes=2)
 
 	def __str__(self):
-		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task})'
+		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task_id})'
 
 	def __repr__(self):
-		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task})'
+		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task_id})'
 
 
 
@@ -51,14 +57,14 @@ def wl(message):
 	global workers_lock_msg
 	try:
 		if workers_lock_msg:
-			log.debug('wl wait on: %s', self.wlk)
+			logging.getLogger('workers_lock').debug('wl wait on: %s', self.wlk)
 		workers_lock_msg = message
 		workers_lock.acquire()
 		yield
 	finally:
 		workers_lock.release()
 		workers_lock_msg = None
-		log.debug('wl release from: %s', message)
+		logging.getLogger('workers_lock').debug('wl release from: %s', message)
 
 
 
@@ -91,7 +97,7 @@ def worker_janitor():
 					if worker.task:
 						put_event(dict(type='task_result', worker=worker, result=dict(
 							result=dict(error='worker died'),
-							task_id=worker.task.task_id
+							task_id=worker.task.id
 						)))
 					put_event(dict(type='worker_died', worker=worker))
 		time.sleep(10)
@@ -111,9 +117,10 @@ def fly_machine_janitor():
 					else:
 						machine.delete()			
 			time.sleep(60)
-			
+1
 threading.Thread(target=fly_machine_janitor, daemon=True).start()
-		
+
+results_of_unknown_tasks = []
 
 def synchronization_thread():
 	while True:
@@ -124,18 +131,28 @@ def synchronization_thread():
 		with wl('synchronization_thread'):
 
 			if e.type == 'add_task':
-				if try_assign_any_worker_to_task(e.task):
-					pass
+				for r in results_of_unknown_tasks:
+					if r.task_id == e.task.id:
+						log.debug('add_task: result already in results_of_unknown_tasks. precognition!')
+						e.task.results.put(dict(result=r.result))
+						results_of_unknown_tasks.remove(r)
+						break
 				else:
-					log.debug(f'pending_tasks.append({e.task})')
-					pending_tasks.append(e.task)
+					if try_assign_any_worker_to_task(e.task):
+						pass
+					else:
+						log.debug(f'pending_tasks.append({e.task})')
+						pending_tasks.append(e.task)
 		
 			elif e.type == 'task_result':
-				if e.worker.task:
-					if e.result.task_id == e.worker.task.task_id:
-						e.worker.task.results.put(dict(result=e.result.result))
+				if e.result.task_id == e.worker.task_id:
+					e.worker.task.results.put(dict(result=e.result.result))
 					e.worker.task = None
 					find_new_task_for_worker(e.worker)
+				else:
+					log.warn('task_result: unknown task. Maybe manager restarted and does not remember giving this task to this worker.')
+					# we can't trust untrusted workers with random task results, but with trusted workers we can. So we should probably have a separate list of unpaired task results, and check it in add_task
+					results_of_unknown_tasks.append(e.result)
 
 			elif e.type == 'worker_died':
 					del workers[e.worker.id]
@@ -148,14 +165,6 @@ def synchronization_thread():
 
 def sorted_workers():
 	return sorted(workers.values(), key=lambda w: w.last_seen, reverse=True)
-
-
-# def sort_workers():
-# 	global workers
-# 	old = sorted(workers, key=lambda w: w.last_seen, reverse=True)
-# 	workers = {}
-# 	for w in old:
-# 		workers[w.id] = w
 
 
 def find_new_task_for_worker(worker):

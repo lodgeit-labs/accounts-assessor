@@ -7,7 +7,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../com
 def git(suffix = ""):
 	""" get git repo root path """
 	here = os.path.dirname(__file__)
-	r = os.path.normpath(os.path.join(here, '../../', suffix))
+	r = os.path.normpath(os.path.join(here, '../../../../', suffix))
 	return r
 
 
