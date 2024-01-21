@@ -150,6 +150,11 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 		log.debug('')
 		time.sleep(10)
 
+		# give some time for actors to relay the result, but then let's not keep the worker hanging around with result indefinitely
+
+		if not worker.task and task_result:
+			return outmsg
+
 
 	log.debug('hangup')
 	log.debug('')
