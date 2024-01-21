@@ -1,7 +1,7 @@
 from app import call_prolog
 
 
-import logging, threading, subprocess, os, requests, sys
+import logging, threading, subprocess, os, requests, sys, time
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -55,6 +55,7 @@ def manager_proxy_thread():
 			log.debug('worker %s manager read timeout', worker_id)
 		except Exception as e:
 			log.exception('worker %s get exception', worker_id)
+			time.sleep(5)
 
 
 # the debuggability here might suffer from the fact that the whole work is done in a background thread. But it should be easy to run this in a separate process, there is no shared state, nothing, it's just that it seems convenient that the whole service is a single process. But it's not a requirement.

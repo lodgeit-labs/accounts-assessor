@@ -98,14 +98,16 @@ async def post_messages(request: Request, worker_id: str, task_result=None, work
 		put_event(dict(type='task_result', worker=worker, result=task_result))
 	
 	while not await request.is_disconnected():
+		log.debug('id(workers)=%s', id(workers))
+		log.debug('workers:%s', workers)
 		log.debug('worker %s not disconnected', worker_id)
 		heartbeat(worker)
 		if worker.task:
-			log.debug('messages: worker.task: %s', worker.task)
+			log.debug('give task: %s', worker.task)
 			return worker.task
-		log.debug('sleep: %s', worker.task)
-		time.sleep(1)
-
+		log.debug('sleep')
+		time.sleep(3)
+	log.debug('hangup')
 
 
 

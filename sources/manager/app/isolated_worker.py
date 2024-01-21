@@ -13,6 +13,16 @@ from app.machine import list_machines
 from app.untrusted_task import *
 
 
+
+
+workers = {}
+print(id(workers))
+workers_lock = threading.Lock()
+workers_lock_msg = None
+pending_tasks = []
+
+
+
 class Worker:
 	def __init__(self, id):
 		self.id = id
@@ -23,47 +33,58 @@ class Worker:
 		self.fly_machine = None
 	def alive(self):
 		return self.last_seen > datetime.datetime.now() - datetime.timedelta(minutes=2)
-		
 
-workers = {}
-workers_lock = threading.Lock()
-pending_tasks = []
+	def __str__(self):
+		return f'Worker({self.id}, {self.sizes}, {self.task})'
 
+from contextlib import contextmanager
+
+@contextmanager
+def wl(message):
+	global workers_lock_msg
+	try:
+		if workers_lock_msg:
+			log.debug('wl wait on: %s', self.wlk)
+		workers_lock_msg = message
+		workers_lock.acquire()
+		yield
+	finally:
+		workers_lock.release()
+		workers_lock_msg = None
+		log.debug('wl release from: %s', message)
 
 
 def get_worker(id, last_seen=None):
 	""" runs in FastAPI thread. Only place where Worker is constructed """
-	workers_lock.acquire()
-	worker = workers.get(id)
-	if worker is None:
-		worker = Worker(id)
-		workers[id] = worker
-	if last_seen:
-		worker.last_seen = last_seen
-	workers_lock.release()
-	return worker
+	with wl('get_worker'): 
+		worker = workers.get(id)
+		if worker is None:
+			worker = Worker(id)
+			workers[id] = worker
+		if last_seen:
+			worker.last_seen = last_seen
+		log.debug('get_worker: workers: %s', workers)
+		return worker
 
 
 def heartbeat(worker):
-	workers_lock.acquire()
-	worker.last_seen = datetime.datetime.now()
-	workers_lock.release()
+	with wl('heartbeat'):
+		log.debug('thump')
+		worker.last_seen = datetime.datetime.now()
 
 
 
 def worker_janitor():
 	while True:
-		workers_lock.acquire()
-		for _,worker in workers.items():
-			if not worker.alive():
-				if worker.task:
-					put_event(dict(type='task_result', worker=worker, result=dict(
-						result=dict(error='worker died'),
-						task_id=worker.task.task_id
-					)))
-				put_event(dict(type='worker_died', worker=worker))
-				
-		workers_lock.release()
+		with wl('worker_janitor'):
+			for _,worker in workers.items():
+				if not worker.alive():
+					if worker.task:
+						put_event(dict(type='task_result', worker=worker, result=dict(
+							result=dict(error='worker died'),
+							task_id=worker.task.task_id
+						)))
+					put_event(dict(type='worker_died', worker=worker))
 		time.sleep(10)
 
 threading.Thread(target=worker_janitor, daemon=True).start()
@@ -73,12 +94,13 @@ threading.Thread(target=worker_janitor, daemon=True).start()
 def fly_machine_janitor():
 	if fly:
 		while True:
-			for machine in list_machines():
-				for _,worker in workers.items():
-					if worker.fly_machine.id == machine.id:
-						break
-				else:
-					machine.delete()
+			with wl('fly_machine_janitor'):
+				for machine in list_machines():
+					for _,worker in workers.items():
+						if worker.fly_machine.id == machine.id:
+							break
+					else:
+						machine.delete()			
 			time.sleep(60)
 			
 threading.Thread(target=fly_machine_janitor, daemon=True).start()
@@ -90,32 +112,28 @@ def synchronization_thread():
 		e = Dotdict(events.get())
 		log.debug('synchronization_thread: %s', e)
 		
-		workers_lock.acquire()
-
-		if e.type == 'add_task':
-			sort_workers()
-			if try_assign_any_worker_to_task(e.task):
-				pass
-			else:
-				pending_tasks.append(e.task)
+		
+		with wl('synchronization_thread'):
 	
-		if e.type == 'task_result':
-			if e.worker.task:
-				if e.result.task_id == e.worker.task.task_id:
-					e.worker.task.results.put(dict(result=e.result.result))
-				e.worker.task = None
-				find_new_task_for_worker(e.worker)
-
-		if e.type == 'worker_died':
-				del workers[e.worker.id]
-				if e.worker.fly_machine:
-					e.worker.fly_machine.delete()
-
-
-		workers_lock.release()
-
-
-
+			if e.type == 'add_task':
+				sort_workers()
+				if try_assign_any_worker_to_task(e.task):
+					pass
+				else:
+					pending_tasks.append(e.task)
+		
+			if e.type == 'task_result':
+				if e.worker.task:
+					if e.result.task_id == e.worker.task.task_id:
+						e.worker.task.results.put(dict(result=e.result.result))
+					e.worker.task = None
+					find_new_task_for_worker(e.worker)
+	
+			if e.type == 'worker_died':
+					del workers[e.worker.id]
+					if e.worker.fly_machine:
+						e.worker.fly_machine.delete()
+	
 
 def sort_workers():
 	global workers
