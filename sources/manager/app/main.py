@@ -90,8 +90,11 @@ async def post_messages(request: Request, worker_id: str, task_result=None, work
 	 Concievably, the events pushed here can be pushed multiple times, the client can invoke this multiple times, if a connection error occurs during handling
 	 
 	"""
-	log.debug('messages worker_id=%s task_result=%s', worker_id, task_result)
-	
+	log.debug('')
+	log.debug('')
+	log.debug('')
+	log.debug('/messages worker_id=%s task_result=%s', worker_id, task_result)
+
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	
 	if task_result:
@@ -106,8 +109,10 @@ async def post_messages(request: Request, worker_id: str, task_result=None, work
 			log.debug('give task: %s', worker.task)
 			return worker.task
 		log.debug('sleep')
-		time.sleep(3)
+		log.debug('')
+		time.sleep(10)
 	log.debug('hangup')
+	log.debug('')
 
 
 

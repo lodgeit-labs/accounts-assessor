@@ -34,7 +34,7 @@ def manager_proxy_thread():
 				worker_id=worker_id,
 				task_result=task_result,
 				worker_info=worker_info,
-			), timeout=10)
+			), timeout=100)
 			r.raise_for_status()
 			msg = Dotdict(r.json())
 			log.debug('worker %s got message %s', worker_id, msg)

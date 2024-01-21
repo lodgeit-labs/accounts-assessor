@@ -35,7 +35,12 @@ class Worker:
 		return self.last_seen > datetime.datetime.now() - datetime.timedelta(minutes=2)
 
 	def __str__(self):
-		return f'Worker({self.id}, {self.sizes}, {self.task})'
+		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task})'
+
+	def __repr__(self):
+		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task})'
+
+
 
 from contextlib import contextmanager
 
@@ -116,10 +121,10 @@ def synchronization_thread():
 		with wl('synchronization_thread'):
 	
 			if e.type == 'add_task':
-				sort_workers()
 				if try_assign_any_worker_to_task(e.task):
 					pass
 				else:
+					log.debug(f'pending_tasks.append({e.task})')
 					pending_tasks.append(e.task)
 		
 			if e.type == 'task_result':
@@ -135,14 +140,18 @@ def synchronization_thread():
 						e.worker.fly_machine.delete()
 	
 
-def sort_workers():
-	global workers
-	old = sorted(workers, key=lambda w: w.last_seen, reverse=True)
-	workers = {}
-	for w in old:
-		workers[w.id] = w
-	
+def sorted_workers():
+	return sorted(workers.values(), key=lambda w: w.last_seen, reverse=True)
 
+
+# def sort_workers():
+# 	global workers
+# 	old = sorted(workers, key=lambda w: w.last_seen, reverse=True)
+# 	workers = {}
+# 	for w in old:
+# 		workers[w.id] = w
+#
+#
 
 def find_new_task_for_worker(worker):
 	log.debug('find_new_task_for_worker: %s', worker)
@@ -155,11 +164,11 @@ def find_new_task_for_worker(worker):
 			return True
 			
 def match_worker_to_task(worker, task):
-	return task.org == worker.org and task.size in worker.sizes
+	return True#task.size in worker.sizes
 
 def try_assign_any_worker_to_task(task):
 	log.debug('try_assign_any_worker_to_task: len(workers)=%s', len(workers))
-	for _,worker in workers.items():
+	for worker in sorted_workers():
 		if try_assign_worker_to_task(worker, task):
 			return True
 
