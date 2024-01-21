@@ -120,7 +120,17 @@ def fly_machine_janitor():
 1
 threading.Thread(target=fly_machine_janitor, daemon=True).start()
 
-results_of_unknown_tasks = []
+
+class MaxSizeList(list):
+    def __init__(self, maxlen):
+        self._maxlen = maxlen
+
+    def append(self, element):
+        self.__delitem__(slice(0, len(self) == self._maxlen))
+        super(MaxSizeList, self).append(element)
+
+results_of_unknown_tasks = MaxSizeList(1000)
+
 
 def synchronization_thread():
 	while True:
@@ -132,9 +142,9 @@ def synchronization_thread():
 
 			if e.type == 'add_task':
 				for r in results_of_unknown_tasks:
-					if r.task_id == e.task.id:
+					if r['task_id'] == e.task.id:
 						log.debug('add_task: result already in results_of_unknown_tasks. precognition!')
-						e.task.results.put(dict(result=r.result))
+						e.task.results.put(dict(result=r['result']))
 						results_of_unknown_tasks.remove(r)
 						break
 				else:
@@ -143,24 +153,49 @@ def synchronization_thread():
 					else:
 						log.debug(f'pending_tasks.append({e.task})')
 						pending_tasks.append(e.task)
-		
-			elif e.type == 'task_result':
-				if e.result.task_id == e.worker.task_id:
-					e.worker.task.results.put(dict(result=e.result.result))
-					e.worker.task = None
-					find_new_task_for_worker(e.worker)
-				else:
-					log.warn('task_result: unknown task. Maybe manager restarted and does not remember giving this task to this worker.')
-					# we can't trust untrusted workers with random task results, but with trusted workers we can. So we should probably have a separate list of unpaired task results, and check it in add_task
-					results_of_unknown_tasks.append(e.result)
 
 			elif e.type == 'worker_died':
-					del workers[e.worker.id]
-					if e.worker.fly_machine:
-						e.worker.fly_machine.delete()
+				if e.worker.task:
+					e.worker.task.results.put(dict(result=dict(error='worker died')))
+				del workers[e.worker.id]
+				if e.worker.fly_machine:
+					e.worker.fly_machine.delete()
 
 			elif e.type == 'worker_available':
 				find_new_task_for_worker(e.worker)
+
+			else :
+				log.warn('unknown event type: %s', e.type)
+
+
+def on_task_result(worker, result):
+	with wl('synchronization_thread'):
+
+		if 'task_id' not in result:
+			r = dict(error='task_result: no task_id in result')
+			log.warn(r)
+			return r
+		if 'result' not in result:
+			r = dict(error='task_result: no result in result')
+			log.warn(r)
+			return r
+
+		if result['task_id'] == worker.task_id:
+			log.debug('task_result: worker %s got result for task %s', worker.id, result['task_id'])
+			worker.task.results.put(dict(result=result['result']))
+		else:
+			log.warn('task_result: unknown task. Maybe manager restarted and does not remember giving this task to this worker.')
+			# we can't trust untrusted workers with random task results, but with trusted workers we can. So we should probably have a separate list of unpaired task results, and check it in add_task
+			for r in results_of_unknown_tasks:
+				if r['task_id'] == result['task_id']:
+					break
+			else:
+				results_of_unknown_tasks.append(result)
+
+		worker.task = None
+		find_new_task_for_worker(worker)
+
+		return dict(result_ack=True)
 
 
 def sorted_workers():

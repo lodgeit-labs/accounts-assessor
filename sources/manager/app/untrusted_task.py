@@ -57,7 +57,7 @@ def do_untrusted_task(task: Task):
 
 		put_event(dict(type='add_task', task=task))
 		log.debug('actor block on task.results.get()..')
-		return task.results.get()
+		result = task.results.get()
 		log.debug('actor got result')
 	finally:
 		log.debug('do_untrusted_task: finally')
@@ -66,4 +66,4 @@ def do_untrusted_task(task: Task):
 		if fly:
 			# todo copy result files from fly machine
 			fly_machine.delete()
-
+	return result

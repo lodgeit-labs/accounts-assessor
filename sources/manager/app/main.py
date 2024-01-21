@@ -25,6 +25,7 @@ import logging
 import os, sys
 import threading
 import time
+from typing import Optional
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 from tasking import remoulade
@@ -69,7 +70,7 @@ def post_heartbeat(worker_id: str, task_id: str = None):
 
 
 @app.post("/worker/{worker_id}/messages")
-async def post_messages(request: Request, worker_id: str, task_result=None, worker_info=None):
+async def post_messages(request: Request, worker_id: str, inmsg: dict):
 	"""
 	Hangs until a message is available. Worker calls this in a loop.
 	
@@ -90,6 +91,11 @@ async def post_messages(request: Request, worker_id: str, task_result=None, work
 	 Concievably, the events pushed here can be pushed multiple times, the client can invoke this multiple times, if a connection error occurs during handling
 	 
 	"""
+
+	task_result = inmsg.get('task_result')
+	worker_info = inmsg.get('worker_info')
+
+
 	log.debug('')
 	log.debug('')
 	log.debug('')
@@ -97,12 +103,10 @@ async def post_messages(request: Request, worker_id: str, task_result=None, work
 
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 
-	msg = {}
+	outmsg = {}
 
 	if task_result:
-		put_event(dict(type='task_result', worker=worker, result=task_result))
-		# maybe synchronization_thread shouldnt be a thread, we could just call some task_result(), which would acquire lock and do stuff. And we could wait on it here. There's no problem blocking here.
-		msg['result_ack'] = True
+		outmsg |= on_task_result(worker=worker, result=task_result)
 	else:
 		if worker.task and worker.task_given_ts:
 			time_since_task_sent_to_worker = datetime.datetime.now() - worker.task_given_ts
@@ -110,7 +114,8 @@ async def post_messages(request: Request, worker_id: str, task_result=None, work
 			if time_since_task_sent_to_worker > datetime.timedelta(seconds=15):
 				# grace period, because in the loop below, we may think that we sent a response with task, but the worker might have been already disconnected. But we only record task_given_ts the first time we relay the task, so, if a worker keeps disconnecting, we eventually ...do...something?
 				log.warn(f"""{worker.id} should be working on {worker.
-						 task_id} and sending heartbeats, but it's asking for more tasks instead... {time_since_task_sent_to_worker=}""")
+						 task_id} and sending heartbeats, but it's coming back without result... {time_since_task_sent_to_worker=}""")
+				put_event(dict(type='worker_died', worker=worker))
 		else:
 			put_event(dict(type='worker_available', worker=worker))
 			time.sleep(1)
@@ -138,10 +143,14 @@ async def post_messages(request: Request, worker_id: str, task_result=None, work
 			log.debug('give task: %s', worker.task)
 			if not worker.task_given_ts:
 				worker.task_given_ts = datetime.datetime.now()
-			return dict(proc=worker.task.proc, args=worker.task.args, worker_options=worker.task.worker_options)
+			return outmsg | dict(task=dict(id = worker.task.id, proc=worker.task.proc, args=worker.task.args, worker_options=worker.task.worker_options))
+
+
 		log.debug('sleep')
 		log.debug('')
 		time.sleep(10)
+
+
 	log.debug('hangup')
 	log.debug('')
 

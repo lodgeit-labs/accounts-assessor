@@ -28,35 +28,34 @@ def manager_proxy_thread():
 	while True:
 	
 		try:
-			log.debug('worker %s go get message', worker_id)
+			log.debug(f'{worker_id} go get message, {task_result=}')
 		
-			r = requests.post(os.environ['MANAGER_URL'] + f'/worker/{worker_id}/messages', data=dict(
-				worker_id=worker_id,
+			r = requests.post(os.environ['MANAGER_URL'] + f'/worker/{worker_id}/messages', json=dict(
 				task_result=task_result,
 				worker_info=worker_info,
 			), timeout=100)
 			r.raise_for_status()
 			msg = r.json()
+			log.debug('worker %s got message %s', worker_id, msg)
 
 			if msg.get('result_ack'):
 				task_result = None
 			if msg.get('task'):
-				task = Dotdict(msg.task)
-				log.debug('worker %s got task %s', worker_id, task)
-
+				task = Dotdict(msg['task'])
 				if task.proc == 'call_prolog':
-					task_result = call_prolog.call_prolog(task.args['msg'], task.worker_options)
+					task_result = dict(task_id=task.id, result=call_prolog.call_prolog(task.args['msg'], task.worker_options))
 				elif task.proc == 'call_prolog_calculator':
-					task_result = call_prolog.call_prolog_calculator(task.args['msg'], task.worker_options)
+					task_result = dict(task_id=task.id, result=call_prolog.call_prolog_calculator(task.args['msg'], task.worker_options))
 				elif task.proc == 'arelle':
-					task_result = arelle(task.args, task.worker_options)
+					task_result = dict(task_id=task.id, result=arelle(task.args, task.worker_options))
 				else:
 					log.warn('task bad, unknown proc: ' + str(task.proc))
 
 		except requests.exceptions.ReadTimeout:
 			log.debug('worker %s /messages read timeout', worker_id)
 		except requests.exceptions.HTTPError as e:
-			log.debug('worker %s /messages http error', worker_id)
+			log.debug('worker %s /messages %s', worker_id, e)
+			time.sleep(5)
 		except Exception as e:
 			log.exception('worker %s get exception', worker_id)
 			time.sleep(5)
