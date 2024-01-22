@@ -12,6 +12,11 @@ loan start is 2015, lodgement day is 12/12/2015, principal is 100000, repayments
 ====
 problems
 
+https://www.youtube.com/watch?v=Gh2EhFTnY7U
+
+one is in your video, where it writes a completely wrong interpretation of what the lodgement day is, another captured on screenshot below, where it interchanges "excess" with "shortfall".
+
+Another issue i noticed is with dates, where it chooses to quietly correct year 1020 to 2020. I came up with some instructions that i try to feed it, but for what i can tell, it's as if it ignores them.
 
 Also, notice the date 10/10/1015 in a prompt like this:
 loan start is 2015, lodgement day is 12/12/2015, principal is 100000, repayments are 10/10/1015 50000, 1/1/2016 50000
