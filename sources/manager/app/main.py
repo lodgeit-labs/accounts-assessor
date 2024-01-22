@@ -139,7 +139,6 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 
 
 		if worker.task:
-			# task could/should be a one-item queue to wait on.
 			log.debug('give task: %s', worker.task)
 			if not worker.task_given_ts:
 				worker.task_given_ts = datetime.datetime.now()
@@ -148,11 +147,16 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 
 		log.debug('sleep')
 		log.debug('')
-		time.sleep(10)
+		try:
+			worker.handler_wakeup.get(timeout=10)
+		except queue.Empty:
+			pass
+		
 
-		# give some time for actors to relay the result, but then let's not keep the worker hanging around with result indefinitely
+		# give some time for actors to relay the result, but then let's not keep the worker hanging around with result indefinitely, because it always timeouts first, and we never actually send him a message. So let's send him the ack.
 
 		if not worker.task and task_result:
+			log.debug(str(outmsg))
 			return outmsg
 
 

@@ -28,13 +28,31 @@ class Worker:
 	def __init__(self, id):
 		self.id = id
 		self.sizes = [None]
-		self.task = None
+		self._task = None
+		self.handler_wakeup = queue.Queue()
 
 		self.last_reported_task_ts = None
 		self.last_reported_task = None
 		self.task_given_ts = None
 
 		self.fly_machine = None
+
+	@property
+	def task(self):
+		return self._task
+	@task.setter
+	def task(self, task):
+		self._task = task
+		
+		# clear the queue
+		try:
+			while True:
+				self.handler_wakeup.get_nowait()
+		except queue.Empty:
+			pass
+		# put one item to signal the handler to wake up	
+		if task:
+			self.handler_wakeup.put(True)
 
 
 	@property
@@ -94,11 +112,6 @@ def worker_janitor():
 		with wl('worker_janitor'):
 			for _,worker in workers.items():
 				if not worker.alive():
-					if worker.task:
-						put_event(dict(type='task_result', worker=worker, result=dict(
-							result=dict(error='worker died'),
-							task_id=worker.task.id
-						)))
 					put_event(dict(type='worker_died', worker=worker))
 		time.sleep(10)
 

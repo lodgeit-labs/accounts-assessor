@@ -103,7 +103,14 @@ RUN mkdir -p /app/server_root/control
 RUN chown myuser:myuser /app/server_root/tmp
 RUN chown myuser:myuser /app/server_root/control
 VOLUME /app/server_root/tmp
+# this has no effect, the volume is only mounted at runtime
+# we can manually do something like:
+# docker run -it --rm -v robust_tmp:/aaa alpine chown 1000:1000 /aaa
+# we can have a service do this.
+
 RUN chown myuser:myuser /app/server_root/tmp
+
+
 RUN mkdir -p /app/cache
 RUN chown myuser:myuser /app/cache
 VOLUME /app/cache

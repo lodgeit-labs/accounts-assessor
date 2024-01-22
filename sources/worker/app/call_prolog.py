@@ -32,7 +32,8 @@ def call_prolog(
 	might get reused now, because we will again be generating a goal string that can be copy&pasted into swipl..
 	"""
 
-	result_tmp_path = get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']) if 'result_tmp_directory_name' in msg['params'] else None
+	result_tmp_path = get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']) if 'result_tmp_directory_name' in msg['params'] else '../../server_root/tmp'
+	
 
 	if worker_options is None:
 		worker_options = {}
@@ -48,7 +49,7 @@ def call_prolog(
 		halt=True,
 		pipe_rpc_json_to_swipl_stdin=False,
 		dry_run=False,
-		MPROF_OUTPUT_PATH=result_tmp_path + '/mem_prof.txt' if result_tmp_path else None,
+		MPROF_OUTPUT_PATH=result_tmp_path + '/mem_prof.txt' if result_tmp_path else 'mem_prof.txt',
 	)
 
 	worker_options = default_options | config | worker_options
