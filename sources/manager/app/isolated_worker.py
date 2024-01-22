@@ -227,6 +227,8 @@ def find_new_task_for_worker(worker):
 
 
 def match_worker_to_task(worker, task):
+	if worker.task:
+		return False
 	return True#task.min_worker_available_mem <= worker.available_mem
 
 

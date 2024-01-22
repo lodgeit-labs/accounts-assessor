@@ -160,7 +160,7 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 			return outmsg
 
 
-	log.debug('hangup')
+	log.debug('hangup.')
 	log.debug('')
 
 
