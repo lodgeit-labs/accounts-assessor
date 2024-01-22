@@ -1,4 +1,6 @@
 import os, sys, logging, re
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common')))
+import div7a2
 import urllib.parse
 import json
 import datetime
@@ -27,16 +29,35 @@ from . import div7a
 
 @app.post("/div7a")
 def post_div7a(loan_summary_request: dict):
-	log.warn(json.dumps(loan_summary_request))
+	log.info(json.dumps(loan_summary_request))
 	try:
 		result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
-	except MyException as e:
+	except div7a.MyException as e:
 		result = dict(result='error', error_message=str(e))
 	except Exception as e:
 		traceback_message = traceback.format_exc()
 		result = dict(result='error', error_message=traceback_message)
-	log.warn(result)
+	log.info(result)
 	return result
+
+
+
+
+@app.post("/div7a2")
+def post_div7a2(
+	request: dict
+):
+	log.info(json.dumps(request))
+	try:
+		result = dict(result=div7a.div7a2_from_json(request['request'], request['tmp_dir_path']))
+	except div7a.MyException as e:
+		result = dict(result='error', error_message=str(e))
+	except Exception as e:
+		traceback_message = traceback.format_exc()
+		result = dict(result='error', error_message=traceback_message)
+	log.info(result)
+	return result
+
 
 @app.post("/arelle_extract")
 def post_arelle_extract(taxonomy_locator: str):

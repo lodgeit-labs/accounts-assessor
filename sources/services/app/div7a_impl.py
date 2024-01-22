@@ -25,7 +25,7 @@ def rec_add(recs, rec):
 	modified = True
 	
 	while modified:
-		log.warn(rec)
+		#log.warn(rec)
 		modified = False
 		
 		for i,r in enumerate(recs):
@@ -84,6 +84,11 @@ def benchmark_rate(year):
 		raise MyException(f'No benchmark rate for year {year}')
 
 
+def benchmark_rate_years():
+	keys = list(benchmark_rates.keys())
+	keys.sort()
+	return keys
+
 
 def get_remaining_term(records, r):
 	"""
@@ -120,7 +125,10 @@ def income_years_of_loan(records):
 		yield income_year
 
 
-
+def overview_income_years(records):
+	loan_start_record = get_loan_start_record(records)
+	first_year = loan_start_record.income_year + 1
+	
 
 def get_final_balance_of_previous_income_year(records, i):
 	"""

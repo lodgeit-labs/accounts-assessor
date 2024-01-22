@@ -36,7 +36,7 @@ def trigger_remote_calculator_job(**kwargs):
 def local_calculator(
 	request_directory: str,
 	public_url='http://localhost:8877',
-	options=None,
+	worker_options=None,
 	request_format=None
 ):
 	msg = dict(
@@ -49,7 +49,7 @@ def local_calculator(
 		)
 	)
 	update_last_request_symlink(request_directory)
-	return invoke_rpc.call_prolog_calculator(msg=msg, options=options)
+	return invoke_rpc.call_prolog_calculator(msg=msg, worker_options=worker_options)
 
 
 def run_last_request_outside_of_docker(self):

@@ -1,3 +1,4 @@
+from pathlib import Path as P
 import time, shutil, ntpath, os
 import sys, subprocess
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
@@ -43,6 +44,40 @@ def create_tmp():
 	full_path = get_tmp_directory_absolute_path(name)
 	os.mkdir(full_path)
 	return name,full_path
+
+def create_tmp_for_user(user):
+	name, path = create_tmp()
+	write_htaccess(user, path)
+	return name, path
+
+
+def write_htaccess(user, path):
+	"""
+	"""
+
+	#i think we'll eventually replace the role of apache here, with python.
+	#https://stackoverflow.com/questions/71276790/list-files-from-a-static-folder-in-fastapi
+	with open(P(path) / '.access', 'w') as f:
+		f.write(f"""{user}\n""")
+
+	
+	user = re.escape(user)
+	
+	with open(P(path) / '.htaccess', 'w') as f:
+		f.write(f"""
+
+RewriteEngine On
+
+SetEnvIf BasicAuthUser "^{user}$" BasicAuthUser=$1
+Allow from env=BasicAuthUser
+
+SetEnvIf X-Forwarded-Email "^{user}$" OauthUser=$1
+Allow from env=OauthUser
+
+Deny from all
+		
+""")
+
 
 def copy_request_files_to_tmp(tmp_directory_absolute_path, files):
 	# request file paths, as passed to prolog

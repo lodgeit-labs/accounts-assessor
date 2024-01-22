@@ -37,6 +37,14 @@ def check_invariants(records):
 		if opening_balance_records[0].info['amount'] <= 0:
 			raise MyException('Opening balance is not positive')
 
+	# - repayments cannot be before opening balance
+	if len(opening_balance_records) == 1:
+		for r in records:
+			if r.__class__ == opening_balance:
+				break
+			elif r.__class__ == repayment:
+				raise MyException('Repayment before opening balance')
+
 	# 	loan_start is before calculation_start:
 	
 	if records.index(one([r for r in records if r.__class__ == calculation_start])) <= records.index(one([r for r in records if r.__class__ == loan_start])):
@@ -58,3 +66,8 @@ def check_invariants(records):
 			i].date == records[i + 1].date:
 			raise MyException('Two adjacent interest calcs on the same day')
 
+	# - repayments must be positive amounts:
+	for r in repayments(records):
+		if r.info['amount'] <= 0:
+			raise MyException('Repayment is not positive')
+	

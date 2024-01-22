@@ -8,6 +8,8 @@ from copy import deepcopy
 from urllib.parse import urlparse
 import queue
 import libtmux
+import io
+
 
 
 #l = logging.getLogger()
@@ -189,14 +191,23 @@ def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_bui
 		frontend = 'localhost'
 	else:
 		frontend = 'frontend'
-	open('apache/conf/dynamic.conf','w').write(
-f"""
+
+	with open('apache/conf/dynamic.conf','w') as f:
+		f.write(
+			f"""
 ServerName {public_host}
-""" + '\n'.join([f"""
+			""")
+
+		paths = 'health_check health chat upload reference api view div7a .well-known/ai-plugin.json openapi.json docs ai2 ai3'.split()
+			
+		for path in paths:
+			f.write(
+				f"""
+ServerName {public_host}
 ProxyPassReverse "/{path}" "http://{frontend}:7788/{path}"
 ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999 timeout=999999999 retry=999999999 acquire=999999999 Keepalive=Off
-""" for path in 'health_check health chat upload reference api view web'.split()]))
- 
+				""")
+
 	pp = port_postfix
 
 	if choices['mount_host_sources_dir']:
@@ -236,7 +247,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		#f'svcenv_{service}_{var}'
 
 
-	stack_fn = generate_stack_file(port_postfix, public_url, choices)
+	stack_fn = generate_stack_file(port_postfix, public_url, choices, e)
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + pp)
 
@@ -244,7 +255,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	if not offline:
 		# this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it) https://github.com/docker/compose#docker-compose-v2
-		call(ss(compose_cmd + ' pull --ignore-pull-failures --include-deps '), env=e)
+		call(ss(compose_cmd + ' pull --ignore-pull-failures --include-deps '), env={})
 
 	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
 
@@ -272,13 +283,13 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		if stay_running:
 			import atexit
 			def shutdown():
-				ccd(ss(compose_cmd + ' down  -t 999999 '), env=e)
+				ccd(ss(compose_cmd + ' down  -t 999999 '), env={})
 			atexit.register(shutdown)
 
 		try:
 			threading.Thread(daemon=True, target = logtail, args = (compose_cmd,)).start()
 			
-			ccd(ss(compose_cmd + ' up --remove-orphans ' + ('' if stay_running else ' --detach')), env=e)
+			ccd(ss(compose_cmd + ' up --remove-orphans ' + ('' if stay_running else ' --detach')), env={})
 		except subprocess.CalledProcessError:
 			ccd(ss('docker ps'), env={})
 
@@ -290,11 +301,10 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 			exit(1)
 
 	else:
-		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+pp], env=e)
+		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+pp], env={})
 		shell('docker stack ps robust'+pp + ' --no-trunc')
 		shell('./follow_logs_noagraph.sh '+pp)
 
-import io
 
 def logtail(compose_events_cmd):
 	cmd = shlex.split('stdbuf -oL -eL ' + compose_events_cmd + ' events')
@@ -341,16 +351,56 @@ def generate_caddy_config(public_host):
 	'''
 	
 	with open('caddy/Caddyfile', 'w') as f:
-		f.write(cfg)    
+		f.write(cfg)
 
 
-def generate_stack_file(port_postfix, PUBLIC_URL, choices):
+def replace_env_vars(tws, env):
+	"""
+	replace ${varname} occurence in any string with value from env. 
+	"""
+	if isinstance(tws, dict):
+		for k, v in tws.items():
+			tws[k] = replace_env_vars(v, env)
+	elif isinstance(tws, list):
+		for i, v in enumerate(tws):
+			tws[i] = replace_env_vars(v, env)
+	elif isinstance(tws, str):
+		for ek,ev in env.items():
+			tws = tws.replace('${'+ek+'}', ev)
+	elif tws is None:
+		return None
+	elif isinstance(tws, int):
+		return tws
+	else:
+		raise Exception(type(tws))
+	return tws
+
+
+def identity_envvars(tws):
+	"""
+	replace None with ${varname} in environment variables.
+	This way, we don't rely on docker-compose to pass these env vars through.
+	"""
+	for s in tws['services'].values():
+		if 'environment' not in s:
+			s['environment'] = {}
+		print(s['environment'])
+		for k,v in s['environment'].items():
+			if v is None:
+				s['environment'][k] = '${'+k+'}'
+
+
+def generate_stack_file(port_postfix, PUBLIC_URL, choices, env):
 	with open('docker-stack-template.yml') as file_in:
 		src = yaml.load(file_in, Loader=yaml.FullLoader)
 		fn = '../generated_stack_files/docker-stack' + ('__'.join(['']+[k for k,v in choices.items() if v])) + '.yml'
 
+	tws = tweaked_services(src, port_postfix, PUBLIC_URL, **choices)
+	identity_envvars(tws)
+	tws = replace_env_vars(tws, env)
+	
 	with open(fn, 'w') as file_out:
-		yaml.dump(tweaked_services(src, port_postfix, PUBLIC_URL, **choices), file_out)
+		yaml.dump(tws, file_out)
 	link_name = '../generated_stack_files/last.yml'
 	try:
 		os.remove(link_name)
@@ -425,7 +475,7 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 			v['depends_on'] = {}
 
 	if mount_host_sources_dir:
-		for x in ['workers','services','frontend', 'remoulade-api']:
+		for x in ['workers','services','frontend', 'remoulade-api', 'download']:
 			if x in services:
 				service = services[x]
 				if 'volumes' not in service:
@@ -447,8 +497,6 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 		for k,v in list(services.items()):
 			if k not in include_services:
 				delete_service(services, k)
-
-
 
 	return res
 
@@ -621,11 +669,12 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 
 	join([ubuntu])
 
-	svc('remoulade-api', 		'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/remoulade_api/Dockerfile_hollow")
-	svc('workers', 				'../sources/', dbtks+'-hlw{port_postfix}"', 		"workers/Dockerfile_hollow")
-	svc('internal-services', 	'../sources/', dbtks+'-hlw{port_postfix}"', 		"internal_services/Dockerfile_hollow")
-	svc('services', 			'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/services/Dockerfile_hollow")
-	svc('frontend', 			'../sources/', dbtks+'-hlw{port_postfix}"', 		"../docker_scripts/frontend/Dockerfile_hollow")
+	svc('download',				'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/download/Dockerfile_hollow")
+	svc('remoulade-api', 		'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/remoulade_api/Dockerfile_hollow")
+	svc('workers', 				'../sources/', dbtks+'-hlw{port_postfix}"', "workers/Dockerfile_hollow")
+	svc('internal-services',		'../sources/', dbtks+'-hlw{port_postfix}"', "internal_services/Dockerfile_hollow")
+	svc('services', 			'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/services/Dockerfile_hollow")
+	svc('frontend', 			'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/frontend/Dockerfile_hollow")
 
 	os.set_blocking(sys.stdout.fileno(), False)
 	print("ok?")

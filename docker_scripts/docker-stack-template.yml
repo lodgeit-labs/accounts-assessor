@@ -52,6 +52,7 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
+      SERVICES_URL:
       WATCHMEDO:
     #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by copying the dev one
     #  REQUIREMENTS_FILE: requirements.txt
@@ -129,7 +130,6 @@ services:
   services:
     image: koo5/services${PP}:latest
     environment:
-      RABBITMQ_URL:
       WATCHMEDO:
     volumes:
       - tmp:/app/server_root/tmp
@@ -170,7 +170,6 @@ services:
         condition: any
     environment:
       CSHARPSERVICES_DATADIR: "/App/data/"
-        
         
 
 
@@ -250,12 +249,11 @@ services:
       - 'postgresql_data:/bitnami/postgresql'
 #    command: ["postgres", "-c", "max_connections=2000", "-c", "shared_buffers=2048MB"]
     environment:
-#     - PGDATA=/bitnami/postgresql
-      - POSTGRESQL_EXTRA_FLAGS=-c max_connections=2000 -c shared_buffers=2048MB -c port=5433
-      - ALLOW_EMPTY_PASSWORD=yes
-      - POSTGRESQL_POSTGRES_PASSWORD=""
-      - POSTGRESQL_DATABASE=remoulade
-      - POSTGRESQL_USERNAME=remoulade
+      POSTGRESQL_EXTRA_FLAGS: -c max_connections=2000 -c shared_buffers=2048MB -c port=5433
+      ALLOW_EMPTY_PASSWORD: "yes"
+      POSTGRESQL_POSTGRES_PASSWORD: ""
+      POSTGRESQL_DATABASE: remoulade
+      POSTGRESQL_USERNAME: remoulade
     deploy:
       replicas: 1
       restart_policy:
@@ -319,6 +317,26 @@ services:
     secrets:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
+
+
+  download:
+    image: koo5/download${PP}:latest
+    environment:
+      WATCHMEDO:
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+    hostnet_ports:
+      - 6457
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+
 
 
 networks:

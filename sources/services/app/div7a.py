@@ -1,15 +1,27 @@
 import json
+from json import JSONEncoder
 import logging
 import pathlib
-from datetime import datetime
+from datetime import datetime, date
 
 from pandas.io.formats.style import Styler
 import pandas as pd
+from sortedcontainers import SortedSet
+
 from .div7a_steps import *
 from .div7a_checks import *
 
 
 log = logging.getLogger(__name__)
+
+
+
+class MyEncoder(JSONEncoder):
+	def default(self, obj):
+		if isinstance(obj, date):
+			return str(obj)
+		return json.JSONEncoder.default(self, obj)
+
 
 
 pd.set_option('display.max_rows', None)
@@ -40,6 +52,31 @@ def div7a_from_json(j,tmp_dir_path='.'):
 	return r
 
 def div7a_from_json2(ooo,j):
+
+	"""
+	given starting amount as:
+		<loan principal> (same as opening balance at first year)
+		or
+		opening balance at calculation income year
+		or
+		<opening balance> at <income year> (not supported here)
+		
+	given repayments for:
+		all the years - in case of principal provided
+		or
+		only the calculation year - in case of opening balance provided
+		or
+		years since opening balance of <income year> - in case of opening balance of <income year> provided 
+	
+	given lodgement day:
+		<date> - in case of calculation of first loan year, this is implied by:
+			principal provided
+			opening balance at calculation income year, where calculation income year is the first year after loan creation
+			<opening balance> at <income year>, where <income year> is the first year after loan creation	
+	
+	...	
+	 
+	"""
 
 	if ooo:
 		print(f'<h3>request</h3>', file=ooo)
@@ -137,7 +174,7 @@ def div7a(ooo, records):
 	# insert minimum yearly repayment check records
 	step(ooo, tables, with_myr_checks)
 	# was minimum yearly repayment met?
-	step(ooo, tables, evaluate_myr_checks)
+	step(ooo, tables, evaluate_myr_checks, True)
 	# one final check
 	check_invariants(tables[-1])
 	
@@ -145,7 +182,7 @@ def div7a(ooo, records):
 
 
 
-def step(ooo, tables, f):
+def step(ooo, tables, f, final=False):
 	t1 = tables[-1]
 	check_invariants(t1)
 	t2 = [r.copy() for r in t1] 
@@ -163,18 +200,16 @@ def step(ooo, tables, f):
 				r.remaining_term = ''
 	
 	if ooo:
-		if in_notebook():
-			from IPython.display import display, HTML
-			print(f.__name__)
-	
-		print(f'<h3>{f.__name__}</h3>', file=ooo)
-	
+
 		dicts1 = records_to_dicts(t1)
 		dicts2 = records_to_dicts(t2)
-			
 		df2 = pd.DataFrame(dicts2)
 
-		if in_notebook():
+		print(f'<h3>{f.__name__}</h3>', file=ooo)
+
+		if in_notebook() and final:
+			from IPython.display import display, HTML
+			print(f.__name__)
 			display(HTML(df2.to_html(index=False, max_rows=1000)))
 	
 		sss = Styler(df2)
@@ -277,3 +312,220 @@ def in_notebook():
 def input(x):
 	"""dummy step"""
 	pass
+
+
+
+
+
+def div7a2_from_json(j,tmp_dir_path='.'):
+	with open(pathlib.PosixPath(tmp_dir_path) / 'test.html', 'w') as ooo:
+		print("""<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <main>
+""",file=ooo)
+		if ooo:
+			print(f'<h3>request</h3>', file=ooo)
+			print(f'<big><pre><code>', file=ooo)
+			json.dump(j, ooo, indent=True)
+			print(f'</code></pre></big>', file=ooo)
+
+		r = div7a2_from_json2(ooo, j)
+
+		if ooo:
+			print(f'<h3>response</h3>', file=ooo)
+			print(f'<big><pre><code>', file=ooo)
+			json.dump(r, ooo, indent=True, cls=MyEncoder)
+			print(f'</code></pre></big>', file=ooo)
+
+		print("""
+    </main>
+  </body>
+</html>
+""",file=ooo)
+	return r
+
+
+def repayments_amount_before_lodgement(records, year):
+	"""
+	How much was repaid before lodgement day in the year?
+	"""
+	return sum([r.info['amount'] for r in records if r.__class__ == repayment and r.info['counts_towards_initial_balance']])
+
+
+def repayments_amount_after_lodgement(records, year):
+	"""
+	How much was repaid after lodgement day in the year?
+	"""
+	return sum([r.info['amount'] for r in records if r.__class__ == repayment and not r.info['counts_towards_initial_balance']])
+
+
+#def income_year_closing_balance(records, year):
+#	return records_of_income_year(records, year)[-1].final_balance
+
+
+def div7a2_from_json2(ooo,j):
+
+	full_term, principal, records, warnings = div7a2_ingest(j)
+
+	# debug
+
+	if not in_notebook():
+		log.warn(records)
+
+	# computation
+
+	records = div7a(ooo, records)
+
+	# answer
+	
+	overview = {}
+
+	loan_start_record = get_loan_start_record(records)
+	first_year = loan_start_record.income_year
+	
+	overview[first_year] = dict(
+		events=[dict(
+			type="loan created", 
+			date=loan_start_record.date, 
+			loan_principal=principal if principal is not None else "unknown",
+			loan_term=loan_start_record.info['term'],
+		)],
+	)
+	
+	year = first_year + 1
+	
+	while year <= first_year + full_term:
+		y = dict(
+			events=[]
+		)
+
+		overview[year] = y
+
+		iyr = records_of_income_year(records, year)
+
+		ob = records_of_income_year(records, year-1)[-1].final_balance
+
+		if ob is not None:
+			y['opening_balance'] = ob
+		
+		for r in iyr:
+			if r.__class__ == lodgement:
+				y['events'].append(dict(
+					type='lodgement',
+					date=r.date
+				))
+			elif r.__class__ == repayment:
+				y['events'].append(dict(
+					type='repayment',
+					date=r.date,
+					amount=r.info['amount']
+				))
+
+		if year is first_year + 1:
+			y['total_repaid_before_lodgement'] = repayments_amount_before_lodgement(records, year)
+			y['total_repaid_after_lodgement'] = repayments_amount_after_lodgement(records, year)
+
+		if ob is not None:
+			myr_info = get_myr_check_of_income_year(records, year).info
+			
+			y['opening_balance'] = loan_agr_year_opening_balance(records, year)
+			y['minimum_yearly_repayment'] = myr_info['myr_required']
+			y['total_repaid'] = total_repayment_in_income_year(records, year)
+			if repayments(iyr) != []:
+				if myr_info['shortfall'] > 0:
+					y['repayment_shortfall'] = myr_info['shortfall']
+				if myr_info['excess'] > 0:
+					y['repayment_excess'] = myr_info['excess']
+			y['interest_rate'] = benchmark_rate(year)
+			y['total_interest_accrued'] = total_interest_accrued(records, year)
+			y['total_principal_paid'] = total_principal_paid(records, year)
+			y['closing_balance'] = closing_balance(records, year)
+			#y['closing_balance'] = income_year_closing_balance(records, year)
+
+		if y.get('repayment_shortfall') not in [None, 0]:
+			y['events'].append(dict(
+				date=date(year, 6, 30),
+				type='end',
+				note="This concludes the calculation. Calculation for subsequent years is not possible because the minimum yearly repayment was not met in this year."
+			))
+			break
+
+		if repayments(iyr) == []:
+			break
+
+		year += 1
+
+	if len(warnings) != 0:
+		overview['warnings'] = ' '.join(warnings)
+		
+	return overview
+
+
+def div7a2_ingest(j):
+	records = []
+	warnings = SortedSet()
+
+	for rep in j['repayments']:
+		rep['date'] = datetime.strptime(rep['date'], '%Y-%m-%d').date()
+
+	rrr = j['repayments']
+	srrr = sorted(rrr, key=lambda x: x['date'])
+
+	if srrr != rrr:
+		warnings.add("Repayments are not sorted by date.")
+
+	for r in j['repayments']:
+		r = repayment(r['date'], {'amount': float(r['amount'])})
+		if r.income_year not in benchmark_rates:
+			#raise MyException(f'Cannot calculate with repayments in income year {r.income_year}. Please do not specify repayments beyond the income year {max(benchmark_rates.keys())}.')
+			warnings.add(f'Cannot calculate with repayments in income year {r.income_year}.')
+		else:
+			rec_add(records, r)
+
+	loan_year = int(j['loan_year'])
+	full_term = int(j['full_term'])
+	ob = float(j['opening_balance'])
+	oby = int(j['opening_balance_year'])
+	last_calculation_income_year = div7a2_calculation_income_year(loan_year, full_term, repayments(records))
+	if oby < loan_year:
+		raise MyException('opening balance year must be after loan year')
+	if oby == loan_year:
+		principal = ob
+	else:
+		principal = None
+		rec_add(records, opening_balance(date(oby, 7, 1), dict(amount=ob)))
+	rec_add(records, loan_start(date(loan_year, 6, 30), dict(principal=principal, term=full_term, calculation_income_year=last_calculation_income_year)))
+
+	rec_add(records, calculation_start(date(oby, 7, 1)))
+	rec_add(records, calculation_end(date(last_calculation_income_year, 6, 30)))
+	rec_add(records, loan_term_end(date(loan_year + full_term, 6, 30)))
+
+	ld = j['lodgement_date']
+	if ld == -1:
+		if oby == loan_year:
+			raise MyException('lodgement_date must be specified')
+	else:
+		lodgement_date = datetime.strptime(ld, '%Y-%m-%d').date()
+		rec_add(records, lodgement(lodgement_date))
+	return full_term, principal, records, warnings
+
+
+def div7a2_calculation_income_year(loan_year, term, repayments):
+	"""
+	find the last year in which a repayment was made, then add 1
+	""" 
+	if len(repayments) == 0:
+		return loan_year + 1
+	year = repayments[-1].income_year + 1
+	last_year = loan_year + term
+	if year > last_year:
+		year = last_year
+	while year not in benchmark_rates:
+		year -= 1
+		if year < 1999:
+			break
+	return year

@@ -1,5 +1,4 @@
 from datetime import timedelta
-
 from .div7a_impl import *
 
 
@@ -162,8 +161,11 @@ def with_myr_checks(records):
 			# no myr check for year of opening balance either. But this relies on the fact that opening balance is set on the last day of the preceding income year.
 			continue
 
+		if income_year < benchmark_rate_years()[0]:
+			raise MyException('Cannot calculate before income year {}'.format(benchmark_rate_years()[0]))
+
 		# skip checks in future
-		if income_year not in benchmark_rates:
+		if income_year > benchmark_rate_years()[-1]:
 			break
 
 		repayments = [r for r in records_of_income_year(records, income_year) if r.__class__ == repayment]
@@ -222,7 +224,7 @@ def evaluate_myr_checks(records):
 									  (1-(1/(1+(br/100)))**remaining_term))
 			
 			#if r.info['myr_required'] < r.info['total_repaid_for_myr_calc']:
-			r.info['excess'] = min(0, r.info['total_repaid'] - r.info['myr_required'])
+			r.info['excess'] = max(0, r.info['total_repaid'] - r.info['myr_required'])
 
 			#elif r.info['myr_required'] > r.info['total_repaid_for_myr_calc']:
 			r.info['shortfall'] = max(0, r.info['myr_required'] - r.info['total_repaid'])

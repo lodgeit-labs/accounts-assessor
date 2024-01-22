@@ -2,6 +2,51 @@
 
 from app.div7a import *
 
+# div7a2
+
+#div7a2_from_json({"loan_year": 2020, "full_term": 7, "opening_balance": 100000.0, "opening_balance_year": 2020, "repayments": [{"date": "2023-11-25", "amount": 0.0}], "lodgement_date": "2021-06-30"})
+
+#div7a2_from_json({"loan_year": 2020, "full_term": 7, "opening_balance": 100000.0, "opening_balance_year": 2020, "repayments": [{"date": "2021-06-30", "amount": 10000.0}, {"date": "2022-06-30", "amount": 10000.0}, {"date": "2023-06-30", "amount": 10000.0}, {"date": "2024-06-30", "amount": 10000.0}], "lodgement_date": "2021-06-30"})
+
+div7a2_from_json(
+{
+    "loan_year": 1915,
+    "full_term": 7,
+    "opening_balance": 100000,
+    "opening_balance_year": 1915,
+    "lodgement_date": "1916-06-30",
+    "repayments": [
+      {
+        "date": "2016-06-30",
+        "amount": 20000
+      },
+      {
+        "date": "2017-06-30",
+        "amount": 20001
+      },
+      {
+        "date": "2018-06-30",
+        "amount": 20002
+      },
+      {
+        "date": "2019-06-30",
+        "amount": 20003
+      }
+    ]
+  }
+)
+
+
+#div7a2_from_json({"loan_year": 2020, "full_term": 7, "opening_balance": 100000.0, "opening_balance_year": 2020, "repayments": [{"date": "2021-06-30", "amount": 17000.0}, {"date": "2022-06-30", "amount": 10000.0}, {"date": "2022-06-30", "amount": 6979}], "lodgement_date": "2021-06-30"})
+
+#div7a2_from_json({"loan_year": 2020, "full_term": 7, "opening_balance": 100000.0, "opening_balance_year": 2020, "repayments": [{"date": "2023-11-25", "amount": 0.0}], "lodgement_date": "2021-06-30"})
+
+
+
+
+
+# div7a
+
 div7a_from_json({'computation_income_year': '1999', 'creation_income_year': '1998', 'lodgement_date': '1999-02-04', 'opening_balance': '298', 'principal_amount': -1, 'repayments': [], 'term': '1'})
 
 
@@ -139,6 +184,7 @@ try:
 	div7a_from_json({"computation_income_year": "2019", "creation_income_year": "2018", "lodgement_date": "2019-03-24", "opening_balance": "24492", "principal_amount": -1, "repayments": [{"date": "2018-07-23", "value": "20613"}, {"date": "2018-08-04", "value": "20630"}, {"date": "2019-02-21", "value": "8209"}, {"date": "2020-03-18", "value": "41652"}, {"date": "2020-08-05", "value": "26634"}, {"date": "2021-07-14", "value": "9314"}, {"date": "2022-05-14", "value": "9665"}, {"date": "2022-12-06", "value": "20060"}, {"date": "2023-08-24", "value": "3922"}, {"date": "2023-11-15", "value": "8217"}, {"date": "2024-01-22", "value": "31515"}, {"date": "2025-01-17", "value": "42067"}], "term": "6"})
 except Exception as e:
 	assert str(e) == 'No benchmark rate for year 2025'
+
 
 # todo try:
 #  corner cases with repayment on the same date as opening balance

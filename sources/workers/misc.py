@@ -11,6 +11,8 @@ def convert_request_files(files):
 def convert_request_file(file):
 	logging.getLogger().info('convert_request_file: %s' % file)
 
+	if file.endswith('/.htaccess'):
+		return None
 	if file.endswith('/request.json'):
 		return None # effectively hide the file from further processing
 	if file.lower().endswith('.xlsx'):

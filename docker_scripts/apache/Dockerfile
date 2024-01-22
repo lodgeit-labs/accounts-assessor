@@ -14,6 +14,6 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8877
-HEALTHCHECK --interval=15s --timeout=50s --start-period=5s --retries=3 CMD curl -L -S --fail http://127.0.0.1:8877/
+HEALTHCHECK --interval=60s --timeout=50s --start-period=5s --retries=3 CMD curl -L -S --fail http://127.0.0.1:8877/
 
 # todo make a non-hollow(with static files copy) Dockerfile
