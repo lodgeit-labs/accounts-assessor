@@ -1,3 +1,0 @@
-reset;echo -e "\e[3J"; rm -rf multistep/*; ./generate_multistep_testcases.py
-
-

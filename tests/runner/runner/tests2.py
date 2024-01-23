@@ -1,3 +1,5 @@
+aaa=os.environ.get('AUTH').split()
+
 import urllib
 from io import StringIO
 from xml import etree
@@ -33,7 +35,7 @@ from runner.utils import *
 
 #print(sys.path)
 #print(os.path.dirname(__file__))
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../sources/common/libs/misc')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../..')))
 from fs_utils import directory_files, find_report_by_key
 from robust_sdk.xml2rdf import Xml2rdf
@@ -173,7 +175,8 @@ def make_request(test, request_files):
 	return requests_session.post(
 			url + '/upload',
 			params={'request_format':request_format, 'requested_output_format': test['requested_output_format']},
-			files=files
+			files=files,
+			auth=aaa
 	)
 
 
@@ -342,7 +345,7 @@ class TestResult(luigi.Task):
 				logger.info('...')
 				time.sleep(15)
 
-				job = requests_session.get(handle).json()
+				job = requests_session.get(handle,auth=aaa).json()
 				with open(tmp, 'w') as out:
 					json_dump(job, out)
 
@@ -482,7 +485,7 @@ def fetch_report(tmp, url):
 	fn = pathlib.Path(urlparse(url).path).name
 	out = P(tmp) / fn
 	with open(out, 'wb') as result_file:
-		shutil.copyfileobj(requests_session.get(url, stream=True).raw, result_file)
+		shutil.copyfileobj(requests_session.get(url, stream=True,auth=aaa).raw, result_file)
 	return out
 
 

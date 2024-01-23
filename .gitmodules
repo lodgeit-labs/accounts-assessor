@@ -25,3 +25,6 @@
 [submodule "sources/download_bastion"]
 	path = sources/download
 	url = https://github.com/koo5/download_bastion
+[submodule "tests/endpoint_tests/loan/auto_generated/div7a"]
+	path = tests/endpoint_tests/loan/auto_generated/div7a
+	url = https://github.com/koo5/div7a/
