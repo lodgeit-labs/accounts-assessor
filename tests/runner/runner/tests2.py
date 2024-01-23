@@ -1,4 +1,3 @@
-aaa=os.environ.get('AUTH').split()
 
 import urllib
 from io import StringIO
@@ -41,6 +40,10 @@ from fs_utils import directory_files, find_report_by_key
 from robust_sdk.xml2rdf import Xml2rdf
 from common import robust_tests_folder
 from json import JSONEncoder
+
+
+
+aaa=os.environ.get('AUTH').split()
 
 
 
