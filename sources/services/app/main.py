@@ -49,7 +49,7 @@ def post_div7a2(
 ):
 	log.info(json.dumps(request))
 	try:
-		result = dict(result=div7a.div7a2_from_json(request['request'], request['tmp_dir_path']))
+		result = dict(result=div7a.div7a2_from_json(request['request'], request['tmp_dir']))
 	except div7a.MyException as e:
 		result = dict(result='error', error_message=str(e))
 	except Exception as e:
