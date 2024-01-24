@@ -9,6 +9,7 @@ services:
       - cache:/app/cache
     entrypoint: chown -R 1000:1000 /app/server_root/tmp && chown -R 1000:1000 /app/cache && apt update && apt install netcat && nc -l -p 1234
 
+
   caddy:
     image: caddy:2-alpine
     networks:
@@ -73,7 +74,7 @@ services:
       - 7788
     depends_on:
       storage:
-
+        condition: service_completed_successfully
       services:
         condition: service_healthy
       csharp-services:
@@ -112,6 +113,7 @@ services:
       - webproxy           
     depends_on:
       storage:
+        condition: service_completed_successfully
       # workers don't have a good way to healthcheck. So instead of sequencing other containers after workers, we sequence workers after everything else. Theres a small risk of a deadlock if we run frontend with no parallelism (only makes sense for debugging) and somebody comes along and makes a request just before the healthcheck is about to make a request. And users running synchronous requests could experience timeouts when the stack is starting up. But in practice, we dont enable container sequencing unless debugging container startup problems.
       services:
         condition: service_healthy
@@ -157,6 +159,7 @@ services:
       - webproxy           
     depends_on:
       storage:
+        condition: service_completed_successfully
       manager:
         condition: service_healthy
     deploy:
@@ -191,6 +194,7 @@ services:
         condition: any
     depends_on:
       storage:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
       rabbitmq:
@@ -216,6 +220,7 @@ services:
       - 17788
     depends_on:
       storage:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
       agraph:
