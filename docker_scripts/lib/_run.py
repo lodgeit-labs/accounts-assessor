@@ -463,8 +463,8 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 			v['ports'] = []
 				# for port in v['hostnet_ports']:
 				# 	v['ports'].append(str(port)+':'+str(port))
-
-			del v['networks']
+			if 'networks' in v:
+				del v['networks']
 			if 'deploy' in v:
 				#del v['deploy']
 				pass

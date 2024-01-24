@@ -22,11 +22,7 @@ ARG uid=1000
 ARG gid=1000
 RUN groupadd -g $gid myuser && useradd -lm -u $uid -g $gid myuser
 
-RUN mkdir -p /app/server_root/tmp
-RUN chown myuser:myuser /app/server_root/tmp
 VOLUME /app/server_root/tmp
-RUN chown myuser:myuser /app/server_root/tmp
-
 USER myuser
 
 VOLUME /App/RdfTemplates.n3

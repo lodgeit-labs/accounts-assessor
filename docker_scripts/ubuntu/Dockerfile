@@ -49,7 +49,7 @@ ENV WATCHMEDO_INTERVAL=5
 ENV WATCHMEDO=true
 
 
-COPY common/ /app/sources/common/
-RUN chown myuser:myuser /app/
+COPY --chown=myuser:myuser common/ /app/sources/common/
+#RUN chown myuser:myuser /app/
 
 #VOLUME /app/sources/
