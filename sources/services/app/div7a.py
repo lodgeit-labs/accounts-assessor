@@ -1,4 +1,5 @@
 import json
+import os
 from json import JSONEncoder
 import logging
 import pathlib
@@ -317,8 +318,10 @@ def input(x):
 
 
 
-def div7a2_from_json(j,tmp_dir_path='.'):
-	with open(pathlib.PosixPath(tmp_dir_path) / 'test.html', 'w') as ooo:
+def div7a2_from_json(j,tmp_dir=['.','none']):
+	f = pathlib.PosixPath(tmp_dir[1]) / 'details.html'
+	details_url = os.environ['PUBLIC_URL'] + '/tmp/' + tmp_dir[0] + '/details.html'
+	with open(f, 'w') as ooo:
 		print("""<!DOCTYPE html>
 <html lang="en">
   <head>
@@ -328,15 +331,17 @@ def div7a2_from_json(j,tmp_dir_path='.'):
     <main>
 """,file=ooo)
 		if ooo:
-			print(f'<h3>request</h3>', file=ooo)
+			print(f'<h2>ChatGPT request</h2>', file=ooo)
 			print(f'<big><pre><code>', file=ooo)
 			json.dump(j, ooo, indent=True)
 			print(f'</code></pre></big>', file=ooo)
-
+			print(f'<h2>Calculation steps</h2>', file=ooo)
+			
 		r = div7a2_from_json2(ooo, j)
+		r['details_url'] = details_url
 
 		if ooo:
-			print(f'<h3>response</h3>', file=ooo)
+			print(f'<h2>Robust response</h2>', file=ooo)
 			print(f'<big><pre><code>', file=ooo)
 			json.dump(r, ooo, indent=True, cls=MyEncoder)
 			print(f'</code></pre></big>', file=ooo)

@@ -14,6 +14,7 @@ from fastapi.responses import RedirectResponse, PlainTextResponse, HTMLResponse
 from fastapi.encoders import jsonable_encoder
 import os
 
+from tmp_dir_path import create_tmp_for_user
 
 app = FastAPI(
 	title="Robust API",
@@ -67,6 +68,7 @@ async def div7a(
 	"""
 
 	# todo, optionally create job directory if needed. This isn't much of a blocking operation, and it's done exactly the same in /upload etc.
+	
 
 	logging.getLogger().info(f'{loan_year=}, {full_term=}, {opening_balance=}, {opening_balance_year=}, {lodgement_date=}, {repayment_dates=}, {repayment_amounts=}')
 
@@ -80,7 +82,7 @@ async def div7a(
 			repayments=[{'date': date, 'amount': amount} for date, amount in zip(repayment_dates, repayment_amounts)],
 			lodgement_date=lodgement_date
 		),
-		tmp_dir_path='/app/server_root/tmp/'  # fixme
+		tmp_dir=list(create_tmp_for_user('robust'))
 	)
 	r = requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=jsonable_encoder(request))
 	r.raise_for_status()
