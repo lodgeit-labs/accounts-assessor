@@ -1,7 +1,7 @@
 """
 general-purpose filesystem utilities
 """
-import glob
+import glob,os
 import os.path, sys
 import pathlib
 from os import listdir, makedirs

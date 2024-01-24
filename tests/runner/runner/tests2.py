@@ -43,7 +43,8 @@ from json import JSONEncoder
 
 
 
-aaa=os.environ.get('AUTH').split()
+aaa=os.environ.get('AUTH').split(':')
+aaa=aaa[0],aaa[1]
 
 
 
