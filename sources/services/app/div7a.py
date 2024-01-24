@@ -341,7 +341,7 @@ def div7a2_from_json(j,tmp_dir=['.','none']):
 		r['details_url'] = details_url
 
 		if ooo:
-			print(f'<h3>Robust response</h3>', file=ooo)
+			print(f'<h2>Robust response</h2>', file=ooo)
 			print(f'<big><pre><code>', file=ooo)
 			json.dump(r, ooo, indent=True, cls=MyEncoder)
 			print(f'</code></pre></big>', file=ooo)

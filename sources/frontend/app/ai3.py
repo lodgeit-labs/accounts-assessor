@@ -82,7 +82,7 @@ async def div7a(
 			repayments=[{'date': date, 'amount': amount} for date, amount in zip(repayment_dates, repayment_amounts)],
 			lodgement_date=lodgement_date
 		),
-		tmp_dir=list(create_tmp_for_user('nobody'))
+		tmp_dir=list(create_tmp_for_user('robust'))
 	)
 	r = requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=jsonable_encoder(request))
 	r.raise_for_status()

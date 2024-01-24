@@ -415,7 +415,7 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	res = deepcopy(src)
 	services = res['services']
 	services['frontend']['environment']['PUBLIC_URL'] = PUBLIC_URL
-	services['server']['environment']['PUBLIC_URL'] = PUBLIC_URL
+	services['services']['environment']['PUBLIC_URL'] = PUBLIC_URL
 
 	if not enable_public_gateway:
 		del services['caddy']
