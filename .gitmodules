@@ -28,3 +28,4 @@
 [submodule "tests/endpoint_tests/loan/auto_generated/div7a"]
 	path = tests/endpoint_tests/div7a/auto_generated/div7a
 	url = https://github.com/koo5/div7a/
+	ignore = all
