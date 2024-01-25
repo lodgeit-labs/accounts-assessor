@@ -192,14 +192,15 @@ def on_task_result(worker, result):
 			r = dict(error='task_result: no task_id in result')
 			log.warn(r)
 			return r
+		
 		if 'result' not in result:
-			r = dict(error='task_result: no result in result')
+			r = dict(error='task_result: no actual result in worker result message')
 			log.warn(r)
 			return r
 
 		if result['task_id'] == worker.task_id:
 			log.debug('task_result: worker %s got result for task %s', worker.id, result['task_id'])
-			worker.task.results.put(dict(result=result['result']))
+			worker.task.results.put(result['result'])
 		else:
 			log.warn('task_result: unknown task. Maybe manager restarted and does not remember giving this task to this worker.')
 			# we can't trust untrusted workers with random task results, but with trusted workers we can. So we should probably have a separate list of unpaired task results, and check it in add_task

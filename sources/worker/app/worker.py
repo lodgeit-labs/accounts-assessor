@@ -44,8 +44,6 @@ def manager_proxy_thread():
 				task = Dotdict(msg['task'])
 				if task.proc == 'call_prolog':
 					task_result = dict(task_id=task.id, result=call_prolog.call_prolog(task.args['msg'], task.worker_options))
-				elif task.proc == 'call_prolog_calculator':
-					task_result = dict(task_id=task.id, result=call_prolog.call_prolog_calculator(task.args['msg'], task.worker_options))
 				elif task.proc == 'arelle':
 					task_result = dict(task_id=task.id, result=arelle(task.args, task.worker_options))
 				else:

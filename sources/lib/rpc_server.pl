@@ -66,8 +66,8 @@ process_request_rpc_cmdline3("chat", Dict) :-
 	!(chat:do_chat(Dict, Response)),
 	json_write(current_output, Response).
 
-process_request_rpc_cmdline3(_,_) :-
-	json_write(current_output, response{status:error, message:unknown_method}).
+process_request_rpc_cmdline3(Method,_) :-
+	json_write(current_output, response{status:error, message:unknown_method, method:Method}).
 
 
 

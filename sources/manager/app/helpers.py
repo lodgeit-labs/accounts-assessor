@@ -12,14 +12,6 @@ def make_converted_dir(file):
 
 
 
-def guess_request_format_rdf_or_xml(params):
-	if params.get('request_format') is None:
-		if len(params['request_files']) == 1 and params['request_files'][0].lower().endswith('.xml'):
-			return 'xml'
-		else:
-			return 'rdf'
-	else:
-		return params['request_format']
 		
 
 

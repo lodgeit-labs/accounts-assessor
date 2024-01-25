@@ -18,13 +18,13 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 import robust_sdk.xml2rdf
 
 
-def trigger_remote__call_prolog(msg, queue='default'):
-	log.debug('trigger_remote__call_prolog: ...')
-	return call_prolog.send_with_options(kwargs={'msg':msg}, queue_name=queue)
+# def trigger_remote__call_prolog(msg, queue='default'):
+# 	log.debug('trigger_remote__call_prolog: ...')
+# 	return call_prolog.send_with_options(kwargs={'msg':msg}, queue_name=queue)
 
-def trigger_remote__call_prolog_calculator(**kwargs):
-	log.debug('trigger_remote__call_prolog_calculator: ...')
-	return call_prolog_calculator.send_with_options(kwargs=kwargs)
+# def trigger_remote__call_prolog_calculator(**kwargs):
+# 	log.debug('trigger_remote__call_prolog_calculator: ...')
+# 	return call_prolog_calculator.send_with_options(kwargs=kwargs)
 
 
 log = logging.getLogger(__name__)
@@ -35,14 +35,13 @@ log.addHandler(logging.StreamHandler(sys.stderr))
 log.debug("hello from manager_actors.py")
 
 @remoulade.actor(alternative_queues=["health"])
-def call_prolog(msg, worker_options=None):
+def call_prolog_rpc(msg, worker_options=None):
 	log.debug('manager_actors: call_prolog: ...')	
 	return do_untrusted_task(Task(
 		proc='call_prolog',
-		args=dict(msg=msg),
+		args=dict(msg=msg, params=dict(result_tmp_directory_name='rpc')),
 		worker_options=worker_options
 	))
-
 
 
 	
@@ -94,8 +93,8 @@ def call_prolog_calculator(
 
 
 	result = do_untrusted_task(Task(
-		proc='call_prolog_calculator',
-		args=dict(params=params),
+		proc='call_prolog',
+		args=dict(msg=dict(method='calculator', params=params)),
 		worker_options=worker_options,
 		input_directories=[get_tmp_directory_absolute_path(request_directory), result_tmp_directory_path],
 		output_directories=[result_tmp_directory_path]
@@ -147,4 +146,4 @@ def convert_excel_to_rdf(uploaded, to_be_processed, root):
 
 
 
-remoulade.declare_actors([call_prolog, call_prolog_calculator])
+remoulade.declare_actors([call_prolog_rpc, call_prolog_calculator])

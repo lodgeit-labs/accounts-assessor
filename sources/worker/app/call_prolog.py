@@ -7,18 +7,8 @@ from app.misc import uri_params, env_string
 
 
 
-def call_prolog_calculator(params, worker_options):
-
-	# just some easy preparation we can do on the worker:
-	params |= uri_params(result_tmp_directory_name) | dict(request_format=guess_request_format_rdf_or_xml(params))
-
-	msg = dict(method='calculator', params=params)
-	return call_prolog(msg, worker_options)
-
-
-
 def call_prolog(
-		msg,
+		msg, # {method: calculator or rpc, params:...}
 		worker_options = None
 ):
 	"""
@@ -32,8 +22,11 @@ def call_prolog(
 	might get reused now, because we will again be generating a goal string that can be copy&pasted into swipl..
 	"""
 
-	result_tmp_path = get_tmp_directory_absolute_path(msg['params']['result_tmp_directory_name']) if 'result_tmp_directory_name' in msg['params'] else '../../server_root/tmp'
+	result_tmp_directory_name = msg['params'].get('result_tmp_directory_name')
+	result_tmp_path = get_tmp_directory_absolute_path(result_tmp_directory_name)
 	
+	if msg.get('method') == 'calculator':
+		msg['params'] |= uri_params(result_tmp_directory_name) | dict(request_format=guess_request_format_rdf_or_xml(msg['params']))
 
 	if worker_options is None:
 		worker_options = {}
@@ -149,19 +142,11 @@ def call_prolog(
 
 
 
-
-
-# def run_last_request_outside_of_docker(self):
-# 	"""
-# 	you should run this script from server_root/
-# 	you should also have `services` running on the host (it doesnt matter that it's simultaneously running in docker), because they have to access files by the paths that `workers` sends them.
-# 	"""
-# 	tmp_volume_data_path = '/var/lib/docker/volumes/robust_tmp/_data/'
-# 	os.system('sudo chmod -R o+rX '+shlex.quote(tmp_volume_data_path))
-# 	last_request_host_path = tmp_volume_data_path + os.path.split(os.readlink(tmp_volume_data_path+'last_request'))[-1]
-# 	local_calculator(last_request_host_path)
-# 
-# 
-# """
-# >> #PP='' DISPLAY='' RABBITMQ_URL='localhost:5672' REDIS_HOST='redis://localhost' AGRAPH_HOST='localhost' AGRAPH_PORT='10035' REMOULADE_PG_URI='postgresql://remoulade@localhost:5433/remoulade' REMOULADE_API='http://localhost:5005' SERVICES_URL='http://localhost:17788' CSHARP_SERVICES_URL='http://localhost:17789' FLASK_DEBUG='0' FLASK_ENV='production' WATCHMEDO='' ./run_last_request_in_docker_with_host_fs.py --dry_run True --request /app/server_root/tmp/1691798911.3167622.57.1.A52CC96x3070
-# """
+def guess_request_format_rdf_or_xml(params):
+	if params.get('request_format') is None:
+		if len(params['request_files']) == 1 and params['request_files'][0].lower().endswith('.xml'):
+			return 'xml'
+		else:
+			return 'rdf'
+	else:
+		return params['request_format']
