@@ -13,6 +13,7 @@ from app.machine import list_machines
 from app.untrusted_task import *
 
 from contextlib import contextmanager
+shutdown_event = threading.Event()
 
 
 
@@ -146,12 +147,15 @@ results_of_unknown_tasks = MaxSizeList(1000)
 
 
 def synchronization_thread():
-	while True:
+	while not shutdown_event.is_set():
 	
 		e = Dotdict(events.get())
 		log.debug('synchronization_thread: %s', e)
 
 		with wl('synchronization_thread'):
+
+			if e.type == 'nop':
+				pass
 
 			if e.type == 'add_task':
 				for r in results_of_unknown_tasks:

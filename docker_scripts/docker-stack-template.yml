@@ -204,6 +204,9 @@ services:
         condition: service_healthy
       csharp-services:
         condition: service_healthy
+    secrets:
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
         
 
   services:
@@ -288,7 +291,7 @@ services:
       replicas: 1
       restart_policy:
         condition: any
-        delay: "240s"
+        delay: "240s" #?
     secrets:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
@@ -345,7 +348,7 @@ services:
       
       ALLOW_EMPTY_PASSWORD: "yes"      
       
-      POSTGRESQL_PGAUDIT_LOG: "READ,WRITE"
+      #POSTGRESQL_PGAUDIT_LOG: "READ,WRITE"
       POSTGRESQL_LOG_HOSTNAME: "true"
     deploy:
       replicas: 1

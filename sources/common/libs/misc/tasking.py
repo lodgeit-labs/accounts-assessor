@@ -1,4 +1,4 @@
-import os
+import os,logging
 # what this really controls is how many times it should try to reconnect gracefully before it starts reconnecting in an uncontrolled DOS-style loop (still true?)
 os.environ['remoulade_restart_max_retries']='99999999'
 import remoulade
@@ -36,6 +36,7 @@ remoulade.set_scheduler(scheduler)
 #print('scheduler.start...')
 #scheduler.start()
 
+logging.getLogger('amqpstorm').setLevel(logging.INFO)
 print('tasking loaded')
 print()
 

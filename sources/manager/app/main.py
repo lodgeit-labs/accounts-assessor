@@ -32,7 +32,6 @@ from tasking import remoulade
 
 from fastapi import FastAPI, Request
 
-
 from app.isolated_worker import *
 from app.untrusted_task import *
 import app.manager_actors
@@ -181,7 +180,7 @@ def remoulade_thread():
 	worker.start()
 
 	running = True
-	while running:
+	while running and not shutdown_event.is_set():
 		if worker.consumer_stopped or worker.worker_stopped:
 			running = False
 			logger.info("Worker thread is not running anymore, stopping Worker.")
@@ -199,3 +198,14 @@ print(threading.Thread(target=synchronization_thread, daemon=True).start())
 
 
 
+
+# @app.on_event("startup")
+# async def startup_event():
+#     # Start the background thread
+#     threading.Thread(target=background_task, daemon=True).start()
+
+@app.on_event("shutdown")
+async def shutdown():
+	shutdown_event.set()
+	events.put(dict(type='nop'))
+	

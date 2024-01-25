@@ -127,7 +127,7 @@ USER root
 
 RUN apt-get install -y libpq-dev
 # this has to be made writeable because python wants to write it's eggs in there
-RUN chown -R myuser:myuser /app/sources/common/libs/remoulade/
+COPY --chown=myuser:myuser common/libs/remoulade/ /app/sources/common/libs/remoulade/
 USER myuser:myuser
 RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ignore-installed --user /app/sources/common/libs/remoulade/[rabbitmq,redis,postgres]
 

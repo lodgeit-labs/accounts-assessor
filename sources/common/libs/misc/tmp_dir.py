@@ -4,6 +4,8 @@ from atomic_integer import AtomicInteger
 server_started_time = time.time()
 client_request_id = AtomicInteger()
 from auth import write_htaccess
+from tmp_dir_path import get_tmp_directory_absolute_path
+
 
 def get_unique_id():
 	"""

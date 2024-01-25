@@ -84,7 +84,7 @@ class Div7aRepayments(BaseModel):
 	
 
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # set root logger level to DEBUG and output to console
@@ -372,21 +372,25 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 	
 	public_url=os.environ['PUBLIC_URL']
 	worker_options = load_worker_options_from_request_json(request_tmp_directory_path)
-	user = get_user(request)
+	worker_options['user'] = get_user(request)
 
 	job = manager_actors.trigger_remote__call_prolog_calculator(
 		request_format=request_format,
 		request_directory=request_tmp_directory_name,
 		public_url=public_url,
 		worker_options=worker_options,
-		user=user
 	)
 
 	logger.info('requested_output_format: %s' % requested_output_format)
 
 	# the immediate modes should be removed, they are only legacy excel plugin stuff
 	if requested_output_format == 'immediate_xml':
-			reports = job.result.get(block=True, timeout=1000 * 1000)
+			try:
+				logger.debug('waiting for result (timeout 1000 * 1000)')
+				reports = job.result.get(block=True, timeout=1000 * 1000)
+			except manager_actors.remoulade.results.errors.ErrorStored as e:
+				logger.error(str(e))
+				return PlainTextResponse(str(e), status_code=500), str(e)
 			logger.info(str(reports))
 			# was this an error?
 			if reports['alerts'] != []:

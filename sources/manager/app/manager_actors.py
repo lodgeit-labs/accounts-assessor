@@ -19,9 +19,11 @@ import robust_sdk.xml2rdf
 
 
 def trigger_remote__call_prolog(msg, queue='default'):
+	log.debug('trigger_remote__call_prolog: ...')
 	return call_prolog.send_with_options(kwargs={'msg':msg}, queue_name=queue)
 
 def trigger_remote__call_prolog_calculator(**kwargs):
+	log.debug('trigger_remote__call_prolog_calculator: ...')
 	return call_prolog_calculator.send_with_options(kwargs=kwargs)
 
 
@@ -52,7 +54,7 @@ def call_prolog_calculator(
 	request_format=None,
 	xlsx_extraction_rdf_root="ic_ui:investment_calculator_sheets"
 ):
-	
+	log.debug('manager_actors: call_prolog_calculator: ...')
 
 	# create a tmp directory for results files created by this invocation of the calculator
 	result_tmp_directory_name, result_tmp_directory_path = create_tmp_for_user(worker_options['user'])
@@ -95,8 +97,8 @@ def call_prolog_calculator(
 		proc='call_prolog_calculator',
 		args=dict(params=params),
 		worker_options=worker_options,
-		input_paths=[get_tmp_directory_absolute_path(request_directory), result_tmp_directory_path],
-		output_paths=[result_tmp_directory_path]
+		input_directories=[get_tmp_directory_absolute_path(request_directory), result_tmp_directory_path],
+		output_directories=[result_tmp_directory_path]
 	))
 
 
@@ -109,9 +111,9 @@ def call_prolog_calculator(
 
 
 def preprocess_request_files(files, xlsx_extraction_rdf_root):
-	return list(filter(None, map(preprocess_request_file(xlsx_extraction_rdf_root), files)))
+	return list(filter(None, map(lambda f: preprocess_request_file(xlsx_extraction_rdf_root, f), files)))
 
-def preprocess_request_file(file, xlsx_extraction_rdf_root):
+def preprocess_request_file(xlsx_extraction_rdf_root, file):
 	logging.getLogger().info('convert_request_file?: %s' % file)
 
 	if file.endswith('/.htaccess'):
@@ -121,7 +123,7 @@ def preprocess_request_file(file, xlsx_extraction_rdf_root):
 		
 	if file.endswith('/request.xml'):
 		converted_dir = make_converted_dir(file)
-		converted_file = xml2rdf.Xml2rdf().xml2rdf(file, converted_dir)
+		converted_file = robust_sdk.xml2rdf.Xml2rdf().xml2rdf(file, converted_dir)
 		if converted_file is not None:
 			return converted_file
 			

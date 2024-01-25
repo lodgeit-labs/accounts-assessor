@@ -2,7 +2,7 @@ import os
 import shutil
 from pathlib import PurePath
 
-from tmp_dir_path import get_tmp_directory_absolute_path
+from tmp_dir_path import get_tmp_directory_absolute_path, git
 
 
 def make_converted_dir(file):
