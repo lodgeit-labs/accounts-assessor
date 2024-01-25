@@ -27,10 +27,6 @@ ENV HC="curl -L -S --fail http://127.0.0.1:8877/"
 
 
 
-
-
-
-
 #start interval is the time between health checks during the start period. This option requires Docker Engine version 25.0 or later.
 RUN mkdir /healthcheck
 HEALTHCHECK --interval=2s --timeout=60s CMD { test -f /healthcheck/ok && echo -n "sleep.." && sleep 55 && echo -n "hc..>> " && /bin/sh -c '/bin/sh -c "$HC"' && echo -n " <<..hc passed." ; } || { echo -n "hc..>> " && echo -n "$HC" && echo -n " <<... " && /bin/sh -c '/bin/sh -c "$HC"' && echo -n " << first hc passed." && touch /healthcheck/ok && echo " flag stored." ; } 

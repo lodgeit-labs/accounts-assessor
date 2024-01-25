@@ -45,6 +45,7 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - tmp:/usr/local/apache2/htdocs/tmp/
       - ./../sources/static/:/usr/local/apache2/htdocs/static/
+      - ./../sources/static/favicon.ico:/usr/local/apache2/htdocs/favicon.ico
     depends_on:
       frontend:
         condition: service_healthy
