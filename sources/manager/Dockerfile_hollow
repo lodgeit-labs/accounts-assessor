@@ -11,13 +11,13 @@ ARG APPPATH
 
 
 # python requirements (common block)
-
+USER myuser:myuser
 WORKDIR $APPPATH
 COPY $APPDIR/requirements.txt .
 COPY $APPDIR/requirements-dev.txt .
 RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements.txt
 RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements-dev.txt
-RUN chown -vR myuser:myuser /home/myuser
+USER root
 
 
 
@@ -29,9 +29,8 @@ RUN chown -vR myuser:myuser /home/myuser
 RUN apt-get install -y libpq-dev
 # this has to be made writeable because python wants to write it's eggs in there
 RUN chown -R myuser:myuser /app/sources/common/libs/remoulade/
-# you can't run this as non-root, because python insists on writing some random stuff somewhere random around the filesystem. Also, you can't install in develop mode (-e), because python insists on writing random stuff into the sources directory and then expects to find it there (which it wont if the sources directory gets mounted over by a volume for runtime). 2023, people, 2023.
+USER myuser:myuser
 RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ignore-installed --user /app/sources/common/libs/remoulade/[rabbitmq,redis,postgres]
-RUN chown -vR myuser:myuser /home/myuser
 
 
 

@@ -28,6 +28,23 @@ USER myuser
 VOLUME /App/RdfTemplates.n3
 VOLUME /home/myuser/.dotnet
 
-HEALTHCHECK --interval=5s --timeout=50s --start-period=5s --retries=3 CMD curl -L -S --fail http://127.0.0.1:17789/health
 
 ENTRYPOINT ["dotnet", "CsharpServices.dll"]
+ENV HC="curl -L -S --fail http://127.0.0.1:17789/health" 
+
+
+
+
+
+
+
+
+
+#start interval is the time between health checks during the start period. This option requires Docker Engine version 25.0 or later.
+USER root
+RUN mkdir /healthcheck
+RUN chown myuser:myuser /healthcheck
+USER myuser
+HEALTHCHECK --interval=2s --timeout=60s CMD { test -f /healthcheck/ok && echo -n "sleep.." && sleep 55 && echo -n "hc..>> " && /bin/sh -c '/bin/sh -c "$HC"' && echo -n " <<..hc passed." ; } || { echo -n "hc..>> " && echo -n "$HC" && echo -n " <<... " && /bin/sh -c '/bin/sh -c "$HC"' && echo -n " << first hc passed." && touch /healthcheck/ok && echo " flag stored." ; } 
+
+

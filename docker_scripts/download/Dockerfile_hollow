@@ -7,13 +7,13 @@ ARG APPPATH
 
 
 # python requirements (common block)
-
+USER myuser:myuser
 WORKDIR $APPPATH
 COPY $APPDIR/requirements.txt .
 COPY $APPDIR/requirements-dev.txt .
 RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements.txt
 RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements-dev.txt
-RUN chown -vR myuser:myuser /home/myuser
+USER root
 
 
 
@@ -24,4 +24,11 @@ RUN chown -vR myuser:myuser /home/myuser
 WORKDIR $APPPATH
 USER myuser
 CMD ["./start.sh"]
-HEALTHCHECK CMD curl http://127.0.0.1:6457/health
+ENV HC="curl http://127.0.0.1:6457/health" 
+
+
+
+
+
+#start interval is the time between health checks during the start period. This option requires Docker Engine version 25.0 or later.
+HEALTHCHECK --interval=2s --timeout=60s CMD { test -f /healthcheck/ok && echo -n "sleep.." && sleep 55 && echo -n "hc..>> " && /bin/sh -c '/bin/sh -c "$HC"' && echo -n " <<..hc passed." ; } || { echo -n "hc..>> " && echo -n "$HC" && echo -n " <<... " && /bin/sh -c '/bin/sh -c "$HC"' && echo -n " << first hc passed." && touch /healthcheck/ok && echo " flag stored." ; } 
