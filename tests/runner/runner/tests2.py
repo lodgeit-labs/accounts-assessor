@@ -250,10 +250,12 @@ class TestResultImmediateXml(luigi.Task):
 				result_xml_fd.write(resp.text)
 		job['result'] = 'outputs/response.xml'
 		
-
 		with self.output().temporary_path() as response_fn:
 			with open(response_fn, 'w') as response_fd:
 				json_dump(job, response_fd)
+
+		logger.debug(resp.text)
+
 
 	def output(self):
 		return luigi.LocalTarget(P(self.test['path']) / 'response.json')

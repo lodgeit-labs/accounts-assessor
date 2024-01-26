@@ -4,6 +4,7 @@
 
  ner_api_url("http://13.239.25.136:8012/NER/").
 
+
  query_ner_api(Request_Text, Response_JSON) :-
 	uri_encoded(query_value,Request_Text,Request_Text_Encoded),
 	ner_api_url(API_URL),
@@ -13,6 +14,7 @@
         json_read_dict(In, Response_JSON),
         close(In)
     ).
+
 
  json_contains_value(Response_JSON,Value) :-
 	Value = Response_JSON.get(_).
@@ -28,6 +30,7 @@
     query_ner_api(Request_Text, Response_JSON),
     assert(known_ner_response(Request_Text, Response_JSON)).
 
+
  process_ner_api_results(Response_JSON,Result_XML) :-
 	(
 		check_ner_api_results(Response_JSON) 
@@ -38,20 +41,12 @@
 	),
 	Result_XML = element(reports,[],[element(is_car_response,[],[Result])]).
 
+
  process_request_car(File_Name, DOM) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
-
 	absolute_tmp_path(File_Name, Instance_File),
 	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-	validate_xml(Instance_File, Schema_File, Schema_Errors),
-	(
-		Schema_Errors = []
-	->
-		(
-			cached_ner_data(Request_Text,Response_JSON),
-			process_ner_api_results(Response_JSON,Result_XML),
-			add_xml_result(Result_XML)
-		)
-	;
-		maplist(add_alert(error), Schema_Errors)
-	).
+	validate_xml2(Instance_File, Schema_File),
+	cached_ner_data(Request_Text,Response_JSON),
+	process_ner_api_results(Response_JSON,Result_XML),
+	add_xml_result(Result_XML).

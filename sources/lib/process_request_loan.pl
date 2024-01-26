@@ -1,4 +1,5 @@
 
+
  process_request_loan(Request_File, DOM) :-
 
 	% startDate and endDate in the request xml are ignored.
@@ -37,13 +38,12 @@
 	findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
 	atom_number(ComputationYear, NIncomeYear),
 
-%gtrace,
-
 	findall(Summary1, loan_agr_summary_python0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary1), [Summary1]),
 
 	div7a_xml_loan_response(NIncomeYear, Summary1, Url),
 	add_report_file(0, 'result', 'result', Url),
 
+	% prolog implementation was shown to fail for some inputs, so it is currently not used
 	/* (	loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary2)
 	->	(
 			div7a_xml_loan_response(NIncomeYear, Summary2, _),
@@ -169,7 +169,7 @@ repayment_to_json(Repayment, Json) :-
 
 	% read the schema file
 	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
-	!validate_xml(Path, LoanResponseXSD, []).
+	!validate_xml2(Path, LoanResponseXSD).
 	
 
  xml_loan_response(

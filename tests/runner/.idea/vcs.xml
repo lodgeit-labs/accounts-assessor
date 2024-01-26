@@ -6,9 +6,10 @@
     <mapping directory="$PROJECT_DIR$/../../sources/common/libs/remoulade" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../sources/common/libs/sdk" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../sources/depr" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../../sources/download_bastion" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../sources/download" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../sources/public_lib/lodgeit_solvers" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../sources/super-bowl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../sources/wait-for-it" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../endpoint_tests/div7a/auto_generated/div7a" vcs="Git" />
   </component>
 </project>

@@ -10,5 +10,6 @@
     <mapping directory="$PROJECT_DIR$/../public_lib/lodgeit_solvers" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../super-bowl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../wait-for-it" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../tests/endpoint_tests/div7a/auto_generated/div7a" vcs="Git" />
   </component>
 </project>
