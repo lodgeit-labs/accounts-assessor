@@ -9,7 +9,8 @@
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
 
 	% yep, seems to be a loan request xml.
-	validate_xml2(Request_File, 'bases/Reports.xsd'),
+	resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), XSD),
+	validate_xml2(Request_File, XSD),
 
 	/* for example 5 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
@@ -129,9 +130,9 @@
 
 
  loan_agr_summary_python(LA, Summary_dict) :-
-	!ground(LA),
+ 	!ground(LA),
 	my_request_tmp_dir_path(Tmp_Dir_Path),
-	services_rpc('div7a', _{tmp_dir_path:Tmp_Dir_Path,data:LA}, Summary_dict0),
+	!json_post_result(['http://127.0.0.1:1111/div7a'], _{tmp_dir_path:Tmp_Dir_Path,data:LA}, Summary_dict0),
 	Summary_dict = _{
 				opening_balance: _,
 				interest_rate: _,

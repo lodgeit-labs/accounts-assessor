@@ -37,5 +37,5 @@ RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ign
 
 WORKDIR $APPPATH
 USER myuser
-CMD ["$APPPATH/start.sh"]
-HEALTHCHECK CMD /bin/true
+CMD ["./start.sh"]
+HEALTHCHECK  --interval=2s --timeout=60s CMD /bin/true

@@ -61,7 +61,7 @@ class Worker:
 		return self.task.id if self.task else None
 
 	def alive(self):
-		return self.last_seen > datetime.datetime.now() - datetime.timedelta(minutes=2)
+		return self.last_seen > datetime.datetime.now() - datetime.timedelta(seconds=20)
 
 	def __str__(self):
 		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task_id})'
@@ -109,6 +109,7 @@ def heartbeat(worker):
 
 
 def worker_janitor():
+
 	while True:
 		with wl('worker_janitor'):
 			for _,worker in workers.items():
@@ -121,6 +122,7 @@ threading.Thread(target=worker_janitor, daemon=True).start()
 
 
 def fly_machine_janitor():
+
 	if fly:
 		while True:
 			with wl('fly_machine_janitor'):
@@ -131,7 +133,7 @@ def fly_machine_janitor():
 					else:
 						machine.delete()			
 			time.sleep(60)
-1
+
 threading.Thread(target=fly_machine_janitor, daemon=True).start()
 
 
@@ -147,42 +149,47 @@ results_of_unknown_tasks = MaxSizeList(1000)
 
 
 def synchronization_thread():
-	while not shutdown_event.is_set():
-	
-		e = Dotdict(events.get())
-		log.debug('synchronization_thread: %s', e)
+	try:
+		while not shutdown_event.is_set():
 
-		with wl('synchronization_thread'):
+			e = Dotdict(events.get())
+			log.debug('synchronization_thread: %s', e)
 
-			if e.type == 'nop':
-				pass
+			with wl('synchronization_thread'):
 
-			if e.type == 'add_task':
-				for r in results_of_unknown_tasks:
-					if r['task_id'] == e.task.id:
-						log.debug('add_task: result already in results_of_unknown_tasks. precognition!')
-						e.task.results.put(dict(result=r['result']))
-						results_of_unknown_tasks.remove(r)
-						break
-				else:
-					if try_assign_any_worker_to_task(e.task):
-						pass
+				if e.type == 'nop':
+					pass
+
+				if e.type == 'add_task':
+					for r in results_of_unknown_tasks:
+						if r['task_id'] == e.task.id:
+							log.debug('add_task: result already in results_of_unknown_tasks. precognition!')
+							e.task.results.put(dict(result=r['result']))
+							results_of_unknown_tasks.remove(r)
+							break
 					else:
-						log.debug(f'pending_tasks.append({e.task})')
-						pending_tasks.append(e.task)
+						if try_assign_any_worker_to_task(e.task):
+							pass
+						else:
+							log.debug(f'pending_tasks.append({e.task})')
+							pending_tasks.append(e.task)
 
-			elif e.type == 'worker_died':
-				if e.worker.task:
-					e.worker.task.results.put(dict(result=dict(error='worker died')))
-				del workers[e.worker.id]
-				if e.worker.fly_machine:
-					e.worker.fly_machine.delete()
+				elif e.type == 'worker_died':
+					if e.worker.task:
+						e.worker.task.results.put(dict(error='lost connection to worker'))
+					del workers[e.worker.id]
+					if e.worker.fly_machine:
+						e.worker.fly_machine.delete()
 
-			elif e.type == 'worker_available':
-				find_new_task_for_worker(e.worker)
+				elif e.type == 'worker_available':
+					find_new_task_for_worker(e.worker)
 
-			else :
-				log.warn('unknown event type: %s', e.type)
+				else :
+					log.warn('unknown event type: %s', e.type)
+
+	except Exception as e:
+		log.exception(f'synchronization_thread: exception {e}')
+		os.exit(1)
 
 
 def on_task_result(worker, result):

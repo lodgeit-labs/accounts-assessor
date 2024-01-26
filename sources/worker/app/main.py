@@ -1,7 +1,12 @@
-from fastapi import FastAPI
+from fastapi import Body, FastAPI
 from fastapi.responses import JSONResponse
+from pydantic import Field
+
 import logging
-import os, sys, logging, re, shlex, subprocess
+import os, sys, logging, re, shlex, subprocess, json
+
+from pydantic.fields import Annotated
+
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 
 
@@ -40,7 +45,10 @@ def post_arelle_extract(taxonomy_locator: str):
 
 
 @app.post('/xml_xsd_validator')
-def xml_xsd_validator(xml: str, xsd: str):
+def xml_xsd_validator(
+	xml: Annotated[str, Body(embed=True)],
+	xsd: Annotated[str, Body(embed=True)]
+):
 	schema = xml_xsd.get_schema(xsd)
 	response = {}
 	try:

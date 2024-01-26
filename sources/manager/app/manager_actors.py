@@ -115,6 +115,8 @@ def preprocess_request_files(files, xlsx_extraction_rdf_root):
 def preprocess_request_file(xlsx_extraction_rdf_root, file):
 	logging.getLogger().info('convert_request_file?: %s' % file)
 
+	if file.endswith('/.access'):
+		return None # hide the file from further processing
 	if file.endswith('/.htaccess'):
 		return None # hide the file from further processing
 	if file.endswith('/request.json'):

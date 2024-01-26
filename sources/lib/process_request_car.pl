@@ -45,8 +45,8 @@
  process_request_car(File_Name, DOM) :-
 	xpath(DOM, //reports/car_request, element(_,_,[Request_Text])),
 	absolute_tmp_path(File_Name, Instance_File),
-	absolute_file_name(my_schemas('bases/Reports.xsd'), Schema_File, []),
-	validate_xml2(Instance_File, Schema_File),
+	resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), XSD),
+	validate_xml2(Instance_File, XSD),
 	cached_ner_data(Request_Text,Response_JSON),
 	process_ner_api_results(Response_JSON,Result_XML),
 	add_xml_result(Result_XML).

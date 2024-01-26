@@ -302,7 +302,7 @@ flag_default('PREPARE_UNIQUE_TAXONOMY_URL', true).
 	!shell4(Cmd, _).
 	%format(user_error, 'shell.~n',[]).
 
-	
+
 /*
 
 	extraction of input data from request xml

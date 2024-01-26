@@ -391,6 +391,8 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 			except manager_actors.remoulade.results.errors.ErrorStored as e:
 				logger.error(str(e))
 				return PlainTextResponse(str(e), status_code=500), str(e)
+			if 'error' in reports:
+				return PlainTextResponse(reports['error'], status_code=500), reports['error']
 			logger.info(str(reports))
 			# was this an error?
 			if reports['alerts'] != []:

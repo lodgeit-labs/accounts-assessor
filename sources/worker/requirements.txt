@@ -1,3 +1,6 @@
+sortedcontainers
+pandas
+jinja2
 arelle-release==2.3.4
 defusedxml
 xmlschema~=1.5

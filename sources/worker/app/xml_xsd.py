@@ -24,7 +24,15 @@ def parse_schema(xsd):
 
 	# this is overly strict, we will need to allow our schemes directory, at least
 
-	return xmlschema.XMLSchema(xsd, allow='none', defuse='always')
+	return xmlschema.XMLSchema(
+		xsd,
+
+		# isolated worker will only be able to contact proxy
+		allow='all',
+
+		# dont trust files coming from users
+		defuse='always'
+	)
 
 def get_schema(xsd):
 	if xsd in schemas:

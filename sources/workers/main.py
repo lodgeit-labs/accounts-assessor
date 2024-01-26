@@ -11,3 +11,6 @@ remoulade.declare_actors([ping2])
 
 print(remoulade.get_broker())
 print(remoulade.get_broker().actors)
+
+
+import trusted_workers

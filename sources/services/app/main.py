@@ -20,57 +20,57 @@ log = logging.getLogger(__name__)
 
 app = FastAPI()
 
-schemas = {}
-
-
-from . import account_hierarchy
-from . import div7a
-
-
-@app.post("/div7a")
-def post_div7a(loan_summary_request: dict):
-	""" excel xml -> frontend -> proxy -> worker -> prolog -> this """
-	log.info(json.dumps(loan_summary_request))
-	try:
-		result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
-	except div7a.MyException as e:
-		result = dict(result='error', error_message=str(e))
-	except Exception as e:
-		traceback_message = traceback.format_exc()
-		result = dict(result='error', error_message=traceback_message)
-	log.info(result)
-	return result
-
-
-
-
-@app.post("/div7a2")
-def post_div7a2(
-	request: dict
-):
-	""" OpenAI -> frontend -> proxy -> this """
-	log.info(json.dumps(request))
-	try:
-		result = dict(result=div7a.div7a2_from_json(request['request'], request['tmp_dir']))
-	except div7a.MyException as e:
-		result = dict(result='error', error_message=str(e))
-	except Exception as e:
-		traceback_message = traceback.format_exc()
-		result = dict(result='error', error_message=traceback_message)
-	log.info(result)
-	return result
+# schemas = {}
+#
+#
+# from . import account_hierarchy
+# from . import div7a
+#
+#
+# @app.post("/div7a")
+# def post_div7a(loan_summary_request: dict):
+# 	""" excel xml -> frontend -> proxy -> worker -> prolog -> this """
+# 	log.info(json.dumps(loan_summary_request))
+# 	try:
+# 		result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
+# 	except div7a.MyException as e:
+# 		result = dict(result='error', error_message=str(e))
+# 	except Exception as e:
+# 		traceback_message = traceback.format_exc()
+# 		result = dict(result='error', error_message=traceback_message)
+# 	log.info(result)
+# 	return result
+#
+#
+#
+#
+# @app.post("/div7a2")
+# def post_div7a2(
+# 	request: dict
+# ):
+# 	""" OpenAI -> frontend -> proxy -> this """
+# 	log.info(json.dumps(request))
+# 	try:
+# 		result = dict(result=div7a.div7a2_from_json(request['request'], request['tmp_dir']))
+# 	except div7a.MyException as e:
+# 		result = dict(result='error', error_message=str(e))
+# 	except Exception as e:
+# 		traceback_message = traceback.format_exc()
+# 		result = dict(result='error', error_message=traceback_message)
+# 	log.info(result)
+# 	return result
 
 # 
 # @app.post("/arelle_extract")
 # def post_arelle_extract(taxonomy_locator: str):
 # 	return account_hierarchy.ArelleController().run(taxonomy_locator)
 # 
-# 
-# @app.get("/")
-# def index():
-# 	return "ok"
-# 
-# 
+
+@app.get("/")
+def index():
+	return "ok"
+
+
 # 
 # 
 # 
@@ -93,6 +93,9 @@ def post_div7a2(
 # 
 # 	return xmlschema.XMLSchema(xsd, allow='none', defuse='always')
 # 
+
+
+
 # def get_schema(xsd):
 # 	if xsd in schemas:
 # 		schema = schemas[xsd]
@@ -101,6 +104,9 @@ def post_div7a2(
 # 		schemas[xsd] = schema
 # 	return schema
 # 
+
+
+
 # @app.post('/xml_xsd_validator')
 # def xml_xsd_validator(xml: str, xsd:str):
 # 	schema = get_schema(xsd)
