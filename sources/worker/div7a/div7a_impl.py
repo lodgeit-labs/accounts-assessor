@@ -1,9 +1,8 @@
 import calendar
 from dataclasses import dataclass
-
-
 from .div7a_records import *
 import logging
+
 
 log = logging.getLogger(__name__)
 

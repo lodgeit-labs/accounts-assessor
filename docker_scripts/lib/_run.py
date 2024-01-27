@@ -223,6 +223,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	hn = choices['use_host_network']
 
 	e = {
+		"WORKERS_SCALE": str(choices['workers_scale']),
 		"PP": pp,
 		'DISPLAY':os.environ.get('DISPLAY', ''),
 		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
@@ -476,7 +477,7 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 					if 'delay' in v['deploy']['restart_policy']:
 						del v['deploy']['restart_policy']['delay']
 
-	for x in ['workers']:
+	for x in ['worker']:
 		if x in services:
 			services[x].get('deploy', {})['replicas'] = workers_scale
 

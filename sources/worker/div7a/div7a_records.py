@@ -1,11 +1,13 @@
 from datetime import date
 from functools import total_ordering
 
-uuid = 0
+
+local = threading.local()
+local.uuid = 0
+
 def new_uuid():
-	global uuid
-	uuid += 1
-	return uuid
+	local.uuid += 1
+	return local.uuid
 
 
 

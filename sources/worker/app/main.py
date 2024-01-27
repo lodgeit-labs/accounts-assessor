@@ -1,23 +1,72 @@
+"""
+
+the worker consists of two parts:
+	* work_loop
+	* helper api
+
+
+
+helper api:
+	called from swipl. frontend -> rabbitmq -> proxy -> work_loop -> swipl -> helper api
+	called from frontend. frontend -> helper api
+
+
+
+on parallelization:
+	there can only be one http server listening per a container
+		a container is:
+			 a fly machine
+			 a docker swarm container
+			 a docker stack container in non-host network mode
+	each container is therefore one worker.
+	in development, it's most convenient to run stack in host mode, so, with only one worker, but we still want to parallelize.
+	in production, it may also make sense to amortize the overhead of container isolation on multiple parallel jobs.
+	
+	therefore:
+	
+	we parallelize the worker, but there are three separate concerns:
+		
+		unicorn worker processes
+			worker_processes
+			> https://fastapi.tiangolo.com/deployment/server-workers/
+					
+			affects:
+				helper api
+					helper api is moreover parallelized by fastapi thread pool and asyncio
+		 				> FastAPI uses a threadpool of 40 threads internally to handle requests using non-async endpoints. 
+						-> the helper api has to be thread safe
+				
+				work_loop
+					one loop is started per worker process
+						* runs swipl synchronously
+						* runs arelle synchronously
+		
+						
+	
+	
+
+
+"""
+
+
+
 from fastapi import Body, FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import Field
-
 import logging
 import os, sys, logging, re, shlex, subprocess, json
-
 from pydantic.fields import Annotated
-
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
-
 
 # this will run in background thread
 from app import worker
 
-
-
 # these are helper api
 from app import account_hierarchy
 from app import xml_xsd
+
+# this is both a helper api a
+from div7a import div7a
 
 
 log = logging.getLogger(__name__)
@@ -35,6 +84,11 @@ app = FastAPI(
 
 
 @app.get("/")
+def root():
+	return "ok"
+
+
+@app.get("/health")
 def root():
 	return "ok"
 
@@ -82,7 +136,6 @@ def shell(shell_request: ShellRequest):
 
 
 
-from div7a import div7a
 
 
 @app.post("/div7a")

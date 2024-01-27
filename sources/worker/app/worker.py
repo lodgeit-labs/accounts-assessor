@@ -12,16 +12,10 @@ log.info('worker.py start')
 from dotdict import Dotdict
 
 
-def manager_proxy_thread():
+def work_loop():
 
 	worker_id = subprocess.check_output(['hostname'], text=True).strip() + '-' + str(os.getpid())
-	worker_info = dict(procs=[
-			'call_prolog',
-		  # should be handled in worker helper api
-		#  'arelle',
-		  # we should be able to safely route from worker fly machine to download bastion, making this unnecessary as well
-		#  'download',
-	])
+	worker_info = dict(procs=['call_prolog', 'arelle'])
 
 	task_result = None
 	
@@ -39,6 +33,7 @@ def manager_proxy_thread():
 			log.debug('worker %s got message %s', worker_id, msg)
 
 			if msg.get('result_ack'):
+				# waiting on result_ack gives the manager a chance to drop out for a bit, without losing the result
 				task_result = None
 			if msg.get('task'):
 				task = Dotdict(msg['task'])
@@ -59,9 +54,9 @@ def manager_proxy_thread():
 			time.sleep(5)
 
 
-# the debuggability here might suffer from the fact that the whole work is done in a background thread. But it should be easy to run this in a separate process, there is no shared state, nothing, it's just that it seems convenient that the whole service is a single process. But it's not a requirement.
+# the debuggability here might suffer from the fact that the whole work is done in a background thread. But it should be easy to run work_loop in a separate process, there is no shared state, nothing, it's just that it seems convenient that the whole service is a single process.
 
-threading.Thread(target=manager_proxy_thread, name='manager_proxy_thread', daemon=True).start()
+threading.Thread(target=work_loop, name='work_loop', daemon=True).start()
 
 
 

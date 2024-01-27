@@ -61,7 +61,7 @@ class Worker:
 		return self.task.id if self.task else None
 
 	def alive(self):
-		return self.last_seen > datetime.datetime.now() - datetime.timedelta(seconds=20)
+		return self.last_seen > datetime.datetime.now() - datetime.timedelta(seconds=100)
 
 	def __str__(self):
 		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task_id})'
