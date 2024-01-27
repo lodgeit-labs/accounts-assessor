@@ -41,7 +41,8 @@ on parallelization:
 						* runs swipl synchronously
 						* runs arelle synchronously
 		
-						
+	previously, we would simply spawn multiple "workers" containers, and each would run a single actor process, subsequently single swipl process.
+	
 	
 	
 
@@ -53,6 +54,7 @@ on parallelization:
 from fastapi import Body, FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import Field
+from pydantic import BaseModel
 import logging
 import os, sys, logging, re, shlex, subprocess, json
 from pydantic.fields import Annotated
@@ -60,12 +62,13 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 
 # this will run in background thread
 from app import worker
+worker
 
 # these are helper api
 from app import account_hierarchy
 from app import xml_xsd
 
-# this is both a helper api a
+# this is both a helper api and a task "proc"
 from div7a import div7a
 
 
@@ -115,7 +118,6 @@ def xml_xsd_validator(
 	return JSONResponse(response)
 
 
-from pydantic import BaseModel
 
 
 class ShellRequest(BaseModel):
@@ -153,20 +155,3 @@ def post_div7a(loan_summary_request: dict):
 	return result
 
 
-
-
-@app.post("/div7a2")
-def post_div7a2(
-	request: dict
-):
-	""" OpenAI -> frontend -> proxy -> this """
-	log.info(json.dumps(request))
-	try:
-		result = dict(result=div7a.div7a2_from_json(request['request'], request['tmp_dir']))
-	except div7a.MyException as e:
-		result = dict(result='error', error_message=str(e))
-	except Exception as e:
-		traceback_message = traceback.format_exc()
-		result = dict(result='error', error_message=traceback_message)
-	log.info(result)
-	return result

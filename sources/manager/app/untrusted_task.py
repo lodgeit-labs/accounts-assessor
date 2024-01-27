@@ -16,6 +16,7 @@ from remoulade.middleware import CurrentMessage
 
 
 fly = False
+separate_storage = False
 
 
 events = queue.Queue()
@@ -45,6 +46,13 @@ class Task:
 		return f'Task({self.id}, proc:{self.proc}, args:{self.args}, worker_options:{self.worker_options})'
 
 
+def copy_request_files_to_worker_container():
+	pass
+
+
+def copy_result_files_from_worker_container():
+	pass
+
 
 def do_untrusted_task(task: Task):
 	"""called from actors."""
@@ -52,8 +60,10 @@ def do_untrusted_task(task: Task):
 	try:
 		if fly:
 			fly_machine = requests.post('https://api.fly.io/v6/apps/robust/instances', json={})
-			# todo copy request files to fly machine
 			fly_machine.raise_for_status()
+
+		if separate_storage:
+			copy_request_files_to_worker_container()
 
 		put_event(dict(type='add_task', task=task))
 		log.debug('actor block on task.results.get()..')
@@ -63,7 +73,10 @@ def do_untrusted_task(task: Task):
 		log.debug('do_untrusted_task: finally')
 		# need to figure out a script that can tell that a fly container is not in use. This can happen if manager crashes here.
 		
+		if separate_storage:
+			copy_result_files_from_worker_container()		
+		
 		if fly:
-			# todo copy result files from fly machine
 			fly_machine.delete()
+			
 	return result

@@ -106,34 +106,25 @@ def cli():
 
 
 @click.option('-of', '--offline', 		type=bool, 	default=False,
-	help="don't use internet..")
+	help="don't pull base images.")
 
 @click.option('-de', '--develop', 		type=bool, 	default=False,
-	help="Development and debugging mode. CPU-intensive.")
+	help="Development and debugging mode across the whole stack. CPU-intensive.")
 
 @click.option('-sr', '--stay_running', 				type=bool, 	default=True,
 	help="keep the script running after the stack is brought up.")
-
-#@click.option('-d1', '--debug_frontend_server', 				type=bool, 	default=False,
-# 	help="")
 
 @click.option('-pp', '--port_postfix', 				type=str, 	default='', 
 	help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
 
 @click.option('-hn', '--use_host_network', 			type=bool, 	default=False, 
-	help="tell docker to attach the containers to host network, rather than creating one?")
+	help="tell docker to attach the containers to host network, rather than creating isolated one. Useful for development.")
 
 @click.option('-ms', '--mount_host_sources_dir', 	type=bool, 	default=False, 
 	help="bind-mount source code directories, instead of copying them into images. Useful for development.")
 
-@click.option('-nr', '--django_noreload', 			type=bool, 	default=True,
-	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
-
-#@click.option('-nr', '--django_noreload', 			type=bool, 	default=True,
-#	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
-
 @click.option('-pu', '--public_url', 				type=str, 	default="http://localhost",
-	help="The public-facing url, including scheme and, optionally, port. Used in django to construct URLs, and hostname is used in Caddy and apache.")
+	help="The public-facing url, including scheme and, optionally, port. Used to construct URLs, and hostname is used in Caddy and apache.")
 
 @click.option('-pg', '--enable_public_gateway', type=bool, default=True,
 	help="enable Caddy (on ports 80 and 443). This generally does not make much sense on a development machine, because 1) you're only getting a self-signed cert that excel will refuse, 2)maybe you already have another web server listening on these ports, 3) using -pp (non-standard ports) in combination with https will give you trouble. 4) You must access the server by a hostname, not just IP.")
@@ -165,15 +156,19 @@ def cli():
 	help=" ")
 
 #@click.argument('build_args', nargs=-1, type=click.UNPROCESSED)
-@click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
+@click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images. Useful to force reinstalling pip packages, for example")
 
 @click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='mate-terminal -e "tmux attach-session -t {session_name}"', help="""`mate-terminal -e "tmux attach-session -t {session_name}"` by default. A format string for a command to run for viewing the progress of docker commands. Empty string to disable.""")
 
 @click.option('-ts', '--tmux_session_name', 'tmux_session_name', type=str, default='', help='name of a pre-existing tmux session to run docker commands in. Defaults to an empty string - create a new session.')
 
-@click.option('-ws', '--workers_scale', 'workers_scale', type=int, default=1, help='number of worker containers to spawn')
+@click.option('-ia', '--internal_actors_scale', 'internal_actors_scale', type=int, default=1, help='number of internal_actors containers to spawn (this is different from trusted workers)')
 
 @click.option('-ss', '--container_startup_sequencing', 'container_startup_sequencing', type=bool, default=True, help='obey depends_on declarations in compose file. If false, containers will be started in parallel. This is useful for development, unless you are debugging problems that occur on container startup, but may cause problems in production, if requests are made when not all services are ready. Note that waitforit is still used to wait for services to be ready.')
+
+@click.option('-nr', '--django_noreload', 			type=bool, 	default=True,
+	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
+
 
 #@click.option('-xs', '--xpce_scale', 'xpce_scale', type=real, default=1, help='XPCE UI scale')
 
@@ -202,8 +197,8 @@ def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_bui
 			f"""
 ServerName {public_host}
 			""")
-
-		paths = 'health_check health chat upload reference api view div7a .well-known/ai-plugin.json openapi.json docs ai2 ai3'.split()
+		
+		paths = 'health_check health chat upload reference api view div7a openapi.json docs ai3'.split()
 			
 		for path in paths:
 			f.write(
@@ -223,7 +218,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	hn = choices['use_host_network']
 
 	e = {
-		"WORKERS_SCALE": str(choices['workers_scale']),
+		"INTERNAL_ACTORS_SCALE": str(choices['internal_actors_scale']),
 		"PP": pp,
 		'DISPLAY':os.environ.get('DISPLAY', ''),
 		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",

@@ -1,5 +1,6 @@
 import json
 import os
+import traceback
 from json import JSONEncoder
 import logging
 import pathlib
@@ -534,3 +535,19 @@ def div7a2_calculation_income_year(loan_year, term, repayments):
 		if year < 1999:
 			break
 	return year
+
+
+
+def post_div7a2(
+	request: dict
+):
+	log.info(json.dumps(request))
+	try:
+		result = dict(result=div7a2_from_json(request['request'], request['tmp_dir']))
+	except MyException as e:
+		result = dict(result='error', error_message=str(e))
+	except Exception as e:
+		traceback_message = traceback.format_exc()
+		result = dict(result='error', error_message=traceback_message)
+	log.info(result)
+	return result

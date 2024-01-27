@@ -54,7 +54,7 @@ templates = Jinja2Templates(directory="templates")
 
 from fs_utils import directory_files, find_report_by_key
 from tmp_dir import create_tmp_for_user
-from tmp_dir_path import get_tmp_directory_absolute_path
+from tmp_dir_path import get_tmp_directory_absolute_path, create_tmp_for_user
 from auth_fastapi import get_user
 
 
@@ -70,18 +70,7 @@ class RpcCommand(BaseModel):
 	method: str
 	params: Any
 
-class Div7aPrincipal(BaseModel):
-	principal: float
-class Div7aOpeningBalanceForCalculationYear(BaseModel):
-	opening_balance: float
 
-class Div7aRepayment(BaseModel):
-	date: datetime.date
-	amount: float
-
-class Div7aRepayments(BaseModel):
-	relevant_repayments: list[Div7aRepayment]
-	
 
 
 logger = logging.getLogger(__name__)
@@ -103,13 +92,6 @@ logger.addHandler(ch)
 
 
 
-# @csrf_exempt
-# def sparql_proxy(request):
-# 	if request.method == 'POST':
-# 		return JsonResponse({"x":agc().executeGraphQuery(request.body)})
-
-
-
 app = FastAPI(
 	title="Robust API",
 	summary="invoke accounting calculators and other endpoints",
@@ -120,14 +102,14 @@ app = FastAPI(
 
 
 
+@app.get("/")
+def index():
+	return "ok"
 
+@app.get("/health")
+def index():
+	return "ok"
 
-@app.get("/", include_in_schema=False)
-async def read_root():
-	"""
-	nothing to see here
-	"""
-	return {"Hello": "World"}
 
 
 #@app.get("/status")
@@ -328,6 +310,7 @@ def file_download(url, dir, filename_hint=None, disallowed_filenames=['.htaccess
 	return r.json()['filename']
 
 
+
 @app.get("/view/upload_form")
 def upload_form(request: Request):
 	return templates.TemplateResponse("upload.html", {
@@ -367,6 +350,8 @@ def load_worker_options_from_request_json(request_tmp_directory_path):
 		options = {}
 	logger.info('options: %s' % str(options))
 	return options
+
+
 
 def process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format='rdf', requested_output_format = 'job_handle'):
 	
@@ -448,10 +433,16 @@ def save_uploaded_file(tmp_directory_path, src):
 
 
 
-# also: def fill_workbook_with_template():
-	# either generate a xlsx file and return it to client, to be saved to onedrive (or to overwrite the selected onedrive xlsx file)
-	# or run a direct request to msft graph api here
-
+def create_workbook_with_template(template_uri: str):
+	"""
+	generate a xlsx file, and possibly just store it in tmp/.
+	
+	return it to client for download, or, possibly, if user is logged in with onedrive, save it to onedrive
+	
+	"""
+	pass#todo
+	
+	
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request, exc):
@@ -472,6 +463,7 @@ these are separate sub-apps mainly so that they have their own openapi schema, w
 """
 
 
+
 ai3 = FastAPI(
 	title="Robust API",
 	summary="Invoke accounting calculators.",
@@ -479,10 +471,6 @@ ai3 = FastAPI(
 	root_path_in_servers=False,
 )
 
-
-@ai3.get("/", include_in_schema=False)
-async def read_root():
-	return {"Hello": "World"}
 
 
 @ai3.get('/div7a')
@@ -534,7 +522,7 @@ async def div7a(
 			repayments=[{'date': date, 'amount': amount} for date, amount in zip(repayment_dates, repayment_amounts)],
 			lodgement_date=lodgement_date
 		),
-		tmp_dir_path='/app/server_root/tmp/'  # fixme
+		tmp_dir=list(create_tmp_for_user('robust'))
 	)
 	r = requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=jsonable_encoder(request))
 	r.raise_for_status()
@@ -547,11 +535,6 @@ async def div7a(
 	logging.getLogger().info(response)
 	return response
 
-# async def div7a(
-# 	request: Annotated[Div7aRequest, Query(examples=[example1])] = Depends(Div7aRequest),
-# 	repayments: Annotated[Div7aRepayments, Query(title="Repayments")] = Depends(Div7aRepayments)
-# ):
-# 	"""
 
 
 @ai3.post("/process_file")
@@ -586,4 +569,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 
+
+
+
+
+# @csrf_exempt
+# def sparql_proxy(request):
+# 	if request.method == 'POST':
+# 		return JsonResponse({"x":agc().executeGraphQuery(request.body)})
 
