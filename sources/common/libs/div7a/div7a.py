@@ -545,9 +545,9 @@ def post_div7a2(
 	try:
 		result = dict(result=div7a2_from_json(request['request'], request['tmp_dir']))
 	except MyException as e:
-		result = dict(result='error', error_message=str(e))
+		result = dict(error=str(e))
 	except Exception as e:
 		traceback_message = traceback.format_exc()
-		result = dict(result='error', error_message=traceback_message)
+		result = dict(error=traceback_message)
 	log.info(result)
 	return result

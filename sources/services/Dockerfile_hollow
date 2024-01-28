@@ -21,7 +21,7 @@ USER root
 WORKDIR $APPPATH
 USER myuser
 CMD ["./start.sh"]
-ENV HC="curl -L -S --fail http://127.0.0.1:17788/" 
+ENV HC="curl -L -S --fail http://127.0.0.1:17788/health" 
 
 
 

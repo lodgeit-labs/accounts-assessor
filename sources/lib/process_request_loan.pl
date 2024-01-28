@@ -1,7 +1,7 @@
 
 
  process_request_loan(Request_File, DOM) :-
-
+%gtrace,
 	% startDate and endDate in the request xml are ignored.
 	% they are not used in the computation.
 

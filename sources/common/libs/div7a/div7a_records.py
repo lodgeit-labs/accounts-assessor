@@ -1,13 +1,18 @@
 from datetime import date
 from functools import total_ordering
+import threading, uuid
 
 
-local = threading.local()
-local.uuid = 0
+
+thread_data = {}
+
 
 def new_uuid():
-	local.uuid += 1
-	return local.uuid
+	i = threading.get_ident()
+	if i not in thread_data:
+		thread_data[i] = 0
+	thread_data[i] += 1
+	return thread_data[i]
 
 
 
@@ -15,6 +20,7 @@ def record(date, type, info):
 	result = type(date)
 	result.info = info
 	return result
+
 
 
 @total_ordering

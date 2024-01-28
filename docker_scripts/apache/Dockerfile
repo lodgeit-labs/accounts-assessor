@@ -20,7 +20,7 @@ EXPOSE 8877
 
 
 
-ENV HC="curl -L -S --fail http://127.0.0.1:8877/" 
+ENV HC="curl -L -S --fail http://127.0.0.1:8877/#health" 
 
 
 

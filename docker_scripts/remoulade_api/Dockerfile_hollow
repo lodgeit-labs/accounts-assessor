@@ -47,7 +47,7 @@ ENV FLASK_DEBUG=1
 
 WORKDIR $APPPATH
 USER myuser
-ENTRYPOINT ["/app/sources/remoulade_api/start.sh"]
+ENTRYPOINT ["./start.sh"]
 ENV HC="curl http://127.0.0.1:5005/actors"
 
 

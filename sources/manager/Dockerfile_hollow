@@ -38,11 +38,11 @@ RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ign
 
 
 
-
 WORKDIR $APPPATH
 USER myuser
-CMD ["/app/sources/manager/start.sh"]
-ENV HC="curl -L -S --fail http://127.0.0.1:9111/health --fail" 
+CMD ["./start.sh"]
+ENV HC="curl -L -S --fail http://127.0.0.1:9111/health" 
+
 
 
 

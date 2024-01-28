@@ -55,7 +55,7 @@ from fastapi import Body, FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import Field
 from pydantic import BaseModel
-import logging
+import logging, traceback
 import os, sys, logging, re, shlex, subprocess, json
 from pydantic.fields import Annotated
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
@@ -69,6 +69,7 @@ from app import account_hierarchy
 from app import xml_xsd
 
 # this is both a helper api and a task "proc"
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/')))
 from div7a import div7a
 
 
@@ -138,8 +139,6 @@ def shell(shell_request: ShellRequest):
 
 
 
-
-
 @app.post("/div7a")
 def post_div7a(loan_summary_request: dict):
 	""" excel xml -> frontend -> proxy -> worker -> prolog -> this """
@@ -147,10 +146,10 @@ def post_div7a(loan_summary_request: dict):
 	try:
 		result = dict(result=div7a.div7a_from_json(loan_summary_request['data'], loan_summary_request['tmp_dir_path']))
 	except div7a.MyException as e:
-		result = dict(result='error', error_message=str(e))
-	except Exception as e:
-		traceback_message = traceback.format_exc()
-		result = dict(result='error', error_message=traceback_message)
+		result = dict(error=str(e))
+	# except Exception as e:
+	# 	traceback_message = traceback.format_exc()
+	# 	result = dict(error=traceback_message)
 	log.info(result)
 	return result
 

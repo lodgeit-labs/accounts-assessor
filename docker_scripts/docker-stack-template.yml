@@ -93,8 +93,8 @@ services:
 
 
  
-  internal_actors:   
-    image: koo5/workers${PP}:latest
+  actors:
+    image: koo5/actors${PP}:latest
     environment:
       SERVICES_URL:
       CSHARP_SERVICES_URL:
@@ -147,7 +147,7 @@ services:
       WATCHMEDO:
       ALL_PROXY:
       MANAGER_URL: http://localhost:9111
-      WORKER_PROCESSES: 50
+      WORKER_PROCESSES:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -156,8 +156,7 @@ services:
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw" # for gtrace
       - '../sources/swipl/xpce:/home/myuser/.config/swi-prolog/xpce'      
     networks:
-      - backend
-      - webproxy           
+      - untrusted
     depends_on:
       storage:
         condition: service_completed_successfully
@@ -186,7 +185,8 @@ services:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
     networks:
-      - backend  
+      - backend
+      - untrusted  
     deploy:
       replicas: 1
       placement:
@@ -448,6 +448,7 @@ services:
       - 3129
     networks:
       - webproxy           
+      - untrusted  
     healthcheck:
       #test: ["CMD-SHELL", "curl -x localhost:3128 --proxy-basic http://127.0.0.1:3128/healthcheck | grep healthcheck"] # no curl inside
       test: ["CMD-SHELL", "true"]

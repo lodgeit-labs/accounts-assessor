@@ -162,7 +162,9 @@ def cli():
 
 @click.option('-ts', '--tmux_session_name', 'tmux_session_name', type=str, default='', help='name of a pre-existing tmux session to run docker commands in. Defaults to an empty string - create a new session.')
 
-@click.option('-ia', '--internal_actors_scale', 'internal_actors_scale', type=int, default=1, help='number of internal_actors containers to spawn (this is different from trusted workers)')
+@click.option('-ia', '--actors_scale', 'actors_scale', type=int, default=1, help='number of actors containers to spawn')
+
+@click.option('-wp', '--worker_processes', 'worker_processes', type=int, default=1, help='number of uvicorn worker processes to spawn in each worker container')
 
 @click.option('-ss', '--container_startup_sequencing', 'container_startup_sequencing', type=bool, default=True, help='obey depends_on declarations in compose file. If false, containers will be started in parallel. This is useful for development, unless you are debugging problems that occur on container startup, but may cause problems in production, if requests are made when not all services are ready. Note that waitforit is still used to wait for services to be ready.')
 
@@ -218,7 +220,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	hn = choices['use_host_network']
 
 	e = {
-		"INTERNAL_ACTORS_SCALE": str(choices['internal_actors_scale']),
+		"WORKER_PROCESSES": str(choices['worker_processes']),
 		"PP": pp,
 		'DISPLAY':os.environ.get('DISPLAY', ''),
 		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
@@ -233,6 +235,9 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		'ALL_PROXY': 'http://localhost:3128' if hn else 'http://webproxy:3128',
 
 	}
+
+	del choices['worker_processes']
+
 	#
 	# if choices['display']:
 	# 	e['DISPLAY']' = os.environ.get('DISPLAY', '')
@@ -418,7 +423,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices, env):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir, workers_scale, container_startup_sequencing):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir, actors_scale, container_startup_sequencing):
 
 	res = deepcopy(src)
 	services = res['services']
@@ -472,9 +477,9 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 					if 'delay' in v['deploy']['restart_policy']:
 						del v['deploy']['restart_policy']['delay']
 
-	for x in ['worker']:
+	for x in ['actors']:
 		if x in services:
-			services[x].get('deploy', {})['replicas'] = workers_scale
+			services[x].get('deploy', {})['replicas'] = actors_scale
 
 
 	for k,v in services.items():
@@ -483,7 +488,7 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 		if not container_startup_sequencing:
 			v['depends_on'] = {}
 
-	for x in ['worker', 'workers', 'manager', 'services', 'frontend', 'remoulade-api', 'download']:
+	for x in ['worker', 'workers', 'manager', 'actors', 'services', 'frontend', 'remoulade-api', 'download']:
 		if x in services:
 			service = services[x]
 			if mount_host_sources_dir:
@@ -689,7 +694,7 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 
 	svc('download',				'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/download/Dockerfile_hollow")
 	svc('remoulade-api', 		'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/remoulade_api/Dockerfile_hollow")
-	svc('workers',				'../sources/', dbtks+'-hlw{port_postfix}"', "workers/Dockerfile_hollow")
+	svc('actors',				'../sources/', dbtks+'-hlw{port_postfix}"', "actors/Dockerfile_hollow")
 	svc('worker',				'../sources/', dbtks+'-hlw{port_postfix}"', "worker/Dockerfile_hollow")
 	svc('manager',				'../sources/', dbtks+'-hlw{port_postfix}"', "manager/Dockerfile_hollow")
 	svc('internal-services',		'../sources/', dbtks+'-hlw{port_postfix}"', "internal_services/Dockerfile_hollow")
@@ -700,13 +705,13 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 	print("ok?")
 	join_all()
 
-	if mode == "full": # not hollow
-		svc('manager',			'../sources/', dbtks+'{port_postfix}"', "manager/Dockerfile")
-		svc('worker',			'../sources/', dbtks+'{port_postfix}"', "worker/Dockerfile")
-		svc('workers',			'../sources/', dbtks+'{port_postfix}"', "workers/Dockerfile")
-		svc('services',			'../sources/', dbtks+'{port_postfix}"', "services/Dockerfile")
-		svc('csharp-services',	'../sources/', dbtks+'{port_postfix}"', "csharp-services/Dockerfile")
-		svc('frontend',			'../sources/', dbtks+'{port_postfix}"', "frontend/Dockerfile")
+	# if mode == "full": # not hollow
+	# 	svc('manager',			'../sources/', dbtks+'{port_postfix}"', "manager/Dockerfile")
+	# 	svc('worker',			'../sources/', dbtks+'{port_postfix}"', "worker/Dockerfile")
+	# 	svc('workers',			'../sources/', dbtks+'{port_postfix}"', "workers/Dockerfile")
+	# 	svc('services',			'../sources/', dbtks+'{port_postfix}"', "services/Dockerfile")
+	# 	svc('csharp-services',	'../sources/', dbtks+'{port_postfix}"', "csharp-services/Dockerfile")
+	# 	svc('frontend',			'../sources/', dbtks+'{port_postfix}"', "frontend/Dockerfile")
 
 	join_all()
 	print("ok!")
