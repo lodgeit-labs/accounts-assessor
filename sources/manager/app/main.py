@@ -31,7 +31,7 @@ parallelization:
 import logging
 import os, sys
 import threading
-import time
+import time, asyncio
 from typing import Optional
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
@@ -106,7 +106,7 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 
 
 	log.debug('')
-	log.debug('')
+	log.warn('')
 	log.debug('')
 	log.debug('/messages worker_id=%s task_result=%s', worker_id, task_result)
 
@@ -127,13 +127,22 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 				put_event(dict(type='worker_died', worker=worker))
 		else:
 			put_event(dict(type='worker_available', worker=worker))
-			time.sleep(1)
+			# give synchronization_thread some time to assign task to worker. todo this doesn't need to happen in a separate thread, can happen synchronously.
+			await asyncio.sleep(2)
 
+	counter = 0
+	log.debug(f'begin loop {worker_id=}')
+	
 	while not await request.is_disconnected():
+	
+		log.debug(f'begin loop2 {worker_id=} {counter=}')
+		counter += 1
 
 
 		heartbeat(worker)
-
+		log.debug(f'begin loop3 {worker_id=}')
+		
+		
 
 		#log.debug('id(workers)=%s', id(workers))
 		log.debug(f'{len(workers)=}')
@@ -157,8 +166,10 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 		log.debug('sleep')
 		log.debug('')
 		try:
-			worker.handler_wakeup.get(timeout=10)
-		except queue.Empty:
+			#asyncio.create_task(handler_wakeup_wait_timeout, name='MyTask')
+			await asyncio.wait_for(worker.handler_wakeup.wait(), timeout=10)
+			#await asyncio.sleep(5)
+		except asyncio.exceptions.TimeoutError:
 			pass
 		
 
@@ -172,6 +183,14 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 	log.debug('hangup.')
 	log.debug('')
 
+
+
+# async def handler_wakeup_wait_timeout(handler_wakeup):
+# 	log.debug('handler_wakeup_wait_timeout')
+# 	try:
+# 		await asyncio.wait_for(handler_wakeup.wait(), timeout=10)
+# 	except asyncio.TimeoutError:
+# 		pass
 
 
 

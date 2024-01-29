@@ -18,16 +18,18 @@ def work_loop():
 	worker_info = dict(procs=['call_prolog', 'arelle'])
 
 	task_result = None
-	
+	cycles = 0
 	while True:
 	
 		try:
-			log.debug(f'{worker_id} go get message, {task_result=}')
+			cycles += 1
+			log.debug(f'{worker_id} go get message, {task_result=}, {cycles=}')
 		
 			r = requests.post(os.environ['MANAGER_URL'] + f'/worker/{worker_id}/messages', json=dict(
 				task_result=task_result,
 				worker_info=worker_info,
 			), timeout=100)
+			log.debug(f'{worker_id} done go get message')
 			r.raise_for_status()
 			msg = r.json()
 			log.debug('worker %s got message %s', worker_id, msg)
@@ -50,6 +52,9 @@ def work_loop():
 			log.debug('worker %s /messages %s', worker_id, e)
 			time.sleep(5)
 		except Exception as e:
+			log.exception('worker %s get exception %e', worker_id, e)
+			time.sleep(5)
+		except e:
 			log.exception('worker %s get exception', worker_id)
 			time.sleep(5)
 

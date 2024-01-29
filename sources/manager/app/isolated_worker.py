@@ -16,7 +16,7 @@ from app.untrusted_task import *
 from contextlib import contextmanager
 shutdown_event = threading.Event()
 
-
+from tsasync import Event
 
 workers = {}
 print(id(workers))
@@ -31,7 +31,7 @@ class Worker:
 		self.id = id
 		self.sizes = [None]
 		self._task = None
-		self.handler_wakeup = queue.Queue()
+		self.handler_wakeup = Event()
 
 		self.last_reported_task_ts = None
 		self.last_reported_task = None
@@ -45,16 +45,10 @@ class Worker:
 	@task.setter
 	def task(self, task):
 		self._task = task
-		
-		# clear the queue
-		try:
-			while True:
-				self.handler_wakeup.get_nowait()
-		except queue.Empty:
-			pass
-		# put one item to signal the handler to wake up	
 		if task:
-			self.handler_wakeup.put(True)
+			self.handler_wakeup.set()
+		else:
+			self.handler_wakeup.clear()
 
 
 	@property
@@ -76,15 +70,18 @@ class Worker:
 def wl(message):
 	global workers_lock_msg
 	try:
-		if workers_lock_msg:
-			logging.getLogger('workers_lock').debug('wl wait on: %s', self.wlk)
+		while True:
+			if workers_lock_msg:
+				logging.getLogger('workers_lock').debug('wl wait on: %s', workers_lock_msg)
+			if workers_lock.acquire(timeout=10):
+				break
+	
 		workers_lock_msg = message
-		workers_lock.acquire()
 		yield
 	finally:
-		workers_lock.release()
-		workers_lock_msg = None
 		logging.getLogger('workers_lock').debug('wl release from: %s', message)
+		workers_lock_msg = None
+		workers_lock.release()
 
 
 
@@ -104,7 +101,7 @@ def get_worker(id, last_seen=None):
 
 def heartbeat(worker):
 	with wl('heartbeat'):
-		log.debug('thump')
+		log.debug('thump %s', worker)
 		worker.last_seen = datetime.datetime.now()
 
 

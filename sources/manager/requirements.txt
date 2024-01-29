@@ -6,3 +6,4 @@ uvicorn
 FastAPI
 gevent
 rdflib
+threadsafe-async

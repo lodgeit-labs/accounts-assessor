@@ -12,7 +12,7 @@ helper api:
 
 
 
-on parallelization:
+parallelization:
 	there can only be one http server listening per a container
 		a container is:
 			 a fly machine
