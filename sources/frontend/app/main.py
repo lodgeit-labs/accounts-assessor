@@ -119,7 +119,7 @@ def index():
 @app.post("/health_check")
 def post(request: Request):
 	"""
-	run an end-to-end healthcheck, internally invoking chat endpoint.
+	run an end-to-end healthcheck, internally invoking chat endpoint. 
 	"""
 	r = json_prolog_rpc_call(request, {
 		"method": "chat",
