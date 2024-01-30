@@ -44,9 +44,17 @@ from app.untrusted_task import *
 import app.manager_actors
 
 
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 log.addHandler(logging.StreamHandler(sys.stderr))
+
+loop_log = logging.getLogger(__name__)
+loop_log.setLevel(logging.INFO)
+loop_log.addHandler(logging.StreamHandler(sys.stderr))
+
+logging.basicConfig()
+#logging.config.fileConfig('logging.yaml', defaults=None, disable_existing_loggers=False, encoding=None)
 
 
 
@@ -106,9 +114,8 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 
 
 	log.debug('')
-	log.warn('')
 	log.debug('')
-	log.debug('/messages worker_id=%s task_result=%s', worker_id, task_result)
+	log.info('/messages worker_id=%s task_result=%s', worker_id, task_result)
 
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 
@@ -145,13 +152,13 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 		
 
 		#log.debug('id(workers)=%s', id(workers))
-		log.debug(f'{len(workers)=}')
+		log.info(f'{len(workers)=}')
 		#for _,v in workers.items():
 		#	log.debug('worker %s', v)
 		#log.debug('worker %s not disconnected', worker_id)
 
 
-		log.debug(f'{len(pending_tasks)=}')
+		log.info(f'{len(pending_tasks)=}')
 		for v in pending_tasks:
 			log.debug('%s', v)
 
@@ -180,7 +187,7 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 			return outmsg
 
 
-	log.debug('hangup.')
+	log.info('hangup %s', worker_id)
 	log.debug('')
 
 

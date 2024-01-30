@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import requests
-import subprocess. click, logging, sys, os, time, threading, json
+import subprocess, click, logging, sys, os, time, threading, json
 log = logging.getLogger(__name__)
 
 def co(x):
@@ -9,9 +9,11 @@ def co(x):
 @click.command()
 @click.option('--server', required=True, default='http://localhost:8877')
 def run(server):
+
+
+	logging.basicConfig(level=logging.INFO)
 	
-	
-	os.cwd(os.path.dirname(__file__))
+	os.chdir(os.path.dirname(__file__))
 	if os.path.exists('venv'):
 		pass
 	else:
@@ -57,7 +59,7 @@ def run(server):
 	# ./luigi_scheduler_server.sh
 	# ./luigi_worke.sh
 
-	co(f'PYTHONPATH=(pwd) luigi --module runner.tests2 --Permutations-robust-server-url {server} --Permutations-suite ../endpoint_tests/ --workers=30 Summary')
+	#co(f'PYTHONPATH=(pwd) luigi --module runner.tests2 --Permutations-robust-server-url {server} --Permutations-suite ../endpoint_tests/ --workers=30 Summary')
 
 	"""
 	evaluation is required here.
@@ -66,3 +68,7 @@ def run(server):
 	and then check the results.
 	"""
 	#log.info('ok.')
+
+
+if __name__ == '__main__':
+	run()
