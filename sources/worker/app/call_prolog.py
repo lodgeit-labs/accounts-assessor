@@ -22,7 +22,7 @@ def call_prolog(
 	might get reused now, because we will again be generating a goal string that can be copy&pasted into swipl..
 	"""
 
-	result_tmp_directory_name = msg['params'].get('result_tmp_directory_name')
+	result_tmp_directory_name = msg['params']['result_tmp_directory_name']
 	result_tmp_path = get_tmp_directory_absolute_path(result_tmp_directory_name)
 	
 	if msg.get('method') == 'calculator':

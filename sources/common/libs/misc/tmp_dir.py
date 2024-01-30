@@ -23,8 +23,9 @@ def create_tmp_directory_name():
 		get_unique_id()])
 
 
-def create_tmp():
-	name = create_tmp_directory_name()
+def create_tmp(name=None):
+	if name is None:
+		name = create_tmp_directory_name()
 	full_path = get_tmp_directory_absolute_path(name)
 	os.mkdir(full_path)
 	return name,full_path

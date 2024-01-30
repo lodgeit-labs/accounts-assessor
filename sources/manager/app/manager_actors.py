@@ -10,7 +10,7 @@ from pathlib import Path
 from fs_utils import files_in_dir
 from tasking import remoulade
 from tmp_dir_path import get_tmp_directory_absolute_path, symlink, ln
-from tmp_dir import create_tmp_for_user
+from tmp_dir import create_tmp_for_user, create_tmp
 from app.untrusted_task import *
 from app.helpers import *
 
@@ -36,10 +36,11 @@ log.debug("hello from manager_actors.py")
 
 @remoulade.actor(alternative_queues=["health"])
 def call_prolog_rpc(msg, worker_options=None):
-	log.debug('manager_actors: call_prolog: ...')	
+	log.debug('manager_actors: call_prolog: ...')
+	n,_ = create_tmp('rpc')
 	return do_untrusted_task(Task(
 		proc='call_prolog',
-		args=dict(msg=msg, params=dict(result_tmp_directory_name='rpc')),
+		args=dict(msg=msg, params=dict(result_tmp_directory_name=n)),
 		worker_options=worker_options
 	))
 

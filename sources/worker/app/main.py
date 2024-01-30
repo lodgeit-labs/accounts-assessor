@@ -56,13 +56,12 @@ from fastapi.responses import JSONResponse
 from pydantic import Field
 from pydantic import BaseModel
 import logging, traceback
-import os, sys, logging, re, shlex, subprocess, json
+import os, sys, logging, re, shlex, subprocess, json, threading
 from pydantic.fields import Annotated
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 
 # this will run in background thread
 from app import worker
-worker
 
 # these are helper api
 from app import account_hierarchy
@@ -84,18 +83,31 @@ app = FastAPI(
 )
 
 
-# helper functions that prolog can call
+
+worker_thread = None
+def start_worker_if_not_running():
+	global worker_thread
+	# the debuggability here might suffer from the fact that the whole work is done in a background thread. But it should be easy to run work_loop in a separate process, there is no shared state, nothing, it's just that it seems convenient that the whole service is a single process.
+	if worker_thread is None:
+		worker_thread = threading.Thread(target=worker.work_loop, name='work_loop', daemon=True).start()
+
+
 
 
 @app.get("/")
-def root():
+def get():
 	return "ok"
 
 
 @app.get("/health")
-def root():
+def get():
+	# there is no good way to make fastapi call a function after it is initialized, so we do it here
+	start_worker_if_not_running()
 	return "ok"
 
+
+
+# helper functions that prolog can call
 
 @app.post("/arelle_extract")
 def post_arelle_extract(taxonomy_locator: str):
