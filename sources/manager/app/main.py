@@ -113,9 +113,9 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 	worker_info = inmsg.get('worker_info')
 
 
-	log.debug('')
-	log.debug('')
-	log.info('/messages worker_id=%s task_result=%s', worker_id, task_result)
+	loop_log.debug('')
+	loop_log.debug('')
+	loop_log.info('/messages worker_id=%s task_result=%s', worker_id, task_result)
 
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 
@@ -129,7 +129,7 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 			#log.debug(f'{time_since_task_sent_to_worker=}')
 			if time_since_task_sent_to_worker > datetime.timedelta(seconds=15):
 				# grace period, because in the loop below, we may think that we sent a response with task, but the worker might have been already disconnected. But we only record task_given_ts the first time we relay the task, so, if a worker keeps disconnecting, we eventually ...do...something?
-				log.warn(f"""{worker.id} should be working on {worker.
+				loop_log.warn(f"""{worker.id} should be working on {worker.
 						 task_id} and sending heartbeats, but it's coming back without result... {time_since_task_sent_to_worker=}""")
 				put_event(dict(type='worker_died', worker=worker))
 		else:
@@ -138,40 +138,40 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 			await asyncio.sleep(2)
 
 	counter = 0
-	log.debug(f'begin loop {worker_id=}')
+	loop_log.debug(f'begin loop {worker_id=}')
 	
 	while not await request.is_disconnected():
 	
-		log.debug(f'begin loop2 {worker_id=} {counter=}')
+		loop_log.debug(f'begin loop2 {worker_id=} {counter=}')
 		counter += 1
 
 
 		heartbeat(worker)
-		log.debug(f'begin loop3 {worker_id=}')
+		loop_log.debug(f'begin loop3 {worker_id=}')
 		
 		
 
-		#log.debug('id(workers)=%s', id(workers))
-		log.info(f'{len(workers)=}')
+		#loop_log.debug('id(workers)=%s', id(workers))
+		loop_log.info(f'{len(workers)=}')
 		#for _,v in workers.items():
-		#	log.debug('worker %s', v)
-		#log.debug('worker %s not disconnected', worker_id)
+		#	loop_log.debug('worker %s', v)
+		#loop_log.debug('worker %s not disconnected', worker_id)
 
 
-		log.info(f'{len(pending_tasks)=}')
+		loop_log.info(f'{len(pending_tasks)=}')
 		for v in pending_tasks:
-			log.debug('%s', v)
+			loop_log.debug('%s', v)
 
 
 		if worker.task:
-			log.debug('give task: %s', worker.task)
+			loop_log.debug('give task: %s', worker.task)
 			if not worker.task_given_ts:
 				worker.task_given_ts = datetime.datetime.now()
 			return outmsg | dict(task=dict(id = worker.task.id, proc=worker.task.proc, args=worker.task.args, worker_options=worker.task.worker_options))
 
 
-		log.debug('sleep')
-		log.debug('')
+		loop_log.debug('sleep')
+		loop_log.debug('')
 		try:
 			#asyncio.create_task(handler_wakeup_wait_timeout, name='MyTask')
 			await asyncio.wait_for(worker.handler_wakeup.wait(), timeout=10)
@@ -183,12 +183,12 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 		# give some time for actors to relay the result, but then let's not keep the worker hanging around with result indefinitely, because it always timeouts first, and we never actually send him a message. So let's send him the ack.
 
 		if not worker.task and task_result:
-			log.debug(str(outmsg))
+			loop_log.debug(str(outmsg))
 			return outmsg
 
 
-	log.info('hangup %s', worker_id)
-	log.debug('')
+	loop_log.info('hangup %s', worker_id)
+	loop_log.debug('')
 
 
 
