@@ -241,14 +241,14 @@ class TestResultImmediateXml(luigi.Task):
 			uuuu.path = '/'.join(str(uuuu.path).split('/')[:-1])
 			job['dir'] = uuuu.url
 			
-		result_xml = luigi.LocalTarget(P(self.test['path']) / 'outputs' / 'response.xml')
+		result_xml = luigi.LocalTarget(P(self.test['path']) / 'responses' / 'response.xml')
 		result_xml.makedirs()
 
 		#if resp.ok:
 		with result_xml.temporary_path() as result_xml_fn:
 			with open(result_xml_fn, 'w') as result_xml_fd:
 				result_xml_fd.write(resp.text)
-		job['result'] = 'outputs/response.xml'
+		job['result'] = 'responses/response.xml'
 		
 		with self.output().temporary_path() as response_fn:
 			with open(response_fn, 'w') as response_fd:
@@ -327,7 +327,7 @@ class TestEvaluateImmediateXml(luigi.Task):
 	def output(self):
 		return {
 			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
-			'outputs':luigi.LocalTarget(P(self.test['path']) / 'outputs')
+			'responses':luigi.LocalTarget(P(self.test['path']) / 'responses')
 		}
 
 
@@ -395,7 +395,7 @@ class TestEvaluate(luigi.Task):
 
 
 		# directory where we'll download reports that we want to analyze
-		results: luigi.LocalTarget = self.output()['outputs']
+		results: luigi.LocalTarget = self.output()['responses']
 		P(results.path).mkdir(parents=True, exist_ok=True)
 
 
@@ -483,7 +483,7 @@ class TestEvaluate(luigi.Task):
 		return {
 			# this creates some chance for discrepancies to creep in.. "exceptional cases, for example when central locking fails "
 			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
-			'outputs':luigi.LocalTarget(P(self.test['path']) / 'outputs')
+			'responses':luigi.LocalTarget(P(self.test['path']) / 'responses')
 		}
 
 
