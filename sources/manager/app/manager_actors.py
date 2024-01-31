@@ -39,7 +39,10 @@ def call_prolog_rpc(msg, worker_options=None):
 	log.debug('manager_actors: call_prolog: ...')
 	return do_untrusted_task(Task(
 		proc='call_prolog',
-		args=dict(msg=msg, worker_tmp_directory_name=create_tmp('rpc', exist_ok=True)[0]),
+		args=dict(
+			msg=msg, 
+			worker_tmp_directory_name=create_tmp('rpc', exist_ok=True)[0]
+		),
 		worker_options=worker_options
 	))
 
@@ -94,7 +97,13 @@ def call_prolog_calculator(
 
 	result = do_untrusted_task(Task(
 		proc='call_prolog',
-		args=dict(msg=dict(method='calculator', params=params, worker_tmp_directory_name=result_tmp_directory_name)),
+		args=dict(
+			msg=dict(
+				method='calculator', 
+				params=params
+			),
+			worker_tmp_directory_name=result_tmp_directory_name
+		),
 		worker_options=worker_options,
 		input_directories=[get_tmp_directory_absolute_path(request_directory), result_tmp_directory_path],
 		output_directories=[result_tmp_directory_path]

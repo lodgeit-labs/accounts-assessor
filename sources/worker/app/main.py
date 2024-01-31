@@ -3,6 +3,7 @@
 the worker consists of two parts:
 	* work_loop
 	* helper api
+the debuggability here might suffer from the fact that the whole work is done in a background thread. But it should be easy to run work_loop in a separate process, there is no shared state, nothing, it's just that it seems convenient that the whole service is a single process.
 
 
 
@@ -48,8 +49,7 @@ parallelization:
 
 
 """
-
-
+import asyncio
 
 from fastapi import Body, FastAPI
 from fastapi.responses import JSONResponse
@@ -85,13 +85,18 @@ app = FastAPI(
 
 
 worker_thread = None
-def start_worker_if_not_running():
+async def start_worker_if_not_running():
 	global worker_thread
-	# the debuggability here might suffer from the fact that the whole work is done in a background thread. But it should be easy to run work_loop in a separate process, there is no shared state, nothing, it's just that it seems convenient that the whole service is a single process.
+	
+	# there is no good way to make fastapi call a function after it is initialized
+	await asyncio.sleep(2)
+	
+	# the check here might be unnecessary depending on how exactly we end up spawning the worker thread.
 	if worker_thread is None:
 		worker_thread = threading.Thread(target=worker.work_loop, name='work_loop', daemon=True)
 		worker_thread.start()
 
+asyncio.create_task(start_worker_if_not_running())
 
 
 
@@ -102,8 +107,6 @@ def get():
 
 @app.get("/health")
 def get():
-	# there is no good way to make fastapi call a function after it is initialized, so we do it here
-	start_worker_if_not_running()
 	return "ok"
 
 

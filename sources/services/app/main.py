@@ -1,6 +1,6 @@
 import os, sys, logging, re
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/')))
-import div7a
+from div7a import div7a
 from fastapi import FastAPI
 
 

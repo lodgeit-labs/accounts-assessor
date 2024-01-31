@@ -132,7 +132,7 @@ def post(request: Request):
 
 
 @app.post("/chat")
-def post(body: ChatRequest, request: Request):
+def post(request: Request, body: ChatRequest):
 	"""
 	invoke chat endpoint
 	"""
