@@ -34,6 +34,8 @@ is it the case that at least one payment is expected / assumed, each year? That'
 	% startDate and endDate in the request xml are ignored.
 	% they are not used in the computation.
 
+	%format(user_error, '~n~q~n', [DOM]),
+
 	/* for example 2014 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
 

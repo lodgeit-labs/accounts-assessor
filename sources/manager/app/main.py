@@ -45,15 +45,15 @@ import app.manager_actors
 
 
 
+logging.basicConfig()
+
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 log.addHandler(logging.StreamHandler(sys.stderr))
 
-loop_log = logging.getLogger(__name__)
+loop_log = logging.getLogger('loop')
 loop_log.setLevel(logging.INFO)
-loop_log.addHandler(logging.StreamHandler(sys.stderr))
 
-logging.basicConfig()
 #logging.config.fileConfig('logging.yaml', defaults=None, disable_existing_loggers=False, encoding=None)
 
 
@@ -83,6 +83,11 @@ def post_heartbeat(worker_id: str, task_id: str = None):
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	worker.last_reported_task = task_id
 	worker.last_reported_task_ts = datetime.datetime.now()
+
+
+def stats():
+	active_tasks = [w.task for w in workers.values() if w.task]
+	log.info(f'{len(pending_tasks)=}, len(workers)={len(workers)}, {len(active_tasks)=}')
 
 
 
@@ -137,8 +142,11 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 			# give synchronization_thread some time to assign task to worker. todo this doesn't need to happen in a separate thread, can happen synchronously.
 			await asyncio.sleep(2)
 
+
 	counter = 0
 	loop_log.debug(f'begin loop {worker_id=}')
+
+	stats()
 	
 	while not await request.is_disconnected():
 	
@@ -152,13 +160,13 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 		
 
 		#loop_log.debug('id(workers)=%s', id(workers))
-		loop_log.info(f'{len(workers)=}')
+		loop_log.debug(f'{len(workers)=} :>')
 		#for _,v in workers.items():
 		#	loop_log.debug('worker %s', v)
 		#loop_log.debug('worker %s not disconnected', worker_id)
 
 
-		loop_log.info(f'{len(pending_tasks)=}')
+		loop_log.debug(f'{len(pending_tasks)=}')
 		for v in pending_tasks:
 			loop_log.debug('%s', v)
 
@@ -172,10 +180,10 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 
 		loop_log.debug('sleep')
 		loop_log.debug('')
-		try:
-			#asyncio.create_task(handler_wakeup_wait_timeout, name='MyTask')
-			await asyncio.wait_for(worker.handler_wakeup.wait(), timeout=10)
-			#await asyncio.sleep(5)
+		
+		try:			
+			# this is effectively how often we check if worker disconnected, in absence of tasks. But also how often we refresh last_seen. See also is_alive().
+			await asyncio.wait_for(worker.handler_wakeup.wait(), timeout=600)
 		except asyncio.exceptions.TimeoutError:
 			pass
 		
@@ -183,7 +191,7 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 		# give some time for actors to relay the result, but then let's not keep the worker hanging around with result indefinitely, because it always timeouts first, and we never actually send him a message. So let's send him the ack.
 
 		if not worker.task and task_result:
-			loop_log.debug(str(outmsg))
+			loop_log.debug('%s',(outmsg))
 			return outmsg
 
 

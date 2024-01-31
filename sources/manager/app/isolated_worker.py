@@ -3,10 +3,6 @@ import threading, logging
 
 from dotdict import Dotdict
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-log.addHandler(logging.StreamHandler())
-
 import datetime
 import time
 
@@ -18,12 +14,17 @@ shutdown_event = threading.Event()
 
 from tsasync import Event
 
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+
+
+
 workers = {}
-print(id(workers))
+#print(id(workers))
 workers_lock = threading.Lock()
 workers_lock_msg = None
 pending_tasks = []
-
 
 
 class Worker:
@@ -56,7 +57,7 @@ class Worker:
 		return self.task.id if self.task else None
 
 	def alive(self):
-		return self.last_seen > datetime.datetime.now() - datetime.timedelta(seconds=100)
+		return self.last_seen > datetime.datetime.now() - datetime.timedelta(seconds=1200)
 
 	def __str__(self):
 		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task_id})'

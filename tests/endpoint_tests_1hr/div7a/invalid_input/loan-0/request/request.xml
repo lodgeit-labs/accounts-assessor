@@ -1,4 +1,6 @@
-11111111111<?xml version="1.0" encoding="UTF-8"?>
+Warning: SGML2PL(xmlns): #PCDATA ("11111111111") not allowed here
+11111111111 prolog actually parses this 1111111111111
+<?xml version="1.0" encoding="UTF-8"?>
 <reports xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://localhost:8080/taxonomy/basic.xsd">
   <loanDetails>
     <generator>

@@ -35,7 +35,8 @@ def work_loop():
 				r = requests.post(os.environ['MANAGER_URL'] + f'/worker/{worker_id}/messages', json=dict(
 					task_result=task_result,
 					worker_info=worker_info,
-				), timeout=100)
+				)#, timeout=100
+				)
 				log.debug(f'{worker_id} done go get message')
 				r.raise_for_status()
 				msg = r.json()

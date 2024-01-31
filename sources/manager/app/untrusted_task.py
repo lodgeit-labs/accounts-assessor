@@ -1,18 +1,18 @@
 import logging, sys
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-log.addHandler(logging.StreamHandler(sys.stderr))
-
-
-log.debug("hello from untrusted_task.py")
-
 import queue
 import uuid
 
 import requests
 
 from remoulade.middleware import CurrentMessage
+
+
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.debug("hello from untrusted_task.py")
+
 
 
 fly = False

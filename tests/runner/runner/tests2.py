@@ -317,10 +317,11 @@ class TestEvaluateImmediateXml(luigi.Task):
 			result = fromstring(canonical_result_xml_string)
 			expected = fromstring(canonical_expected_xml_string)
 
-			# logger.info(tostring(result))
-			# logger.info(tostring(expected))
+			logger.debug((result))
+			logger.debug((expected))
 
 			return done(list(my_xml_diff(result, expected)))
+			
 		return done([])
 
 	def output(self):
