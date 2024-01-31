@@ -34,10 +34,12 @@ import threading
 import time, asyncio
 from typing import Optional
 
+from fastapi.security import OAuth2PasswordBearer
+
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 from tasking import remoulade
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends, HTTPException
 
 from app.isolated_worker import *
 from app.untrusted_task import *
@@ -64,6 +66,12 @@ app = FastAPI(
 )
 
 
+
+# misnomer, but it works
+worker_auth_scheme = OAuth2PasswordBearer(tokenUrl="dummy_worker_auth", scopes={'a':'be_worker'}, auto_error=False)
+
+
+
 @app.get("/")
 async def read_root():
 	return {"Hello": "World"}
@@ -74,11 +82,28 @@ async def read_root():
 	return "ok"
 
 
+# @app.post("/dummy_worker_auth")
+# async def read_root():
+# 	return "ok"
+# 
+
+import tokens
+
+
+
+
+
 @app.post("/worker/{worker_id}/heartbeat")
-def post_heartbeat(worker_id: str, task_id: str = None):
+def post_heartbeat(worker_id: str, task_id: str = None, token: str = Depends(worker_auth_scheme)):
 	"""
 	While worker is processing a task, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no task.
 	"""
+
+	if fly:
+		token = tokens.decode_token(token)
+		if token is None:
+			raise HTTPException(status_code=400, detail="Invalid authentication credentials")
+
 	log.debug('heartbeat %s %s', worker_id, task_id)
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	worker.last_reported_task = task_id
@@ -253,3 +278,28 @@ async def shutdown():
 	shutdown_event.set()
 	events.put(dict(type='nop'))
 	
+
+
+
+
+
+
+"""
+User
+is "OAuth2PasswordBearer" a misnomer? What i intend to pass through the Bearer header is not a password, and my scheme has nothing to do with oAuth2
+ChatGPT
+
+Yes, you're correct in your understanding. The term OAuth2PasswordBearer in FastAPI can indeed be a bit misleading, especially if you're not implementing a full OAuth2 password flow but simply using JWT tokens for authentication.
+
+Here's a breakdown to clarify:
+
+    Bearer Tokens: In HTTP authentication, a bearer token is a token that is sent in the Authorization header. The term "bearer" implies that the possessor of the token is authorized to access certain resources. The token itself is not a password but typically a cryptographically signed piece of data like a JWT.
+
+    OAuth2PasswordBearer in FastAPI: In FastAPI, OAuth2PasswordBearer is a class that is used to extract the token from the Authorization header of the request. The name might suggest that it's only for OAuth2 password flows, but in reality, it's quite flexible and can be used whenever you need to secure an endpoint with a bearer token (like a JWT).
+
+    Misnomer: The term is somewhat a misnomer if you're only using JWT for authentication and not implementing the full OAuth2 password flow. The OAuth2 password flow involves a client sending username and password to the server and receiving an access token (and optionally a refresh token) in return. The access token is then used in the same manner as a JWT in the Authorization header.
+        If you're simply generating a JWT after verifying the user's credentials and expect the client to send this JWT in the Authorization header for subsequent requests, you're not strictly implementing the OAuth2 password flow. You're just using JWTs for authentication.
+
+In summary, while OAuth2PasswordBearer in FastAPI is named for the OAuth2 password flow, it's commonly used for JWT authentication as well, even if the full OAuth2 flow isn't being implemented. It's a utility to help you extract and validate the token from the header, and you can use it as part of your authentication system without strictly adhering to all the OAuth2 specifications. If the naming bothers you and you want to avoid confusion, you might consider creating your own dependency in FastAPI that does the same job but is named more appropriately for your use case.
+
+"""
