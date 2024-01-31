@@ -89,7 +89,8 @@ def start_worker_if_not_running():
 	global worker_thread
 	# the debuggability here might suffer from the fact that the whole work is done in a background thread. But it should be easy to run work_loop in a separate process, there is no shared state, nothing, it's just that it seems convenient that the whole service is a single process.
 	if worker_thread is None:
-		worker_thread = threading.Thread(target=worker.work_loop, name='work_loop', daemon=True).start()
+		worker_thread = threading.Thread(target=worker.work_loop, name='work_loop', daemon=True)
+		worker_thread.start()
 
 
 

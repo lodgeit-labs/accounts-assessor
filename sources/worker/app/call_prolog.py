@@ -9,7 +9,8 @@ from app.misc import uri_params, env_string
 
 def call_prolog(
 		msg, # {method: calculator or rpc, params:...}
-		worker_options = None
+		worker_tmp_directory_name = 'rpc',
+		worker_options = None,
 ):
 	"""
 	We have two main ways of invoking prolog:
@@ -22,11 +23,10 @@ def call_prolog(
 	might get reused now, because we will again be generating a goal string that can be copy&pasted into swipl..
 	"""
 
-	result_tmp_directory_name = msg['params']['result_tmp_directory_name']
-	result_tmp_path = get_tmp_directory_absolute_path(result_tmp_directory_name)
+	worker_tmp_path = get_tmp_directory_absolute_path(worker_tmp_directory_name)
 	
 	if msg.get('method') == 'calculator':
-		msg['params'] |= uri_params(result_tmp_directory_name) | dict(request_format=guess_request_format_rdf_or_xml(msg['params']))
+		msg['params'] |= uri_params(msg['params']['result_tmp_directory_name']) | dict(request_format=guess_request_format_rdf_or_xml(msg['params']))
 
 	if worker_options is None:
 		worker_options = {}
@@ -42,7 +42,7 @@ def call_prolog(
 		halt=True,
 		pipe_rpc_json_to_swipl_stdin=False,
 		dry_run=False,
-		MPROF_OUTPUT_PATH=result_tmp_path + '/mem_prof.txt' if result_tmp_path else 'mem_prof.txt',
+		MPROF_OUTPUT_PATH=worker_tmp_path + '/mem_prof.txt'
 	)
 
 	worker_options = default_options | config | worker_options
@@ -56,7 +56,7 @@ def call_prolog(
 
 
 	# write call info txt:
-	ROBUST_CALL_INFO_TXT_PATH = result_tmp_path+'/rpc_call_info.txt' if result_tmp_path else '/tmp/robust_rpc_call_info.txt'
+	ROBUST_CALL_INFO_TXT_PATH = worker_tmp_path+'/rpc_call_info.txt'
 	with open(ROBUST_CALL_INFO_TXT_PATH, 'w') as info_fd:
 		info_fd.write('options:\n')
 		info_fd.write(json.dumps(worker_options, indent=4))

@@ -142,10 +142,17 @@ def post(body: ChatRequest, request: Request):
 	})
 
 
-async def json_prolog_rpc_call(request, msg, queue_name=None):
+def json_prolog_rpc_call(request, msg, queue_name=None):
 	msg["client"] = request.client.host
-	return manager_actors.call_prolog_rpc.send_with_options(kwargs=dict(msg=msg), queue_name=queue_name).result.get(block=True, timeout=1000 * 1000)
-
+	logger.debug('json_prolog_rpc_call: %s ...' % msg)
+	job = manager_actors.call_prolog_rpc.send_with_options(kwargs=dict(msg=msg), queue_name=queue_name)
+	try:
+		logger.debug('waiting for result (timeout 1000 * 1000)')
+		result = job.result.get(block=True, timeout=1000 * 1000)
+	except manager_actors.remoulade.results.errors.ErrorStored as e:
+		logger.error(str(e))
+	logger.debug('json_prolog_rpc_call: %s' % result)
+	return result
 
 
 
@@ -474,7 +481,7 @@ ai3 = FastAPI(
 
 
 @ai3.get('/div7a')
-async def div7a(
+def div7a(
 
 	loan_year: Annotated[int, Query(
 		title="The income year in which the amalgamated loan was made",

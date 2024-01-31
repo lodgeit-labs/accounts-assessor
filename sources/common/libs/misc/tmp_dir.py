@@ -23,12 +23,12 @@ def create_tmp_directory_name():
 		get_unique_id()])
 
 
-def create_tmp(name=None):
+def create_tmp(name=None, exist_ok=False):
 	if name is None:
 		name = create_tmp_directory_name()
 	full_path = get_tmp_directory_absolute_path(name)
-	os.mkdir(full_path)
-	return name,full_path
+	os.makedirs(full_path, exist_ok=exist_ok)
+	return name, full_path
 
 
 def create_tmp_for_user(user):
