@@ -67,7 +67,13 @@ def do_untrusted_task(task: Task):
 
 		put_event(dict(type='add_task', task=task))
 		log.debug('actor block on task.results.get()..')
+		
 		result = task.results.get()
+		if 'error' in result:
+			raise Exception(result['error'])
+		else:
+			return result['result']
+		
 		log.debug('actor got result')
 	finally:
 		log.debug('do_untrusted_task: finally')
