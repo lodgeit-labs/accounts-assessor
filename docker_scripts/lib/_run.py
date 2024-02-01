@@ -146,6 +146,9 @@ def cli():
 @click.option('-os', '--omit_service', 'omit_services', type=str, default=[], multiple=True,
 	help=" ")
 
+@click.option('-os', '--only_service', 'only_services', type=str, default=[], multiple=True,
+	help=" ")
+
 @click.option('-in', '--include_service', 'include_services', type=str, default=[], multiple=True,
 	help=" ")
 
