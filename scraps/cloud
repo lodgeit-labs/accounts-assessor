@@ -1,0 +1,23 @@
+Cost Estimate Summary
+
+As of Jan 31, 2024 • 8:47 PM
+Prices in USD
+Compute$135.78
+Instances (Compute Engine)
+
+$135.78
+Service typeInstances
+Instance-time730 HoursN/AMachine typec2-standard-30, vCPUs: 30, RAM: 120 GB$135.78
+Number of Instances1N/A
+Operating System / SoftwareFree: Debian, CentOS, CoreOS, Ubuntu or BYOL (Bring Your Own License)N/A
+Provisioning ModelSpot (Preemptible VM)N/A
+Threads per core2 threads per coreN/A
+Boot disk size (GiB)20 GiBN/A
+Enable Confidential VM servicefalseN/A
+Add sustained use discountsfalseN/A
+Add GPUsfalseN/A
+Local SSD0N/A
+RegionIowa (us-central1)N/A
+Committed use discount optionsNoneN/A
+Total estimated cost
+$135.78/ mo

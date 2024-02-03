@@ -44,6 +44,10 @@ sq = shlex.quote
 ss = shlex.split
 
 
+def transfer_option(dict1, key, dict2):
+	dict2[key] = dict1[key]
+	del dict1[key]
+
 
 def ccd(cmd, env):
 	eee = ' '.join([f'{k}={(v).__repr__()}' for k,v in env.items()]) + '\\\n' + shlex.join(cmd)
@@ -149,11 +153,11 @@ def cli():
 @click.option('-os', '--only_service', 'only_services', type=str, default=[], multiple=True,
 	help=" ")
 
-@click.option('-in', '--include_service', 'include_services', type=str, default=[], multiple=True,
-	help=" ")
-
 @click.option('-oi', '--omit_image', 'omit_images', type=str, default=[], multiple=True,
 	help="skip building image for service")
+
+@click.option('-oi', '--only_image', 'only_images', type=str, default=[], multiple=True,
+	help="skip building image for all other services")
 
 @click.option('-sd', '--secrets_dir', type=str, default='../secrets/',
 	help=" ")
@@ -171,20 +175,25 @@ def cli():
 
 @click.option('-ss', '--container_startup_sequencing', 'container_startup_sequencing', type=bool, default=True, help='obey depends_on declarations in compose file. If false, containers will be started in parallel. This is useful for development, unless you are debugging problems that occur on container startup, but may cause problems in production, if requests are made when not all services are ready. Note that waitforit is still used to wait for services to be ready.')
 
+# no django anywhere anymore, except in internal_services, which are development tools not used right now, it's not yet clear if it's needed that they be started by this script at some point, but probably yes, as a sort of administrative backend maybe.
 @click.option('-nr', '--django_noreload', 			type=bool, 	default=True,
 	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
+
+@click.option('-mu', '--manager_url', 'manager_url', type=str, default='http://localhost:9111', help='')
 
 
 #@click.option('-xs', '--xpce_scale', 'xpce_scale', type=real, default=1, help='XPCE UI scale')
 
+
 @click.pass_context
-def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, tmux_session_name, **choices):
-	no_cache = choices['no_cache']
-	del choices['no_cache']
-	omit_images = choices['omit_images']
-	del choices['omit_images']
-	remove_anonymous_volumes = choices['remove_anonymous_volumes']
-	del choices['remove_anonymous_volumes']
+def run(click_ctx, stay_running, offline, port_postfix, public_url, rm_stack, terminal_cmd, tmux_session_name, **choices):
+	
+	build_options = {}
+	
+	transfer_option(choices, 'omit_images', build_options)
+	transfer_option(choices, 'only_images', build_options)
+	transfer_option(choices, 'no_cache', build_options)
+	transfer_option(choices, 'parallel_build', build_options)
 
 	public_host = urlparse(public_url).hostname
 	compose = choices['compose']
@@ -197,7 +206,7 @@ def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_bui
 	else:
 		frontend = 'frontend'
 
-	with open('apache/conf/dynamic.conf','w') as f:
+	with open('apache/conf/dynamic.conf', 'w') as f:
 		f.write(
 			f"""
 ServerName {public_host}
@@ -211,9 +220,7 @@ ServerName {public_host}
 ServerName {public_host}
 ProxyPassReverse "/{path}" "http://{frontend}:7788/{path}"
 ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999 timeout=999999999 retry=999999999 acquire=999999999 Keepalive=Off
-				""")
-
-	pp = port_postfix
+""")
 
 	if choices['mount_host_sources_dir']:
 		hollow = 'hollow'
@@ -224,7 +231,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	e = {
 		"WORKER_PROCESSES": str(choices['worker_processes']),
-		"PP": pp,
+		'MANAGER_URL': choices['manager_url'],
+		"PP": port_postfix,
 		'DISPLAY':os.environ.get('DISPLAY', ''),
 		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
 		'REDIS_HOST':  'redis://localhost' if hn else 'redis://redis',
@@ -240,6 +248,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	}
 
 	del choices['worker_processes']
+	del choices['manager_url']
 
 	#
 	# if choices['display']:
@@ -258,11 +267,13 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	#for ch in choices.items()
 		#f'svcenv_{service}_{var}'
 
-
+	remove_anonymous_volumes = choices['remove_anonymous_volumes']
+	del choices['remove_anonymous_volumes']
+	
 
 	stack_fn = generate_stack_file(port_postfix, public_url, choices, e)
 	if rm_stack and not compose:
-		shell('docker stack rm robust' + pp)
+		shell('docker stack rm robust' + port_postfix)
 
 	compose_cmd = 'docker-compose -f ' + stack_fn + ' -p robust --compatibility '
 
@@ -272,7 +283,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
 
-	build(offline, **{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images})
+	build(offline, **{'port_postfix':port_postfix,'mode':hollow}|build_options)
 
 	if rm_stack:
 
@@ -281,7 +292,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 		print('wait for old network to disappear..')
 		while True:
-			cmdxxx = "docker network ls | grep robust" + pp
+			cmdxxx = "docker network ls | grep robust" + port_postfix
 			p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
 			print(cmdxxx + ': ' + str(p.returncode) + ':')
 			print(p.stdout)
@@ -317,9 +328,9 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 			exit(1)
 
 	else:
-		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+pp], env={})
-		shell('docker stack ps robust'+pp + ' --no-trunc')
-		shell('./follow_logs_noagraph.sh '+pp)
+		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+port_postfix], env={})
+		shell('docker stack ps robust'+port_postfix + ' --no-trunc')
+		shell('./follow_logs_noagraph.sh '+port_postfix)
 
 
 def logtail(compose_events_cmd):
@@ -426,11 +437,12 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices, env):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir, actors_scale, container_startup_sequencing):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, only_services, secrets_dir, actors_scale, container_startup_sequencing):
 
 	res = deepcopy(src)
 	services = res['services']
 	services['frontend']['environment']['PUBLIC_URL'] = PUBLIC_URL
+	# 'services' need PUBLIC_URL to generate some URLs correctly
 	services['services']['environment']['PUBLIC_URL'] = PUBLIC_URL
 
 	if not enable_public_gateway:
@@ -508,9 +520,9 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	for s in omit_services:
 		delete_service(services, s)
 
-	if len(include_services) != 0:
+	if only_services:
 		for k,v in list(services.items()):
-			if k not in include_services:
+			if k not in only_services:
 				delete_service(services, k)
 
 	return res
@@ -656,15 +668,15 @@ def realpath(x):
 
 
 
-def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
+def build(offline, port_postfix, mode, parallel_build, no_cache, omit_images, only_images):
 	global _parallel
-	_parallel=parallel
+	_parallel=parallel_build
 
 
 	cc('./lib/git_info.fish')
 
 	def svc(service_name, dir, cmd, dockerfile):
-		if service_name not in omit_images:
+		if service_name not in omit_images and (not only_images or service_name in only_images):
 			appdir = service_name.replace("-","_")
 			args = dict(
 				APPDIR=appdir, 

@@ -146,7 +146,7 @@ services:
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
       WATCHMEDO:
       ALL_PROXY:
-      MANAGER_URL: http://localhost:9111
+      MANAGER_URL:
       WORKER_PROCESSES:
     volumes:
       - tmp:/app/server_root/tmp

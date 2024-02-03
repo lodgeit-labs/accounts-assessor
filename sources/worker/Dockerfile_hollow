@@ -101,7 +101,7 @@ VOLUME /app/cache
 #VOLUME /root/.config/swi-prolog/xpce/
 
 
-# /app/server_root/control and stuff?
+RUN mkdir -p /app/server_root/control
 RUN chown -R myuser:myuser /app/server_root/
 
 
