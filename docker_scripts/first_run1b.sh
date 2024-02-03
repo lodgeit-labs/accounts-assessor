@@ -4,7 +4,7 @@ function _; or status --is-interactive; or exit 1; end
 function _old_fish_prompt; end; # https://github.com/python/cpython/issues/93858 ?
 
 
-set VENV_PATH ~/.local/robust/$DIR/venv
+set VENV_PATH ./venv
 python3 -m venv $VENV_PATH ;_
 . $VENV_PATH/bin/activate.fish ;_
 

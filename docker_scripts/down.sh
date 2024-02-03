@@ -1,7 +1,9 @@
 #!/usr/bin/env fish
-function _; or status --is-interactive; or exit 1; end
+function e; or status --is-interactive; or exit 1; end
+
 set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
-set VENV_PATH ~/.local/robust/$DIR/venv
+
+set VENV_PATH ./venv
 . $VENV_PATH/bin/activate.fish ;_
 
 if test -e ./../generated_stack_files/last.yml;
