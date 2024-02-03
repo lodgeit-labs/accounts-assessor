@@ -8,6 +8,7 @@ cd "$(dirname "$(readlink -f -- "$0")")"
 FLAG=~/robust_first_run_v12_done.flag
 cat $FLAG && { echo -e "not initing again\n"; exit 0; }
 
+rm -rf venv
 ./first_run0.sh
 ./first_run1.sh
 ./first_run1b.sh
