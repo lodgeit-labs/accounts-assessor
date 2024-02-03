@@ -282,7 +282,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
 
-	build(offline, **{'port_postfix':port_postfix,'mode':hollow}|build_options)
+	build_options.update({'port_postfix':port_postfix,'mode':hollow})
+	build(offline, **build_options)
 
 	if rm_stack:
 

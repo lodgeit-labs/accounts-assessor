@@ -8,6 +8,7 @@ set VENV_PATH ./venv
 python3 -m venv $VENV_PATH ;e
 . $VENV_PATH/bin/activate.fish ;e
 
+python3 -m pip install wheel
 # (note we're not installing bindings here, we're installing docker-compose itself)
-docker-compose version; or python3 -m pip install 'docker-compose>=1.29' ;e
+docker-compose version; or python3 -m pip install 'docker-compose>=1.29' 'docker==6.1.3' ;e
 
