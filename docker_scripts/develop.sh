@@ -8,7 +8,7 @@ set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
 
 
 set FLAG (./flag.sh)
-test -f $FLAG; or begin; echo -e "$FLAG not found.\n"; exit 1; end
+test -f $FLAG; or begin; echo -e "$FLAG not found, run ./first_run.sh .\n"; exit 1; end
 
 
 set VENV_PATH ./venv
