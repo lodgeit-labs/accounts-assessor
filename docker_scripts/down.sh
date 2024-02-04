@@ -7,7 +7,7 @@ set VENV_PATH ./venv
 . $VENV_PATH/bin/activate.fish ;_
 
 if test -e ./../generated_stack_files/last.yml;
-	docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility down
+	docker-compose  -f ../generated_stack_files/last.yml -p robust --compatibility down;
 else;
-	echo ./../generated_stack_files/last.yml not found, nothing to do.
+	echo "./../generated_stack_files/last.yml not found, nothing to do.";
 end
