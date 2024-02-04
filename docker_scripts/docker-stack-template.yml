@@ -9,6 +9,7 @@ services:
       - cache:/app/cache
     entrypoint: /bin/bash -c "chown 1000:1000 /app/server_root/tmp /app/cache"
 
+
   caddy:
     image: caddy:2-alpine
     networks:
