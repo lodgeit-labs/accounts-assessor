@@ -6,6 +6,11 @@ function e; or status --is-interactive; or exit 1; end
 
 set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
 
+
+set FLAG (./flag.sh)
+test -f $FLAG; or begin; echo -e "$FLAG not found.\n"; exit 1; end
+
+
 set VENV_PATH ./venv
 . $VENV_PATH/bin/activate.fish ;e
 
