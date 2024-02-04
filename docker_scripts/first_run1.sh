@@ -17,7 +17,7 @@ sudo apt install -y tmux ;e
 
 # you'll definitely need docker
 which docker; or sudo apt install docker.io golang-docker-credential-helpers ;e
-sudo usermod -aG docker $USER;_ # fixme, how to apply this without logging out?
+sudo usermod -aG docker $USER ;e # fixme, how to apply this without logging out?
 
 # compose is a tad more suitable for development than swarm 
 #which docker-compose; or sudo apt install -y docker-compose ;e
