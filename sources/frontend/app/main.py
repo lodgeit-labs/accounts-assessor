@@ -166,18 +166,23 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 	"""
 	job html page
 	"""
-	
+	logger.debug('%s', job_id)
 	job = await get_job_by_id(request, job_id)
+	logger.debug('%s', job)
 	
 	if job is not None:
 		if isinstance(job, str):
 			job = dict(json=job)
+		logger.debug('%s', job)
 
 		if redirect and job.get('status') == 'Success' and 'reports' in job.get('result'):
+			logger.debug('redirect.')
 			return RedirectResponse(find_report_by_key(job['result']['reports'], 'task_directory'))
 		else:
 			mem_txt,mem_data = write_mem_stuff(job.get('message_id'))
 			server_info_url = os.environ['PUBLIC_URL'] + '/static/git_info.txt'
+
+			logger.debug('limbo.')
 
 			# it turns out that failures are not permanent
 			return templates.TemplateResponse("job.html", {
@@ -228,7 +233,7 @@ async def get_job_by_id(request: Request, id: str):
 	if not r.ok:
 		return None
 	message = r.json()
-	if message['actor_name'] not in ["local_calculator"]:
+	if message['actor_name'] not in ["call_prolog_calculator"]:
 		return None
 
 	user = get_user(request)
