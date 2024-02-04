@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
-import datetime
-import os,subprocess,time,shlex,logging,sys,threading,tempfile
+
+import os,subprocess,time,shlex,logging,sys,threading,tempfile,datetime
+
+
+def check_installation():
+
+	flag = subprocess.check_output(['./flag.sh']).decode().strip()
+	if not os.path.exists(flag):
+		raise Exception(f'{flag} not found, run first_run.sh')
+
+check_installation()
+
+
+
 from itertools import count
 import click
 import yaml
@@ -100,13 +112,6 @@ def cli():
 	pass
 
 
-def check_installation():
-
-	flag = subprocess.check_output(['./flag.sh']).strip()
-	if not os.path.exists(flag):
-		raise Exception(f'{flag} not found.')
-	
-
 
 
 @cli.command(
@@ -195,8 +200,6 @@ def check_installation():
 
 @click.pass_context
 def run(click_ctx, stay_running, offline, port_postfix, public_url, rm_stack, terminal_cmd, tmux_session_name, **choices):
-
-	check_installation()
 
 	build_options = {}
 	

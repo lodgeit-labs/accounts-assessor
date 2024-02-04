@@ -5,6 +5,4 @@ set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
 set VENV_PATH ./venv
 . $VENV_PATH/bin/activate.fish ;e
 
-python3 setup.py develop ;e
-
-./init_configs.sh
+_ROBUST_COMPLETE=source_fish robust > ./venv/robust-complete.fish
