@@ -119,12 +119,12 @@ def index():
 @app.post("/health_check")
 def post(request: Request):
 	"""
-	run an end-to-end healthcheck, internally invoking chat endpoint. 
+	run an end-to-end healthcheck, internally invoking prolog chat rpc endpoint. 
 	"""
 	r = json_prolog_rpc_call(request, {
 		"method": "chat",
 		"params": {"type":"sbe","current_state":[]}
-	}, queue_name='health')
+	}, queue_name=None)#'health')
 	if r == {"result":{"question":"Are you a Sole trader, Partnership, Company or Trust?","state":[{"question_id":0,"response":-1}]}}:
 		return "ok"
 	else:

@@ -34,7 +34,7 @@ log.addHandler(logging.StreamHandler(sys.stderr))
 
 log.debug("hello from manager_actors.py")
 
-@remoulade.actor(alternative_queues=["health"])
+@remoulade.actor(alternative_queues=["health"], priority=1)
 def call_prolog_rpc(msg, worker_options=None):
 	log.debug('manager_actors: call_prolog: ...')
 	return do_untrusted_task(Task(

@@ -300,9 +300,13 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	build(offline, **build_options)
 
 	if rm_stack:
-
+		
+		# this was motivated by postgres, which would otherwise initialize once, and then old configuration would linger forever. 
 		if remove_anonymous_volumes:
 			lib.remove_all_anonymous_volumes.remove_anonymous_volumes()
+		
+		# flush old messages
+		subprocess.check_call(ss('docker volume rm robust_rabbitmq')) 
 
 		print('wait for old network to disappear..')
 		while True:
