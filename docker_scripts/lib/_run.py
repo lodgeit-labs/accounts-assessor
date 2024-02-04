@@ -100,6 +100,15 @@ def cli():
 	pass
 
 
+def check_installation():
+
+	flag = subprocess.check_output(['./flag.sh']).strip()
+	if not os.path.exists(flag):
+		raise Exception(f'{flag} not found.')
+	
+
+
+
 @cli.command(
 	help="""deploy the docker compose/stack""",
 	context_settings=dict(
@@ -186,7 +195,9 @@ def cli():
 
 @click.pass_context
 def run(click_ctx, stay_running, offline, port_postfix, public_url, rm_stack, terminal_cmd, tmux_session_name, **choices):
-	
+
+	check_installation()
+
 	build_options = {}
 	
 	transfer_option(choices, 'omit_images', build_options)
