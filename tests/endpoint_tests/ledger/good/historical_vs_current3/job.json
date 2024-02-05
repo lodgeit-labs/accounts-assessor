@@ -1,0 +1,87 @@
+{
+    "actor_name": "call_prolog_calculator",
+    "args": [],
+    "duration": "0:02:08.739681",
+    "end_datetime": "2024-02-05T19:59:40.393498+00:00",
+    "enqueued_datetime": "2024-02-05T19:57:31.653817+00:00",
+    "kwargs": {
+        "public_url": "http://jj.internal:8877",
+        "request_directory": "1707160743.7070944.81.6.619BA71x37625",
+        "request_format": "rdf",
+        "worker_options": {
+            "ROBUST_ENABLE_NICETY_REPORTS": false,
+            "prolog_debug": false,
+            "skip_dev_runner": true,
+            "user": "nobody"
+        }
+    },
+    "message_id": "f8219e3c-0ba3-40af-b4b0-7dde9cc84a35",
+    "options": {},
+    "priority": 0,
+    "queue_name": "default",
+    "result": {
+        "alerts": [
+            "deterministic_call_failed(user:get_sheet_data(ic_ui:unit_values_sheet,_189952))"
+        ],
+        "reports": [
+            {
+                "key": "alerts_html",
+                "title": "alerts",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.46.619BA71x37647/000000_alerts.html"
+                }
+            },
+            {
+                "key": "gl_html",
+                "title": "GL viewer",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.46.619BA71x37647/general_ledger_viewer/link.html"
+                }
+            },
+            {
+                "key": "alerts_json",
+                "title": "alerts_json",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.46.619BA71x37647/000000_alerts_json.json"
+                }
+            },
+            {
+                "key": "accounts0.json",
+                "title": "accounts0.json",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.46.619BA71x37647/000000_accounts0.json.json"
+                }
+            },
+            {
+                "key": "request_n3",
+                "title": "request_n3",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.46.619BA71x37647/request.n3"
+                }
+            },
+            {
+                "key": "request_file",
+                "title": "request_file",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.46.619BA71x37647/request.n3"
+                }
+            },
+            {
+                "key": "job_tmp_url",
+                "title": "job_tmp_url",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.46.619BA71x37647/../f8219e3c-0ba3-40af-b4b0-7dde9cc84a35"
+                }
+            },
+            {
+                "key": "task_directory",
+                "title": "task_directory",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.46.619BA71x37647/"
+                }
+            }
+        ]
+    },
+    "started_datetime": "2024-02-05T19:57:31.740771+00:00",
+    "status": "Success"
+}
