@@ -1,4 +1,5 @@
 import uuid
+from pathlib import Path
 
 from app import call_prolog
 
@@ -85,14 +86,44 @@ def work_loop():
 		log.info(f'{worker_id} end.')
 
 
+def upload_file(output_file):
+	with open(output_file, 'rb') as f:
+		r = session.post(os.environ['MANAGER_URL'] + '/put_file', files=dict(path=output_file,content=f.read()))
+		r.raise_for_status()	
+
+
 def do_task(task):
+	remote = False
+
+	for input_file in task.input_files:
+		if Path(input_file).exists():
+			log.debug('do_task: input_file %s exists', input_file)
+		else:
+			remote = True
+			download_file(input_file)
+	
 	if task.proc == 'call_prolog':
-		return dict(task_id=task.id, result=call_prolog.call_prolog(task.args['msg'], task.args['worker_tmp_directory_name'], task.worker_options))
+		result = call_prolog.call_prolog(task.args['msg'], task.args['worker_tmp_directory_name'], task.worker_options)
 	elif task.proc == 'arelle':
-		return dict(task_id=task.id, result=arelle(task.args, task.worker_options))
+		result = arelle(task.args, task.worker_options)
 	else:
 		log.warn('task bad, unknown proc: ' + str(task.proc))
+		return None
+	
+	if remote:
+		for output_file in result[1]:
+			upload_file(output_file)
+	
+	return dict(task_id=task.id, result=result[0])
 
+
+def download_file(input_file):
+	with session.post(os.environ['MANAGER_URL'] + '/get_file', json=dict(fn=input_file)) as r:
+		r.raise_for_status()
+		os.makedirs(os.path.dirname(input_file), exist_ok=True)
+		with open(input_file, 'wb') as f:
+			for chunk in r.iter_content(chunk_size=58192): 
+				f.write(chunk)
 
 
 def heatbeat_loop(stop_heartbeat, worker_id, task_id):

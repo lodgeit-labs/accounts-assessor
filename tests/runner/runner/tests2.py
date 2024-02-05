@@ -418,14 +418,14 @@ class TestEvaluate(luigi.Task):
 			return done()
 
 
-		# if job['status'] != job_expected['status']:
-		# 	delta.append({
-		# 		"msg":"job['status'] differs",# + ": " + jsondiffstr(job['status'] != job_expected['status'])
-		# 		"fix": [overwrite_job_json_op]
-		# 	})
-		# 	return done()
-		#
-		#
+		if job['status'] != job_expected['status']:
+			delta.append({
+				"msg": f"job['status'] differs, {job['status']=} != {job_expected['status']=}",
+				"fix": overwrite_job_json_op
+			})
+			return done()
+		
+		
 		# saved_reports = [{'fn':fn} for fn in glob()]
 		#
 		#
@@ -480,7 +480,7 @@ class TestEvaluate(luigi.Task):
 		#
 		# 		if alerts_expected != alerts_got:
 		# 			delta.append("""alerts_expected != alerts_got""")
-
+		return done()
 
 
 	def output(self):

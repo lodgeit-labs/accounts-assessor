@@ -260,7 +260,6 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	}
 
-	del choices['worker_processes']
 	del choices['manager_url']
 
 	#
@@ -295,6 +294,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		call(ss(compose_cmd + ' pull --ignore-pull-failures --include-deps '), env={})
 
 	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
+
+	del choices['worker_processes']
 
 	build_options.update({'port_postfix':port_postfix,'mode':hollow})
 	build(offline, **build_options)
@@ -455,7 +456,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices, env):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, only_services, secrets_dir, actors_scale, container_startup_sequencing):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, only_services, secrets_dir, actors_scale, container_startup_sequencing, worker_processes):
 
 	res = deepcopy(src)
 	services = res['services']
@@ -534,6 +535,10 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	if 'DISPLAY' in os.environ:
 		if 'worker' in services:
 			services['worker']['environment']['DISPLAY'] = "${DISPLAY}"
+
+	if worker_processes == 0:
+		if not 'worker' in omit_services:
+			omit_services += ('worker',)
 
 	for s in omit_services:
 		delete_service(services, s)

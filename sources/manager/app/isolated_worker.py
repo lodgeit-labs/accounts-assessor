@@ -25,7 +25,7 @@ workers = {}
 workers_lock = threading.Lock()
 workers_lock_msg = None
 pending_tasks = []
-
+heartbeat_interval = 10
 
 class Worker:
 	def __init__(self, id):
@@ -57,7 +57,7 @@ class Worker:
 		return self.task.id if self.task else None
 
 	def alive(self):
-		return self.last_seen > datetime.datetime.now() - datetime.timedelta(seconds=1200)
+		return self.last_seen > datetime.datetime.now() - datetime.timedelta(seconds=10+heartbeat_interval)
 
 	def __str__(self):
 		return f'Worker({self.id}, sizes:{self.sizes}, task:{self.task_id})'
@@ -95,7 +95,7 @@ def get_worker(id, last_seen=None):
 			workers[id] = worker
 		if last_seen:
 			worker.last_seen = last_seen
-		log.debug('get_worker: workers: %s', workers)
+		#log.debug('get_worker: workers: %s', workers)
 		return worker
 
 

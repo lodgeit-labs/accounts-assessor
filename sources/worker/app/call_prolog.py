@@ -6,6 +6,9 @@ from pathlib import Path
 from app.misc import uri_params, env_string
 
 
+def files_in_dir_recursive(worker_tmp_path):
+	return [f for f in flatten_lists([list(Path(worker_tmp_path).rglob('*'))]) if f.is_file()]
+
 
 def call_prolog(
 		msg, # {method: calculator or rpc, params:...}
@@ -119,13 +122,13 @@ def call_prolog(
 		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, env=env)
 		(stdout_data, stderr_data) = p.communicate()
 	else:
-		return {'result':'ok'}
+		return {'result':'ok'}, []
 
 
 	if stdout_data in [b'', '']:
 		ret = {'alerts':['invoke_rpc: got no stdout from swipl.']}
 		logging.getLogger().warn(str(ret))
-		return ret
+		return ret, []
 	else:
 		print()
 		print("invoke_rpc: prolog stdout:")
@@ -134,11 +137,11 @@ def call_prolog(
 		print()
 		try:
 			rrr = json.loads(stdout_data)
-			return rrr
+			return rrr, files_in_dir_recursive(worker_tmp_path)
 		except json.decoder.JSONDecodeError as e:
 			print('invoke_rpc:', e)
 			print()
-			return {'status':'error', 'message': f'invoke_rpc: {e}'}
+			return {'status':'error', 'message': f'invoke_rpc: {e}'}, []
 
 
 

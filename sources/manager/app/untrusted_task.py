@@ -27,13 +27,14 @@ def put_event(e):
 	events.put(e)
 
 class Task:
-	def __init__(self, proc, args, worker_options, input_directories=[], output_directories=[]):
+	def __init__(self, proc, args, worker_options, input_files):
 		self.size = None
 		
 		self.id = CurrentMessage.get_current_message().message_id + '_' + uuid.uuid4().hex
 		self.proc = proc
 		self.args = args
 		self.worker_options = worker_options
+		self.input_files = input_files
 		
 		self.results = queue.Queue()
 		
@@ -62,27 +63,21 @@ def do_untrusted_task(task: Task):
 			fly_machine = requests.post('https://api.fly.io/v6/apps/robust/instances', json={})
 			fly_machine.raise_for_status()
 
-		if separate_storage:
-			copy_request_files_to_worker_container()
-
 		put_event(dict(type='add_task', task=task))
+
 		log.debug('actor block on task.results.get()..')
 		
 		result = task.results.get()
+
 		if 'error' in result:
 			raise Exception(result['error'])
 		else:
-			return result['result']
+			log.debug('do_untrusted_task: result: %s', result)
 		
-		log.debug('actor got result')
 	finally:
 		log.debug('do_untrusted_task: finally')
-		# need to figure out a script that can tell that a fly container is not in use. This can happen if manager crashes here.
-		
-		if separate_storage:
-			copy_result_files_from_worker_container()		
 		
 		if fly:
 			fly_machine.delete()
 			
-	return result
+	return result['result']
