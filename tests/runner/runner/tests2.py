@@ -178,7 +178,8 @@ def make_request(test, request_files):
 
 	files = {}
 	for idx, input_file in enumerate(request_files):
-		files['file' + str(idx+1)] = open(request_files[idx])
+		logger.debug(f'input_file: {input_file}')
+		files['file' + str(idx+1)] = open(input_file, 'rb')
 	return requests_session.post(
 			url + '/upload',
 			params={'request_format':request_format, 'requested_output_format': test['requested_output_format']},

@@ -182,6 +182,7 @@ services:
       REMOULADE_API:
       REDIS_HOST:
       WATCHMEDO:
+      CSHARP_SERVICES_URL:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
