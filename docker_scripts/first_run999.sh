@@ -6,3 +6,5 @@ set VENV_PATH ./venv
 . $VENV_PATH/bin/activate.fish ;e
 
 _ROBUST_COMPLETE=source_fish robust > ./venv/robust-complete.fish
+
+true
