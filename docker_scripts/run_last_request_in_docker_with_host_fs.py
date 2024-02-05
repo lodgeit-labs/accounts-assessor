@@ -47,11 +47,7 @@ def flatten_lists(x):
 
 
 sq = shlex.quote
-ss = shlex.split
-
-def co(cmd):
-	return subprocess.check_output(cmd, text=True, universal_newlines=True)
-def cc(cmd):
+  def cc(cmd):
 	return subprocess.check_call(cmd, text=True, universal_newlines=True)
 
 

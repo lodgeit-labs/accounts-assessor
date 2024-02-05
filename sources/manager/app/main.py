@@ -44,6 +44,7 @@ from fastapi import FastAPI, Request, Depends, HTTPException
 from app.isolated_worker import *
 from app.untrusted_task import *
 import app.manager_actors
+import app.tokens
 
 
 
@@ -87,7 +88,6 @@ async def read_root():
 # 	return "ok"
 # 
 
-import tokens
 
 
 
@@ -262,8 +262,8 @@ def remoulade_thread():
 
 
 
-print(threading.Thread(target=remoulade_thread, daemon=True).start())
-print(threading.Thread(target=synchronization_thread, daemon=True).start())
+threading.Thread(target=remoulade_thread, daemon=True).start()
+threading.Thread(target=synchronization_thread, daemon=True).start()
 
 
 
@@ -273,11 +273,11 @@ print(threading.Thread(target=synchronization_thread, daemon=True).start())
 #     # Start the background thread
 #     threading.Thread(target=background_task, daemon=True).start()
 
+
 @app.on_event("shutdown")
 async def shutdown():
 	shutdown_event.set()
 	events.put(dict(type='nop'))
-	
 
 
 

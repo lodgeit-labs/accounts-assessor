@@ -111,7 +111,7 @@ class TestPrepare(luigi.Task):
 
 
 	@property
-	def suitedir(self):
+	def testcasedir(self):
 		return P(self.test['suite']) / self.test['dir']
 
 	def run(self):
@@ -144,8 +144,11 @@ class TestPrepare(luigi.Task):
 
 
 	def write_job_json(self, request_files_dir):
-		with open(self.suitedir / 'request.json') as fp:
-			metadata = json.load(fp)
+		try:
+			with open(self.testcasedir / 'request.json') as fp:
+				metadata = json.load(fp)
+		except FileNotFoundError:
+			metadata = {}
 		data = dict(
 			**metadata,
 			custom_job_metadata = dict(self.test),
@@ -518,7 +521,7 @@ class Permutations(luigi.Task):
 				request_json = P(self.suite / dir / 'request.json')
 				if request_json.exists():
 					request_json = json_load(request_json)
-					requested_output_format = request_json.get('requested_output_format')
+					requested_output_format = request_json.get('requested_output_format', 'job_handle')
 
 				yield {
 					'requested_output_format': requested_output_format,
@@ -583,7 +586,7 @@ class Summary(luigi.Task):
 				case 'immediate_xml':
 					evals.append(TestEvaluateImmediateXml(test))
 				case _:
-					raise Exception('unexpected request_format')
+					raise Exception(f'unexpected requested_output_format: {test["requested_output_format"].__repr__()}')
 
 		self.make_latest_symlink()
 		yield evals
