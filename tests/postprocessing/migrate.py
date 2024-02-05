@@ -18,30 +18,35 @@ def verbalize_fix(f):
 
 @click.command()
 def main():
-	with open(robust_tests_folder() + '/latest/summary.json') as f:
+	
+	summary = robust_tests_folder() + '/latest/summary.json'
+	
+	with open(summary) as f:
 		j = json.load(f)
-	for test in j:
-		for d in test['delta']:
+	
+	for case in j['bad']:
+		print(case['test']['dir'])
+	
+		for d in case['delta']:
 			print(d['msg'])
+			
 			if d['msg'] == "job.json is missing in testcase":
 
 				fix = d['fix']
 				#print(prompt(verbalize_fix(fix) + '?'))
-
+				print(verbalize_fix(fix) + '?')
 				run_fix(fix)
 
 
-			#fix['op']
 
 
 def run_fix(fix):
 	if fix['op'] == 'cp':
-		try:
-			subprocess.check_call(['cp', fix['src'], fix['dst']])
-		except:
-			pass
+		subprocess.check_call(['cp', fix['src'], fix['dst']])
 	else:
 		print('unknown op')
+
+
 
 if __name__ == '__main__':
 	main()
