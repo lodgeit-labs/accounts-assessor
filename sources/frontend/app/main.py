@@ -269,6 +269,7 @@ async def get_job_by_id(request: Request, id: str):
 	return message
 
 
+
 async def enrich_job_json_with_duration(message):
 	# '2012-05-29T19:30:03.283Z'
 	# "2023-09-21T10:16:44.571279+00:00",
@@ -277,6 +278,7 @@ async def enrich_job_json_with_duration(message):
 	if end_datetime is not None:
 		end_datetime = dateutil.parser.parse(end_datetime)
 		message['duration'] = str(end_datetime - enqueued_datetime)
+
 
 
 @app.post("/reference")
@@ -307,6 +309,7 @@ def reference(request: Request, fileurl: str = Form(...)):#: Annotated[str, Form
 		return RedirectResponse(job_view_url, status_code=status.HTTP_303_SEE_OTHER)
 
 	return r
+
 
 
 def file_download(url, dir, filename_hint=None, disallowed_filenames=['.htaccess', 'request.json']):
@@ -403,10 +406,17 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 						taskdir +
 						'</error>')
 				return PlainTextResponse(error_xml_text, status_code=500), error_xml_text
-			return RedirectResponse(find_report_by_key(reports['reports'], 'result')), None
+			# div7a 'result' xml
+			result_xml_report = find_report_by_key(reports['reports'], 'result')
+			if result_xml_report is None:
+				# livestock 'response' xml
+				result_xml_report = find_report_by_key(reports['reports'], 'response')
+			return RedirectResponse(result_xml_report), None
+			
 	elif requested_output_format == 'immediate_json_reports_list':
 			reports = job.result.get(block=True, timeout=1000 * 1000)
 			return RedirectResponse(find_report_by_key(reports['reports'], 'task_directory') + '/000000_response.json.json'), reports
+			
 	elif requested_output_format == 'job_handle':
 		jsn = {
 			"alerts": ["job scheduled."],
@@ -426,6 +436,7 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 				]
 		}
 		return JSONResponse(jsn), jsn
+		
 	else:
 		raise Exception('unexpected requested_output_format')
 
