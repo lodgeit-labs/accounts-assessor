@@ -105,8 +105,8 @@ def call_prolog_calculator(
 			worker_tmp_directory_name=result_tmp_directory_name
 		),
 		worker_options=worker_options,
-		input_directories=[get_tmp_directory_absolute_path(request_directory), result_tmp_directory_path],
-		output_directories=[result_tmp_directory_path]
+		input_files=converted_request_files,
+		output_path=result_tmp_directory_path,		
 	))
 
 

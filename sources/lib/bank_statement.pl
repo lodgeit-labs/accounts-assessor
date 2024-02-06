@@ -205,7 +205,7 @@ take statement/source transaction and generate a list of plain transactios.
 	->
 		(
 			(	nonvar(Trading_Account)
-			->	(throw_string(['trading account but no exchanged unit', S_Transaction]))
+			->	(throw_string(['trading account but no exchanged unit: ', S_Transaction, ' ', Trading_Account]))
 			;	true),
 			cf(record_expense_or_earning_or_equity_or_loan(S_Transaction, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4)),
 			Outstanding_After = Outstanding_Before

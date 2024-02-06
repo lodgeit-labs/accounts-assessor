@@ -24,19 +24,23 @@ def main():
 	with open(summary) as f:
 		j = json.load(f)
 	
-	for case in j['bad']:
+	# for case in j['bad']:
+	# 	print(case['test']['dir'])
+	# 
+	# 	for d in case['delta']:
+	# 		print(d['msg'])
+	# 		
+	# 		if d['msg'] == "job.json is missing in testcase":
+	# 
+	# 			fix = d['fix']
+	# 			#print(prompt(verbalize_fix(fix) + '?'))
+	# 			print(verbalize_fix(fix) + '?')
+	# 			run_fix(fix)
+
+
+	for case in j['evaluations']:
 		print(case['test']['dir'])
-	
-		for d in case['delta']:
-			print(d['msg'])
-			
-			if d['msg'] == "job.json is missing in testcase":
-
-				fix = d['fix']
-				#print(prompt(verbalize_fix(fix) + '?'))
-				print(verbalize_fix(fix) + '?')
-				run_fix(fix)
-
+		print(case['job']['result']['alerts'])
 
 
 

@@ -24,6 +24,9 @@ connection_error_sleep_secs = 1
 
 def work_loop():
 
+	# thread-unsafe fun
+	global connection_error_sleep_secs
+
 	try:
 
 		worker_id = subprocess.check_output(['hostname'], text=True).strip() + '-' + str(os.getpid()) + '_' + uuid.uuid4().hex

@@ -27,7 +27,7 @@ def put_event(e):
 	events.put(e)
 
 class Task:
-	def __init__(self, proc, args, worker_options, input_files):
+	def __init__(self, proc, args, worker_options, input_files, output_path):
 		self.size = None
 		
 		self.id = CurrentMessage.get_current_message().message_id + '_' + uuid.uuid4().hex
@@ -35,6 +35,7 @@ class Task:
 		self.args = args
 		self.worker_options = worker_options
 		self.input_files = input_files
+		self.output_path = output_path
 		
 		self.results = queue.Queue()
 		
