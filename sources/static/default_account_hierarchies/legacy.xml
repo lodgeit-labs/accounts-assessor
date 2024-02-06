@@ -59,6 +59,7 @@
 				<account name="Interest_Expenses" />
 				<account name="Purchases" />
 				<account name="Other_Expenses" />
+				<account name="FoodExpenses" />
 			</account>
 
 			<account name="Gains/-Losses" role="Gains">
