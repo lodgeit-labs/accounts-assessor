@@ -12,4 +12,7 @@ but there really is no such sheet in the input, and no subcategorization should 
 
 todo
 
+====
+
+the job.json's have to be updated.
  
