@@ -27,10 +27,20 @@ def work_loop():
 	# thread-unsafe fun
 	global connection_error_sleep_secs
 
+	host = os.uname().nodename
+	host2 = subprocess.check_output(['hostname'], text=True).strip()
+	if host != host2:
+		log.warn(f'hostnames differ: {host=} {host2=}')
+	
 	try:
-
-		worker_id = subprocess.check_output(['hostname'], text=True).strip() + '-' + str(os.getpid()) + '_' + uuid.uuid4().hex
-		worker_info = dict(procs=['call_prolog', 'arelle'])
+		
+		worker_id = host + '-' + str(os.getpid()) + '-' + uuid.uuid4().hex
+		
+		worker_info = dict(
+			procs=['call_prolog', 'arelle'], 
+			host_cores=os.cpu_count(), 
+			host=host
+		)
 		
 		log.info(f'{worker_id} start work_loop')
 	

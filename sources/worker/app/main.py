@@ -43,12 +43,13 @@ parallelization:
 						* runs arelle synchronously
 		
 	previously, we would simply spawn multiple "workers" containers, and each would run a single actor process, subsequently single swipl process.
-	
-	
-	
 
+	
 
 """
+
+
+
 import asyncio
 
 from fastapi import Body, FastAPI
