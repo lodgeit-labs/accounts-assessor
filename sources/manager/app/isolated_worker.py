@@ -1,5 +1,6 @@
 import os
 import threading, logging
+from collections import defaultdict
 
 from dotdict import Dotdict
 
@@ -33,6 +34,7 @@ class Worker:
 	def __init__(self, id):
 		self.id = id
 		self.sizes = [None]
+		self.info = {}
 		self._task = None
 		self.handler_wakeup = Event()
 
@@ -257,7 +259,22 @@ def match_worker_to_task(worker, task):
 
 def try_assign_any_worker_to_task(task):
 	log.debug('try_assign_any_worker_to_task: len(workers)=%s', len(workers))
-	for worker in sorted_workers():
+	
+	sw = [worker for worker in sorted_workers() if not worker.task]
+	
+	host_cores = {}
+	for worker in sw:
+		host_cores[worker.info.get('host')] = worker.info.get('host_cores')
+		
+	used_cores = defaultdict(int)
+	for worker in workers:
+		if worker.task:
+			used_cores[worker.info.get('host')] += 1
+	
+	# prefer the worker on the host with the largest cores / used_cores ratio
+	sw = sorted(sw, key=lambda w: host_cores[w.info.get('host')] / used_cores[w.info.get('host')])
+				
+	for worker in sw:
 		if try_assign_worker_to_task(worker, task):
 			return True
 

@@ -148,6 +148,7 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 	loop_log.info('/messages worker_id=%s task_result=%s', worker_id, task_result)
 
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
+	worker.info = worker_info
 
 	outmsg = {}
 
