@@ -195,6 +195,9 @@ def cli():
 @click.option('-mu', '--manager_url', 'manager_url', type=str, default='http://localhost:9111', help='')
 
 
+@click.option('-wg', '--WORKER_GRACE_PERIOD', 'WORKER_GRACE_PERIOD', type=int, default=100, help='')
+
+
 #@click.option('-xs', '--xpce_scale', 'xpce_scale', type=real, default=1, help='XPCE UI scale')
 
 
@@ -243,6 +246,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	hn = choices['use_host_network']
 
 	e = {
+		"WORKER_GRACE_PERIOD": str(choices['WORKER_GRACE_PERIOD']),
 		"WORKER_PROCESSES": str(choices['worker_processes']),
 		'MANAGER_URL': choices['manager_url'],
 		"PP": port_postfix,
@@ -261,6 +265,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	}
 
 	del choices['manager_url']
+	del choices['WORKER_GRACE_PERIOD']
 
 	#
 	# if choices['display']:

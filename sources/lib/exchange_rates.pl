@@ -258,6 +258,8 @@ exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	),
 	Exchange_Rates_Sorted = [Exchange_Rate_Out|_].
 
+
+
 :- table(exchange_rate/5).
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	push_format('~q', [exchange_rate(Day, Src_Currency, Dest_Currency)]),

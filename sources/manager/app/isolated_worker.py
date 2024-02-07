@@ -15,17 +15,19 @@ shutdown_event = threading.Event()
 from tsasync import Event
 
 
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 
 
 workers = {}
-#print(id(workers))
 workers_lock = threading.Lock()
 workers_lock_msg = None
 pending_tasks = []
 heartbeat_interval = 10
+
+
 
 class Worker:
 	def __init__(self, id):
@@ -112,9 +114,18 @@ def worker_janitor():
 	while True:
 		with wl('worker_janitor'):
 			for _,worker in workers.items():
-				if not worker.alive():
-					put_event(dict(type='worker_died', worker=worker))
-		time.sleep(10)
+				unseen = datetime.datetime.now() - worker.last_seen
+
+				if not worker.task:
+					# no task, so we just purge this dummy item from the list
+					if unseen > datetime.timedelta(seconds=heartbeat_interval + 100):
+						put_event(dict(type='forget_worker', worker=worker))
+				else:
+					# however, if worker has a task, we should give a configurable grace period for it to report back with result, in some cases, even after prolonged period of disconnection.
+					if unseen > datetime.timedelta(seconds=heartbeat_interval + os.environ.get('WORKER_GRACE_PERIOD', 100)):
+						put_event(dict(type='forget_worker', worker=worker))
+
+		time.sleep(25)
 
 threading.Thread(target=worker_janitor, daemon=True).start()
 
@@ -173,8 +184,9 @@ def synchronization_thread():
 							log.debug(f'pending_tasks.append({e.task})')
 							pending_tasks.append(e.task)
 
-				elif e.type == 'worker_died':
+				elif e.type == 'forget_worker':
 					if e.worker.task:
+						# raise exception in do_untrusted_task
 						e.worker.task.results.put(dict(error='lost connection to worker'))
 					del workers[e.worker.id]
 					if e.worker.fly_machine:
