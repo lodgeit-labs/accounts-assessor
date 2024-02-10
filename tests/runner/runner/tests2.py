@@ -385,7 +385,7 @@ class TestEvaluate(luigi.Task):
 
 	def run(self):
 
-		# judiciously picked list of interesting differences between expected and actual results
+		# judiciously picked list of interesting differences between expected and actual results.. or just the first difference
 		delta:list[dict] = []
 
 		# job info / response json sent by robust api

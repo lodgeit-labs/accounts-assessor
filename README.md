@@ -14,6 +14,8 @@ codebases:labs_accounts_assessor
 This repository hosts practical research into leveraging logic programming to solve accounting problems.
 The core logic runs in SWI-Prolog, and is aided by several smaller python codebases.
 
+We use it at http://www.nobleaccounting.com.au to automate reporting and auditing tasks.
+
 Several services are available:
 
 [](mrkev2extra: "
@@ -31,9 +33,6 @@ investment calculator kb:investment_calculator rdfs:label ?x.
 * livestock (standalone)
 * division 7A loan calculator
 
-We use it at http://www.nobleaccounting.com.auto automate reporting and auditing tasks.
-
-, along with a proprietary (but free) frontend in the form of a Microsoft Excel plugin, 
 
 ## investment calculator
 The most complex endpoint is the investment calculator; it validates and processes financial data of a financial entity for a given period:
