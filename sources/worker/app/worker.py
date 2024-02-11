@@ -50,7 +50,7 @@ def work_loop():
 				worker_info = dict(
 					procs=['call_prolog', 'arelle'],
 					#host_cores=os.cpu_count(),
-					host_cores=get_unused_cpu_cores()
+					host_cores=get_unused_cpu_cores(),
 					host=host
 				)
 

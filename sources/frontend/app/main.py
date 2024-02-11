@@ -160,8 +160,8 @@ def tmp_file_url(public_url, tmp_dir_name, fn):
 	return public_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
 
 
-def public_url(request: Request):
-	"""testme"""
+def get_public_url(request: Request):
+	"""todo test"""
 	return request.url.scheme + '://' + request.url.netloc
 
 
@@ -184,7 +184,7 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 			return RedirectResponse(find_report_by_key(job['result']['reports'], 'task_directory'))
 		else:
 			mem_txt,mem_data = write_mem_stuff(job.get('message_id'))
-			server_info_url = public_url(request) + '/static/git_info.txt'
+			server_info_url = get_public_url(request) + '/static/git_info.txt'
 
 			logger.debug('limbo.')
 
@@ -333,7 +333,7 @@ def file_download(url, dir, filename_hint=None, disallowed_filenames=['.htaccess
 @app.get("/view/upload_form")
 def upload_form(request: Request):
 	return templates.TemplateResponse("upload.html", {
-		"public_url": os.environ['PUBLIC_URL'],
+		"public_url": get_public_url(request),
 		"request": request,
 	})
 
@@ -374,7 +374,7 @@ def load_worker_options_from_request_json(request_tmp_directory_path):
 
 def process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format='rdf', requested_output_format = 'job_handle'):
 	
-	public_url=public_url(request)
+	public_url=get_public_url(request)
 	worker_options = load_worker_options_from_request_json(request_tmp_directory_path)
 	worker_options['user'] = get_user(request)
 
@@ -428,7 +428,7 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 				[{
 					"title": "job URL",
 					"key": "job_tmp_url",
-					"val": {"url": job_tmp_url(job)}},
+					"val": {"url": job_tmp_url(public_url, job)}},
 					{
 						"title": "job API URL",
 						"key": "job_api_url",
@@ -477,8 +477,7 @@ async def validation_exception_handler(request, exc):
 
 
 
-def job_tmp_url(job):
-	public_url = os.environ['PUBLIC_URL']
+def job_tmp_url(public_url, job):
 	return tmp_file_url(public_url, job.message_id, '')
 
 

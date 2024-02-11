@@ -1,4 +1,4 @@
-import os
+import os, sys
 import threading, logging
 from collections import defaultdict
 
@@ -201,8 +201,9 @@ def synchronization_thread():
 					log.warn('unknown event type: %s', e.type)
 
 	except Exception as e:
-		log.exception(f'synchronization_thread: exception {e}')
-		os.exit(1)
+		msg = f'synchronization_thread: exception {e}'
+		log.exception(msg)
+		sys.exit(msg)
 
 
 def on_task_result(worker, result):
@@ -267,7 +268,7 @@ def try_assign_any_worker_to_task(task):
 		host_cores[worker.info.get('host')] = worker.info.get('host_cores')
 		
 	used_cores = defaultdict(int)
-	for worker in workers:
+	for _,worker in workers.items():
 		if worker.task:
 			used_cores[worker.info.get('host')] += 1
 	
