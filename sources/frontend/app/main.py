@@ -160,6 +160,10 @@ def tmp_file_url(public_url, tmp_dir_name, fn):
 	return public_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
 
 
+def public_url(request: Request):
+	"""testme"""
+	return request.url.scheme + '://' + request.url.netloc
+
 
 @app.get("/view/job/{job_id}", response_class=HTMLResponse)
 async def views_limbo(request: Request, job_id: str, redirect:bool=True):
@@ -180,7 +184,7 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 			return RedirectResponse(find_report_by_key(job['result']['reports'], 'task_directory'))
 		else:
 			mem_txt,mem_data = write_mem_stuff(job.get('message_id'))
-			server_info_url = os.environ['PUBLIC_URL'] + '/static/git_info.txt'
+			server_info_url = public_url(request) + '/static/git_info.txt'
 
 			logger.debug('limbo.')
 
@@ -370,7 +374,7 @@ def load_worker_options_from_request_json(request_tmp_directory_path):
 
 def process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format='rdf', requested_output_format = 'job_handle'):
 	
-	public_url=os.environ['PUBLIC_URL']
+	public_url=public_url(request)
 	worker_options = load_worker_options_from_request_json(request_tmp_directory_path)
 	worker_options['user'] = get_user(request)
 
