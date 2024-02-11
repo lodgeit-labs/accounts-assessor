@@ -6,6 +6,8 @@ from app import call_prolog
 
 import logging, threading, subprocess, os, requests, sys, time
 
+from app.host import get_unused_cpu_cores
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 log.addHandler(logging.StreamHandler())
@@ -24,7 +26,7 @@ connection_error_sleep_secs = 1
 
 def work_loop():
 
-	# thread-unsafe fun
+	# vvv thread-unsafe, but workers are spawned as separate processess, so it's fine
 	global connection_error_sleep_secs
 
 	host = os.uname().nodename
@@ -36,12 +38,6 @@ def work_loop():
 		
 		worker_id = host + '-' + str(os.getpid()) + '-' + uuid.uuid4().hex
 		
-		worker_info = dict(
-			procs=['call_prolog', 'arelle'], 
-			host_cores=os.cpu_count(), 
-			host=host
-		)
-		
 		log.info(f'{worker_id} start work_loop')
 	
 		task_result = None
@@ -50,6 +46,14 @@ def work_loop():
 		
 			try:
 				cycles += 1
+
+				worker_info = dict(
+					procs=['call_prolog', 'arelle'],
+					#host_cores=os.cpu_count(),
+					host_cores=get_unused_cpu_cores()
+					host=host
+				)
+
 				log.debug(f'{worker_id} go get message, {task_result=}, {cycles=}')
 			
 				r = session.post(
