@@ -147,6 +147,7 @@ services:
       DETERMINANCY_CHECKER__USE__ENFORCER: "true"
       WATCHMEDO:
       ALL_PROXY:
+      DOWNLOAD_BASTION_URL:
       MANAGER_URL:
       WORKER_PROCESSES:
     volumes:
@@ -216,6 +217,7 @@ services:
     environment:
       WATCHMEDO:
       ALL_PROXY:
+      DOWNLOAD_BASTION_URL:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"

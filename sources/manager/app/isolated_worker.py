@@ -273,7 +273,7 @@ def try_assign_any_worker_to_task(task):
 			used_cores[worker.info.get('host')] += 1
 	
 	# prefer the worker on the host with the largest cores / used_cores ratio
-	sw = sorted(sw, key=lambda w: host_cores[w.info.get('host')] / used_cores[w.info.get('host')])
+	sw = sorted(sw, key=lambda w: host_cores[w.info.get('host')] / used_cores.get(w.info.get('host'),1))
 				
 	for worker in sw:
 		if try_assign_worker_to_task(worker, task):
