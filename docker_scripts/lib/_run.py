@@ -141,7 +141,7 @@ def cli():
 	help="bind-mount source code directories, instead of copying them into images. Useful for development.")
 
 @click.option('-pu', '--public_url', 				type=str, 	default="http://localhost",
-	help="The public-facing url, including scheme and, optionally, port. Used to construct URLs, and hostname is used in Caddy and apache.")
+	help="The public-facing url, including scheme and, optionally, port. Used in Caddy and apache.")
 
 @click.option('-pg', '--enable_public_gateway', type=bool, default=True,
 	help="enable Caddy (on ports 80 and 443). This generally does not make much sense on a development machine, because 1) you're only getting a self-signed cert that excel will refuse, 2)maybe you already have another web server listening on these ports, 3) using -pp (non-standard ports) in combination with https will give you trouble. 4) You must access the server by a hostname, not just IP.")
