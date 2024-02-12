@@ -38,7 +38,7 @@ pydantic==1.10.11
     # via
     #   fastapi
     #   frontend (pyproject.toml)
-python-multipart==0.0.6
+python-multipart==0.0.7
     # via frontend (pyproject.toml)
 pyyaml==6.0
     # via frontend (pyproject.toml)
