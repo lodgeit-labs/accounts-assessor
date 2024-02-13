@@ -184,6 +184,7 @@ services:
       REDIS_HOST:
       WATCHMEDO:
       CSHARP_SERVICES_URL:
+      PYDEVD_PYCHARM_PORT: 29111
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"

@@ -276,6 +276,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		e['FLASK_ENV'] = 'development'
 		e['WATCHMEDO'] = 'true'
 	else:
+		del e['PYDEVD_PYCHARM_PORT']
 		e['FLASK_DEBUG'] = '0'
 		e['FLASK_ENV'] = 'production'
 		e['WATCHMEDO'] = ''

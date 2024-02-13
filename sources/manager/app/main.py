@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
+import os
+PYDEVD_PYCHARM_PORT = os.environ.get('PYDEVD_PYCHARM_PORT')
+if PYDEVD_PYCHARM_PORT:
+	import pydevd_pycharm
+	pydevd_pycharm.settrace('localhost', port=int(PYDEVD_PYCHARM_PORT), suspend=False)
 
 """
-
 Manager, also called proxy. Connects to rabbitmq to accept jobs. Declares remoulade actors (which follow remoulade semantics, returning results through postgres, etc), and relays them to workers. There are three deployment scenarios that we'll try to support:
 
 ## trusted workers in docker stack
