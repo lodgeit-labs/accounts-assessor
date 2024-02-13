@@ -426,30 +426,25 @@ class TestEvaluate(luigi.Task):
 			return done()
 		
 		
-		# saved_reports = [{'fn':fn} for fn in glob()]
-		#
-		#
-		# if job['status'] != 'Success':
-		# 	if saved_reports != []:
-		# 		delta.append({
-		# 			"msg":"extraneous saved report files in a testcase that should fail"
-		# 		})
-		# 		return done()
-		#
-		#
-		#
-		# if job_expected['status'] == 'Success':
-		# 	reports = job['result']['reports']
-		# else:
-		# 	reports = []
-		#
-		#
-		#
-		# expected_reports = for input_file in sorted(filter(lambda x: not x.is_dir(), (P(self.test['suite']) / self.test['dir']).glob('*'))):
-		#
-		#
+		expected_reports = sorted(filter(lambda x: not x.is_dir(), P(self.test['casedir']).glob('*')))
+
+		if job['status'] != 'Success':
+			if expected_reports != []:
+				delta.append({
+					"msg":"extraneous saved report files in a testcase that should fail"
+				})
+				return done()
+
+
+
+		reports = job['result']['reports']
+		print(reports)
+		
+		
+		
+		
 		# reports_to_compare = []
-		#
+		# 
 		# for r in expected_reports:
 		# 	fn = r['fn']
 		# 	received_report = find_report_by_key(reports, 'fn', fn)
@@ -460,7 +455,7 @@ class TestEvaluate(luigi.Task):
 		# 		})
 		# 	else:
 		# 		reports_to_compare.append({'expected_fn': fn, 'received_url': received_report['url']})
-		#
+		# #
 		#
 		#
 		# reports = []

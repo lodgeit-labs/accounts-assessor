@@ -18,16 +18,12 @@ id and auth token generated in manager.
 ## untrusted workers connecting over public internet
 These would be set up by user in frontend, id and auth token would be generated for each.
 
-
-
 Manager has two outer-facing parts:
 	* the api, which workers connect to
 	* remoulade_thread, the remoulade actors, and the connection to rabbitmq
 
 parallelization:
 	* manager could be deployed across multiple containers, or uvicorn could spawn multiple worker processes. In both cases, care would have to be taken that a given (robust) worker would always connect to the same manager process (balancer affinity).	
-
-
 """
 
 
@@ -37,14 +33,10 @@ import os, sys
 import threading
 import time, asyncio
 from typing import Optional
-
 from fastapi.security import OAuth2PasswordBearer
-
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 from tasking import remoulade
-
 from fastapi import FastAPI, Request, Depends, HTTPException
-
 from app.isolated_worker import *
 from app.untrusted_task import *
 import app.manager_actors
@@ -53,9 +45,8 @@ import app.tokens
 
 
 logging.basicConfig()
-
 log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 log.addHandler(logging.StreamHandler(sys.stderr))
 
 loop_log = logging.getLogger('loop')
@@ -82,18 +73,17 @@ async def read_root():
 	return {"Hello": "World"}
 
 
+
 @app.get("/health")
 async def read_root():
 	return "ok"
+
 
 
 # @app.post("/dummy_worker_auth")
 # async def read_root():
 # 	return "ok"
 # 
-
-
-
 
 
 
@@ -112,6 +102,7 @@ def post_heartbeat(worker_id: str, task_id: str = None, token: str = Depends(wor
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	worker.last_reported_task = task_id
 	worker.last_reported_task_ts = datetime.datetime.now()
+
 
 
 def stats():

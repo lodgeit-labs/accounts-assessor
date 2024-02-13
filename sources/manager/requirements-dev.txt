@@ -1,4 +1,6 @@
 watchdog==3.0.0
 fire
 memory-profiler
+pydevd-pycharm~=233.13763.11
+
 

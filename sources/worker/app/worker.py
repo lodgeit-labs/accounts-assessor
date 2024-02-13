@@ -135,7 +135,7 @@ def do_task(task):
 
 
 def download_file(input_file):
-	with session.post(os.environ['MANAGER_URL'] + '/get_file', json=dict(fn=input_file)) as r:
+	with session.post(os.environ['MANAGER_URL'] + '/get_file', json=dict(path=input_file)) as r:
 		r.raise_for_status()
 		os.makedirs(os.path.dirname(input_file), exist_ok=True)
 		with open(input_file, 'wb') as f:
