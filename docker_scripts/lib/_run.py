@@ -194,6 +194,7 @@ def cli():
 
 @click.option('-mu', '--manager_url', 'manager_url', type=str, default='http://localhost:9111', help='')
 
+@click.option('-pyd', '--pydevd', 'pydevd', type=bool, default=True, help='enable pydev')
 
 @click.option('-wg', '--WORKER_GRACE_PERIOD', 'WORKER_GRACE_PERIOD', type=int, default=100, help='')
 
@@ -271,12 +272,15 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	# if choices['display']:
 	# 	e['DISPLAY']' = os.environ.get('DISPLAY', '')
 
+	if choices['pydevd']:
+		e['PYDEVD'] = 'true'
+	del choices['pydevd']
+
 	if choices['develop']:
 		e['FLASK_DEBUG'] = '1'
 		e['FLASK_ENV'] = 'development'
 		e['WATCHMEDO'] = 'true'
 	else:
-		del e['PYDEVD_PYCHARM_PORT']
 		e['FLASK_DEBUG'] = '0'
 		e['FLASK_ENV'] = 'production'
 		e['WATCHMEDO'] = ''

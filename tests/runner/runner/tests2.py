@@ -379,6 +379,11 @@ class TestEvaluate(luigi.Task):
 	test = luigi.parameter.DictParameter()
 
 
+	@property
+	def testcasedir(self):
+		return P(self.test['suite']) / self.test['dir']
+
+
 	def requires(self):
 		return TestResult(self.test)
 
