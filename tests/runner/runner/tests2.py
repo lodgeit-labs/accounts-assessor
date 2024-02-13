@@ -426,7 +426,7 @@ class TestEvaluate(luigi.Task):
 			return done()
 		
 		
-		expected_reports = sorted(filter(lambda x: not x.is_dir(), P(self.test['casedir']).glob('*')))
+		expected_reports = sorted(filter(lambda x: not x.is_dir(), P(self.testcasedir).glob('*')))
 
 		if job['status'] != 'Success':
 			if expected_reports != []:

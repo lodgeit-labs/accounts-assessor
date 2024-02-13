@@ -27,6 +27,7 @@ def call_prolog(
 	"""
 
 	worker_tmp_path = get_tmp_directory_absolute_path(worker_tmp_directory_name)
+	os.makedirs(worker_tmp_path, exist_ok=True)
 	
 	if msg.get('method') == 'calculator':
 		msg['params'] |= uri_params(msg['params']['result_tmp_directory_name']) | dict(request_format=guess_request_format_rdf_or_xml(msg['params']))

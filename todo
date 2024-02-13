@@ -1,4 +1,5 @@
 tests - alerts in job json should match alerts.json
+
 ledger tests should mostly pass
 livestock should pass
 depreciation should pass
@@ -292,4 +293,5 @@ http://lorenae.github.io/qb4olap/
 
 
 
+swarm + https://forums.docker.com/t/docker-swarm-mode-and-local-images/22894/10
 
