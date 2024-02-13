@@ -317,7 +317,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 			lib.remove_all_anonymous_volumes.remove_anonymous_volumes()
 		
 		# flush old messages
-		subprocess.check_call(ss('docker volume rm robust_rabbitmq')) 
+		subprocess.call(ss('docker volume rm robust_rabbitmq'))
 
 		print('wait for old network to disappear..')
 		while True:
