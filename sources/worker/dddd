@@ -213,12 +213,25 @@ RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ign
 
 
 COPY --chown=myuser:myuser worker/ /app/sources/worker/
+ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
+#ENV WORKER_PROCESSES=1
+
+
+
+
 
 
 
 WORKDIR $APPPATH
 USER myuser
 CMD ["/app/sources/worker/start.sh"]
+CMD python3 -O `which uvicorn` app.main:app --proxy-headers --host 0.0.0.0 --port 1111  --workers 1 --log-level info
+
+
+
+
+
+
 ENV HC="curl -L -S --fail http://127.0.0.1:1111/health --fail" 
 
 

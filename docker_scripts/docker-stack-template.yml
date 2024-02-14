@@ -153,7 +153,12 @@ services:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
+        
+        
+        # hmmm
       - cache:/app/cache
+        
+        
       - ./../tests:/app/tests
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw" # for gtrace
       - '../sources/swipl/xpce:/home/myuser/.config/swi-prolog/xpce'      
@@ -190,7 +195,7 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
     networks:
       - backend
-      - untrusted  
+      - untrusted
     deploy:
       replicas: 1
       placement:

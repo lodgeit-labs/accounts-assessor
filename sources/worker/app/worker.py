@@ -18,10 +18,14 @@ from dotdict import Dotdict
 
 
 session = requests.Session()
+#session.headers.update({'Authorization': 'Bearer ' + os.environ['MANAGER_TOKEN']})
+session.headers.update({'Authorization': 'Basic ' + os.environ['WORKER_AUTH']})
+# there might be proxy variables in the environment, but we don't want to use them when talking to the manager 
 session.trust_env = False
 #session.timeout = (100,1000)
 #session.retry = 30
 connection_error_sleep_secs = 1
+
 
 
 def work_loop():
