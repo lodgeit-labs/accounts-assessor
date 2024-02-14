@@ -49,7 +49,6 @@ ENV WATCHMEDO_INTERVAL=5
 ENV WATCHMEDO=true
 
 
-#COPY --chown=myuser:myuser common/ /app/sources/common/
 #RUN chown myuser:myuser /app/
 
 #VOLUME /app/sources/
@@ -68,7 +67,7 @@ RUN chown myuser:myuser /healthcheck
 
 
 ARG APPDIR=worker
-ARG APPPATH=/app/worker
+ARG APPPATH=/app/sources/worker
 
 
 
@@ -194,6 +193,18 @@ USER root
 
 
 
+
+
+COPY --chown=myuser:myuser common/ /app/sources/common/
+COPY --chown=myuser:myuser worker/ /app/sources/worker/
+ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
+#ENV WORKER_PROCESSES=1
+
+
+
+
+
+
 # remoulade (common block)
 
 RUN apt-get install -y libpq-dev
@@ -212,9 +223,6 @@ RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ign
 
 
 
-COPY --chown=myuser:myuser worker/ /app/sources/worker/
-ENV DETERMINANCY_CHECKER__USE__ENFORCER=true
-#ENV WORKER_PROCESSES=1
 
 
 
