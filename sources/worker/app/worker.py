@@ -19,7 +19,8 @@ from dotdict import Dotdict
 
 session = requests.Session()
 #session.headers.update({'Authorization': 'Bearer ' + os.environ['MANAGER_TOKEN']})
-session.headers.update({'Authorization': 'Basic ' + os.environ['WORKER_AUTH']})
+#session.headers.update({'Authorization': 'Basic ' + os.environ['WORKER_AUTH']})
+session.auth = os.environ['WORKER_AUTH'].split(':')
 # there might be proxy variables in the environment, but we don't want to use them when talking to the manager 
 session.trust_env = False
 #session.timeout = (100,1000)
