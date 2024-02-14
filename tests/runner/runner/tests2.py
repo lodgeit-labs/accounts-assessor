@@ -258,7 +258,7 @@ class TestResultImmediateXml(luigi.Task):
 			with open(response_fn, 'w') as response_fd:
 				json_dump(job, response_fd)
 
-		logger.debug(resp.text)
+		logger.debug(f'{resp.text=}')
 
 
 	def output(self):
@@ -390,6 +390,10 @@ class TestEvaluate(luigi.Task):
 
 	def run(self):
 
+		logger.debug(f'')
+		logger.debug(f'')
+		logger.debug(f'TestEvaluate')
+
 		# judiciously picked list of interesting differences between expected and actual results.. or just the first difference
 		delta:list[dict] = []
 
@@ -409,7 +413,7 @@ class TestEvaluate(luigi.Task):
 
 
 		job_expected_fn = os.path.abspath(P(self.test['suite']) / self.test['dir'] / 'job.json')
-		logging.getLogger('robust').info(job_expected_fn)
+		logging.getLogger('robust').info(f'{job_expected_fn=}')
 		overwrite_job_json_op = {"op": "cp", "src": str(self.input().path), "dst": str(job_expected_fn)}
 
 		try:
@@ -431,19 +435,48 @@ class TestEvaluate(luigi.Task):
 			return done()
 		
 		
-		expected_reports = sorted(filter(lambda x: not x.is_dir(), P(self.testcasedir).glob('*')))
-
-		if job['status'] != 'Success':
-			if expected_reports != []:
-				delta.append({
-					"msg":"extraneous saved report files in a testcase that should fail"
-				})
-				return done()
-
-
-
+		rrr = self.testcasedir/'responses'
+		expected_reports = sorted(filter(lambda x: not (rrr/x).is_dir(), glob.glob(root_dir=rrr, pathname='*')))
+		logger.debug(f'{expected_reports=}')
 		reports = job['result']['reports']
-		print(reports)
+		logger.debug(f'{reports=}')
+
+		
+		# check that job json actually shows the same alers as alerts json. The alerts in job json are a convenience for excel.
+		alerts_json = json.load(open(fetch_report(results.path, find_report_by_key(job['result']['reports'], 'alerts_json'))))	
+		if alerts_json != job['result']['alerts']:
+			delta.append('job json alerts differ from alerts json, this should not happen')
+			return done()
+
+
+		# if 'alerts_json.json' in expected_reports:
+		alerts_expected = json.load(open(self.testcasedir / 'responses' / 'alerts_json.json'))
+		if alerts_expected != alerts_json:
+			delta.append({
+				"msg": f"alerts_expected != alerts_got",
+				"fix": {"op": "cp", "dst": str(self.testcasedir / 'responses' / 'alerts_json.json'), "src": P(results.path) / 'alerts_json.json'}
+			})
+		
+		
+		
+		
+		
+		# if expected_reports != []:
+		# 	if job['status'] != 'Success':
+		# 		delta.append({
+		# 			"msg":"extraneous saved report files in a testcase that should fail"
+		# 		})
+		# 		return done()
+		# 
+		# 	for expected_report in expected_reports:
+		# 		received_report = find_report_by_key(job['result']['reports'], 'fn', expected_report)
+		# 		if received_report is None:
+		# 			delta.append({
+		# 				"msg": f"report {expected_fn.name} is missing in results",
+		# 				"fix": {"op": "cp", "src": str(expected_fn), "dst": results.path}
+		# 			})
+		# 		else:
+		# 			reports_to_compare.append({'expected_fn': expected_fn, 'received_url': received_report['url']})
 		
 		
 		
@@ -493,10 +526,17 @@ class TestEvaluate(luigi.Task):
 
 
 def fetch_report(tmp, url):
-	fn = pathlib.Path(urlparse(url).path).name
+	if url is None:
+		raise Exception('url is None')
+	logger.debug(f'{url=}')
+	ppp = urlparse(url)
+	logger.debug(f'{ppp=}')
+	fn = pathlib.Path(ppp.path).name
+	#fn = ppp.path.split('/')[-1]
 	out = P(tmp) / fn
-	with open(out, 'wb') as result_file:
-		shutil.copyfileobj(requests_session.get(url, stream=True,auth=aaa).raw, result_file)
+	if not out.exists():
+		with open(out, 'wb') as result_file:
+			shutil.copyfileobj(requests_session.get(url, stream=True,auth=aaa).raw, result_file)
 	return out
 
 

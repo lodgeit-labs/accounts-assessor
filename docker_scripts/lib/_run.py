@@ -753,9 +753,9 @@ def build(offline, port_postfix, mode, parallel_build, no_cache, omit_images, on
 	print("ok?")
 	join_all()
 
-	# if mode == "full": # not hollow
+	#if mode == "full": # not hollow
 	# 	svc('manager',			'../sources/', dbtks+'{port_postfix}"', "manager/Dockerfile")
-	# 	svc('worker',			'../sources/', dbtks+'{port_postfix}"', "worker/Dockerfile")
+	svc('worker',			'../sources/', dbtks+'{port_postfix}"', "worker/Dockerfile")
 	# 	svc('workers',			'../sources/', dbtks+'{port_postfix}"', "workers/Dockerfile")
 	# 	svc('services',			'../sources/', dbtks+'{port_postfix}"', "services/Dockerfile")
 	# 	svc('csharp-services',	'../sources/', dbtks+'{port_postfix}"', "csharp-services/Dockerfile")
