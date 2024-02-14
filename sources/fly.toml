@@ -1,21 +1,13 @@
-# fly.toml app configuration file generated for robust-worker-dark-pond-3497-dry-shape-7521-nameless-moon-5529-long-river-3075-frosty-waterfall-3384-rough-pond-5981 on 2024-02-14T03:22:36+01:00
+# fly.toml app configuration file generated for robust-worker-dark-pond-3497-dry-shape-7521-nameless-moon-5529-long-river-3075-frosty-waterfall-3384-rough-pond-5981-young-pine-6329 on 2024-02-14T12:24:04+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'robust-worker-dark-pond-3497-dry-shape-7521-nameless-moon-5529-long-river-3075-frosty-waterfall-3384-rough-pond-5981'
+app = 'robust-worker-dark-pond-3497-dry-shape-7521-nameless-moon-5529-long-river-3075-frosty-waterfall-3384-rough-pond-5981-young-pine-6329'
 primary_region = 'mad'
 
 [build]
   dockerfile = 'worker/dddd'
-
-[http_service]
-  internal_port = 8080
-  force_https = true
-  auto_stop_machines = true
-  auto_start_machines = true
-  min_machines_running = 0
-  processes = ['app']
 
 [[vm]]
   memory = '1gb'

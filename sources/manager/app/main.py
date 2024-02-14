@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import os
+from pathlib import PosixPath
+
 if os.environ.get('PYDEVD'):
 	import pydevd_pycharm
 	pydevd_pycharm.settrace('localhost', port=int(os.environ.get('PYDEVD_PYCHARM_PORT')), suspend=False)
@@ -277,21 +279,40 @@ async def shutdown():
 
 
 
-@app.post("/get_file")
-async def get_file(request: Request, file: dict):
+@app.post("/worker/{worker_id}/get_file")
+async def get_file(request: Request, worker_id: str, file: dict):
 	"""
 	Worker calls this to get a file from manager. The file is in manager's filesystem, and the worker needs to download it.
 	"""
 	log.debug('get_file %s', file)
-	with open(file['path'], 'rb') as f:
-		return f
+	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
+	path = file['path']
+	if worker.task:
+		if path in worker.task.input_files:
+			with open(path, 'rb') as f:
+				return f
+		else:
+			raise Exception('file not in worker.task.input_file')
+	else:
+		raise Exception('worker has no task')
 
-@app.post("/put_file")
-async def put_file(request: Request, file: dict):
+
+
+@app.post("/worker/{worker_id}/put_file")
+async def put_file(request: Request, worker_id: str, file: dict):
 	"""
 	Worker calls this to put a file in manager's filesystem. The file is in worker's filesystem, and the manager needs to download it.
 	"""
 	log.debug('put_file %s', file)
-	with open(file['path'], 'wb') as f:
-		f.write(file['content'])
-	return 'ok'
+	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
+	path: PosixPath = PosixPath(file['path'])
+	if worker.task:
+		if path.parent == worker.task.output_path:
+			with open(path, 'wb') as f:
+				f.write(file['content'])
+			return 'ok'
+		else:
+			raise Exception('file not in worker.task.output_path')
+	else:
+		raise Exception('worker has no task')
+		

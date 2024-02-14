@@ -456,6 +456,7 @@ class TestEvaluate(luigi.Task):
 					"msg": f"alerts_expected != alerts_got",
 					"fix": {"op": "cp", "dst": str(self.testcasedir / 'responses' / 'alerts_json.json'), "src": P(results.path) / 'alerts_json.json'}
 				})
+
 		
 		
 		
