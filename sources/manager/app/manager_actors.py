@@ -91,7 +91,7 @@ def call_prolog_calculator(
 	copy_repo_status_txt_to_result_dir(result_tmp_directory_path)
 	
 	
-	# establish a relation from job to calculator result directory, basically to this attempt to complete the job.
+	# establish a relation from job to calculator result directory
 	ln('../'+result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/' + result_tmp_directory_name)
 
 
