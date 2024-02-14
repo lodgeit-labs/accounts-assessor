@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for robust-worker-dark-pond-3497-dry-shape-7521-nameless-moon-5529 on 2024-02-14T02:54:46+01:00
+# fly.toml app configuration file generated for robust-worker-dark-pond-3497-dry-shape-7521-nameless-moon-5529-long-river-3075-frosty-waterfall-3384-rough-pond-5981 on 2024-02-14T03:22:36+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'robust-worker-dark-pond-3497-dry-shape-7521-nameless-moon-5529'
+app = 'robust-worker-dark-pond-3497-dry-shape-7521-nameless-moon-5529-long-river-3075-frosty-waterfall-3384-rough-pond-5981'
 primary_region = 'mad'
 
 [build]

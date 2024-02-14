@@ -449,13 +449,13 @@ class TestEvaluate(luigi.Task):
 			return done()
 
 
-		# if 'alerts_json.json' in expected_reports:
-		alerts_expected = json.load(open(self.testcasedir / 'responses' / 'alerts_json.json'))
-		if alerts_expected != alerts_json:
-			delta.append({
-				"msg": f"alerts_expected != alerts_got",
-				"fix": {"op": "cp", "dst": str(self.testcasedir / 'responses' / 'alerts_json.json'), "src": P(results.path) / 'alerts_json.json'}
-			})
+		if 'alerts_json.json' in expected_reports:
+			alerts_expected = json.load(open(self.testcasedir / 'responses' / 'alerts_json.json'))
+			if alerts_expected != alerts_json:
+				delta.append({
+					"msg": f"alerts_expected != alerts_got",
+					"fix": {"op": "cp", "dst": str(self.testcasedir / 'responses' / 'alerts_json.json'), "src": P(results.path) / 'alerts_json.json'}
+				})
 		
 		
 		

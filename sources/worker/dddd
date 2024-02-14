@@ -210,9 +210,15 @@ RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ign
 
 
 
+
+
+COPY --chown=myuser:myuser worker/ /app/sources/worker/
+
+
+
 WORKDIR $APPPATH
 USER myuser
-CMD ["./start.sh"]
+CMD ["/app/sources/worker/start.sh"]
 ENV HC="curl -L -S --fail http://127.0.0.1:1111/health --fail" 
 
 
@@ -227,10 +233,4 @@ HEALTHCHECK --interval=2s --timeout=600s CMD { test -f /healthcheck/ok && echo -
 
 
 
-
-
-
-
-
-COPY --chown=myuser:myuser worker/ /app/sources/worker/
 
