@@ -198,6 +198,8 @@ def cli():
 
 @click.option('-wg', '--WORKER_GRACE_PERIOD', 'WORKER_GRACE_PERIOD', type=int, default=100, help='')
 
+@click.option('-fl', '--FLY', 'FLY', type=bool, default=False, help='manage worker fly.io machines')
+
 
 #@click.option('-xs', '--xpce_scale', 'xpce_scale', type=real, default=1, help='XPCE UI scale')
 
@@ -247,6 +249,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	hn = choices['use_host_network']
 
 	e = {
+		'FLY': str(choices['FLY']),
 		"WORKER_GRACE_PERIOD": str(choices['WORKER_GRACE_PERIOD']),
 		"WORKER_PROCESSES": str(choices['worker_processes']),
 		'MANAGER_URL': choices['manager_url'],
@@ -265,6 +268,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	}
 
+	del choices['FLY']
 	del choices['manager_url']
 	del choices['WORKER_GRACE_PERIOD']
 

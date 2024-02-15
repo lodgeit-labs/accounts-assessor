@@ -1,5 +1,5 @@
 import os
-fly = os.environ.get('FLY', False)
+fly = os.environ.get('FLY', False) == 'True'
 
 def list_machines():
 	if fly:
