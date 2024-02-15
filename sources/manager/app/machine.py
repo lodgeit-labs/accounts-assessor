@@ -78,15 +78,13 @@ def fly_machine_janitor():
 					worker = machine['worker']
 					log.debug(f'{machine["id"]} {machine["state"]}, {worker=}')
 					if machine['state'] in ['running', 'started'] and worker and not worker.task:
-						cmd = f'{flyctl()} machines stop {machine["id"]}'
-						log.debug(cmd)
-						subprocess.run(cmd, shell=True)
+						stop_machine(machine)
 						break
 		
 		except Exception as e:
 			log.exception(e)
 		
-		time.sleep(5)
+		time.sleep(10)
 
 
 
