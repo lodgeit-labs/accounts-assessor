@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, subprocess, json#, requests
 import threading, logging
 from collections import defaultdict
 
@@ -137,14 +137,27 @@ def fly_machine_janitor():
 
 	if fly:
 		while True:
-			with wl('fly_machine_janitor'):
-				for machine in list_machines():
-					for _,worker in workers.items():
-						if worker.fly_machine.id == machine.id:
+
+			num_tasks = len(pending_tasks) + sum(1 for _,worker in workers.items() if worker.task)
+			machines = list_machines()
+			num_machines = len(machines)
+			log.debug(f'fly_machine_janitor: num_tasks={num_tasks}, num_machines={num_machines}')
+			if num_tasks > num_machines:
+				for machine in machines:
+					if machine['state'] != 'running':
+						cmd = f'flyctl machines start {machine["id"]}'
+						log.debug(cmd)
+						subprocess.run(cmd, shell=True)
+						break
+			elif num_tasks < num_machines:
+				for machine in machines:
+					if machine['state'] == 'running':
+						if not any(worker.info.get('host) == machine['id'] for _,worker in workers.items()):
+							cmd = f'flyctl machines stop {machine["id"]}'
+							log.debug(cmd)
+							subprocess.run(cmd, shell=True)
 							break
-					else:
-						machine.delete()			
-			time.sleep(60)
+			time.sleep(2)
 
 threading.Thread(target=fly_machine_janitor, daemon=True).start()
 
@@ -191,8 +204,8 @@ def synchronization_thread():
 						# raise exception in do_untrusted_task
 						e.worker.task.results.put(dict(error='lost connection to worker'))
 					del workers[e.worker.id]
-					if e.worker.fly_machine:
-						e.worker.fly_machine.delete()
+					#if e.worker.fly_machine:
+					#	e.worker.fly_machine.delete()
 
 				elif e.type == 'worker_available':
 					find_new_task_for_worker(e.worker)

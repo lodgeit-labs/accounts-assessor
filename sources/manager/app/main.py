@@ -94,10 +94,11 @@ def post_heartbeat(worker_id: str, task_id: str = None, token: str = Depends(wor
 	While worker is processing a task, it should take care to call /worker/{id}/heartbeat every minute. - it can also do this the whole time, even when there's no task.
 	"""
 
-	if fly:
-		token = tokens.decode_token(token)
-		if token is None:
-			raise HTTPException(status_code=400, detail="Invalid authentication credentials")
+	#if fly:
+	#	token = tokens.decode_token(token)
+	#	if token is None:
+	#		raise HTTPException(status_code=400, detail="Invalid authentication credentials")
+	# ^ we use basicauth atm
 
 	log.debug('heartbeat %s %s', worker_id, task_id)
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
