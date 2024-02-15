@@ -194,7 +194,7 @@ def cli():
 
 @click.option('-mu', '--manager_url', 'manager_url', type=str, default='http://localhost:9111', help='')
 
-@click.option('-pyd', '--pydevd', 'pydevd', type=bool, default=True, help='enable pydev')
+@click.option('-pyd', '--pydevd', 'pydevd', type=bool, default=False, help='enable pydev')
 
 @click.option('-wg', '--WORKER_GRACE_PERIOD', 'WORKER_GRACE_PERIOD', type=int, default=100, help='')
 
