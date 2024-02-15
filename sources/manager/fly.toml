@@ -1,0 +1,25 @@
+# fly.toml app configuration file generated for robust-wor71-aged-forest-6064-dawn-river-3856-misty-feather-248-holy-dream-7289 on 2024-02-14T22:24:34+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'r2'
+primary_region = 'mad'
+
+[build]
+  dockerfile = 'worker/dddd'
+
+[checks]
+  [checks.name_of_your_http_check]
+    port = 1111
+    type = 'http'
+    interval = '15s'
+    timeout = '10s'
+    grace_period = '30s'
+    method = 'get'
+    path = '/health'
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

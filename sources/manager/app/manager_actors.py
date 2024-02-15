@@ -43,7 +43,9 @@ def call_prolog_rpc(msg, worker_options=None):
 			msg=msg, 
 			worker_tmp_directory_name=create_tmp('rpc', exist_ok=True)[0]
 		),
-		worker_options=worker_options
+		worker_options=worker_options,
+		input_files=[],
+		output_path=None
 	))
 
 

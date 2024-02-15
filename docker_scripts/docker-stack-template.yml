@@ -190,6 +190,7 @@ services:
       WATCHMEDO:
       CSHARP_SERVICES_URL:
       PYDEVD_PYCHARM_PORT: 29111
+      FLY:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
@@ -216,6 +217,7 @@ services:
     secrets:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
+      - FLYCTL_API_TOKEN
         
 
   services:

@@ -7,7 +7,6 @@ from dotdict import Dotdict
 import datetime
 import time
 
-from app.machine import list_machines
 from app.untrusted_task import *
 
 from contextlib import contextmanager
@@ -19,9 +18,13 @@ from tsasync import Event
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
+log.addHandler(logging.StreamHandler(sys.stderr))
+log.debug("debug isolated_worker.py")
 
 
 
+fly = os.environ.get('FLY', False) == 'True'
+log.info(f'{fly=}')
 workers = {}
 workers_lock = threading.Lock()
 workers_lock_msg = None
@@ -131,35 +134,6 @@ def worker_janitor():
 
 threading.Thread(target=worker_janitor, daemon=True).start()
 
-
-
-def fly_machine_janitor():
-
-	if fly:
-		while True:
-
-			num_tasks = len(pending_tasks) + sum(1 for _,worker in workers.items() if worker.task)
-			machines = list_machines()
-			num_machines = len(machines)
-			log.debug(f'fly_machine_janitor: num_tasks={num_tasks}, num_machines={num_machines}')
-			if num_tasks > num_machines:
-				for machine in machines:
-					if machine['state'] != 'running':
-						cmd = f'flyctl machines start {machine["id"]}'
-						log.debug(cmd)
-						subprocess.run(cmd, shell=True)
-						break
-			elif num_tasks < num_machines:
-				for machine in machines:
-					if machine['state'] == 'running':
-						if not any(worker.info.get('host) == machine['id'] for _,worker in workers.items()):
-							cmd = f'flyctl machines stop {machine["id"]}'
-							log.debug(cmd)
-							subprocess.run(cmd, shell=True)
-							break
-			time.sleep(2)
-
-threading.Thread(target=fly_machine_janitor, daemon=True).start()
 
 
 class MaxSizeList(list):

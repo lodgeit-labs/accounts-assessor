@@ -42,6 +42,7 @@ from app.isolated_worker import *
 from app.untrusted_task import *
 import app.manager_actors
 import app.tokens
+import app.machine
 
 
 
@@ -308,7 +309,7 @@ async def put_file(request: Request, worker_id: str, file: dict):
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	path: PosixPath = PosixPath(file['path'])
 	if worker.task:
-		if path.parent == worker.task.output_path:
+		if worker.task.output_path and (path.parent == worker.task.output_path):
 			with open(path, 'wb') as f:
 				f.write(file['content'])
 			return 'ok'

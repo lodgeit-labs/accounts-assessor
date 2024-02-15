@@ -20,6 +20,7 @@ from dotdict import Dotdict
 session = requests.Session()
 #session.headers.update({'Authorization': 'Bearer ' + os.environ['MANAGER_TOKEN']})
 #session.headers.update({'Authorization': 'Basic ' + os.environ['WORKER_AUTH']})
+print(os.environ)
 aaaa = os.environ['WORKER_AUTH'].split(':')
 session.auth = aaaa[0], aaaa[1]
 # there might be proxy variables in the environment, but we don't want to use them when talking to the manager 

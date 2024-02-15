@@ -36,6 +36,9 @@ RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ign
 
 
 
+RUN curl -L https://fly.io/install.sh | sh
+
+
 
 
 WORKDIR $APPPATH
