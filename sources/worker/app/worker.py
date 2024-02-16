@@ -31,20 +31,21 @@ connection_error_sleep_secs = 1
 
 
 
+host = os.uname().nodename
+host2 = subprocess.check_output(['hostname'], text=True).strip()
+if host != host2:
+	log.warn(f'hostnames differ: {host=} {host2=}')
+worker_id = host + '-' + str(os.getpid()) + '-' + uuid.uuid4().hex
+api_url = os.environ['MANAGER_URL'] + f'/worker/{worker_id}/'
+
+
+
 def work_loop():
 
 	# vvv thread-unsafe, but workers are spawned as separate processess, so it's fine
 	global connection_error_sleep_secs
 
-	host = os.uname().nodename
-	host2 = subprocess.check_output(['hostname'], text=True).strip()
-	if host != host2:
-		log.warn(f'hostnames differ: {host=} {host2=}')
-	
-	try:
-		
-		worker_id = host + '-' + str(os.getpid()) + '-' + uuid.uuid4().hex
-		
+	try:		
 		log.info(f'{worker_id} start work_loop')
 	
 		task_result = None
@@ -64,7 +65,7 @@ def work_loop():
 				log.debug(f'{worker_id} go get message, {task_result=}, {cycles=}')
 			
 				r = session.post(
-						os.environ['MANAGER_URL'] + f'/worker/{worker_id}/messages', 
+						api_url + 'messages', 
 						json=dict(
 							task_result=task_result,
 							worker_info=worker_info,
@@ -90,11 +91,11 @@ def work_loop():
 						stop_heartbeat.set()
 	
 			except requests.exceptions.ReadTimeout:
-				# this is the normal case, happens when we get no task for a while
-				log.debug('worker %s /messages read timeout', worker_id)
+				# this is the normal case, happens when we get no task for a while. But not that this also catches exceptions from do_task.
+				log.debug('worker %s work_loop: read timeout', worker_id)
 			except requests.exceptions.HTTPError as e:
 				# manager server is down, or somesuch
-				log.debug('worker %s /messages %s', worker_id, e)
+				log.debug('worker %s work_loop: %s', worker_id, e)
 				time.sleep(connection_error_sleep_secs)
 				connection_error_sleep_secs = min(60, connection_error_sleep_secs * 2)
 			except Exception as e:
@@ -112,7 +113,7 @@ def work_loop():
 
 def upload_file(output_file):
 	with open(output_file, 'rb') as f:
-		r = session.post(os.environ['MANAGER_URL'] + '/put_file', files=dict(path=output_file,content=f.read()))
+		r = session.post(api_url + 'put_file', files=dict(path=output_file,content=f.read()))
 		r.raise_for_status()	
 
 
@@ -142,7 +143,7 @@ def do_task(task):
 
 
 def download_file(input_file):
-	with session.post(os.environ['MANAGER_URL'] + '/get_file', json=dict(path=input_file)) as r:
+	with session.post(api_url + 'get_file', json=dict(path=input_file)) as r:
 		r.raise_for_status()
 		os.makedirs(os.path.dirname(input_file), exist_ok=True)
 		with open(input_file, 'wb') as f:
