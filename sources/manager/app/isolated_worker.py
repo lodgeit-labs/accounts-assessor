@@ -6,7 +6,7 @@ import datetime
 import time
 
 from app.untrusted_task import *
-from fly_machines import *
+from app.fly_machines import *
 
 from contextlib import contextmanager
 shutdown_event = threading.Event()

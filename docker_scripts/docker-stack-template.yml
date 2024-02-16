@@ -149,6 +149,7 @@ services:
       ALL_PROXY:
       DOWNLOAD_BASTION_URL:
       MANAGER_URL:
+      WORKER_AUTH: dummy:dummy
       WORKER_PROCESSES:
     volumes:
       - tmp:/app/server_root/tmp
@@ -218,7 +219,7 @@ services:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
       - FLYCTL_API_TOKEN
-        
+
 
   services:
     image: koo5/services${PP}:latest
