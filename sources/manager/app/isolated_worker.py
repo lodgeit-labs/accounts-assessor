@@ -127,7 +127,7 @@ def worker_janitor():
 						put_event(dict(type='forget_worker', worker=worker))
 				else:
 					# however, if worker has a task, we should give a configurable grace period for it to report back with result, in some cases, even after prolonged period of disconnection.
-					if unseen > datetime.timedelta(seconds=heartbeat_interval + os.environ.get('WORKER_GRACE_PERIOD', 100)):
+					if unseen > datetime.timedelta(seconds=heartbeat_interval + os.environ.get('WORKER_GRACE_PERIOD', 30)):
 						put_event(dict(type='forget_worker', worker=worker))
 
 		time.sleep(25)

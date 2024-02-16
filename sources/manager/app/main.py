@@ -292,7 +292,7 @@ async def get_file(request: Request, worker_id: str, file: dict):
 	if worker.task:
 		if path in worker.task.input_files:
 			with open(path, 'rb') as f:
-				return f
+				return f.read()
 		else:
 			raise Exception('file not in worker.task.input_file')
 	else:
