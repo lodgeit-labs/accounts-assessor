@@ -35,14 +35,22 @@ def call_prolog(
 	if worker_options is None:
 		worker_options = {}
 
-	with open(sources('config/worker_config.json'), 'r') as c:
+	try:
+		with open(sources('config/worker_config.json'), 'r') as c:
 		config = json.load(c)
+	except FileNotFoundError:
+		config = {}
 
-	default_options = dict(
+	default_options = dict(	
+		ENABLE_CONTEXT_TRACE_TRAIL=False,
+		DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR=False,
+		GTRACE_ON_OWN_EXCEPTIONS=False,
+		ROBUST_ENABLE_NICETY_REPORTS=False,
+		skip_dev_runner=True,
 		dev_runner_options=[],
 		prolog_flags='true',
 		debug_loading=None,
-		prolog_debug=True,
+		prolog_debug=False,
 		halt=True,
 		pipe_rpc_json_to_swipl_stdin=False,
 		dry_run=False,
