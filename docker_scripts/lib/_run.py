@@ -198,7 +198,7 @@ def cli():
 
 @click.option('-wg', '--WORKER_GRACE_PERIOD', 'WORKER_GRACE_PERIOD', type=int, default=100, help='')
 
-@click.option('-fl', '--FLY', 'FLY', type=bool, default=False, help='manage worker fly.io machines')
+@click.option('-fl', '--fly', 'fly', type=bool, default=False, help='manage worker fly.io machines')
 
 
 #@click.option('-xs', '--xpce_scale', 'xpce_scale', type=real, default=1, help='XPCE UI scale')
@@ -249,7 +249,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	hn = choices['use_host_network']
 
 	e = {
-		'FLY': str(choices['FLY']),
+		'FLY': str(choices['fly']),
 		"WORKER_GRACE_PERIOD": str(choices['WORKER_GRACE_PERIOD']),
 		"WORKER_PROCESSES": str(choices['worker_processes']),
 		'MANAGER_URL': choices['manager_url'],
@@ -265,10 +265,9 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
 		'DOWNLOAD_BASTION_URL': 'http://localhost:6457' if hn else 'http://download:6457',
 		'ALL_PROXY': 'http://localhost:3128' if hn else 'http://webproxy:3128',
-
 	}
 
-	del choices['FLY']
+	del choices['fly']
 	del choices['manager_url']
 	del choices['WORKER_GRACE_PERIOD']
 
