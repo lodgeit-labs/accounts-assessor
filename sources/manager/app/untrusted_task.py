@@ -1,10 +1,7 @@
 import logging, sys
-
 import queue
 import uuid
-
 import requests
-
 from remoulade.middleware import CurrentMessage
 
 
@@ -15,16 +12,15 @@ log.debug("hello from untrusted_task.py")
 
 
 
-fly = False
-separate_storage = False
-
-
 events = queue.Queue()
+
 
 
 def put_event(e):
 	log.debug('put_event %s', e)
 	events.put(e)
+
+
 
 class Task:
 	def __init__(self, proc, args, worker_options, input_files, output_path):
@@ -56,29 +52,18 @@ def copy_result_files_from_worker_container():
 	pass
 
 
+
 def do_untrusted_task(task: Task):
 	"""called from actors."""
 
-	try:
-		if fly:
-			fly_machine = requests.post('https://api.fly.io/v6/apps/robust/instances', json={})
-			fly_machine.raise_for_status()
+	put_event(dict(type='add_task', task=task))
+	log.debug('actor block on task.results.get()..')
 
-		put_event(dict(type='add_task', task=task))
+	result = task.results.get()
+	log.debug('do_untrusted_task: result: %s', result)
 
-		log.debug('actor block on task.results.get()..')
-		
-		result = task.results.get()
-
-		if 'error' in result:
-			raise Exception(result['error'])
-		else:
-			log.debug('do_untrusted_task: result: %s', result)
-		
-	finally:
-		log.debug('do_untrusted_task: finally')
-		
-		if fly:
-			fly_machine.delete()
-			
+	if 'error' in result:
+		return result
+		#raise Exception(result['error'])
+				
 	return result['result']
