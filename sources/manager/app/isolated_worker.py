@@ -1,18 +1,17 @@
-import os, sys, subprocess, json#, requests
+import os, sys, subprocess, json
 import threading, logging
 from collections import defaultdict
-
 from dotdict import Dotdict
-
 import datetime
 import time
 
 from app.untrusted_task import *
+from fly_machines import *
 
 from contextlib import contextmanager
 shutdown_event = threading.Event()
 
-from tsasync import Event
+import tsasync
 
 
 
@@ -39,7 +38,7 @@ class Worker:
 		self.sizes = [None]
 		self.info = {}
 		self._task = None
-		self.handler_wakeup = Event()
+		self.handler_wakeup = tsasync.Event()
 
 		self.last_reported_task_ts = None
 		self.last_reported_task = None
@@ -315,6 +314,8 @@ def fly_machine_janitor():
 
 				log.debug(f'fly_machine_janitor: {len(pending_tasks)=}, {active_tasks=}, num_tasks={num_tasks}, num_started_machines={num_started_machines}')
 
+				# this bit needs to be enhanced if we want to support multiple sizes of workers.
+				# for task in pending_tasks, if there are no free machines of right size, we should start a new machine of that size.
 				if num_tasks > num_started_machines:
 					log.debug('looking for machines to start')
 					for machine in machines:
@@ -322,32 +323,33 @@ def fly_machine_janitor():
 							start_machine(machine)
 							break
 
-				elif num_tasks < num_started_machines:
-					log.debug('looking for machines to stop')
-					for machine in machines:
-						worker = machine['worker']
-						log.debug(f'{machine["id"]} {machine["state"]}, {worker=}')
-						if machine['state'] in ['running', 'started']:
-							if worker and not worker.task:
-								stop_machine(machine)
-								break
-							elif not worker:
-								if datetime.datetime.now() - server_started_time > datetime.timedelta(minutes=1):
-									if machine['id'] not in fly_machines:
-										stop_machine(machine)
-										break
-									started = fly_machines[machine['id']].get('started', None)
-									if started is None or datetime.datetime.now() - started > datetime.timedelta(minutes=3):
-										stop_machine(machine)
-										break
+				#elif num_tasks < num_started_machines:
+				log.debug('looking for machines to stop')
+				for machine in machines:
+					worker = machine['worker']
+					log.debug(f'{machine["id"]} {machine["state"]}, {worker=}')
+					if machine['state'] in ['started']:
+						# never stop a machine with a task
+						if worker and not worker.task:
+							stop_machine(machine)
+							break
+						elif not worker:
+							# give the machine some time to register with manager
+							if datetime.datetime.now() - server_started_time > datetime.timedelta(minutes=1):
+								# we didnt start it, maybe previous instance of manager started it, or it was started on fly deploy or manually..
+								if machine['id'] not in fly_machines:
+									stop_machine(machine)
+									break
+								# we started it, and it's not registering with manager
+								started = fly_machines[machine['id']].get('started', None)
+								if started is None or datetime.datetime.now() - started > datetime.timedelta(minutes=3):
+									stop_machine(machine)
+									break
 
 		except Exception as e:
 			log.exception(e)
 
 		time.sleep(10)
-
-
-
 
 if fly:
 	threading.Thread(target=fly_machine_janitor, daemon=True).start()
@@ -370,43 +372,6 @@ def list_machines():
 
 
 
-
-from config import secret
-
-
-
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-#log.addHandler(logging.StreamHandler(sys.stderr))
-log.debug("debug machine.py")
-
-
-
-server_started_time = datetime.datetime.now()
-fly_machines = {}
-
-
-
-def flyctl():
-	#os.system('pwd')
-	#os.system('which flyctl')
-	return '/home/myuser/.fly/bin/flyctl -t "'+ secret('FLYCTL_API_TOKEN') + '" '
-
-
-
-
-def start_machine(machine):
-	cmd = f'{flyctl()} machines start {machine["id"]}'
-	log.debug(cmd)
-	subprocess.run(cmd, shell=True)
-	fly_machines[machine['id']] = dict(started=datetime.datetime.now(), machine=machine)
-
-
-
-def stop_machine(machine):
-	cmd = f'{flyctl()} machines stop {machine["id"]}'
-	log.debug(cmd)
-	subprocess.run(cmd, shell=True)
 
 
 
