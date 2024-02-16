@@ -56,6 +56,9 @@ def copy_result_files_from_worker_container():
 def do_untrusted_task(task: Task):
 	"""called from actors."""
 
+	if fly:
+		task.machine = start_some_machine() 
+
 	put_event(dict(type='add_task', task=task))
 	log.debug('actor block on task.results.get()..')
 
