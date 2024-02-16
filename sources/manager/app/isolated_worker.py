@@ -302,7 +302,7 @@ def fly_machine_janitor():
 
 				machines = list_machines()
 
-				started_machines = len([m for m in machines if m['state'] not in ['stopped']])
+				started_machines = [m for m in machines if m['state'] not in ['stopped']]
 
 				fly_workers = [m['worker'] for m in started_machines]
 
@@ -311,17 +311,18 @@ def fly_machine_janitor():
 
 				active_tasks = sum(1 for _,worker in workers.items() if worker.task)
 				num_tasks = len(pending_tasks) + active_tasks
+				num_started_machines = len(started_machines)
 
-				log.debug(f'fly_machine_janitor: {len(pending_tasks)=}, {active_tasks=}, num_tasks={num_tasks}, started_machines={started_machines}')
+				log.debug(f'fly_machine_janitor: {len(pending_tasks)=}, {active_tasks=}, num_tasks={num_tasks}, num_started_machines={num_started_machines}')
 
-				if num_tasks > started_machines:
+				if num_tasks > num_started_machines:
 					log.debug('looking for machines to start')
 					for machine in machines:
 						if machine['state'] not in ['started', 'starting']:
 							start_machine(machine)
 							break
 
-				elif num_tasks < started_machines:
+				elif num_tasks < num_started_machines:
 					log.debug('looking for machines to stop')
 					for machine in machines:
 						worker = machine['worker']
