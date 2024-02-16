@@ -68,7 +68,7 @@ def fly_machine_janitor():
 			for _,v in workers.items():
 				log.debug('worker %s', v)
 		
-			machines = prune_machines()
+			machines = list_machines()
 
 			started_machines = len([m for m in machines if m['state'] not in ['stopped']])
 			active_tasks = sum(1 for _,worker in workers.items() if worker.task)
@@ -88,39 +88,25 @@ def fly_machine_janitor():
 				for machine in machines:
 					worker = machine['worker']
 					log.debug(f'{machine["id"]} {machine["state"]}, {worker=}')
-					if machine['state'] in ['running', 'started'] and worker and not worker.task:
-						stop_machine(machine)
-						break
+					if machine['state'] in ['running', 'started']:
+						if worker and not worker.task:
+							stop_machine(machine)
+							break
+						elif not worker:
+							if datetime.datetime.now() - server_started_time > datetime.timedelta(minutes=1):
+								if machine['id'] not in fly_machines:
+									stop_machine(machine)
+									break
+								started = fly_machines[machine['id']].get('started', None)
+								if started is None or datetime.datetime.now() - started > datetime.timedelta(minutes=3):
+									stop_machine(machine)
+									break														
 		
 		except Exception as e:
 			log.exception(e)
 		
 		time.sleep(10)
 
-
-
-def prune_machines():
-	pruned = False
-	machines = list_machines()
-	if datetime.datetime.now() - server_started_time < datetime.timedelta(minutes=1):
-		return machines
-					
-	for machine in machines:
-		if not machine['worker'] and machine['state'] not in ['stopped']:
-			if machine['id'] not in fly_machines:
-				stop_machine(machine)
-				pruned = True
-				continue
-			
-			started = fly_machines[machine['id']].get('started', None)
-			if started is None or datetime.datetime.now() - started > datetime.timedelta(minutes=3):
-				stop_machine(machine)
-				pruned = True
-				continue
-						
-	if pruned:
-		return list_machines()
-	return machines
 
 
 
