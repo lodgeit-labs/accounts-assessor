@@ -242,13 +242,15 @@ def find_new_task_for_worker(worker):
 def match_worker_to_task(worker, task):
 	if worker.task:
 		return False
+	if not worker.alive():
+		return False
 	return True#task.min_worker_available_mem <= worker.available_mem
 
 
 def try_assign_any_worker_to_task(task):
 	log.debug('try_assign_any_worker_to_task: len(workers)=%s', len(workers))
 	
-	sw = [worker for worker in sorted_workers() if not worker.task]
+	sw = [worker for worker in sorted_workers() if not worker.task and worker.alive()]
 	
 	host_cores = {}
 	for worker in sw:

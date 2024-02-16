@@ -37,7 +37,7 @@ def call_prolog(
 
 	try:
 		with open(sources('config/worker_config.json'), 'r') as c:
-		config = json.load(c)
+			config = json.load(c)
 	except FileNotFoundError:
 		config = {}
 
