@@ -258,7 +258,7 @@ def try_assign_any_worker_to_task(task, workers):
 		host_cores[worker.info.get('host')] = worker.info.get('host_cores')
 		
 	used_cores = defaultdict(int)
-	for _,worker in workers.items():
+	for worker in workers:
 		if worker.task:
 			used_cores[worker.info.get('host')] += 1
 	
