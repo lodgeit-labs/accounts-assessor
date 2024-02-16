@@ -167,6 +167,9 @@ def synchronization_thread():
 							results_of_unknown_tasks.remove(r)
 							break
 					else:
+					
+						# meh, this is just wrong with fly machines. do_task needs to manage its own machine, as originally planned.
+					
 						if try_assign_any_worker_to_task(e.task):
 							pass
 						else:
