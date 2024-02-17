@@ -282,7 +282,7 @@ async def shutdown():
 
 
 @app.post("/worker/{worker_id}/get_file")
-async def get_file(request: Request, worker_id: str, file: dict):
+async def get_file(request: Request, worker_id: str, file: str):
 	"""
 	Worker calls this to get a file from manager. The file is in manager's filesystem, and the worker needs to download it.
 	"""
