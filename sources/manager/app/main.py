@@ -49,7 +49,7 @@ import app.machine
 logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
-log.addHandler(logging.StreamHandler(sys.stderr))
+#log.addHandler(logging.StreamHandler(sys.stderr))
 
 loop_log = logging.getLogger('loop')
 loop_log.setLevel(logging.INFO)
