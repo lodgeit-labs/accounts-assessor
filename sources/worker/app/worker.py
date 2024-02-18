@@ -10,7 +10,7 @@ from app.host import get_unused_cpu_cores
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
-log.addHandler(logging.StreamHandler())
+#log.addHandler(logging.StreamHandler())
 log.info('worker.py start')
 
 
@@ -21,7 +21,7 @@ session = requests.Session()
 #session.headers.update({'Authorization': 'Bearer ' + os.environ['MANAGER_TOKEN']})
 #session.headers.update({'Authorization': 'Basic ' + os.environ['WORKER_AUTH']})
 print(os.environ)
-aaaa = os.environ['WORKER_AUTH'].split(':')
+aaaa = os.environ.get('WORKER_AUTH',':').split(':')
 session.auth = aaaa[0], aaaa[1]
 # there might be proxy variables in the environment, but we don't want to use them when talking to the manager 
 session.trust_env = False
@@ -119,13 +119,14 @@ def upload_file(output_file):
 
 def do_task(task):
 	remote = False
-
+	
 	for input_file in task.input_files:
-		if Path(input_file).exists():
-			log.debug('do_task: input_file %s exists', input_file)
-		else:
-			remote = True
-			download_file(input_file)
+		log.debug('do_task: input_file %s', input_file)
+#		if Path(input_file).exists():
+#			log.debug('do_task: input_file %s exists', input_file)
+#		else:
+		remote = True
+		download_file(input_file)
 	
 	if task.proc == 'call_prolog':
 		result = call_prolog.call_prolog(task.args['msg'], task.args['worker_tmp_directory_name'], task.worker_options)
@@ -143,7 +144,7 @@ def do_task(task):
 
 
 def download_file(input_file):
-	with session.post(api_url + 'get_file', json=dict(path=input_file)) as r:
+	with session.post(api_url + 'get_file', json=dict(file=input_file)) as r:
 		r.raise_for_status()
 		os.makedirs(os.path.dirname(input_file), exist_ok=True)
 		with open(input_file, 'wb') as f:

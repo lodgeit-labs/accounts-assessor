@@ -6,6 +6,15 @@ from pathlib import Path
 from app.misc import uri_params, env_string
 
 
+
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.debug('debug call_prolog.py')
+
+
+
+
 def files_in_dir_recursive(worker_tmp_path):
 	return [f for f in flatten_lists([list(Path(worker_tmp_path).rglob('*'))]) if f.is_file()]
 
@@ -120,10 +129,10 @@ def call_prolog(
 		])
 
 
-	logging.getLogger().warn('invoke_rpc: cmd:')
+	log.debug('invoke_rpc: cmd:')
 	env = os.environ.copy() | dict([(k,str(v)) for k,v in worker_options.items()])
-	logging.getLogger().warn('env: ' + env_string(env))
-	logging.getLogger().warn('cmd: ' + shlex.join(cmd))
+	log.debug('env: ' + env_string(env))
+	log.debug('cmd: ' + shlex.join(cmd))
 
 
 	if not worker_options['dry_run']:
@@ -136,20 +145,20 @@ def call_prolog(
 
 	if stdout_data in [b'', '']:
 		ret = {'alerts':['invoke_rpc: got no stdout from swipl.']}
-		logging.getLogger().warn(str(ret))
+		log.warn(ret)
 		return ret, []
 	else:
-		print()
-		print("invoke_rpc: prolog stdout:")
-		print(stdout_data)
-		print("invoke_rpc: end of prolog stdout.")
-		print()
+		log.debug()
+		log.debug("invoke_rpc: prolog stdout:")
+		log.debug(stdout_data)
+		log.debug("invoke_rpc: end of prolog stdout.")
+		log.debug()
 		try:
 			rrr = json.loads(stdout_data)
 			return rrr, files_in_dir_recursive(worker_tmp_path)
 		except json.decoder.JSONDecodeError as e:
-			print('invoke_rpc:', e)
-			print()
+			log.warn('invoke_rpc: %s', e)
+			log.debug()
 			return {'status':'error', 'message': f'invoke_rpc: {e}'}, []
 
 
