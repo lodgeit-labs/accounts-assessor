@@ -49,10 +49,12 @@ import app.machine
 logging.basicConfig()
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
+log.debug('debug main.py')
 #log.addHandler(logging.StreamHandler(sys.stderr))
 
 loop_log = logging.getLogger('loop')
 loop_log.setLevel(logging.INFO)
+loop_log.debug('debug loop')
 
 #logging.config.fileConfig('logging.yaml', defaults=None, disable_existing_loggers=False, encoding=None)
 
@@ -282,20 +284,20 @@ async def shutdown():
 
 
 @app.post("/worker/{worker_id}/get_file")
-async def get_file(request: Request, worker_id: str, file: str):
+async def get_file(request: Request, worker_id: str, data: str):
 	"""
 	Worker calls this to get a file from manager. The file is in manager's filesystem, and the worker needs to download it.
 	"""
-	log.debug('get_file %s', file)
+	log.debug('get_file %s', data)
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
-	path = file['path']
+	path = data['path']
 	if worker.task:
 		if path in worker.task.input_files:
 			with open(path, 'rb') as f:
 				# todo, not sure if we can send any bytes here
 				return f.read()
 		else:
-			raise Exception('file not in worker.task.input_file')
+			raise Exception('{path=} not in {worker.task.input_files=}')
 	else:
 		raise Exception('worker has no task')
 
