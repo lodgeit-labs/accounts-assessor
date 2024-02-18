@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import base64
 import os
 from pathlib import PosixPath
 
@@ -295,7 +295,7 @@ async def get_file(request: Request, worker_id: str, data: dict):
 		if path in worker.task.input_files:
 			with open(path, 'rb') as f:
 				# todo, not sure if we can send any bytes here
-				return {'content':f.read()}
+				return {'content':base64.b64encode(f.read())}
 		else:
 			raise Exception('{path=} not in {worker.task.input_files=}')
 	else:
@@ -314,7 +314,7 @@ async def put_file(request: Request, worker_id: str, data: dict):
 	if worker.task:
 		if worker.task.output_path and (path.parent == worker.task.output_path):
 			with open(path, 'wb') as f:
-				f.write(data['content'])
+				f.write(base64.b64decode(data['content']))
 			return 'ok'
 		else:
 			raise Exception('file not in worker.task.output_path')

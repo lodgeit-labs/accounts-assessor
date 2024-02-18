@@ -1,3 +1,4 @@
+import base64
 import urllib
 import uuid
 from pathlib import Path
@@ -124,7 +125,7 @@ def work_loop():
 
 def upload_file(output_file):
 	with open(output_file, 'rb') as f:
-		r = session.post(api_url + 'put_file', files=dict(path=output_file,content=f.read()))
+		r = session.post(api_url + 'put_file', files=dict(path=output_file,content=base64.b64encode(f.read())))
 		r.raise_for_status()	
 
 
@@ -161,7 +162,7 @@ def download_file(input_file):
 		with open(input_file, 'wb') as f:
 			#for chunk in r.iter_content(chunk_size=58192): 
 			#	f.write(chunk)
-			f.write(r.json()['content'])
+			f.write(base64.b64decode(r.json()['content'])
 
 
 def heatbeat_loop(stop_heartbeat, worker_id, task_id):

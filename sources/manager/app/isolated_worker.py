@@ -299,7 +299,7 @@ def fly_machine_janitor():
 				for _,v in workers.items():
 					log.debug('worker %s', v)
 
-				machines = list_machines()
+				machines = fly_machines.values()
 
 				started_machines = [m for m in machines if m['state'] not in ['stopped']]
 
