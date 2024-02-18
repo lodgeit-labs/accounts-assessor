@@ -148,17 +148,17 @@ def call_prolog(
 		log.warn(ret)
 		return ret, []
 	else:
-		log.debug()
+		log.debug('')
 		log.debug("invoke_rpc: prolog stdout:")
 		log.debug(stdout_data)
 		log.debug("invoke_rpc: end of prolog stdout.")
-		log.debug()
+		log.debug('')
 		try:
 			rrr = json.loads(stdout_data)
 			return rrr, files_in_dir_recursive(worker_tmp_path)
 		except json.decoder.JSONDecodeError as e:
 			log.warn('invoke_rpc: %s', e)
-			log.debug()
+			log.debug('')
 			return {'status':'error', 'message': f'invoke_rpc: {e}'}, []
 
 

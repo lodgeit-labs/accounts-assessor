@@ -295,7 +295,7 @@ async def get_file(request: Request, worker_id: str, data: dict):
 		if path in worker.task.input_files:
 			with open(path, 'rb') as f:
 				# todo, not sure if we can send any bytes here
-				return f.read()
+				return {'content':f.read()}
 		else:
 			raise Exception('{path=} not in {worker.task.input_files=}')
 	else:
@@ -314,7 +314,7 @@ async def put_file(request: Request, worker_id: str, data: dict):
 	if worker.task:
 		if worker.task.output_path and (path.parent == worker.task.output_path):
 			with open(path, 'wb') as f:
-				f.write(file['content'])
+				f.write(data['content'])
 			return 'ok'
 		else:
 			raise Exception('file not in worker.task.output_path')

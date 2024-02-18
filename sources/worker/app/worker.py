@@ -112,7 +112,7 @@ def work_loop():
 			except Exception as e:
 				# this shouldn't happen, might as well let it crash, but whatever. But it's actually how we catch exceptions from do_task currently, not sure how that should be handled correctly, we should probably regard that as an exceptional case, retriable, as opposed to known exceptions that an actual task might convert into a failure result.
 				# iow, whatever we failed that we catch here (or should catch around to_task, manager is gonna give the task to us again right away. Gonna happen a few times until it raises worker_died?
-				log.info('worker %s get exception %s', worker_id, e)
+				log.warn('worker %s get exception %s', worker_id, e)
 				time.sleep(5)
 			# except e:
 			# 	log.exception('worker %s get exception', worker_id)
@@ -159,8 +159,9 @@ def download_file(input_file):
 		r.raise_for_status()
 		os.makedirs(os.path.dirname(input_file), exist_ok=True)
 		with open(input_file, 'wb') as f:
-			for chunk in r.iter_content(chunk_size=58192): 
-				f.write(chunk)
+			#for chunk in r.iter_content(chunk_size=58192): 
+			#	f.write(chunk)
+			f.write(r.json()['content'])
 
 
 def heatbeat_loop(stop_heartbeat, worker_id, task_id):
