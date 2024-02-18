@@ -284,7 +284,7 @@ async def shutdown():
 
 
 @app.post("/worker/{worker_id}/get_file")
-async def get_file(request: Request, worker_id: str, data: str):
+async def get_file(request: Request, worker_id: str, data: dict):
 	"""
 	Worker calls this to get a file from manager. The file is in manager's filesystem, and the worker needs to download it.
 	"""
@@ -304,7 +304,7 @@ async def get_file(request: Request, worker_id: str, data: str):
 
 
 @app.post("/worker/{worker_id}/put_file")
-async def put_file(request: Request, worker_id: str, file: dict):
+async def put_file(request: Request, worker_id: str, data: dict):
 	"""
 	Worker calls this to put a file in manager's filesystem. The file is in worker's filesystem, and the manager needs to download it.
 	"""

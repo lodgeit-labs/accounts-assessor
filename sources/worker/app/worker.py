@@ -1,3 +1,4 @@
+import urllib
 import uuid
 from pathlib import Path
 
@@ -46,7 +47,7 @@ host2 = subprocess.check_output(['hostname'], text=True).strip()
 if host != host2:
 	log.warn(f'hostnames differ: {host=} {host2=}')
 worker_id = host + '-' + str(os.getpid()) + '-' + uuid.uuid4().hex
-api_url = os.environ['MANAGER_URL'] + f'/worker/{worker_id}/'
+api_url = os.environ['MANAGER_URL'] + f'/worker/' + urllib.parse.quote(worker_id, safe='') + '/'
 
 
 
@@ -154,7 +155,7 @@ def do_task(task):
 
 
 def download_file(input_file):
-	with session.post(api_url + 'get_file', json=dict(file=input_file)) as r:
+	with session.post(api_url + 'get_file', json=dict(path=input_file)) as r:
 		r.raise_for_status()
 		os.makedirs(os.path.dirname(input_file), exist_ok=True)
 		with open(input_file, 'wb') as f:
