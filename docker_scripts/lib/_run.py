@@ -198,7 +198,7 @@ def cli():
 
 @click.option('-wg', '--WORKER_GRACE_PERIOD', 'WORKER_GRACE_PERIOD', type=int, default=100, help='')
 
-@click.option('-fl', '--FLY', 'FLY', type=bool, default=False, help='manage worker fly.io machines')
+@click.option('-fl', '--fly', 'fly', type=bool, default=False, help='manage worker fly.io machines')
 
 
 #@click.option('-xs', '--xpce_scale', 'xpce_scale', type=real, default=1, help='XPCE UI scale')
@@ -249,7 +249,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	hn = choices['use_host_network']
 
 	e = {
-		'FLY': str(choices['FLY']),
+		'FLY': str(choices['fly']),
 		"WORKER_GRACE_PERIOD": str(choices['WORKER_GRACE_PERIOD']),
 		"WORKER_PROCESSES": str(choices['worker_processes']),
 		'MANAGER_URL': choices['manager_url'],
@@ -265,10 +265,9 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
 		'DOWNLOAD_BASTION_URL': 'http://localhost:6457' if hn else 'http://download:6457',
 		'ALL_PROXY': 'http://localhost:3128' if hn else 'http://webproxy:3128',
-
 	}
 
-	del choices['FLY']
+	#del choices['fly']
 	del choices['manager_url']
 	del choices['WORKER_GRACE_PERIOD']
 
@@ -309,7 +308,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
 
-	del choices['worker_processes']
+	#del choices['worker_processes']
 
 	build_options.update({'port_postfix':port_postfix,'mode':hollow})
 	build(offline, **build_options)
@@ -470,7 +469,7 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices, env):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, only_services, secrets_dir, actors_scale, container_startup_sequencing, worker_processes):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, only_services, secrets_dir, actors_scale, container_startup_sequencing, worker_processes, fly):
 
 	res = deepcopy(src)
 	services = res['services']
@@ -505,6 +504,13 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 				v['network_mode'] = 'host'
 			else:
 				v['networks'] = ['hostnet']
+
+		if not fly and 'secrets' in v:
+			try:
+				v['secrets'].remove('FLYCTL_API_TOKEN')
+			except ValueError:
+				pass
+
 
 	if compose:
 		del res['networks']

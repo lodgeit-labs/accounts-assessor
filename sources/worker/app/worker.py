@@ -28,6 +28,15 @@ session.trust_env = False
 #session.timeout = (100,1000)
 #session.retry = 30
 connection_error_sleep_secs = 1
+unused_cpu_cores = 1
+
+
+
+def unused_cpu_cores_loop():
+	global unused_cpu_cores
+	while True:
+		unused_cpu_cores = get_unused_cpu_cores()
+		time.sleep(30)
 
 
 
@@ -58,7 +67,7 @@ def work_loop():
 				worker_info = dict(
 					procs=['call_prolog', 'arelle'],
 					#host_cores=os.cpu_count(),
-					host_cores=get_unused_cpu_cores(),
+					host_cores=unused_cpu_cores,
 					host=host
 				)
 
