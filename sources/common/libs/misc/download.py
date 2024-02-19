@@ -1,9 +1,23 @@
+from pathlib import Path
+
+from pydantic import BaseModel
+
+
+class DownloadRequest(BaseModel):
+	url: str
+	dir: str
+	filename_hint: str = 'file'
+	disallowed_filenames: list[str] = ['.htaccess']
+
 
 #@app.post("/get_file_from_url_into_dir")
-async def get_file_from_url_into_dir(url: str, dir: str, filename_hint='file', disallowed_filenames=['.htaccess']):
-
+async def get_file_from_url_into_dir(data: DownloadRequest):
+	url = data.url
+	dir = data.dir
+	filename_hint = data.filename_hint
+	disallowed_filenames = data.disallowed_filenames
+	
 	log.info(f"get {url=}")
-
 	url = correct_onedrive_url(url)
 
 	try:
