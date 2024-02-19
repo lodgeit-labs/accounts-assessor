@@ -10,6 +10,9 @@ import logging, threading, subprocess, os, requests, sys, time
 
 from app.host import get_unused_cpu_cores
 
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
+from fs_utils import file_to_json, json_to_file
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 #log.addHandler(logging.StreamHandler())
@@ -49,6 +52,7 @@ if host != host2:
 	log.warn(f'hostnames differ: {host=} {host2=}')
 worker_id = host + '-' + str(os.getpid()) + '-' + uuid.uuid4().hex
 api_url = os.environ['MANAGER_URL'] + f'/worker/' + urllib.parse.quote(worker_id, safe='') + '/'
+shutdown_event = threading.Event()
 
 
 
@@ -62,8 +66,8 @@ def work_loop():
 	
 		task_result = None
 		cycles = 0
-		while True:
-		
+		while not shutdown_event.is_set():
+			
 			try:
 				cycles += 1
 
@@ -111,22 +115,17 @@ def work_loop():
 				time.sleep(connection_error_sleep_secs)
 				connection_error_sleep_secs = min(60, connection_error_sleep_secs * 2)
 			except Exception as e:
-				# this shouldn't happen, might as well let it crash, but whatever. But it's actually how we catch exceptions from do_task currently, not sure how that should be handled correctly, we should probably regard that as an exceptional case, retriable, as opposed to known exceptions that an actual task might convert into a failure result.
-				# iow, whatever we failed that we catch here (or should catch around to_task, manager is gonna give the task to us again right away. Gonna happen a few times until it raises worker_died?
-				log.warn('worker %s get exception %s', worker_id, e)
-				time.sleep(5)
+				""" this shouldn't happen, might as well let it crash, but whatever. But it's actually how we catch exceptions from do_task currently, not sure how that should be handled correctly, we should probably regard that as an exceptional case, retriable, as opposed to known exceptions that an actual task might convert into a failure result.
+				iow, whatever we failed that we catch here (or should catch around to_task, manager is gonna give the task to us again right away. Gonna happen a few times until it raises worker_died?
+				"""
+				log.exception('worker %s get exception %s', worker_id, e)
+				time.sleep(15)
 			# except e:
 			# 	log.exception('worker %s get exception', worker_id)
 			# 	time.sleep(5)
 	
 	finally:
 		log.info(f'{worker_id} end.')
-
-
-def upload_file(output_file):
-	with open(output_file, 'rb') as f:
-		r = session.post(api_url + 'put_file', files=dict(path=output_file,content=base64.b64encode(f.read())))
-		r.raise_for_status()	
 
 
 def do_task(task):
@@ -155,14 +154,18 @@ def do_task(task):
 	return dict(task_id=task.id, result=result[0])
 
 
+
+def upload_file(output_file):
+	r = session.post(api_url + 'put_file', json=file_to_json(output_file))
+	r.raise_for_status()
+
+
 def download_file(input_file):
 	with session.post(api_url + 'get_file', json=dict(path=input_file)) as r:
 		r.raise_for_status()
+		r = r.json()
 		os.makedirs(os.path.dirname(input_file), exist_ok=True)
-		with open(input_file, 'wb') as f:
-			#for chunk in r.iter_content(chunk_size=58192): 
-			#	f.write(chunk)
-			f.write(base64.b64decode(r.json()['content']))
+		json_to_file(r['content'], input_file)
 
 
 def heatbeat_loop(stop_heartbeat, worker_id, task_id):
@@ -176,9 +179,6 @@ def heatbeat_loop(stop_heartbeat, worker_id, task_id):
 			r.raise_for_status()
 		except e:
 			log.exception('worker %s get exception', worker_id)
-
-
-
 
 
 

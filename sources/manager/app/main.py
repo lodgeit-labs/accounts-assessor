@@ -36,6 +36,7 @@ import time, asyncio
 from typing import Optional
 from fastapi.security import OAuth2PasswordBearer
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
+from fs_utils import file_to_json, json_to_file
 from tasking import remoulade
 from fastapi import FastAPI, Request, Depends, HTTPException
 from app.isolated_worker import *
@@ -288,14 +289,12 @@ async def get_file(request: Request, worker_id: str, data: dict):
 	"""
 	Worker calls this to get a file from manager. The file is in manager's filesystem, and the worker needs to download it.
 	"""
-	log.debug('get_file %s', data)
-	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	path = data['path']
+	log.debug('get_file %s', path)
+	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	if worker.task:
 		if path in worker.task.input_files:
-			with open(path, 'rb') as f:
-				# todo, not sure if we can send any bytes here
-				return {'content':base64.b64encode(f.read())}
+			return file_to_json(path)
 		else:
 			raise Exception('{path=} not in {worker.task.input_files=}')
 	else:
@@ -308,16 +307,20 @@ async def put_file(request: Request, worker_id: str, data: dict):
 	"""
 	Worker calls this to put a file in manager's filesystem. The file is in worker's filesystem, and the manager needs to download it.
 	"""
-	log.debug('put_file %s', file)
+	path: PosixPath = PosixPath(data['path'])
+	log.debug('put_file %s', path)
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
-	path: PosixPath = PosixPath(file['path'])
+	
 	if worker.task:
 		if worker.task.output_path and (path.parent == worker.task.output_path):
-			with open(path, 'wb') as f:
-				f.write(base64.b64decode(data['content']))
+			json_to_file(data['content'], path)
 			return 'ok'
 		else:
 			raise Exception('file not in worker.task.output_path')
 	else:
 		raise Exception('worker has no task')
 		
+
+@app.post("/worker/{worker_id}/exchange_rates")
+async def exchange_rates(request: Request, worker_id: str, data: dict):
+	pass

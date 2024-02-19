@@ -400,6 +400,14 @@ def list_machines():
 			for machine in r:
 				fly_machines[machine['id']] = {}
 				fly_machines[machine['id']].update(machine)
+			
+			rr = {}
+			for machine in r:
+				rr[machine['id']] = machine
+				
+			for fly_machine in fly_machines.keys():
+				if fly_machine not in rr:
+					del fly_machines[fly_machine]
 	
 
 if fly:

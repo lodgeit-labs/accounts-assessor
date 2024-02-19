@@ -86,6 +86,12 @@ app = FastAPI(
 
 
 
+@app.on_event("shutdown")
+async def shutdown():
+	worker.shutdown_event.set()
+
+
+
 worker_thread = None
 async def start_worker_if_not_running():
 	global worker_thread

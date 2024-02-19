@@ -408,7 +408,7 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 						'<message>' + '. '.join(reports['alerts']) + '</message>' +
 						taskdir +
 						'</error>')
-				return PlainTextResponse(error_xml_text, status_code=500), error_xml_text
+				return PlainTextResponse(exrror_xml_text, status_code=500), error_xml_text
 			# div7a 'result' xml
 			result_xml_report = find_report_by_key(reports['reports'], 'result')
 			if result_xml_report is None:

@@ -1,6 +1,7 @@
 """
 general-purpose filesystem utilities
 """
+import base64
 import glob,os
 import os.path, sys
 import pathlib
@@ -126,4 +127,10 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 # 			print(f'tgt:{tgt}')
 # 			os.rename(file, tgt)
 
+def file_to_json(path):
+	with open(path, 'rb') as f:
+		return dict(path=str(path), content=base64.b64encode(f.read()).decode('utf-8'))
 
+def json_to_file(content, path):
+	with open(path, 'wb') as f:
+		f.write(base64.b64decode(content))
