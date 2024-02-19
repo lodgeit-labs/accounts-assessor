@@ -197,6 +197,10 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 				"json": json.dumps(job, indent=4, sort_keys=True), 
 				"refresh": (job.get('status') not in [ 'Success']), 
 				'status': job.get('status', 'internal error')})
+	
+	else:
+		return PlainTextResponse(f'job {job_id=} not found', status_code=404)	
+	
 
 
 def write_mem_stuff(message_id):

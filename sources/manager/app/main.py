@@ -316,7 +316,7 @@ async def put_file(request: Request, worker_id: str, data: dict):
 			json_to_file(data['content'], path)
 			return 'ok'
 		else:
-			raise Exception('file not in worker.task.output_path')
+			raise Exception('{path=} not under {worker.task.output_path=}')
 	else:
 		raise Exception('worker has no task')
 		
