@@ -3,6 +3,8 @@ import urllib
 import uuid
 from pathlib import Path
 
+import urllib3.exceptions
+
 from app import call_prolog
 
 
@@ -107,13 +109,13 @@ def work_loop():
 						stop_heartbeat.set()
 	
 			except requests.exceptions.ReadTimeout:
-				# this is the normal case, happens when we get no task for a while. But not that this also catches exceptions from do_task.
+				# this is the normal case, happens when we get no task for a while. But note that this also catches exceptions from do_task.
 				log.debug('worker %s work_loop: read timeout', worker_id)
-			except requests.exceptions.HTTPError as e:
+			except (requests.exceptions.HTTPError, urllib3.exceptions.MaxRetryError, urllib3.exceptions.ConnectionError) as e:
 				# manager server is down, or somesuch
 				log.debug('worker %s work_loop: %s', worker_id, e)
 				time.sleep(connection_error_sleep_secs)
-				connection_error_sleep_secs = min(60, connection_error_sleep_secs * 2)
+				connection_error_sleep_secs = min(60, connection_error_sleep_secs * 1.2)
 			except Exception as e:
 				""" this shouldn't happen, might as well let it crash, but whatever. But it's actually how we catch exceptions from do_task currently, not sure how that should be handled correctly, we should probably regard that as an exceptional case, retriable, as opposed to known exceptions that an actual task might convert into a failure result.
 				iow, whatever we failed that we catch here (or should catch around to_task, manager is gonna give the task to us again right away. Gonna happen a few times until it raises worker_died?
