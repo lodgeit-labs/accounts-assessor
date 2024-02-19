@@ -190,3 +190,11 @@ def heartbeat_loop(stop_heartbeat, worker_id, task_id):
 			log.exception('worker %s get exception', worker_id)
 
 
+def manager_post(path, json):
+	r = session.post(
+			api_url + path, 
+			json=json
+	)
+	r.raise_for_status()
+	return r.json()
+	

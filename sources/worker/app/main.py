@@ -182,3 +182,6 @@ def post_div7a(loan_summary_request: dict):
 app.post("/get_file_from_url_into_dir")(download.get_file_from_url_into_dir)
 
 
+@app.get('/exchange_rates/{date}')
+def get_exchange_rates(date: str):
+	return worker.manager_post('exchange_rates', dict(date=date))

@@ -329,6 +329,6 @@ async def put_file(request: Request, worker_id: str, data: dict):
 
 import exchange_rates
 
-@app.get("/exchange_rates/{date}")
-def get(date: str):
-	return exchange_rates.get_rates(date)
+@app.post("/worker/{worker_id}/exchange_rates")
+def get(worker_id: str, data: dict):
+	return exchange_rates.get_rates(data['date'])

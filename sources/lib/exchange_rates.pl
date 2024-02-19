@@ -57,7 +57,8 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 	
 	%string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
 	%string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
-	atomic_list_concat([$>manager_url(<$), '/exchange_rates/', Date_Str], Query_Url),
+	%atomic_list_concat([$>manager_url(<$), '/exchange_rates/', Date_Str], Query_Url),
+	atomic_list_concat(['http://localhost:1111/exchange_rates/', Date_Str], Query_Url),
 	
 	format(user_error, '~w ...', [Query_Url]),
 	catch(
