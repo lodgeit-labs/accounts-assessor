@@ -65,7 +65,7 @@ def do_untrusted_task(task: Task):
 	log.debug('actor block on task.results.get()..')
 
 	result = task.results.get()
-	log.debug('do_untrusted_task: result: %s', result)
+	log.debug('do_untrusted_task result: %s', result)
 
 	if 'error' in result:
 		return result

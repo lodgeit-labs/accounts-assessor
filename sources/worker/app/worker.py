@@ -153,7 +153,7 @@ def do_task(task):
 		for output_file in result[1]:
 			upload_file(output_file)
 			
-	log.info('task %s done', task.id)
+	log.info('task done: %s', task.id)
 	
 	return dict(task_id=task.id, result=result[0])
 

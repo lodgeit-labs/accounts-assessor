@@ -20,6 +20,6 @@ primary_region = 'mad'
     path = '/health'
 
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
+  memory = '8gb'
+  cpu_kind = 'performance'
   cpus = 1
