@@ -26,7 +26,7 @@ def start_machine(machine):
 	cmd = f'{flyctl()} machines start {machine["id"]}'
 	log.debug(cmd)
 	subprocess.run(cmd, shell=True)
-	fly_machines[machine['id']] = dict(started=datetime.datetime.now(), machine=machine)
+	fly_machines[machine['id']] = machine | dict(state='starting', started=datetime.datetime.now())
 
 
 

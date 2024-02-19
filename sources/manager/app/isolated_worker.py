@@ -25,10 +25,14 @@ log.debug("debug isolated_worker.py")
 fly = os.environ.get('FLY', False) == 'True'
 log.info(f'{fly=}')
 workers = {}
-workers_lock = threading.Lock()
-workers_lock_msg = None
 pending_tasks = []
 heartbeat_interval = 10
+
+workers_lock = threading.Lock()
+workers_lock_msg = None
+
+fly_machines_lock = threading.Lock()
+fly_machines_lock_msg = None
 
 
 
@@ -89,6 +93,26 @@ def wl(message):
 		logging.getLogger('workers_lock').debug('wl release from: %s', message)
 		workers_lock_msg = None
 		workers_lock.release()
+
+
+
+@contextmanager
+def fl(message):
+	global fly_machines_lock_msg
+	try:
+		while True:
+			if fly_machines_lock_msg:
+				logging.getLogger('fly_machines_lock').debug('wl wait on: %s', fly_machines_lock_msg)
+			if fly_machines_lock.acquire(timeout=10):
+				break
+	
+		fly_machines_lock_msg = message
+		yield
+	finally:
+		logging.getLogger('fly_machines_lock').debug('wl release from: %s', message)
+		fly_machines_lock_msg = None
+		fly_machines_lock.release()
+
 
 
 
@@ -291,65 +315,69 @@ def fly_machine_janitor():
 	while True:
 		try:
 			with wl('fly_machine_janitor'):
-				log.debug(f'{len(pending_tasks)=}')
-				for v in pending_tasks:
-					log.debug('task %s', v)
-
-				log.debug(f'{len(workers)=} :>')
-				for _,v in workers.items():
-					log.debug('worker %s', v)
-
-				machines = fly_machines.values()
-
-				started_machines = [m for m in machines if m['state'] not in ['stopped']]
-
-				fly_workers = [m['worker'] for m in started_machines]
-
-				for task in pending_tasks:
-					try_assign_any_worker_to_task(task, fly_workers)
-
-				active_tasks = sum(1 for _,worker in workers.items() if worker.task)
-				num_tasks = len(pending_tasks) + active_tasks
-				num_started_machines = len(started_machines)
-
-				log.debug(f'fly_machine_janitor: {len(pending_tasks)=}, {active_tasks=}, num_tasks={num_tasks}, num_started_machines={num_started_machines}')
-
-				# this bit needs to be enhanced if we want to support multiple sizes of workers.
-				# for task in pending_tasks, if there are no free machines of right size, we should start a new machine of that size.
-				if num_tasks > num_started_machines:
-					log.debug('looking for machines to start')
+				with fl('fly_machine_janitor'):
+					log.debug(f'{len(pending_tasks)=}')
+					for v in pending_tasks:
+						log.debug('task %s', v)
+	
+					log.debug(f'{len(workers)=}:')
+					for _,v in workers.items():
+						log.debug('worker %s', v)
+	
+					machines = fly_machines.values()
+	
+					started_machines = [m for m in machines if m['state'] not in ['stopped']]
+	
+					fly_workers = [m['worker'] for m in started_machines]
+	
+					for task in pending_tasks:
+						try_assign_any_worker_to_task(task, fly_workers)
+	
+					active_tasks = sum(1 for _,worker in workers.items() if worker.task)
+					num_tasks = len(pending_tasks) + active_tasks
+					num_started_machines = len(started_machines)
+	
+					log.debug(f'fly_machine_janitor: {len(pending_tasks)=}, {active_tasks=}, num_tasks={num_tasks}, num_started_machines={num_started_machines}')
+	
+					# this bit needs to be enhanced if we want to support multiple sizes of workers:
+					# for task in pending_tasks, if there are no free machines of right size, we should start a new machine of that size.
+					# it should also be enhanced to pre-assign tasks to machines, so that we can be starting more than one machine at a time.
+					if num_tasks > num_started_machines:
+						log.debug('looking for machines to start')
+						for machine in machines:
+							if machine['state'] not in ['started', 'starting']:
+								start_machine(machine)
+								break
+	
+					log.debug('looking for machines to stop')
 					for machine in machines:
-						if machine['state'] not in ['started', 'starting']:
-							start_machine(machine)
-							break
-
-				#elif num_tasks < num_started_machines:
-				log.debug('looking for machines to stop')
-				for machine in machines:
-					worker = machine['worker']
-					log.debug(f'{machine["id"]} {machine["state"]}, {worker=}')
-					if machine['state'] in ['started']:
-						# never stop a machine with a task
-						if worker and not worker.task:
-							stop_machine(machine)
-							break
-						elif not worker:
-							# give the machine some time to register with manager
-							if datetime.datetime.now() - server_started_time > datetime.timedelta(minutes=1):
-								# we didnt start it, maybe previous instance of manager started it, or it was started on fly deploy or manually..
-								if machine['id'] not in fly_machines:
-									stop_machine(machine)
-									break
-								# we started it, and it's not registering with manager
-								started = fly_machines[machine['id']].get('started', None)
-								if started is None or datetime.datetime.now() - started > datetime.timedelta(minutes=3):
-									stop_machine(machine)
-									break
+						worker = machine['worker']
+						log.debug(f'{machine["id"]} {machine["state"]}, {worker=}')
+						if machine['state'] in ['started']:
+							# never stop a machine with a task
+							if worker and not worker.task:
+								stop_machine(machine)
+								break
+							elif not worker:
+								# give the machine some time to register with manager
+								if datetime.datetime.now() - server_started_time > datetime.timedelta(minutes=1):
+									# we didnt start it, maybe previous instance of manager started it, or it was started on fly deploy or manually..
+									if machine['id'] not in fly_machines:
+										stop_machine(machine)
+										break
+									# we started it, and it's not registering with manager
+									started = fly_machines[machine['id']].get('started', None)
+									if started is None or datetime.datetime.now() - started > datetime.timedelta(minutes=3):
+										stop_machine(machine)
+										break
 
 		except Exception as e:
 			log.exception(e)
 
 		time.sleep(10)
+
+
+
 
 if fly:
 	threading.Thread(target=fly_machine_janitor, daemon=True).start()
@@ -358,18 +386,24 @@ if fly:
 
 
 def list_machines():
-	r = sorted(json.loads(subprocess.check_output(f'{flyctl()} machines list --json', shell=True)), key=lambda x: x['id'])
-	for machine in r:
-		machine['created_at'] = datetime.datetime.strptime(machine['created_at'], '%Y-%m-%dT%H:%M:%SZ')
+	while True:
+		with fl('fly_machine_janitor'):
+			r = sorted(json.loads(subprocess.check_output(f'{flyctl()} machines list --json', shell=True)), key=lambda x: x['id'])
+			for machine in r:
+				#machine['created_at'] = datetime.datetime.strptime(machine['created_at'], '%Y-%m-%dT%H:%M:%SZ')
+				machine['worker'] = None
+				for _,worker in workers.items():
+					if worker.info.get('host') == machine['id']:
+						machine['worker'] = worker
+		
+			fly_machines.clear()
+			for machine in r:
+				fly_machines[machine['id']] = {}
+				fly_machines[machine['id']].update(machine)
+	
 
-		machine['worker'] = None
-		for _,worker in workers.items():
-			if worker.info.get('host') == machine['id']:
-				machine['worker'] = worker
-
-	return r
-
-
+if fly:
+	threading.Thread(target=list_machines, daemon=True).start()
 
 
 

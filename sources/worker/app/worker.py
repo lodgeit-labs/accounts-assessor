@@ -162,7 +162,7 @@ def download_file(input_file):
 		with open(input_file, 'wb') as f:
 			#for chunk in r.iter_content(chunk_size=58192): 
 			#	f.write(chunk)
-			f.write(base64.b64decode(r.json()['content'])
+			f.write(base64.b64decode(r.json()['content']))
 
 
 def heatbeat_loop(stop_heartbeat, worker_id, task_id):
