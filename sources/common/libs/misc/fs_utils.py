@@ -128,7 +128,7 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 # 			os.rename(file, tgt)
 
 def file_to_json(path):
-	if path.is_symlink():
+	if pathlib.Path(path).is_symlink():
 		return dict(path=str(path), symlink_target=path.readlink())
 	else:
 		with open(path, 'rb') as f:
