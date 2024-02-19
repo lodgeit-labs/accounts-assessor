@@ -54,3 +54,19 @@ def run_fix(fix):
 
 if __name__ == '__main__':
 	main()
+
+
+
+# def dirs_fixup():
+# 	"""walk testcase dirs and do some stuff"""
+# 	suite = P('../../tests2/endpoint_tests/')
+# 	for d in robust_testcase_dirs(suite):
+# 		print(f'testcase:{d}')
+# 		newdir = str(suite / d / 'request')
+# 		print(f'newdir: {newdir}')
+# 		makedirs(newdir, exist_ok=True)
+# 		for file in listfiles(suite / d):
+# 			print(f'request file:{file}')
+# 			tgt = str(suite / d / 'request' / os.path.basename(file))
+# 			print(f'tgt:{tgt}')
+# 			os.rename(file, tgt)

@@ -113,23 +113,10 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 
 
 
-# def dirs_fixup():
-# 	"""walk testcase dirs and do some stuff"""
-# 	suite = P('../../tests2/endpoint_tests/')
-# 	for d in robust_testcase_dirs(suite):
-# 		print(f'testcase:{d}')
-# 		newdir = str(suite / d / 'request')
-# 		print(f'newdir: {newdir}')
-# 		makedirs(newdir, exist_ok=True)
-# 		for file in listfiles(suite / d):
-# 			print(f'request file:{file}')
-# 			tgt = str(suite / d / 'request' / os.path.basename(file))
-# 			print(f'tgt:{tgt}')
-# 			os.rename(file, tgt)
 
 def file_to_json(path):
 	if pathlib.Path(path).is_symlink():
-		return dict(path=str(path), symlink_target=path.readlink())
+		return dict(path=str(path), symlink_target=str(path.readlink()))
 	else:
 		with open(path, 'rb') as f:
 			return dict(path=str(path), content=base64.b64encode(f.read()).decode('utf-8'))
