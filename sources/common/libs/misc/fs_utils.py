@@ -122,12 +122,14 @@ def file_to_json(path):
 			return dict(path=str(path), content=base64.b64encode(f.read()).decode('utf-8'))
 
 def json_to_file(data, path):
+	path = pathlib.Path(path)
+	path.parent.mkdir(parents=True, exist_ok=True)
 	if 'symlink_target' in data:
 		try:
-			os.unlink(data['path'])
+			os.unlink(path)
 		except FileNotFoundError:
 			pass			
-		os.symlink(data['symlink_target'], data['path'])
+		os.symlink(data['symlink_target'], path)
 	else:
 		with open(path, 'wb') as f:
 			f.write(base64.b64decode(data['content']))

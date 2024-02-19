@@ -111,7 +111,7 @@ def work_loop():
 			except requests.exceptions.ReadTimeout:
 				# this is the normal case, happens when we get no task for a while. But note that this also catches exceptions from do_task.
 				log.info('worker %s work_loop: read timeout', worker_id)
-			except (requests.exceptions.HTTPError, urllib3.exceptions.MaxRetryError, urllib3.exceptions.ConnectionError, urllib3.exceptions.NewConnectionError) as e:
+			except (requests.exceptions.HTTPError, urllib3.exceptions.MaxRetryError, urllib3.exceptions.ConnectionError, urllib3.exceptions.NewConnectionError, urllib3.exceptions.ProtocolError) as e:
 				# manager server is down, or somesuch
 				log.info('worker %s work_loop: %s', worker_id, e)
 				time.sleep(connection_error_sleep_secs)
