@@ -34,6 +34,7 @@ workers_lock_msg = None
 fly_machines_lock = threading.Lock()
 fly_machines_lock_msg = None
 
+fly_machine_janitor_poke = threading.Event()
 
 
 class Worker:
@@ -199,6 +200,7 @@ def synchronization_thread():
 						else:
 							log.debug(f'pending_tasks.append({e.task})')
 							pending_tasks.append(e.task)
+							fly_machine_janitor_poke.set()
 
 				elif e.type == 'forget_worker':
 					if e.worker.task:
@@ -376,7 +378,8 @@ def fly_machine_janitor():
 		except Exception as e:
 			log.exception(e)
 
-		time.sleep(10)
+		fly_machine_janitor_poke.get(timeout=30)
+		fly_machine_janitor_poke.clear()
 
 
 

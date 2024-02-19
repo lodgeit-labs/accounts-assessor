@@ -164,14 +164,15 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 			#log.debug(f'{time_since_task_sent_to_worker=}')
 			if time_since_task_sent_to_worker > datetime.timedelta(seconds=15):
 				# grace period, because in the loop below, we may think that we sent a response with task, but the worker might have been already disconnected. But we only record task_given_ts the first time we relay the task, so, if a worker keeps disconnecting, we eventually ...do...something?
-				log.warn(f"""{worker.id} should be working on {worker.
+				log.warning(f"""{worker.id} should be working on {worker.
 						 task_id} and sending heartbeats, but it's coming back without result... {time_since_task_sent_to_worker=}""")
 				# there doesnt seem much point in purging it, because it will just come back again. The situation here implies a programming error or a problem with network / oom / etc..
 				#put_event(dict(type='forget_worker', worker=worker))
 		else:
 			put_event(dict(type='worker_available', worker=worker))
-			# give synchronization_thread some time to assign task to worker. todo this doesn't need to happen in a separate thread, can happen synchronously.
-			await asyncio.sleep(2)
+			# give synchronization_thread some time to assign task to worker. 
+			# todo: handling worker_available doesn't need to happen in a separate thread, it could happen synchronously.
+			await asyncio.sleep(0.05)
 
 
 	counter = 0

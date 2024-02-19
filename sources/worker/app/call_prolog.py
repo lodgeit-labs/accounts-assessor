@@ -69,8 +69,8 @@ def call_prolog(
 	worker_options = default_options | config | worker_options
 
 
-	logging.getLogger().info('worker_options: ' + str(worker_options))
-	logging.getLogger().info('msg: ' + str(msg))
+	log.info('worker_options: ' + str(worker_options))
+	log.info('msg: ' + str(msg))
 
 	sys.stdout.flush()
 	sys.stderr.flush()

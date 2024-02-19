@@ -27,12 +27,12 @@ import robust_sdk.xml2rdf
 # 	return call_prolog_calculator.send_with_options(kwargs=kwargs)
 
 
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
-log.addHandler(logging.StreamHandler(sys.stderr))
+log.debug("debug manager_actors.py")
 
 
-log.debug("hello from manager_actors.py")
 
 @remoulade.actor(alternative_queues=["health"], priority=1)
 def call_prolog_rpc(msg, worker_options=None):
@@ -58,7 +58,7 @@ def call_prolog_calculator(
 	request_format=None,
 	xlsx_extraction_rdf_root="ic_ui:investment_calculator_sheets"
 ):
-	log.debug('manager_actors: call_prolog_calculator: ...')
+	log.debug('manager_actors: call_prolog_calculator(%s, %s, %s, %s, %s)' % (request_directory, public_url, worker_options, request_format, xlsx_extraction_rdf_root))
 
 	# create a tmp directory for results files created by this invocation of the calculator
 	result_tmp_directory_name, result_tmp_directory_path = create_tmp_for_user(worker_options['user'])
@@ -124,7 +124,7 @@ def preprocess_request_files(files, xlsx_extraction_rdf_root):
 	return list(filter(None, map(lambda f: preprocess_request_file(xlsx_extraction_rdf_root, f), files)))
 
 def preprocess_request_file(xlsx_extraction_rdf_root, file):
-	logging.getLogger().info('convert_request_file?: %s' % file)
+	log.info('convert_request_file?: %s' % file)
 
 	if file.endswith('/.access'):
 		return None # hide the file from further processing
@@ -137,12 +137,14 @@ def preprocess_request_file(xlsx_extraction_rdf_root, file):
 		converted_dir = make_converted_dir(file)
 		converted_file = robust_sdk.xml2rdf.Xml2rdf().xml2rdf(file, converted_dir)
 		if converted_file is not None:
+			log.info('converted_file: %s' % converted_file)
 			return converted_file
 			
 	if file.lower().endswith('.xlsx'):
 		converted_dir = make_converted_dir(file)
 		converted_file = str(converted_dir.joinpath(str(PurePath(file).name) + '.n3'))
 		convert_excel_to_rdf(file, converted_file, root=xlsx_extraction_rdf_root)
+		log.info('converted_file: %s' % converted_file)
 		return converted_file
 	
 	return file
@@ -152,7 +154,7 @@ def convert_excel_to_rdf(uploaded, to_be_processed, root):
 	"""run a POST request to csharp-services to convert the file.
 	We should really turn csharp-services into an untrusted worker at some point.	
 	"""
-	logging.getLogger().info('xlsx_to_rdf: %s -> %s' % (uploaded, to_be_processed))
+	log.info('xlsx_to_rdf: %s -> %s' % (uploaded, to_be_processed))
 	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": root, "input_fn": str(uploaded), "output_fn": str(to_be_processed)}).raise_for_status()
 
 

@@ -8,6 +8,10 @@
       <excludeFolder url="file://$MODULE_DIR$/super-bowl" />
       <excludeFolder url="file://$MODULE_DIR$/wait-for-it" />
       <excludeFolder url="file://$MODULE_DIR$/static" />
+      <excludeFolder url="file://$MODULE_DIR$/common/libs/sdk/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/frontend/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/manager/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/worker/venv" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
