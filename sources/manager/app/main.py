@@ -48,14 +48,17 @@ import app.machine
 
 
 logging.basicConfig()
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 log.debug('debug main.py')
+log.warning('warn main.py')
 #log.addHandler(logging.StreamHandler(sys.stderr))
 
 loop_log = logging.getLogger('loop')
 loop_log.setLevel(logging.INFO)
 loop_log.debug('debug loop')
+loop_log.warning('warn loop')
 
 #logging.config.fileConfig('logging.yaml', defaults=None, disable_existing_loggers=False, encoding=None)
 
@@ -161,7 +164,7 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 			#log.debug(f'{time_since_task_sent_to_worker=}')
 			if time_since_task_sent_to_worker > datetime.timedelta(seconds=15):
 				# grace period, because in the loop below, we may think that we sent a response with task, but the worker might have been already disconnected. But we only record task_given_ts the first time we relay the task, so, if a worker keeps disconnecting, we eventually ...do...something?
-				loop_log.warn(f"""{worker.id} should be working on {worker.
+				log.warn(f"""{worker.id} should be working on {worker.
 						 task_id} and sending heartbeats, but it's coming back without result... {time_since_task_sent_to_worker=}""")
 				# there doesnt seem much point in purging it, because it will just come back again. The situation here implies a programming error or a problem with network / oom / etc..
 				#put_event(dict(type='forget_worker', worker=worker))

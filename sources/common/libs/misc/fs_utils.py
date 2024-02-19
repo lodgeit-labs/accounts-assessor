@@ -123,6 +123,10 @@ def file_to_json(path):
 
 def json_to_file(data, path):
 	if 'symlink_target' in data:
+		try:
+			os.unlink(data['path'])
+		except FileNotFoundError:
+			pass			
 		os.symlink(data['symlink_target'], data['path'])
 	else:
 		with open(path, 'wb') as f:

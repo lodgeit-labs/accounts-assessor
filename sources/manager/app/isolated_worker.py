@@ -147,10 +147,12 @@ def worker_janitor():
 				if not worker.task:
 					# no task, so we just purge this dummy item from the list
 					if unseen > datetime.timedelta(seconds=heartbeat_interval + 100):
+						log.info('worker_janitor: worker %s has no task, and has not reported back in %s', worker.id, unseen)
 						put_event(dict(type='forget_worker', worker=worker))
 				else:
 					# however, if worker has a task, we should give a configurable grace period for it to report back with result, in some cases, even after prolonged period of disconnection.
 					if unseen > datetime.timedelta(seconds=heartbeat_interval + os.environ.get('WORKER_GRACE_PERIOD', 30)):
+						log.info('worker_janitor: worker %s has task %s, but has not reported back in %s', worker.id, worker.task.id, unseen)
 						put_event(dict(type='forget_worker', worker=worker))
 
 		time.sleep(15)
