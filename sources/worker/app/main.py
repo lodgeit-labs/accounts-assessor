@@ -60,6 +60,7 @@ import logging, traceback
 import os, sys, logging, re, shlex, subprocess, json, threading
 from pydantic.fields import Annotated
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
+import download
 
 # this will run in background thread
 from app import worker
@@ -176,5 +177,8 @@ def post_div7a(loan_summary_request: dict):
 	# 	result = dict(error=traceback_message)
 	log.info(result)
 	return result
+
+
+app.post("/get_file_from_url_into_dir")(download.get_file_from_url_into_dir)
 
 

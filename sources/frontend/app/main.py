@@ -325,7 +325,7 @@ def file_download(url, dir, filename_hint=None, disallowed_filenames=['.htaccess
 	1) seems unnecessary, as download_bastion and/or a webproxy takes care of security
 	2) would add some complexity, as we'd have to (remoulade-)compose that invocation with the rest of the pipeline...
 	"""
-	r = requests.get(os.environ['DOWNLOAD_BASTION_URL'] + '/get_file_from_url_into_dir', params=dict(url=url, dir=dir, filename_hint=filename_hint, disallowed_filenames=disallowed_filenames))
+	r = requests.post(os.environ['DOWNLOAD_BASTION_URL'] + '/get_file_from_url_into_dir', params=dict(url=url, dir=dir, filename_hint=filename_hint, disallowed_filenames=disallowed_filenames))
 	r.raise_for_status()
 	if 'error' in r:
 		raise Exception(r['error'])

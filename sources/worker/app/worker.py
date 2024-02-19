@@ -181,4 +181,3 @@ def heatbeat_loop(stop_heartbeat, worker_id, task_id):
 			log.exception('worker %s get exception', worker_id)
 
 
-
