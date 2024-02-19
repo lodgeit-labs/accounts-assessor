@@ -128,9 +128,17 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 # 			os.rename(file, tgt)
 
 def file_to_json(path):
-	with open(path, 'rb') as f:
-		return dict(path=str(path), content=base64.b64encode(f.read()).decode('utf-8'))
+	if path.is_symlink():
+		return dict(path=str(path), symlink_target=path.readlink())
+	else:
+		with open(path, 'rb') as f:
+			return dict(path=str(path), content=base64.b64encode(f.read()).decode('utf-8'))
 
-def json_to_file(content, path):
-	with open(path, 'wb') as f:
-		f.write(base64.b64decode(content))
+def json_to_file(data, path):
+	if 'symlink_target' in data:
+		os.symlink(data['symlink_target'], data['path'])
+	else:
+		with open(path, 'wb') as f:
+			f.write(base64.b64decode(data['content']))
+
+

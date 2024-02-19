@@ -100,7 +100,7 @@ def work_loop():
 					task = Dotdict(msg['task'])
 	
 					stop_heartbeat = threading.Event()
-					threading.Thread(target=heatbeat_loop, args=(stop_heartbeat, worker_id, task.id), name='heartbeat_loop', daemon=True).start()
+					threading.Thread(target=heartbeat_loop, args=(stop_heartbeat, worker_id, task.id), name='heartbeat_loop', daemon=True).start()
 					try:
 						task_result = do_task(task)
 					finally:
@@ -156,8 +156,10 @@ def do_task(task):
 
 
 def upload_file(output_file):
-	r = session.post(api_url + 'put_file', json=file_to_json(output_file))
+	json=file_to_json(output_file)
+	r = session.post(api_url + 'put_file', json=json)
 	r.raise_for_status()
+
 
 
 def download_file(input_file):
@@ -165,10 +167,11 @@ def download_file(input_file):
 		r.raise_for_status()
 		r = r.json()
 		os.makedirs(os.path.dirname(input_file), exist_ok=True)
-		json_to_file(r['content'], input_file)
+		json_to_file(r, input_file)
 
 
-def heatbeat_loop(stop_heartbeat, worker_id, task_id):
+
+def heartbeat_loop(stop_heartbeat, worker_id, task_id):
 	while True:
 		time.sleep(10)
 		if stop_heartbeat.is_set():

@@ -313,7 +313,7 @@ async def put_file(request: Request, worker_id: str, data: dict):
 	
 	if worker.task:
 		if worker.task.output_path and (path.parent == worker.task.output_path):
-			json_to_file(data['content'], path)
+			json_to_file(data, path)
 			return 'ok'
 		else:
 			raise Exception(f'{path=} not under {worker.task.output_path=}')

@@ -142,11 +142,12 @@ def call_prolog(
 	else:
 		return {'result':'ok'}, []
 
+	of = files_in_dir_recursive(worker_tmp_path)
 
 	if stdout_data in [b'', '']:
-		ret = {'alerts':['invoke_rpc: got no stdout from swipl.']}
+		ret = {'alerts':[f'invoke_rpc: got no stdout from swipl, {p.returncode=}']}
 		log.warn(ret)
-		return ret, []
+		return ret, of
 	else:
 		log.debug('')
 		log.debug("invoke_rpc: prolog stdout:")
@@ -155,7 +156,7 @@ def call_prolog(
 		log.debug('')
 		try:
 			rrr = json.loads(stdout_data)
-			return rrr, files_in_dir_recursive(worker_tmp_path)
+			return rrr, of
 		except json.decoder.JSONDecodeError as e:
 			log.warn('invoke_rpc: %s', e)
 			log.debug('')
