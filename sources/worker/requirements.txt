@@ -1,3 +1,4 @@
+pycurl==7.45.2
 psutil
 sortedcontainers
 pandas
