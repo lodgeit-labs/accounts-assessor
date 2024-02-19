@@ -378,7 +378,7 @@ def fly_machine_janitor():
 		except Exception as e:
 			log.exception(e)
 
-		fly_machine_janitor_poke.get(timeout=30)
+		fly_machine_janitor_poke.wait(timeout=30)
 		fly_machine_janitor_poke.clear()
 
 
