@@ -315,15 +315,17 @@ async def put_file(request: Request, worker_id: str, data: dict):
 	log.debug('put_file %s', path)
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	
-	if worker.task:
-		if worker.task.output_path and (path.parent == worker.task.output_path):
-			json_to_file(data, path)
-			return 'ok'
-		else:
-			raise Exception(f'{path=} not under {worker.task.output_path=}')
-	else:
+	if not worker.task:
 		raise Exception('worker has no task')
-		
+	if not worker.task.output_path:
+		raise Exception('worker.task has no output_path')	
+	try:
+		path.relative_to(worker.task.output_path)
+	except ValueError:
+		raise Exception(f'{path=} not under {worker.task.output_path=}')
+	json_to_file(data, path)
+	return 'ok'
+
 
 @app.post("/worker/{worker_id}/exchange_rates")
 async def exchange_rates(request: Request, worker_id: str, data: dict):
