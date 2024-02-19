@@ -152,12 +152,15 @@ def do_task(task):
 	if remote:
 		for output_file in result[1]:
 			upload_file(output_file)
+			
+	log.info('task %s done', task.id)
 	
 	return dict(task_id=task.id, result=result[0])
 
 
 
 def upload_file(output_file):
+	log.info('upload_file %s', output_file)
 	json=file_to_json(output_file)
 	r = session.post(api_url + 'put_file', json=json)
 	r.raise_for_status()
@@ -165,6 +168,7 @@ def upload_file(output_file):
 
 
 def download_file(input_file):
+	log.info('download_file %s', input_file)
 	with session.post(api_url + 'get_file', json=dict(path=input_file)) as r:
 		r.raise_for_status()
 		r = r.json()
