@@ -9,7 +9,7 @@ import ipaddress
 from urllib.parse import urlparse, unquote
 import socket
 
-
+from pydantic import BaseModel
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
