@@ -1,6 +1,8 @@
 import logging, sys
 import queue
 import uuid
+from pathlib import Path
+
 import requests
 from remoulade.middleware import CurrentMessage
 
@@ -31,7 +33,7 @@ class Task:
 		self.args = args
 		self.worker_options = worker_options
 		self.input_files = input_files
-		self.output_path = output_path
+		self.output_path = Path(output_path)
 		
 		self.results = queue.Queue()
 		

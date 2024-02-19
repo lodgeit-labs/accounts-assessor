@@ -1,6 +1,13 @@
+import logging
 from pathlib import Path
 
 from pydantic import BaseModel
+
+
+
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+
 
 
 class DownloadRequest(BaseModel):

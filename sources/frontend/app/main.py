@@ -327,9 +327,10 @@ def file_download(url, dir, filename_hint=None, disallowed_filenames=['.htaccess
 	"""
 	r = requests.post(os.environ['DOWNLOAD_BASTION_URL'] + '/get_file_from_url_into_dir', json=dict(url=url, dir=dir, filename_hint=filename_hint, disallowed_filenames=disallowed_filenames))
 	r.raise_for_status()
+	r = r.json()
 	if 'error' in r:
 		raise Exception(r['error'])
-	return r.json()['filename']
+	return r['filename']
 
 
 
