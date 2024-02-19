@@ -114,7 +114,10 @@ def call_prolog(
 	goal_opts = ['-g', debug_goal + worker_options['prolog_flags'] + goal + halt_goal]
 
 	if worker_options.get('skip_dev_runner', False):
-		cmd = flatten_lists(['swipl', '-s', sources(entry_file), goal_opts])
+		cmd = flatten_lists([
+			#'/usr/bin/time', '-v', 
+			'mprof', 'run', '--nopython', '-C', '-E', '-o', worker_options['MPROF_OUTPUT_PATH'], 'swipl', '-s', sources(entry_file), goal_opts
+		])
 	else:
 		cmd = flatten_lists([
 			#'/usr/bin/time',

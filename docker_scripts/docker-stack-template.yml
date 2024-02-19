@@ -154,12 +154,6 @@ services:
     volumes:
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
-        
-        
-        # hmmm
-      - cache:/app/cache
-        
-        
       - ./../tests:/app/tests
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw" # for gtrace
       - '../sources/swipl/xpce:/home/myuser/.config/swi-prolog/xpce'      
@@ -193,6 +187,7 @@ services:
       PYDEVD_PYCHARM_PORT: 29111
       FLY:
     volumes:
+      - cache:/app/cache
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
     networks:

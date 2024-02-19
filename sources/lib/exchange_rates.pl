@@ -17,10 +17,15 @@
 
 :- dynamic exchange_rates/2.
 :- persistent(persistently_cached_exchange_rates(day: any, rates:list)).
-:- initialization(init_exchange_rates).
+%:- initialization(init_exchange_rates).
 
-init_exchange_rates :-
-	absolute_file_name(my_cache('persistently_cached_exchange_rates.pl'), File, []),
+%init_exchange_rates :-
+%	for shared cache:
+%	absolute_file_name(my_cache('persistently_cached_exchange_rates.pl'), File, []),
+%	db_attach(File, []).
+
+init_exchange_rates_tmp_cache :-
+	absolute_tmp_path(loc(file_name, 'exchange_rates.pl'), loc(absolute_path, File)),	
 	db_attach(File, []).
 
 
@@ -49,8 +54,11 @@ exchange_rates(Day, Exchange_Rates) :-
 fetch_exchange_rates(Date, Exchange_Rates) :-
 	/* note that invalid dates get "recomputed", for example date(2010,1,33) becomes 2010-02-02 */
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
-	string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
-	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
+	
+	%string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
+	%string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
+	atomic_list_concat([$>manager_url(<$), '/exchange_rates/', Date_Str], Query_Url),
+	
 	format(user_error, '~w ...', [Query_Url]),
 	catch(
 		http_open(Query_Url, Stream, [request_header('User-Agent'='Robust1')]),

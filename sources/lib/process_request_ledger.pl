@@ -20,6 +20,7 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
 
 
  ledger_initialization :-
+ 	!cf(init_exchange_rates_tmp_cache),
 	!cf(extract_start_and_end_date),
 	!cf(stamp_result),
 	!cf('extract "output_dimensional_facts"'),

@@ -8,4 +8,4 @@ gevent
 rdflib
 threadsafe-async
 python-jose[cryptography]
-
+diskcache
