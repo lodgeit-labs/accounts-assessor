@@ -116,7 +116,7 @@ def call_prolog(
 	if worker_options.get('skip_dev_runner', False):
 		cmd = flatten_lists([
 			#'/usr/bin/time', '-v', 
-			'mprof', 'run', '--nopython', '-C', '-E', '-o', worker_options['MPROF_OUTPUT_PATH'], 'swipl', '-s', sources(entry_file), goal_opts
+			'mprof', 'run', '--nopython', '-C', '-E', '-o', worker_options['MPROF_OUTPUT_PATH'], 'swipl', '-O', '--stack_limit=100G', '-s', sources(entry_file), goal_opts
 		])
 	else:
 		cmd = flatten_lists([
