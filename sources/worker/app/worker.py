@@ -130,28 +130,34 @@ def work_loop():
 		log.info(f'{worker_id} end.')
 
 
+
+current_task = None
+
+
+
 def do_task(task):
-	remote = False
+	global current_task
+	current_task = task
 
-	global task_mem_file = 
-
+	task.remote = False
+	
 	for input_file in task.input_files:
 		log.debug('do_task: input_file %s', input_file)
 #		if Path(input_file).exists():
 #			log.debug('do_task: input_file %s exists', input_file)
 #		else:
-		remote = True
+		task.remote = True
 		download_file(input_file)
 	
 	if task.proc == 'call_prolog':
-		result = call_prolog.call_prolog(task.args['msg'], task.args['worker_tmp_directory_name'], task.worker_options)
+		result = call_prolog.call_prolog(task, task.args['msg'], task.args['worker_tmp_directory_name'], task.worker_options)
 	elif task.proc == 'arelle':
 		result = arelle(task.args, task.worker_options)
 	else:
 		log.warn('task bad, unknown proc: ' + str(task.proc))
 		return None
 	
-	if remote:
+	if task.remote:
 		for output_file in result[1]:
 			upload_file(output_file)
 			
@@ -179,6 +185,14 @@ def download_file(input_file):
 
 
 
+def upload_mem_file():
+	if current_task:
+		if current_task.get('remote') and current_task.get('mem_file'):
+			log.info('upload_mem_file %s', current_task['mem_file'])
+			upload_file(current_task['mem_file'])
+
+
+
 def heartbeat_loop(stop_heartbeat, worker_id, task_id):
 	while True:
 		time.sleep(10)
@@ -188,9 +202,10 @@ def heartbeat_loop(stop_heartbeat, worker_id, task_id):
 			r = session.post(os.environ['MANAGER_URL'] + f'/worker/{worker_id}/heartbeat', json=dict(
 				worker_id=worker_id, task_id=task_id))
 			r.raise_for_status()
-
+			upload_mem_file()
 		except e:
 			log.exception('worker %s get exception', worker_id)
+
 
 
 def manager_post(path, json):
@@ -200,4 +215,3 @@ def manager_post(path, json):
 	)
 	r.raise_for_status()
 	return r.json()
-	

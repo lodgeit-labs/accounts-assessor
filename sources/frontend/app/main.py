@@ -189,14 +189,14 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 
 			# it turns out that failures are not permanent
 			return templates.TemplateResponse("job.html", {
-				"server_info": server_info_url, 
+				"server_info_url": server_info_url,
 				"mem_txt": mem_txt, 
 				"mem_data":mem_data, 
 				"request": request, 
 				"job_id": job_id, 
 				"json": json.dumps(job, indent=4, sort_keys=True), 
 				"refresh": (job.get('status') not in [ 'Success']), 
-				'status': job.get('status', 'internal error')})
+				'status': job.get('status', 'unknown')})
 	
 	else:
 		return PlainTextResponse(f'job {job_id=} not found', status_code=404)	

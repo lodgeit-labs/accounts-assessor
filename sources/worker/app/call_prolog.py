@@ -20,6 +20,7 @@ def files_in_dir_recursive(worker_tmp_path):
 
 
 def call_prolog(
+		task,
 		msg, # {method: calculator or rpc, params:...}
 		worker_tmp_directory_name = 'rpc',
 		worker_options = None,
@@ -37,7 +38,7 @@ def call_prolog(
 
 	worker_tmp_path = get_tmp_directory_absolute_path(worker_tmp_directory_name)
 	os.makedirs(worker_tmp_path, exist_ok=True)
-	
+
 	if msg.get('method') == 'calculator':
 		msg['params'] |= uri_params(msg['params']['result_tmp_directory_name']) | dict(request_format=guess_request_format_rdf_or_xml(msg['params']))
 
@@ -68,6 +69,7 @@ def call_prolog(
 
 	worker_options = default_options | config | worker_options
 
+	task.mem_file = worker_options['MPROF_OUTPUT_PATH']
 
 	log.info('worker_options: ' + str(worker_options))
 	log.info('msg: ' + str(msg))
