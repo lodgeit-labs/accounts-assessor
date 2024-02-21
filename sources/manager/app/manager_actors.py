@@ -119,7 +119,7 @@ def call_prolog_calculator(
 	# mark this calculator result as finished, and the job as completed
 	ln('../' + result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/completed')
 
-	trusted_workers.postprocess.send(args=(result_tmp_directory_path,), queue='postprocessing')
+	trusted_workers.postprocess_doc.send(args=(result_tmp_directory_path,), queue='postprocessing')
 	return result
 
 
