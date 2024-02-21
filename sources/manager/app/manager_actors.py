@@ -7,6 +7,7 @@ frontend (or other caller) imports this file.
 import logging, sys
 from pathlib import Path
 
+import requests, time
 from fs_utils import files_in_dir
 from tasking import remoulade
 from tmp_dir_path import get_tmp_directory_absolute_path, symlink, ln
@@ -16,6 +17,9 @@ from app.helpers import *
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/sdk/src/')))
 import robust_sdk.xml2rdf
+
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../actors/')))
+import trusted_workers
 
 
 # def trigger_remote__call_prolog(msg, queue='default'):
@@ -30,7 +34,7 @@ import robust_sdk.xml2rdf
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
-log.debug("debug manager_actors.py")
+log.debug("debug from manager_actors.py")
 
 
 
@@ -115,9 +119,9 @@ def call_prolog_calculator(
 	# mark this calculator result as finished, and the job as completed
 	ln('../' + result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/completed')
 
-	
+	trusted_workers.postprocess.send(result_tmp_directory_path)
 	return result
-	
+
 
 
 def preprocess_request_files(files, xlsx_extraction_rdf_root):
@@ -155,9 +159,9 @@ def convert_excel_to_rdf(uploaded, to_be_processed, root):
 	We should really turn csharp-services into an untrusted worker at some point.	
 	"""
 	log.info('xlsx_to_rdf: %s -> %s' % (uploaded, to_be_processed))
+	start_time = time.time()
 	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": root, "input_fn": str(uploaded), "output_fn": str(to_be_processed)}).raise_for_status()
-
-
+	log.info('xlsx_to_rdf: %s -> %s done in % seconds' % (uploaded, to_be_processed, time.time() - start_time))
 
 
 
