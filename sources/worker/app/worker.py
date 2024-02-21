@@ -132,7 +132,9 @@ def work_loop():
 
 def do_task(task):
 	remote = False
-	
+
+	global task_mem_file = 
+
 	for input_file in task.input_files:
 		log.debug('do_task: input_file %s', input_file)
 #		if Path(input_file).exists():
@@ -186,6 +188,7 @@ def heartbeat_loop(stop_heartbeat, worker_id, task_id):
 			r = session.post(os.environ['MANAGER_URL'] + f'/worker/{worker_id}/heartbeat', json=dict(
 				worker_id=worker_id, task_id=task_id))
 			r.raise_for_status()
+
 		except e:
 			log.exception('worker %s get exception', worker_id)
 

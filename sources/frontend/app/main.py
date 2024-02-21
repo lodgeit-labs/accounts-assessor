@@ -208,9 +208,14 @@ def write_mem_stuff(message_id):
 		return '',[]
 	else:
 		mem_txt = ''
+		files = []
 		for f in P(get_tmp_directory_absolute_path(message_id)).glob('*/mem_prof.txt'):
 			if str(f).endswith('/completed/mem_prof.txt'):
 				continue
+			files.append(f)
+		files.sort(key=lambda f: f.stat().st_mtime)
+
+		for f in files:
 			logger.info('f: %s' % f)
 			with open(f) as f2:
 				mem_txt += f2.read()
@@ -218,8 +223,8 @@ def write_mem_stuff(message_id):
 		#logger.info(mem_txt)
 		mem_data = []
 		
-		
 		mmm = mem_txt.splitlines()
+
 		for line in mmm:
 			if line.startswith('MEM '):
 				#logger.info(line)
