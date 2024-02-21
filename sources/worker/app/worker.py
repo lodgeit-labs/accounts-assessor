@@ -140,7 +140,7 @@ def do_task(task):
 	current_task = task
 
 	task.remote = False
-	
+
 	for input_file in task.input_files:
 		log.debug('do_task: input_file %s', input_file)
 #		if Path(input_file).exists():
