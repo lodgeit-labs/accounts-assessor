@@ -150,6 +150,7 @@ def json_prolog_rpc_call(request, msg, queue_name=None):
 		result = job.result.get(block=True, timeout=1000 * 1000)
 	except manager_actors.remoulade.results.errors.ErrorStored as e:
 		logger.error(str(e))
+		return
 	logger.debug('json_prolog_rpc_call: %s' % result)
 	return result
 

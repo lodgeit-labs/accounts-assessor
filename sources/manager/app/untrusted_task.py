@@ -33,7 +33,7 @@ class Task:
 		self.args = args
 		self.worker_options = worker_options
 		self.input_files = input_files
-		self.output_path = Path(output_path)
+		self.output_path = Path(output_path) if output_path else None
 		
 		self.results = queue.Queue()
 		
