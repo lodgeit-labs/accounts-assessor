@@ -393,27 +393,30 @@ if fly:
 def list_machines():
 	while True:
 		with fl('fly_machine_janitor'):
-			r = sorted(json.loads(subprocess.check_output(f'{flyctl()} machines list --json', shell=True)), key=lambda x: x['id'])
-			for machine in r:
-				#machine['created_at'] = datetime.datetime.strptime(machine['created_at'], '%Y-%m-%dT%H:%M:%SZ')
-				machine['worker'] = None
-				for _,worker in workers.items():
-					if worker.info.get('host') == machine['id']:
-						machine['worker'] = worker
-		
-			fly_machines.clear()
-			for machine in r:
-				fly_machines[machine['id']] = {}
-				fly_machines[machine['id']].update(machine)
-			
-			rr = {}
-			for machine in r:
-				rr[machine['id']] = machine
-				
-			for fly_machine in fly_machines.keys():
-				if fly_machine not in rr:
-					del fly_machines[fly_machine]
-	
+			try:
+				r = sorted(json.loads(subprocess.check_output(f'{flyctl()} machines list --json', shell=True)), key=lambda x: x['id'])
+				for machine in r:
+					#machine['created_at'] = datetime.datetime.strptime(machine['created_at'], '%Y-%m-%dT%H:%M:%SZ')
+					machine['worker'] = None
+					for _,worker in workers.items():
+						if worker.info.get('host') == machine['id']:
+							machine['worker'] = worker
+
+				fly_machines.clear()
+				for machine in r:
+					fly_machines[machine['id']] = {}
+					fly_machines[machine['id']].update(machine)
+
+				rr = {}
+				for machine in r:
+					rr[machine['id']] = machine
+
+				for fly_machine in fly_machines.keys():
+					if fly_machine not in rr:
+						del fly_machines[fly_machine]
+			except Exception as e:
+				log.exception(e)
+				time.sleep(15)
 
 if fly:
 	threading.Thread(target=list_machines, daemon=True).start()
