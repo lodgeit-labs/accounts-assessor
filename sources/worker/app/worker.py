@@ -17,10 +17,10 @@ from fs_utils import file_to_json, json_to_file
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
-#log.addHandler(logging.StreamHandler())
-log.info('worker.py start')
-log.debug('debug worker.py')
-
+log.addHandler(logging.StreamHandler())
+print('----')
+log.debug('debug from worker.py')
+log.info('info from worker.py')
 
 from dotdict import Dotdict
 
@@ -139,12 +139,10 @@ def do_task(task):
 	global current_task
 	current_task = task
 
-	task.remote = False
-
-	for input_file in task.input_files:
-		log.debug('do_task: input_file %s', input_file)
-		task.remote = True
-		download_file(input_file)
+	if task.remote:
+		for input_file in task.input_files:
+			log.debug('do_task: input_file %s', input_file)
+			download_file(input_file)
 	
 	if task.proc == 'call_prolog':
 		result = call_prolog.call_prolog(task, task.args['msg'], task.args['worker_tmp_directory_name'], task.worker_options)
@@ -200,7 +198,7 @@ def heartbeat_loop(stop_heartbeat, worker_id, task_id):
 				worker_id=worker_id, task_id=task_id))
 			r.raise_for_status()
 			upload_mem_file()
-		except e:
+		except Exception as e:
 			log.exception('worker %s get exception', worker_id)
 
 
@@ -212,3 +210,8 @@ def manager_post(path, json):
 	)
 	r.raise_for_status()
 	return r.json()
+
+
+
+
+

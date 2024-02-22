@@ -20,7 +20,7 @@ log.warning("warning from trusted_workers.py")
 
 #@remoulade.actor(queue='postprocessing', priority=1, time_limit=1000*60*60*24*365)
 @remoulade.actor(priority=1, time_limit=1000*60*60*24*365, queue_name='postprocessing')
-def postprocess_doc(tmp_path):
+def postprocess_doc(tmp_path, uris):
 	tmp_path = Path(tmp_path)
 	# fixme, need to find the right file
 	log.info('postprocess_doc...')
@@ -55,14 +55,20 @@ def generate_doc_nq_from_trig(g, tmp_path):
 
 
 
-def put_doc_dump_into_triplestore(nq_fn):
+def put_doc_dump_into_triplestore(nq_fn, uris):
 	log.debug("agc()...")
 	c = agraph.agc()
 	if c:
 		log.debug("c.addFile(nq_fn)...")
+
 		c.addFile(str(nq_fn))
 		log.debug("c.addFile(nq_fn) done.")
 
+		if uris:
+			# add prefixes
+			result_prefix = uris['result_tmp_directory_name'].split('.')[-1]
+			# ^see create_tmp_directory_name
+			c.setNamespace(result_prefix, uris['result_data_uri_base'])
 
 
 def report_by_key(response, key):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import base64
 import os
-from pathlib import PosixPath
+from pathlib import PosixPath, PurePosixPath
 
 if os.environ.get('PYDEVD'):
 	import pydevd_pycharm
@@ -74,6 +74,10 @@ app = FastAPI(
 
 # misnomer, but it works
 worker_auth_scheme = OAuth2PasswordBearer(tokenUrl="dummy_worker_auth", scopes={'a':'be_worker'}, auto_error=False)
+
+
+
+manager_host = os.uname().nodename
 
 
 
@@ -208,7 +212,8 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 			loop_log.debug('give task: %s', worker.task)
 			if not worker.task_given_ts:
 				worker.task_given_ts = datetime.datetime.now()
-			return outmsg | dict(task=dict(id = worker.task.id, proc=worker.task.proc, args=worker.task.args, worker_options=worker.task.worker_options, input_files=worker.task.input_files))
+			is_remote = (worker.info.get('host') != manager_host)
+			return outmsg | dict(task=dict(id = worker.task.id, proc=worker.task.proc, args=worker.task.args, worker_options=worker.task.worker_options, input_files=worker.task.input_files, remote=is_remote))
 
 
 		loop_log.debug('sleep')
@@ -299,14 +304,14 @@ async def get_file(request: Request, worker_id: str, data: dict):
 	"""
 	Worker calls this to get a file from manager. The file is in manager's filesystem, and the worker needs to download it.
 	"""
-	path = data['path']
+	path = PurePosixPath(data['path'])
 	log.debug('get_file %s', path)
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	if worker.task:
 		if path in worker.task.input_files:
 			return file_to_json(path)
 		else:
-			raise Exception('{path=} not in {worker.task.input_files=}')
+			raise Exception(f'{path=} not in {worker.task.input_files=}')
 	else:
 		raise Exception('worker has no task')
 

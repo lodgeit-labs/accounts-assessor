@@ -65,7 +65,6 @@ class ArelleController(Cntlr.Cntlr):
 				print("{0} -> {1}".format(linkFrom, linkTo))
 			print()
 		print()
-	print('----')
 
 	def test(self, model):
 		arcroles = [

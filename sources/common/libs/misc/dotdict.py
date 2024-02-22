@@ -30,6 +30,8 @@ class Dotdict(object):
 	def __getattr__ (s, k):
 		if k.startswith('_'):
 			return super().__getattr__(k)
+		if k == 'get':
+			return s._dict.get
 		else:
 			try:
 				return s._dict[k]

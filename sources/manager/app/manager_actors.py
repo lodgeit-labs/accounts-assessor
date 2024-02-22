@@ -124,8 +124,11 @@ def call_prolog_calculator(
 
 	
 	
-	trusted_workers.postprocess_doc.send_with_options(kwargs=dict(tmp_path=result_tmp_directory_path), queue_name='postprocessing')
-	#trusted_workers.postprocess_doc.send(args=(result_tmp_directory_path,), queue='postprocessing')
+	trusted_workers.postprocess_doc.send_with_options(kwargs=dict(
+		tmp_path=result_tmp_directory_path,
+		uris=result.get('uris'),
+	), queue_name='postprocessing')
+
 	return result
 
 

@@ -40,7 +40,10 @@ def call_prolog(
 	os.makedirs(worker_tmp_path, exist_ok=True)
 
 	if msg.get('method') == 'calculator':
-		msg['params'] |= uri_params(msg['params']['result_tmp_directory_name']) | dict(request_format=guess_request_format_rdf_or_xml(msg['params']))
+		msg['params'] |= (
+			uri_params(msg['params']['result_tmp_directory_name']) |
+			dict(request_format=guess_request_format_rdf_or_xml(msg['params']))
+		)
 
 	if worker_options is None:
 		worker_options = {}
@@ -140,19 +143,17 @@ def call_prolog(
 	log.debug('cmd: ' + shlex.join(cmd))
 
 
-	if not worker_options['dry_run']:
-		#print('invoke_rpc: invoking swipl...')
-		p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, env=env)
-		(stdout_data, stderr_data) = p.communicate()
-	else:
+	if worker_options['dry_run']:
 		return {'result':'ok'}, []
 
-	of = files_in_dir_recursive(worker_tmp_path)
+	p = subprocess.Popen(cmd, universal_newlines=True, stdout=subprocess.PIPE, env=env)
+	(stdout_data, stderr_data) = p.communicate()
+
+	output_files = files_in_dir_recursive(worker_tmp_path)
 
 	if stdout_data in [b'', '']:
 		ret = {'alerts':[f'invoke_rpc: got no stdout from swipl, {p.returncode=}']}
 		log.warn(ret)
-		return ret, of
 	else:
 		log.debug('')
 		log.debug("invoke_rpc: prolog stdout:")
@@ -160,12 +161,19 @@ def call_prolog(
 		log.debug("invoke_rpc: end of prolog stdout.")
 		log.debug('')
 		try:
-			rrr = json.loads(stdout_data)
-			return rrr, of
+			ret = json.loads(stdout_data)
 		except json.decoder.JSONDecodeError as e:
 			log.warn('invoke_rpc: %s', e)
-			log.debug('')
-			return {'status':'error', 'message': f'invoke_rpc: {e}'}, []
+			ret = {'status':'error', 'message': f'invoke_rpc: {e}'}
+
+	if msg.get('method') == 'calculator':
+		ret['uris'] = dict(
+			result_tmp_directory_name=msg['params']['result_tmp_directory_name'],
+			result_data_uri_base = msg['params']['result_data_uri_base'],
+			request_uri=msg['params']['request_uri'],
+		)
+
+	return ret, output_files
 
 
 

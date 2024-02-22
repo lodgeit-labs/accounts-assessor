@@ -27,6 +27,8 @@ def registerEncodedIdPrefix(a, prefix):
 
 namespaces = {
 	'kb': 'https://rdf.lodgeit.net.au/v1/kb#'
+	'v1': 'https://rdf.lodgeit.net.au/v1'
+
 }
 
 _agc = None
@@ -42,10 +44,13 @@ def agc() -> RepositoryConnection:
 
 	a = ag_connect('a', user=AGRAPH_SECRET_USER, password=AGRAPH_SECRET_PASSWORD)
 	a.setDuplicateSuppressionPolicy('spog')
+
 	for k,v in namespaces.items():
 		a.setNamespace(k,v)
+
 	registerEncodedIdPrefix(a, 'session')
 	registerEncodedIdPrefix(a, 'testcase')
+
 	_agc = a
 	return _agc
 
