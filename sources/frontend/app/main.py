@@ -510,6 +510,7 @@ ai3 = FastAPI(
 
 @ai3.get('/div7a')
 def div7a(
+	request: Request,
 
 	loan_year: Annotated[int, Query(
 		title="The income year in which the amalgamated loan was made",
@@ -548,7 +549,7 @@ def div7a(
 	logging.getLogger().info(f'{loan_year=}, {full_term=}, {opening_balance=}, {opening_balance_year=}, {lodgement_date=}, {repayment_dates=}, {repayment_amounts=}')
 
 	# now, invoke services to do the actual work.
-	request = dict(
+	services_request = dict(
 		request=dict(
 			loan_year=loan_year,
 			full_term=full_term,
@@ -557,9 +558,9 @@ def div7a(
 			repayments=[{'date': date, 'amount': amount} for date, amount in zip(repayment_dates, repayment_amounts)],
 			lodgement_date=lodgement_date
 		),
-		tmp_dir=list(create_tmp_for_user('robust'))
+		tmp_dir=list(create_tmp_for_user(get_user(request)))
 	)
-	r = requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=jsonable_encoder(request))
+	r = requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=jsonable_encoder(services_request))
 	r.raise_for_status()
 	r = r.json()
 	logging.getLogger().info(r)
