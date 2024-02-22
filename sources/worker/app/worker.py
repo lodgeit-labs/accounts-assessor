@@ -143,9 +143,6 @@ def do_task(task):
 
 	for input_file in task.input_files:
 		log.debug('do_task: input_file %s', input_file)
-#		if Path(input_file).exists():
-#			log.debug('do_task: input_file %s exists', input_file)
-#		else:
 		task.remote = True
 		download_file(input_file)
 	

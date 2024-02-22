@@ -19,7 +19,10 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 import robust_sdk.xml2rdf
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../actors/')))
+
+#import tasking
 import trusted_workers
+#tasking.remoulade.set_broker(tasking.broker)
 
 
 # def trigger_remote__call_prolog(msg, queue='default'):
@@ -119,7 +122,10 @@ def call_prolog_calculator(
 	# mark this calculator result as finished, and the job as completed
 	ln('../' + result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/completed')
 
-	trusted_workers.postprocess_doc.send(args=(result_tmp_directory_path,), queue='postprocessing')
+	
+	
+	trusted_workers.postprocess_doc.send_with_options(kwargs=dict(tmp_path=result_tmp_directory_path), queue_name='postprocessing')
+	#trusted_workers.postprocess_doc.send(args=(result_tmp_directory_path,), queue='postprocessing')
 	return result
 
 

@@ -44,6 +44,7 @@ from app.untrusted_task import *
 import app.manager_actors
 import app.tokens
 import app.machine
+import exchange_rates
 
 
 
@@ -246,27 +247,32 @@ def remoulade_thread():
 	this is a copy of remoulade.__main__.start_worker that works inside a thread.
 	Spawn a remoulade worker and periodically check if it's still running.
 	"""
-	logger = logging.getLogger('remoulade')
-
-	broker = remoulade.get_broker()
-	broker.emit_after("process_boot")
-
-	# i'm afraid there isnt a good way to healthcheck manager in the same way that we healthcheck the (trusted) workers container. I mean, we could run two manager processes, and devise one worker to serve it....idk
-	worker = remoulade.Worker(broker, queues=[os.environ['QUEUE']], worker_threads=int(os.environ.get('REMOULADE_WORKER_THREADS',30)), prefetch_multiplier=1)
-	worker.start()
-
-	running = True
-	while running and not shutdown_event.is_set():
-		if worker.consumer_stopped or worker.worker_stopped:
-			running = False
-			logger.info("Worker thread is not running anymore, stopping Worker.")
-		else:
-			time.sleep(1)
-
-	worker.stop(5 * 1000)
-	broker.emit_before("process_stop")
-	broker.close()
-
+	while True:
+		try:
+		
+			logger = logging.getLogger('remoulade')
+		
+			broker = remoulade.get_broker()
+			broker.emit_after("process_boot")
+		
+			# i'm afraid there isnt a good way to healthcheck manager in the same way that we healthcheck the (trusted) workers container. I mean, we could run two manager processes, and devise one worker to serve it....idk
+			worker = remoulade.Worker(broker, queues=[os.environ['QUEUE']], worker_threads=int(os.environ.get('REMOULADE_WORKER_THREADS',30)), prefetch_multiplier=1)
+			worker.start()
+		
+			running = True
+			while running and not shutdown_event.is_set():
+				if worker.consumer_stopped or worker.worker_stopped:
+					running = False
+					logger.info("Worker thread is not running anymore, stopping Worker.")
+				else:
+					time.sleep(1)
+		
+			worker.stop(5 * 1000)
+			broker.emit_before("process_stop")
+			broker.close()
+		except:
+			log.exception('remoulade_thread')
+			time.sleep(10)
 
 
 threading.Thread(target=remoulade_thread, daemon=True).start()
@@ -327,7 +333,7 @@ async def put_file(request: Request, worker_id: str, data: dict):
 	return 'ok'
 
 
-import exchange_rates
+
 
 @app.post("/worker/{worker_id}/exchange_rates")
 def get(worker_id: str, data: dict):

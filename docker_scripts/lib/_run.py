@@ -249,6 +249,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	hn = choices['use_host_network']
 
 	e = {
+		'BETTER_EXCEPTIONS': '1',
 		'FLY': str(choices['fly']),
 		"WORKER_GRACE_PERIOD": str(choices['WORKER_GRACE_PERIOD']),
 		"WORKER_PROCESSES": str(choices['worker_processes']),

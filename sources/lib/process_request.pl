@@ -90,7 +90,8 @@
 	!(make_json_report(Alerts3, alerts_json)),
 	!cf(make_alerts_report(Alerts_html)),
 
-	nicety(!cf(make_doc_dump_report)),
+	%nicety
+	(!cf(make_doc_dump_report)),
 	nicety(!cf(make_context_trace_report)),
 
 	!cf(json_report_entries(Files3)),
