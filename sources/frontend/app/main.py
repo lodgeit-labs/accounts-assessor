@@ -572,21 +572,21 @@ def div7a(
 
 
 
-@ai3.post("/process_file")
-def process_file(request: Request, file1: UploadFile):
-	"""
-	Trigger an accounting calculator by uploading one or more files.
-	"""
-	request_format = None
-	requested_output_format:str='job_handle'
-
-	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
-
-	for file in filter(None, [file1]):
-		logger.info('uploaded: %s' % file.filename)
-		_uploaded = save_uploaded_file(request_tmp_directory_path, file)
-
-	return process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format)[0]
+# @ai3.post("/process_file")
+# def process_file(request: Request, file1: UploadFile):
+# 	"""
+# 	Trigger an accounting calculator by uploading one or more files.
+# 	"""
+# 	request_format = None
+# 	requested_output_format:str='job_handle'
+#
+# 	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
+#
+# 	for file in filter(None, [file1]):
+# 		logger.info('uploaded: %s' % file.filename)
+# 		_uploaded = save_uploaded_file(request_tmp_directory_path, file)
+#
+# 	return process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format)[0]
 
 
 
