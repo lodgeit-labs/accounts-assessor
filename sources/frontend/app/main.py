@@ -563,8 +563,10 @@ def div7a(
 	r.raise_for_status()
 	r = r.json()
 	logging.getLogger().info(r)
-	if 'error_message' in r:
-		response = dict(error=r['error_message'])
+	if 'error_message' in r:#?
+		response = dict(error=r['error_message'])#?
+	elif 'error' in r:
+		response = dict(error=r['error'])
 	else:
 		response = r['result']
 	logging.getLogger().info(response)
