@@ -961,7 +961,7 @@ ic_ui:action_input
 	excel:title "action_input";
 	excel:cardinality excel:single;
 	excel:class ic:action_input;
-	excel:comment "Debits and credits in report currency are offset in (counter)account."
+	excel:comment "Debits and credits in report currency are offset in (counter)account.";
 	excel:fields (
 		[excel:property ic:account; excel:type xsd:string]
 		[excel:property ic:items; excel:template ic_ui:action_input_entries_template]
@@ -982,7 +982,7 @@ ic_ui:action_input_entries_template
 		[excel:property ic:units_type; excel:type xsd:string]
 		[excel:property ic:description2; excel:type xsd:string]
 		[excel:property ic:description3; excel:type xsd:string]
-	).xxx
+	).
 
 
 ic_ui:gl_entries_template
