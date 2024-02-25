@@ -27,8 +27,8 @@ def postprocess_doc(tmp_path, uris):
 	
 	g = load_doc_dump(tmp_path)
 	if g:
-		nq_fn = generate_doc_nq_from_trig(g, tmp_path)		
-		put_doc_dump_into_triplestore(nq_fn)
+		nq_fn = generate_doc_nq_from_trig(g, tmp_path)
+		put_doc_dump_into_triplestore(nq_fn, uris)
 		#generate_yed_file(g, tmp_path)
 		#generate_gl_json(g)
 remoulade.declare_actors([postprocess_doc])

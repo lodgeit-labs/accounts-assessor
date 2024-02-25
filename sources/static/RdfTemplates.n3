@@ -34,6 +34,7 @@
 @prefix smsf_distribution: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#> .
 @prefix smsf_distribution_ui: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#> .
 @prefix reallocation: <https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#> .
+@prefix acc: <https://rdf.lodgeit.net.au/v1/calcs/ic/accounts#> .
 @prefix phases: <https://rdf.lodgeit.net.au/v1/phases#> .
 
 
@@ -653,6 +654,7 @@ ic_ui:investment_calculator_sheets
 		ic_ui:reallocation_sheet
 		ic_ui:gl_input_sheet
 		ic_ui:action_input_sheet
+		ic_ui:transaction_input_sheet
 		ic_ui:additional_files_sheet
 		ic_ui:unit_types_sheet
 	).
@@ -699,6 +701,10 @@ ic_ui:investment_calculator_example
 			excel:sheet_instance_has_sheet_data ic_ui:reallocation_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:action_input_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:action_input_example]
+		[	excel:sheet_instance_has_sheet_type ic_ui:transaction_input_sheet;
+			excel:sheet_instance_has_sheet_data ic_ui:transaction_input_example]
+		[	excel:sheet_instance_has_sheet_type ic_ui:accounts_sheet;
+			excel:sheet_instance_has_sheet_data ic_ui:accounts_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:gl_input_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:gl_input_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:additional_files_sheet;
@@ -707,6 +713,30 @@ ic_ui:investment_calculator_example
 			excel:sheet_instance_has_sheet_data ic_ui:unit_types_example]
 		
 ).
+
+
+ic_ui:accounts_sheet
+	a excel:sheet_type;
+	excel:optional true;
+	excel:root ic:accounts.
+
+ic_ui:accounts_example
+	rdf:value ().
+
+ic:accounts
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:title "action";
+	excel:cardinality excel:multi;
+	excel:class ic:account;
+	excel:fields (
+		[excel:property acc:normal_side; excel:type excel:uri]
+		[excel:property acc:parent_name; excel:type xsd:string]
+		[excel:property av:parent_role;  excel:type xsd:string]
+		[excel:property acc:name; excel:type xsd:string]
+		[excel:property acc:role; excel:type xsd:string]
+	).
+
+acc:normal_side rdfs:range reallocation:Drcr.
 
 
 ic_ui:action_verbs_sheet
@@ -931,6 +961,7 @@ ic_ui:action_input
 	excel:title "action_input";
 	excel:cardinality excel:single;
 	excel:class ic:action_input;
+	excel:comment "Debits and credits in report currency are offset in (counter)account."
 	excel:fields (
 		[excel:property ic:account; excel:type xsd:string]
 		[excel:property ic:items; excel:template ic_ui:action_input_entries_template]
@@ -951,7 +982,7 @@ ic_ui:action_input_entries_template
 		[excel:property ic:units_type; excel:type xsd:string]
 		[excel:property ic:description2; excel:type xsd:string]
 		[excel:property ic:description3; excel:type xsd:string]
-	).
+	).xxx
 
 
 ic_ui:gl_entries_template
@@ -1068,7 +1099,7 @@ ic_ui:account_taxonomies
 	excel:fields (
 		[	excel:property account_taxonomies:url;
 			excel:type excel:uri;
-			excel:comment "use one of the pre-defined shorthands or specify a full URL of a XBRL taxonomy or XML file"]
+			excel:comment "use one of the pre-defined shorthands, or specify a full URL of a XBRL taxonomy or an XML file."]
 		[	excel:property account_taxonomies:note;
 			excel:type xsd:string]
 	).
@@ -1086,6 +1117,14 @@ ic:cost a ic:cost_or_market_type.
 ic:market a ic:cost_or_market_type.
 
 
+
+ic_ui:transaction_input_sheet
+	a excel:sheet_type;
+	excel:multiple_sheets_allowed true;
+	excel:optional true;
+	excel:name_prefix "transaction_input";
+	excel:root ic_ui:transaction_input.
+
 ic_ui:transaction_input
 	excel:cardinality excel:multi;
 	excel:class ic:transaction;
@@ -1100,6 +1139,10 @@ ic_ui:transaction_input
 		[excel:property ic:description2]
 		[excel:property ic:description3]
 	).
+
+ic_ui:transaction_input_example
+	rdf:value ().
+
 
 
 

@@ -259,7 +259,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
 		'REDIS_HOST':  'redis://localhost' if hn else 'redis://redis',
 		'AGRAPH_HOST': 'localhost' if hn else 'agraph',
-		'AGRAPH_PORT': '10035',
+		'AGRAPH_PORT': '10077',
 		'REMOULADE_PG_URI': 'postgresql://postgres@localhost:5433/remoulade' if hn else 'postgresql://postgres@postgres:5433/remoulade',
 		'REMOULADE_API': 'http://localhost:5005' if hn else 'http://remoulade-api:5005',
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',

@@ -79,7 +79,6 @@
 :- [state].
 :- [system_accounts].
 :- [tables].
-%:- [testcase_converter].
 :- [trading].
 :- [transactions].
 :- [trial_balance].

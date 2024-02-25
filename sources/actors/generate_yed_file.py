@@ -9,7 +9,7 @@ def generate_yed_file(g0, tmp_path):
 		add_node(go, added, s)
 		add_node(go, added, o)
 		go.add_edge(s, o, label=p)
-	go.write_graph(tmp_path + '/doc.yed.graphml', pretty_print=True)
+	go.write_graph(tmp_path / 'doc.yed.graphml', pretty_print=True)
 
 
 

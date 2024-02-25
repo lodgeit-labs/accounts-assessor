@@ -26,9 +26,8 @@ def registerEncodedIdPrefix(a, prefix):
 
 
 namespaces = {
-	'kb': 'https://rdf.lodgeit.net.au/v1/kb#'
-	'v1': 'https://rdf.lodgeit.net.au/v1'
-
+	'kb': 'https://rdf.lodgeit.net.au/v1/kb#',
+	'v1': 'https://rdf.lodgeit.net.au/v1',
 }
 
 _agc = None
@@ -42,7 +41,15 @@ def agc() -> RepositoryConnection:
 	AGRAPH_SECRET_PASSWORD = secret('AGRAPH_SUPER_PASSWORD')
 
 
-	a = ag_connect('a', user=AGRAPH_SECRET_USER, password=AGRAPH_SECRET_PASSWORD)
+	a = ag_connect(
+		repo='a',
+		user=AGRAPH_SECRET_USER,
+		password=AGRAPH_SECRET_PASSWORD,
+		host=os.environ['AGRAPH_HOST'],
+		port=os.environ['AGRAPH_PORT'],
+
+
+	)
 	a.setDuplicateSuppressionPolicy('spog')
 
 	for k,v in namespaces.items():

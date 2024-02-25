@@ -182,6 +182,8 @@ services:
       REMOULADE_PG_URI:
       REMOULADE_API:
       REDIS_HOST:
+      AGRAPH_HOST:
+      AGRAPH_PORT:
       WATCHMEDO:
       CSHARP_SERVICES_URL:
       PYDEVD_PYCHARM_PORT: 29111
@@ -294,7 +296,7 @@ services:
     - backend
     - frontend
     hostnet_ports:
-      - 10035
+      - 10077
     deploy:
       replicas: 1
       restart_policy:
@@ -309,7 +311,7 @@ services:
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "agdata:/agraph/data"
-      - "agconfig:/agraph/etc"
+      - "${PWD}/agraph/etc:/agraph/etc"
       - type: tmpfs
         target: /dev/shm
         tmpfs:
