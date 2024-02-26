@@ -113,7 +113,6 @@ def cli():
 
 
 
-
 @cli.command(
 	help="""deploy the docker compose/stack""",
 	context_settings=dict(
@@ -142,6 +141,9 @@ def cli():
 
 @click.option('-pu', '--public_url', 				type=str, 	default="http://localhost",
 	help="The public-facing url, including scheme and, optionally, port. Used in Caddy and apache.")
+
+@click.option('-au', '--agraph_url', 				type=str, 	default="http://localhost:10077",
+	help="The public-facing url, including scheme and port")
 
 @click.option('-pg', '--enable_public_gateway', type=bool, default=True,
 	help="enable Caddy (on ports 80 and 443). This generally does not make much sense on a development machine, because 1) you're only getting a self-signed cert that excel will refuse, 2)maybe you already have another web server listening on these ports, 3) using -pp (non-standard ports) in combination with https will give you trouble. 4) You must access the server by a hostname, not just IP.")
@@ -214,7 +216,9 @@ def run(click_ctx, stay_running, offline, port_postfix, public_url, rm_stack, te
 	transfer_option(choices, 'no_cache', build_options)
 	transfer_option(choices, 'parallel_build', build_options)
 
-	public_host = urlparse(public_url).hostname
+	public_url_parsed = urlparse(public_url)
+	public_host = public_url_parsed.hostname
+	public_scheme = public_url_parsed.scheme
 	compose = choices['compose']
 
 	# caddy is just gonna listen on 80 and 443 always.
@@ -246,6 +250,13 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	else:
 		hollow = 'full'
 	
+	
+	agraph_port = 10077
+	setup_agraph(agraph_port)
+	if choices['agraph_url'] is None:
+		choices['agraph_url'] = f'{public_scheme}://{public_host}:{str(agraph_port)}'
+	
+	
 	hn = choices['use_host_network']
 
 	e = {
@@ -259,7 +270,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
 		'REDIS_HOST':  'redis://localhost' if hn else 'redis://redis',
 		'AGRAPH_HOST': 'localhost' if hn else 'agraph',
-		'AGRAPH_PORT': '10077',
+		'AGRAPH_PORT': str(agraph_port),
+		'AGRAPH_URL': choices['agraph_url'],
 		'REMOULADE_PG_URI': 'postgresql://postgres@localhost:5433/remoulade' if hn else 'postgresql://postgres@postgres:5433/remoulade',
 		'REMOULADE_API': 'http://localhost:5005' if hn else 'http://remoulade-api:5005',
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
@@ -269,6 +281,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	}
 
 	#del choices['fly']
+	del choices['agraph_url']
 	del choices['manager_url']
 	del choices['WORKER_GRACE_PERIOD']
 
@@ -366,6 +379,20 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		shell('./follow_logs_noagraph.sh '+port_postfix)
 
 
+
+
+def setup_agraph(agraph_port):
+	with open('agraph/etc/agraph.cfg', 'w') as o:
+		with open('agraph/etc/agraph.cfg.template', 'r') as i:
+			o.write(i.read())
+		o.write(f"""
+Port {agraph_port}
+SuperUser {open('../secrets/AGRAPH_SUPER_USER').read().strip()}:{open('../secrets/AGRAPH_SUPER_PASSWORD').read().strip()}
+""")
+
+
+
+
 def logtail(compose_events_cmd):
 	cmd = shlex.split('stdbuf -oL -eL ' + compose_events_cmd + ' events')
 	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -442,7 +469,7 @@ def identity_envvars(tws):
 	This way, we don't rely on docker-compose to pass these env vars through.
 	"""
 	for s in tws['services'].values():
-		if 'environment' not in s:
+		if 'environment' not in s or s['environment'] is None:
 			s['environment'] = {}
 		print(s['environment'])
 		for k,v in s['environment'].items():
@@ -475,7 +502,7 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 	res = deepcopy(src)
 	services = res['services']
 	services['frontend']['environment']['PUBLIC_URL'] = PUBLIC_URL
-	# 'services' need PUBLIC_URL to generate some URLs correctly
+	services['actors']  ['environment']['PUBLIC_URL'] = PUBLIC_URL
 	services['services']['environment']['PUBLIC_URL'] = PUBLIC_URL
 
 	if not enable_public_gateway:

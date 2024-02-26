@@ -8,6 +8,8 @@ import logging, sys
 from pathlib import Path
 
 import requests, time
+
+from agraph import repo_by_user
 from fs_utils import files_in_dir
 from tasking import remoulade
 from tmp_dir_path import get_tmp_directory_absolute_path, symlink, ln
@@ -77,9 +79,10 @@ def call_prolog_calculator(
 	params=dict(
 		request_files = converted_request_files,
 		request_format=request_format,
-		request_tmp_directory_name = request_directory,
-		result_tmp_directory_name= result_tmp_directory_name,
-		public_url = public_url
+		request_tmp_directory_name=request_directory,
+		result_tmp_directory_name=result_tmp_directory_name,
+		public_url=public_url,
+		rdf_explorer_bases=[os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+repo_by_user(worker_options['user'])+'/node/'] 
 	)
 
 
@@ -127,6 +130,7 @@ def call_prolog_calculator(
 	trusted_workers.postprocess_doc.send_with_options(kwargs=dict(
 		tmp_path=result_tmp_directory_path,
 		uris=result.get('uris'),
+		user=worker_options['user']
 	), queue_name='postprocessing')
 
 	return result

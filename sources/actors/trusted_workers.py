@@ -9,7 +9,6 @@ from tasking import remoulade
 import logging
 
 
-
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 log.debug("debug from trusted_workers.py")
@@ -20,15 +19,14 @@ log.warning("warning from trusted_workers.py")
 
 #@remoulade.actor(queue='postprocessing', priority=1, time_limit=1000*60*60*24*365)
 @remoulade.actor(priority=1, time_limit=1000*60*60*24*365, queue_name='postprocessing')
-def postprocess_doc(tmp_path, uris):
+def postprocess_doc(tmp_path, uris, user):
 	tmp_path = Path(tmp_path)
-	# fixme, need to find the right file
 	log.info('postprocess_doc...')
 	
 	g = load_doc_dump(tmp_path)
 	if g:
 		nq_fn = generate_doc_nq_from_trig(g, tmp_path)
-		put_doc_dump_into_triplestore(nq_fn, uris)
+		put_doc_dump_into_triplestore(nq_fn, uris, user)
 		#generate_yed_file(g, tmp_path)
 		#generate_gl_json(g)
 remoulade.declare_actors([postprocess_doc])
@@ -55,9 +53,10 @@ def generate_doc_nq_from_trig(g, tmp_path):
 
 
 
-def put_doc_dump_into_triplestore(nq_fn, uris):
-	log.debug("agc()...")
-	c = agraph.agc()
+def put_doc_dump_into_triplestore(nq_fn, uris, user):
+	log.debug("agc(nq_fn=%s, uris=%s, user=%s)...", nq_fn, uris, user)
+	
+	c = agraph.agc(agraph.repo_by_user(user))
 	if c:
 		log.debug("c.addFile(nq_fn)...")
 
@@ -68,7 +67,8 @@ def put_doc_dump_into_triplestore(nq_fn, uris):
 			# add prefixes
 			result_prefix = uris['result_tmp_directory_name'].split('.')[-1]
 			# ^see create_tmp_directory_name
-			c.setNamespace(result_prefix, uris['result_data_uri_base'])
+			c.setNamespace('i'+result_prefix, uris['result_data_uri_base'])
+
 
 
 def report_by_key(response, key):

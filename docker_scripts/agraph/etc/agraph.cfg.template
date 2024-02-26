@@ -1,7 +1,22 @@
+CorsAllowOrigin www.irisa.fr\nCorsAllowCredentials yes
+
+
 # AllegroGraph configuration file
 RunAs agraph
 SessionPorts 10000-10034
-Port 10077
+
+
+
+
+## Don't allow normal HTTP access, only SSL  
+#Port 10035  
+#AllowHTTP no  
+#SSLPort 10036  
+#SSLCertificate /var/lib/ag4/server.cert  
+
+
+
+
 SettingsDirectory /agraph/data/settings
 LogDir /agraph/data
 PidFile /agraph/data/agraph.pid
@@ -16,14 +31,9 @@ InstanceTimeout 604800
  InstanceTimeout 10
 </SystemCatalog>
 
+
+
 EvalAllowed false
-SuperUser atest:xyzzyzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
 
 
-
-## Don't allow normal HTTP access, only SSL  
-#Port 10035  
-#AllowHTTP no  
-#SSLPort 10036  
-#SSLCertificate /var/lib/ag4/server.cert  
  

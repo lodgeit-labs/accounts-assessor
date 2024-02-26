@@ -42,7 +42,9 @@ def call_prolog(
 	if msg.get('method') == 'calculator':
 		msg['params'] |= (
 			uri_params(msg['params']['result_tmp_directory_name']) |
-			dict(request_format=guess_request_format_rdf_or_xml(msg['params']))
+			dict(
+				request_format=guess_request_format_rdf_or_xml(msg['params'])
+			)
 		)
 
 	if worker_options is None:

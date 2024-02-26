@@ -1,10 +1,16 @@
 import json, os, logging
-
 from franz.openrdf.model.value import URI
 from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 from franz.openrdf.connect import ag_connect
-
 from config import secret
+
+
+# see also doc.pl RdfTemplates.trig agraph.py
+namespaces = {
+	'kb': 'https://rdf.lodgeit.net.au/v1/kb#',
+	'v1': 'https://rdf.lodgeit.net.au/v1',
+}
+
 
 
 registered_prefixes = {}
@@ -25,24 +31,18 @@ def registerEncodedIdPrefix(a, prefix):
 	a.registerEncodedIdPrefix(prefix, 'https://rdf.lodgeit.net.au/v1/' + prefix + '[a-p]{15}')
 
 
-namespaces = {
-	'kb': 'https://rdf.lodgeit.net.au/v1/kb#',
-	'v1': 'https://rdf.lodgeit.net.au/v1',
-}
+#_agc = None
 
-_agc = None
-
-def agc() -> RepositoryConnection:
-	global _agc
-	if _agc is not None:
-		return _agc
+def agc(repo='a') -> RepositoryConnection:
+	#global _agc
+	#if _agc is not None:
+	#	return _agc
 
 	AGRAPH_SECRET_USER = secret('AGRAPH_SUPER_USER')
 	AGRAPH_SECRET_PASSWORD = secret('AGRAPH_SUPER_PASSWORD')
 
-
 	a = ag_connect(
-		repo='a',
+		repo=repo,
 		user=AGRAPH_SECRET_USER,
 		password=AGRAPH_SECRET_PASSWORD,
 		host=os.environ['AGRAPH_HOST'],
@@ -62,3 +62,10 @@ def agc() -> RepositoryConnection:
 	return _agc
 
 
+
+def repo_by_user(user):
+	if user == 'nobody':
+		repo = 'pub'
+	else:
+		repo = 'a'
+	return repo

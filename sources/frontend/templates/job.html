@@ -41,7 +41,13 @@
                     document.getElementById('mem_chart'),
                     {
                         type: 'scatter',
-                        data: {datasets: [ {label:'worker memory usage (MiB)', data: data  } ] },
+                        data: {datasets: [ {
+                          label:'worker memory usage (MiB)', 
+                          data: data,
+                          
+                          borderColor: 'rgb(75, 192, 192)',
+                            
+                        } ] },
                         options: {
                             //responsive: true,
                             animation: false,
