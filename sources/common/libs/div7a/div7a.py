@@ -331,28 +331,32 @@ def div7a2_from_json(j,tmp_dir=['.','none']):
   <body>
     <main>
 """,file=ooo)
-		if ooo:
-			print(f'<h2>ChatGPT request</h2>', file=ooo)
-			print(f'<big><pre><code>', file=ooo)
-			json.dump(j, ooo, indent=True)
-			print(f'</code></pre></big>', file=ooo)
-			print(f'<h2>Calculation steps</h2>', file=ooo)
+		print(f'<h2>ChatGPT request</h2>', file=ooo)
+		print(f'<big><pre><code>', file=ooo)
+		json.dump(j, ooo, indent=True)
+		print(f'</code></pre></big>', file=ooo)
+		print(f'<h2>Calculation steps</h2>', file=ooo)
 			
-		r = div7a2_from_json2(ooo, j)
-		r['details_url'] = details_url
+		try:
+			result = div7a2_from_json2(ooo, j)
+		except MyException as e:
+			result = dict(error=str(e))
+		except Exception as e:
+			traceback_message = traceback.format_exc()
+			result = dict(error=traceback_message)
+		result['details_url'] = details_url
 
 		if ooo:
 			print(f'<h2>Robust response</h2>', file=ooo)
 			print(f'<big><pre><code>', file=ooo)
-			json.dump(r, ooo, indent=True, cls=MyEncoder)
+			json.dump(result, ooo, indent=True, cls=MyEncoder)
 			print(f'</code></pre></big>', file=ooo)
-
 		print("""
     </main>
   </body>
 </html>
 """,file=ooo)
-	return r
+	return result
 
 
 def repayments_amount_before_lodgement(records, year):
@@ -488,7 +492,7 @@ def div7a2_ingest(j):
 		r = repayment(r['date'], {'amount': float(r['amount'])})
 		if r.income_year not in benchmark_rates:
 			#raise MyException(f'Cannot calculate with repayments in income year {r.income_year}. Please do not specify repayments beyond the income year {max(benchmark_rates.keys())}.')
-			warnings.add(f'Cannot calculate with repayments in income year {r.income_year}.')
+			warnings.add(f'Cannot calculate with repayments in income year {r.income_year}, Benchmark Interest Rate is not available.')
 		else:
 			rec_add(records, r)
 
@@ -542,12 +546,6 @@ def post_div7a2(
 	request: dict
 ):
 	log.info(json.dumps(request))
-	try:
-		result = dict(result=div7a2_from_json(request['request'], request['tmp_dir']))
-	except MyException as e:
-		result = dict(error=str(e))
-	except Exception as e:
-		traceback_message = traceback.format_exc()
-		result = dict(error=traceback_message)
+	result = div7a2_from_json(request['request'], request['tmp_dir'])
 	log.info(result)
 	return result
