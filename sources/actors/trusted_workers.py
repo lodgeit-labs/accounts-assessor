@@ -59,7 +59,7 @@ def put_doc_dump_into_triplestore(nq_fn, uris, user):
 	c = agraph.agc(agraph.repo_by_user(user))
 	if c:
 		log.debug("c.addFile(nq_fn)...")
-
+		c.addFile('../static/kb.trig')
 		c.addFile(str(nq_fn))
 		log.debug("c.addFile(nq_fn) done.")
 

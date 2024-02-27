@@ -8,7 +8,7 @@ from config import secret
 # see also doc.pl RdfTemplates.trig agraph.py
 namespaces = {
 	'kb': 'https://rdf.lodgeit.net.au/v1/kb#',
-	'v1': 'https://rdf.lodgeit.net.au/v1',
+	'v1': 'https://rdf.lodgeit.net.au/v1/',
 }
 
 

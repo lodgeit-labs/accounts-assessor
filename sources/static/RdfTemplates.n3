@@ -8,6 +8,7 @@
 
 @prefix : <excel_request#> .
 
+@prefix v1: <https://rdf.lodgeit.net.au/v1/> .
 @prefix l: <https://rdf.lodgeit.net.au/v1/request#> .
 @prefix av: <https://rdf.lodgeit.net.au/v1/action_verbs#> .
 @prefix bs: <https://rdf.lodgeit.net.au/v1/bank_statement#> .
@@ -19996,5 +19997,6 @@ div7a_ui:repayments
 		[excel:property div7a_repayment:date; excel:type xsd:dateTime]
 		[excel:property div7a_repayment:value; excel:type xsd:decimal]
 	).
+
 
 

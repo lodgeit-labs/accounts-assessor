@@ -30,6 +30,8 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 	->	Url = 'base.xml'
 	;	rdf_equal2(Taxonomy, account_taxonomies:investments)
 	->	Url = 'investments.xml'
+	;	rdf_equal2(Taxonomy, account_taxonomies:simple_investments)
+	->	Url = 'simple_investments.xml'
 	;	rdf_equal2(Taxonomy, account_taxonomies:investments__legacy)
 	->	Url = 'investments__legacy.xml'
 	;	rdf_equal2(Taxonomy, account_taxonomies:investments__legacy2)
