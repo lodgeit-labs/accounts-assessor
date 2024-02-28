@@ -312,23 +312,23 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 
 
  extract_exchange_rates1(Exchange_Rates) :-
- 	!get_sheet_data(ic_ui:unit_values_sheet, X),
-
-	(	(
-			doc(X, excel:has_unknown_fields, Fields0),
-			!doc_list_items(Fields0, Fields),
-			maplist(!parse_date_field, Fields)
+ 	(	get_optional_singleton_sheet_data(ic_ui:unit_values_sheet, X)
+ 	->	(
+			(	doc(X, excel:has_unknown_fields, Fields0)
+			->	(
+					!doc_list_items(Fields0, Fields),
+					maplist(!parse_date_field, Fields)
+				)
+			;	Fields = []),
+		
+			!doc(X, rdf:value, Items0),
+			!doc_list_items(Items0, Items),
+			maplist(extract_exchange_rates2(Fields), Items, Exchange_Rates0),
+		
+			flatten(Exchange_Rates0, Exchange_Rates),
+			maplist(assert_ground, Exchange_Rates)
 		)
-	->	true
-	;	Fields = []),
-
-	!doc(X, rdf:value, Items0),
-	!doc_list_items(Items0, Items),
-	maplist(extract_exchange_rates2(Fields), Items, Exchange_Rates0),
-
-	flatten(Exchange_Rates0, Exchange_Rates),
-	maplist(assert_ground, Exchange_Rates),
-	true.
+	;	Exchange_Rates = []).
 
 
  parse_date_field(Field) :-
