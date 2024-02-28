@@ -133,6 +133,11 @@
 	;	true),
 	doc_add(Alert_uri, l:plain_message, Msg).
 
+
+/* 
+todo: refactor into alert_to_html (which is invoked post-hoc)
+alert_to_html also has key available - 'error'
+ */ 
  format_exception_into_alert_string(E, Msg, Str, Html) :-
 	(	E = with_processing_context(C,E1)
 	->	Context_str = C
@@ -143,7 +148,7 @@
 	),
 
 	(	E1 = with_backtrace_str(E2, Bstr0)
-	->	atomics_to_string(['prolog stack:\n', Bstr0], Bstr)
+	->	atomics_to_string([Bstr0], Bstr)
 	;	(
 			E2 = E1,
 			Bstr = ""
@@ -171,12 +176,26 @@
 	;	Msg1 = Msg0),
 	(	Msg1 = with_html(Msg,Html)
 	->	true
-	;	(
-			Html = '',
-			Msg = Msg1
+	;	Msg = Msg1),
+	
+	%format(string(Str),'message:~n~w~n~n context:~n~w~n~n backtrace:~n~w~n~n stacktrace:~n~q~n~n',[$>stringize(Msg), Context_str, Bstr, Stacktrace_str]),
+	format(string(Str),'message:~n~w~n~n',[$>stringize(Msg)]),
+	
+	stringize(Msg, Msg_str),
+	
+	(	var(Html)
+	->	(
+			Html = [
+				h4(['message:']),   pre([Msg_str]),
+				h5(['context stack:']),   pre([Context_str]),
+				a([href='000000_context_trace.html'],["context trace"]),
+				h5(['prolog stack:']), pre([Bstr]),
+				h5(['stacktrace:']),pre([Stacktrace_str])
+			]
 		)
-	),
-	format(string(Str ),'context:~n~w~n~n message:~n~w~n~n backtrace:~n~w~n~n stacktrace:~n~q~n~n',[Context_str, $>stringize(Msg), Bstr, Stacktrace_str]).
+	;	true).
+	
+	
 
 
  make_context_trace_report :-

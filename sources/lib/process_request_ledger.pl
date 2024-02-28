@@ -59,7 +59,7 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 
 	/* each GL input sheet can be set to be applied at a particular phase */
 	ct('phase: opening balance GL inputs',
-		(ct(extract_gl_inputs(phases:opening_balance, Gl_input_txs)),
+		(c(extract_gl_inputs(phases:opening_balance, Gl_input_txs)),
 		/* gl inputs are just GL transactions, not STs */
 	 	handle_txs(S2, Gl_input_txs, S4))),
 	doc_add(S4, rdfs:comment, "with Gl_input_txs"),
@@ -87,11 +87,13 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
  'phase: main 1 - sts'(S0, S2) :-
  	(	is_not_cutoff
  	->	(
-			!cf(handle_additional_files(Sts0)),
-			!cf('extract bank statement transactions'(Sts1)),
-			!ct(extract_action_inputs(phases:main, Sts2)),
+			!c(handle_additional_files(Sts0)),
+			!c('extract bank statement transactions'(Sts1)),
+			!c(extract_action_inputs(phases:main, Sts2)),
 			%$>!cf(extract_livestock_data_from_ledger_request(Dom)),
-			flatten([Sts0, Sts1, Sts2], Sts3)
+			Sts = [Sts0, Sts1, Sts2],
+			!ground(Sts),
+			flatten(Sts, Sts3)
 		)
 	;	Sts3 = []
 	),
@@ -102,11 +104,13 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
  'phase: main 2 - gl'(S2, S4) :-
  	(	is_not_cutoff
  	->	(
-			!ct(extract_gl_inputs(phases:main, Txs7)),
-			!ct(extract_reallocations(phases:main, Txs8)),
-			!cf(extract_smsf_distribution(S2, Txs9)),
+			!c(extract_gl_inputs(phases:main, Txs7)),
+			!c(extract_reallocations(phases:main, Txs8)),
+			!c(extract_smsf_distribution(S2, Txs9)),
 			%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
-			handle_txs(S2, [Txs7, Txs8, Txs9], S4)
+			Txs = [Txs7, Txs8, Txs9],
+			!ground(Txs),
+			handle_txs(S2, Txs, S4)
 		)
 	;	S4 = S2),
 	true.

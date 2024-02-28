@@ -33,7 +33,7 @@ init_exchange_rates_tmp_cache :-
 	do we have this cached already?
 */
 exchange_rates(Day, Exchange_Rates) :-
-	cf(persistently_cached_exchange_rates(Day, Exchange_Rates)),
+	c(persistently_cached_exchange_rates(Day, Exchange_Rates)),
 	!.
 
 /* 
@@ -44,7 +44,7 @@ exchange_rates(Day, Exchange_Rates) :-
 	% 2, because timezones and stuff. This should result in us not making queries for exchange rates more than 48h into the future, but definitely not to errorneously refusing to query because we think Day is in future when it isnt.
 	add_days(Today, 2, Tomorrow),
 	Day @=< Tomorrow,
-	cf(fetch_exchange_rates(Day, Exchange_Rates)).
+	c(fetch_exchange_rates(Day, Exchange_Rates)).
 
 % Obtains all available exchange rates on the day Day using an arbitrary base currency
 % from exchangeratesapi.io. The results are memoized because this operation is slow and

@@ -24,10 +24,9 @@ def get_rates(date):
 
 @diskcache.barrier(cache, diskcache.Lock)
 def get_rates2(date):
-	rate = cache.get(date)
-	if rate is not None:
-		return rate
-	
+	rates = cache.get(date)
+	if rates is not None:
+		return rates
 	
 	log.debug('started %s', date)
 	result = requests.get("http://openexchangerates.org/api/historical/" + date + ".json?app_id=677e4a964d1b44c99f2053e21307d31a")
