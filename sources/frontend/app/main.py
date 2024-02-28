@@ -509,6 +509,12 @@ ai3 = FastAPI(
 
 
 
+@ai3.get("/")
+def index():
+	return "ok"
+
+
+
 @ai3.get('/div7a')
 def div7a(
 	request: Request,
@@ -563,14 +569,7 @@ def div7a(
 	)
 	r = requests.post(os.environ['SERVICES_URL'] + '/div7a2', json=jsonable_encoder(services_request))
 	r.raise_for_status()
-	r = r.json()
-	logging.getLogger().info(r)
-	if 'error_message' in r:#?
-		response = dict(error=r['error_message'])#?
-	elif 'error' in r:
-		response = dict(error=r['error'])
-	else:
-		response = r['result']
+	response = r.json()
 	logging.getLogger().info(response)
 	return response
 
