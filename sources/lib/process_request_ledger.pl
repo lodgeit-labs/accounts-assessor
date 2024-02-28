@@ -59,7 +59,7 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 
 	/* each GL input sheet can be set to be applied at a particular phase */
 	ct('phase: opening balance GL inputs',
-		(extract_gl_inputs(phases:opening_balance, Gl_input_txs),
+		(ct(extract_gl_inputs(phases:opening_balance, Gl_input_txs)),
 		/* gl inputs are just GL transactions, not STs */
 	 	handle_txs(S2, Gl_input_txs, S4))),
 	doc_add(S4, rdfs:comment, "with Gl_input_txs"),
@@ -70,9 +70,9 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 	;	S4 = S6),
 
 	/* this phasing is somewhat arbitrary, just driven by our usecases */
- 	cf('phase: main 1'(S6, S7)),
+ 	cf('phase: main 1 - sts'(S6, S7)),
  	doc_add(S7, rdfs:comment, "after main 1"),
- 	cf('phase: main 2'(S7, S8)),
+ 	cf('phase: main 2 - gl'(S7, S8)),
  	doc_add(S8, rdfs:comment, "after main 2"),
 
 	(	account_by_role(rl(smsf_equity), _)
@@ -84,12 +84,12 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 	true.
 
 
- 'phase: main 1'(S0, S2) :-
+ 'phase: main 1 - sts'(S0, S2) :-
  	(	is_not_cutoff
  	->	(
 			!cf(handle_additional_files(Sts0)),
 			!cf('extract bank statement transactions'(Sts1)),
-			!cf(extract_action_inputs(_, Sts2)),
+			!ct(extract_action_inputs(phases:main, Sts2)),
 			%$>!cf(extract_livestock_data_from_ledger_request(Dom)),
 			flatten([Sts0, Sts1, Sts2], Sts3)
 		)
@@ -99,11 +99,11 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
  	!once(cf('ensure system accounts exist 0'(Sts3))).
 
 
- 'phase: main 2'(S2, S4) :-
+ 'phase: main 2 - gl'(S2, S4) :-
  	(	is_not_cutoff
  	->	(
-			!cf(extract_gl_inputs(_, Txs7)),
-			!cf(extract_reallocations(_, Txs8)),
+			!ct(extract_gl_inputs(phases:main, Txs7)),
+			!ct(extract_reallocations(phases:main, Txs8)),
 			!cf(extract_smsf_distribution(S2, Txs9)),
 			%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
 			handle_txs(S2, [Txs7, Txs8, Txs9], S4)

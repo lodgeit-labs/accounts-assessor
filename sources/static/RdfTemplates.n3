@@ -48,8 +48,6 @@
 ].
 	
 
-phases:opening_balance a :Phase.
-
 
 :request l:templates_version "2".
 l:templates_version rdfs:comment "this should't be a string but an uri. Or, more likely, we should handle versions individually per sheet-set and per sheet etc. See ic_ui:investment_calculator_sheets_v2".
@@ -742,6 +740,7 @@ acc:normal_side rdfs:range reallocation:Drcr.
 
 
 ic_ui:action_verbs_sheet
+	excel:optional true;
 	excel:root ic:action_verbs.
 
 ic_ui:action_verbs_example
@@ -778,6 +777,7 @@ av:gst_rate_percent rdfs:label "GST Rate Percent".
 
 
 ic_ui:unit_values_sheet
+	excel:optional true;
 	excel:root ic:unit_valueses;
 	excel:name_prefix "unit_values".
 
@@ -865,6 +865,7 @@ ic_ui:bank_statement_items
 
 
 ic_ui:unit_types_sheet
+	excel:optional true;
 	excel:root ic:unit_types.
 
 ic_ui:unit_types_example
@@ -956,6 +957,8 @@ ic_ui:gl
 ic:phase rdfs:range :Phase.
 phases:opening_balance a :Phase.
 phases:opening_balance rdfs:label "opening balance".
+phases:main a :Phase.
+
 
 ic_ui:action_input
 	a excel:template;
