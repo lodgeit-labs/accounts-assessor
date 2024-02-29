@@ -245,6 +245,7 @@ prepreprocess_s_transaction(T, T) :-
 	s_transaction_day(S_Transaction, Transaction_Date),
 	s_transaction_vector(S_Transaction, Vector),
 	% infer the count by money debit/credit and exchange rate
+	%gtrace,
 	vec_change_bases_throw(Exchange_Rates, Transaction_Date, Goods_Bases, Vector, Vector_Exchanged),
 	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
 	doc_set_s_transaction_field(exchanged, S_Transaction, vector(Vector_Exchanged_Inverted), NS_Transaction, infer_exchanged_units_count).

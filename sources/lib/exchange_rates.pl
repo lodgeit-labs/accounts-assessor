@@ -20,7 +20,7 @@
 %:- initialization(init_exchange_rates).
 
 %init_exchange_rates :-
-%	for shared cache:
+%	%for shared cache:
 %	absolute_file_name(my_cache('persistently_cached_exchange_rates.pl'), File, []),
 %	db_attach(File, []).
 
@@ -33,7 +33,8 @@ init_exchange_rates_tmp_cache :-
 	do we have this cached already?
 */
 exchange_rates(Day, Exchange_Rates) :-
-	c(persistently_cached_exchange_rates(Day, Exchange_Rates)),
+	format(user_error, '~q ...', [persistently_cached_exchange_rates(Day, Exchange_Rates)]),
+	persistently_cached_exchange_rates(Day, Exchange_Rates),
 	!.
 
 /* 
@@ -44,7 +45,7 @@ exchange_rates(Day, Exchange_Rates) :-
 	% 2, because timezones and stuff. This should result in us not making queries for exchange rates more than 48h into the future, but definitely not to errorneously refusing to query because we think Day is in future when it isnt.
 	add_days(Today, 2, Tomorrow),
 	Day @=< Tomorrow,
-	c(fetch_exchange_rates(Day, Exchange_Rates)).
+	fetch_exchange_rates(Day, Exchange_Rates).
 
 % Obtains all available exchange rates on the day Day using an arbitrary base currency
 % from exchangeratesapi.io. The results are memoized because this operation is slow and
@@ -83,8 +84,9 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 		Exchange_Rates
 	),
 	close(Stream),
-	format(user_error, '..ok.\n', []),
-	assert_rates(Date, Exchange_Rates).
+	format(user_error, '..ok.\n', [])
+	,assert_rates(Date, Exchange_Rates)
+	.
 
 /* 
 	now put it in the cache file 
@@ -158,22 +160,23 @@ best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate) :-
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, _) :-
-	best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate).
+	format(string(S), '~q', [best_nonchained_exchange_rate('Table', Day, Src_Currency, Dest_Currency, Exchange_Rate)]),
+	ct(S,
+		
+		best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate)).
 
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
 	Length > 0,
-	(
-		var(Dest_Currency)
-	->
-		true
-	;
-		Dest_Currency \= Src_Currency
-	),
+	dif(Dest_Currency, Src_Currency),
+	dif(Int_Currency, Src_Currency),
+	dif(Int_Currency, Dest_Currency),
 	/* get conversions into any currency */
 	best_nonchained_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
-	Int_Currency \= Src_Currency,
 	New_Length is Length - 1,
-	chained_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
+	format(string(S), '~q', [chained_exchange_rate('Table', Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length)]),
+	ct(
+		S,
+		chained_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length)),
 	{Exchange_Rate = Head_Exchange_Rate * Tail_Exchange_Rate}.
 
 /*
@@ -199,16 +202,15 @@ It makes sure that not only is the unit value from correct date used, but that a
 	),
 	(	Best_Rates1 \= []
 	->	Best_Rates = Best_Rates1
-	;	(	false
-		->	%for debugging, find all exchange rates just to make sure they are all the same:
-			!findall(
+	;	(	false %for debugging, find all exchange rates just to make sure they are all the same:
+		->	!findall(
 				(Dest_Currency, Rate),
 				chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2),
 				Best_Rates
 			)
 		;	(
 				Best_Rates = [(Dest_Currency, Rate)], 
-				once(chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2))
+				once(chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 1))
 			)
 		)
 	),
@@ -269,7 +271,7 @@ exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 
 
 
-:- table(exchange_rate/5).
+%:- table(exchange_rate/5).
 exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	push_format('~q', [exchange_rate(Day, Src_Currency, Dest_Currency)]),
 	%write(exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)),writeln('...'),
