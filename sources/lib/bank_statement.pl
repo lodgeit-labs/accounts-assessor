@@ -373,9 +373,9 @@ take statement/source transaction and generate a list of plain transactios.
 	->	true
 	;	(
 			true,
-			throw($>format(
+			throw_string($>format(
 				string(<$),
-				'not enough outstanding stock to sell.~n~w', [
+				'not enough outstanding stock to sell.~n~n~w', [
 					$>outstandings_str(Outstanding_In)]))
 		)
 	),
