@@ -215,7 +215,6 @@ subcategorize_distribution_received4(A, Subcategorization) :-
 %------
 
  financial_investments_account(Exchanged_Account_Uri,Goods_Unit,Exchanged_Account2) :-
- gtrace,
 	!account_name(Exchanged_Account_Uri, Exchanged_Account_Id),
 	Rl = rl('Financial_Investments'/Exchanged_Account_Id/Goods_Unit),
  	push_context($>format(string(<$), 'find child account of ~q for unit ~q', [Exchanged_Account_Id, Goods_Unit])),

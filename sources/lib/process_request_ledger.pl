@@ -98,8 +98,9 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 		)
 	;	Sts3 = []
 	),
-	handle_sts(S0, Sts3, S2),
- 	!once(cf('ensure system accounts exist 0'(Sts3))).
+	% it's obvious that we need to create Financial_Investments accounts before we preprocess_s_transactions. So, the only way that things could have worked in reverse order, seems to be that all units were mentioned in unit_types sheet. Additionally, it's probably not necessary to call 'ensure system accounts exist 0' a second time after handle_sts.
+	!once(cf('ensure system accounts exist 0'(Sts3))),
+	handle_sts(S0, Sts3, S2).
 
 
  'phase: main 2 - gl'(S2, S4) :-

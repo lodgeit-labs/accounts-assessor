@@ -1,9 +1,11 @@
 
 /*
-return all units that appear in s_transactions with an action type that specifies a trading account
+return all units that:
+ appear in s_transactions with an action type that specifies a trading account
+ appear in unit_types sheet
 */
  traded_units(S_Transactions, Traded_Units) :-
-	findall(Unit,traded_units2(S_Transactions, Unit),Units),
+	findall(Unit, traded_units2(S_Transactions, Unit),Units),
 	sort(Units, Traded_Units).
 
  traded_units2(S_Transactions, Unit) :-
