@@ -27,6 +27,7 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
 	!cf('extract "cost_or_market"'),
 	!cf(extract_report_currency),
 	!cf('extract action verbs'),
+	!cf(add_builtin_action_verbs),
 	!cf('extract bank accounts'),
 	!cf('extract GL accounts'),
 	!cf(make_gl_viewer_report),

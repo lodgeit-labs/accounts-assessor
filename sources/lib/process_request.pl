@@ -110,10 +110,11 @@
 	;	fail).
 
 
- enrich_exception_with_ctx_dump(E, E2) :-
-	(	context_string(Ctx_str)
-	->	E2 = with_processing_context(Ctx_str, E)
-	;	E2 = E).
+/* nobe, context is not stored in doc */
+% enrich_exception_with_ctx_dump(E, E2) :-
+%	(	context_string(Ctx_str)
+%	->	E2 = with_processing_context(E, Ctx_str)
+%	;	E2 = E).
 
  reestablish_doc :-
 	(	user:exception_doc_dump(G,Ng)
@@ -125,8 +126,8 @@
 	handle_processing_exception2(E).
 
  handle_processing_exception2(E) :-
-	enrich_exception_with_ctx_dump(E, E2),
-	format_exception_into_alert_string(E2, Msg, Str, Html),
+	%enrich_exception_with_ctx_dump(E, E2),
+	format_exception_into_alert_string(E, Msg, Str, Html),
 	add_alert('error', Str, Alert_uri),
 	(	Html \= ''
 	->	doc_add(Alert_uri, l:has_html, Html)
@@ -139,10 +140,10 @@ todo: refactor into alert_to_html (which is invoked post-hoc)
 alert_to_html also has key available - 'error'
  */ 
  format_exception_into_alert_string(E, Msg, Str, Html) :-
-	(	E = with_processing_context(C,E1)
+	(	E = with_processing_context(E1,C)
 	->	Context_str = C
 	;	(
-			Context_str = '',
+			Context_str = 'missing',
 			E1 = E
 		)
 	),

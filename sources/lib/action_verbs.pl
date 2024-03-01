@@ -1,9 +1,14 @@
 
+
+
 'extract action verbs' :-
 	(	get_optional_singleton_sheet_data(ic_ui:action_verbs_sheet, Data)
-	->	maplist(!'extract action verb', $>doc_list_items($>value(Data)))
-	;	true),
-	!add_builtin_action_verbs.
+	->	(
+			!value(Data, DataValue),
+			!doc_list_items(DataValue, Items),
+			maplist(!'extract action verb', Items)
+		)
+	;	ct('no action verbs sheet')).
 
 
 'extract action verb'(Item) :-

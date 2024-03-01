@@ -1112,6 +1112,7 @@ ic_ui:account_taxonomies
 account_taxonomies:url rdfs:range account_taxonomies:Account_taxonomy.
 account_taxonomies:base a account_taxonomies:Account_taxonomy.
 account_taxonomies:investments a account_taxonomies:Account_taxonomy.
+account_taxonomies:investments_simple a account_taxonomies:Account_taxonomy.
 account_taxonomies:livestock a account_taxonomies:Account_taxonomy.
 account_taxonomies:smsf a account_taxonomies:Account_taxonomy.
 

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<accountHierarchy>
+	<account name="Financial_Investments" normal_side="debit"   parent_role="root" role="Financial_Investments!Financial_Investments" />
+	<account name="Investment_Income"     normal_side="credit"  parent_role="root" role="Trading_Accounts!Investment_Income" />
+	<account name="Investment_Clearing"   normal_side="debit"   parent_role="root" />
+</accountHierarchy>

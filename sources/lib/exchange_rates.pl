@@ -19,12 +19,9 @@
 :- persistent(persistently_cached_exchange_rates(day: any, rates:list)).
 %:- initialization(init_exchange_rates).
 
-%init_exchange_rates :-
-%	%for shared cache:
-%	absolute_file_name(my_cache('persistently_cached_exchange_rates.pl'), File, []),
-%	db_attach(File, []).
 
-init_exchange_rates_tmp_cache :-
+
+ init_exchange_rates_tmp_cache :-
 	absolute_tmp_path(loc(file_name, 'exchange_rates.pl'), loc(absolute_path, File)),	
 	db_attach(File, []).
 
@@ -161,22 +158,31 @@ best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate) :-
 % =< Length exchange rates.
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, _) :-
 	format(string(S), '~q', [best_nonchained_exchange_rate('Table', Day, Src_Currency, Dest_Currency, Exchange_Rate)]),
-	ct(S,
-		
+	ct(S,	
 		best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate)).
 
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
 	Length > 0,
+	
 	dif(Dest_Currency, Src_Currency),
 	dif(Int_Currency, Src_Currency),
 	dif(Int_Currency, Dest_Currency),
+	
 	/* get conversions into any currency */
-	best_nonchained_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
+%cf?
+	ct(
+		best_nonchained_exchange_rate('Table', Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
+		best_nonchained_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate)
+	),
+	
 	New_Length is Length - 1,
+	
+%cf?
 	format(string(S), '~q', [chained_exchange_rate('Table', Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length)]),
 	ct(
 		S,
 		chained_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length)),
+	
 	{Exchange_Rate = Head_Exchange_Rate * Tail_Exchange_Rate}.
 
 /*
@@ -271,31 +277,31 @@ exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 
 
 
-%:- table(exchange_rate/5).
-exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
+:- table(exchange_rate/5).
+ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	push_format('~q', [exchange_rate(Day, Src_Currency, Dest_Currency)]),
 	%write(exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)),writeln('...'),
 	exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out),
 	pop_format
 	.
 
-exchange_rate_throw(Table, Day, Src, Dest, Exchange_Rate_Out) :-
+ exchange_rate_throw(Table, Day, Src, Dest, Exchange_Rate_Out) :-
 	(	exchange_rate(Table, Day, Src, Dest, Exchange_Rate_Out)
 	->	true
 	;	exchange_rate_do_throw(Day, Src, Dest)).
 
-exchange_rate_do_throw(Day, Src, Dest) :-
+ exchange_rate_do_throw(Day, Src, Dest) :-
 	(	'is required exchange rate physically in future'(Day)
 	->	Msg2 = ', date in future?'
 	;	Msg2 = ''),
 	throw_format('no exchange rate found: Day:~w, Src:~w, Dest:~w~w\n', [Day, Src, Dest, Msg2]).
 
-'is required exchange rate physically in future'(Day) :-
+ 'is required exchange rate physically in future'(Day) :-
 	!date(Today),
 	Day @> Today.
 
 	
-is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
+ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	member(Dest_Currency, Bases),
 	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate).
 
@@ -306,11 +312,14 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 ┗━╸╹ ╹ ╹ ╹┗╸╹ ╹┗━╸ ╹
 */
  extract_exchange_rates :-
+ 	extract_exchange_rates1(Exchange_Rates),
 	(	at_cost
-	->	Exchange_Rates = []
-	;	extract_exchange_rates1(Exchange_Rates)),
-	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
-	!result_add_property(l:exchange_rates, Exchange_Rates).
+	->	!result_add_property(l:exchange_rates, [])
+	;	!result_add_property(l:exchange_rates, Exchange_Rates)),
+	!result_add_property(l:exchange_rates_even_at_cost, Exchange_Rates),
+	!add_comment_stringize('Exchange rates extracted', Exchange_Rates).
+	
+	
 
 
  extract_exchange_rates1(Exchange_Rates) :-

@@ -1,6 +1,7 @@
 setting(cluster_variables,true).
 setting(list_max_clauses,25).
-setting(portray_codes,true).
+setting(portray_text,true).
+setting(portray_text_length,30).
 setting(auto_raise,true).
 setting(auto_close,true).
 setting(console_actions,false).
