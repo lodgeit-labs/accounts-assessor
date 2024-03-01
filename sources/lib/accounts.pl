@@ -55,16 +55,20 @@ see also wiki/specifying_account_hierarchies.md
 	!vector_of_coords_vs_vector_of_values(Side, Coords, Values).
 
 
+
+/* "account by role, throw */
  abrlt(Role, Account) :-
-	/* "account by role, throw */
 	!(	is_valid_role(Role)
 	->	true
-	;
-		%true
-		format(user_error, '~q.~n', [is_valid_role(Role)])
-	),
-
+	;	format(user_error, '~q.~n', [is_valid_role(Role)])),
 	account_by_role_throw(rl(Role), Account).
+
+ abrl(Role, Account) :-
+	!(	is_valid_role(Role)
+	->	true
+	;	format(user_error, '~q.~n', [is_valid_role(Role)])),
+	account_by_role(rl(Role), Account).
+
 
 
 /*

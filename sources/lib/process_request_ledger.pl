@@ -208,7 +208,7 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 	},
 
 	historical_reports(Vanilla_State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical),
-	current_balance_entries(Closed_books_state, Cf,Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance).
+	current_balance_entries(Closed_books_state, Cf, Balance_Sheet, Balance_Sheet_delta, ProfitAndLoss, Trial_Balance).
 
 
  current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance) :-

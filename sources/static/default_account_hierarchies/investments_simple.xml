@@ -1,6 +1,21 @@
 <?xml version='1.0' encoding='utf-8'?>
 <accountHierarchy>
-	<account name="Financial_Investments" normal_side="debit"   parent_role="root" role="Financial_Investments!Financial_Investments" />
-	<account name="Investment_Income"     normal_side="credit"  parent_role="root" role="Trading_Accounts!Investment_Income" />
-	<account name="Investment_Clearing"   normal_side="debit"   parent_role="root" />
+
+	<account parent_role="root" normal_side="debit" name="Accounts">
+		<account role="Net_Assets" name="Net_Assets">
+			<account name="Financial_Investments" normal_side="debit"  role="Financial_Investments!Financial_Investments" />
+			<account name="Investment_Clearing"   normal_side="debit"  />  
+		</account>
+		<account role="Equity" normal_side="credit" name="Equity">
+				<account role="Historical_Earnings" name="Historical_Earnings" />
+				<account role="Current_Earnings" name="Current_Earnings" />
+		</account>
+
+		<account role="Comprehensive_Income" normal_side="credit" name="Comprehensive_Income" >
+		    <account name="Investment_Income"     normal_side="credit"  role="Trading_Accounts!Investment_Income" />
+		</account>
+	</account>
+	
 </accountHierarchy>
+
+
