@@ -366,10 +366,10 @@ take statement/source transaction and generate a list of plain transactios.
 			Goods_Unit,
 			$>money_vector_string($>vector_of_coords_vs_vector_of_values(kb:debit,Vector_Ours))])),
 
-	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
-	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
+	c(financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2)),
+	c(bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price)),
 
-	(	find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values)
+	(	cf(find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values))
 	->	true
 	;	(
 			true,
