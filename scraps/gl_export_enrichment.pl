@@ -19,7 +19,7 @@ transaction_add_converted_vector(Sd, T) :-
 	doc_add_value(T, ic:vector_converted_at_transaction_date, A, transactions),
 	doc_add_value(T, ic:vector_converted_at_balance_date, B, transactions).
 
-transactions_add_rounded_propertios(Tx) :-
+transactions_add_rounded_properties(Tx) :-
 	transaction_dict(Tx, Tx3),
 	round_term(Tx3, Tx6),
 	doc_add(Tx, transaction_vector_json, $>dict_json_text(Tx6.vector), transactions),
