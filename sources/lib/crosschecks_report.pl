@@ -55,70 +55,70 @@
 	/* account balances at normal sides here */
 	Crosschecks0 = [
 		equality(
-account_balance(reports/bs/current, rl('Net_Assets')),
-account_balance(reports/bs/current, rl('Equity'))),
+			account_balance(reports/bs/current, rl('Net_Assets')),
+			account_balance(reports/bs/current, rl('Equity'))),
 		equality(
-account_balance(reports/pl/current, rl('Trading_Accounts'/_/realized/withoutCurrencyMovement)),
-report_value(reports/ir/current/totals/gains/rea/market_converted)),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/realized/withoutCurrencyMovement)),
+			report_value(reports/ir/current/totals/gains/rea/market_converted)),
 		equality(
-account_balance(reports/pl/current, rl('Trading_Accounts'/_/realized/onlyCurrencyMovement)),
-report_value(reports/ir/current/totals/gains/rea/forex)),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/realized/onlyCurrencyMovement)),
+			report_value(reports/ir/current/totals/gains/rea/forex)),
 		equality(
-account_balance(reports/pl/current, rl('Trading_Accounts'/_/unrealized/withoutCurrencyMovement)),
-report_value(reports/ir/current/totals/gains/unr/market_converted)),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/unrealized/withoutCurrencyMovement)),
+			report_value(reports/ir/current/totals/gains/unr/market_converted)),
 		equality(
-account_balance(reports/pl/current, rl('Trading_Accounts'/_/unrealized/onlyCurrencyMovement)),
-report_value(reports/ir/current/totals/gains/unr/forex)),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/unrealized/onlyCurrencyMovement)),
+			report_value(reports/ir/current/totals/gains/unr/forex)),
 		equality(
-account_balance(reports/pl/current, rl('Trading_Accounts'/_)),
-report_value(reports/ir/current/totals/gains/total)),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_)),
+			report_value(reports/ir/current/totals/gains/total)),
 		equality(
-account_balance(reports/pl/current, rl('Trading_Accounts'/_/unrealized)),
-report_value(reports/ir/current/totals/gains/unrealized_total)),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/unrealized)),
+			report_value(reports/ir/current/totals/gains/unrealized_total)),
 		equality(
-account_balance(reports/pl/current, rl('Trading_Accounts'/_/realized)),
-report_value(reports/ir/current/totals/gains/realized_total)),
+			account_balance(reports/pl/current, rl('Trading_Accounts'/_/realized)),
+			report_value(reports/ir/current/totals/gains/realized_total)),
 		equality(
-account_balance(reports/bs/current, rl('Financial_Investments'/_)),
-report_value(reports/ir/current/totals/closing/total_cost_converted)),
+			account_balance(reports/bs/current, rl('Financial_Investments'/_)),
+			report_value(reports/ir/current/totals/closing/total_cost_converted)),
 		equality(
-account_balance(reports/bs/current, rl('Current_Earnings')),
-account_balance(reports/pl/current, rl('Comprehensive_Income'))),
+			account_balance(reports/bs/current, rl('Current_Earnings')),
+			account_balance(reports/pl/current, rl('Comprehensive_Income'))),
 		equality(
-account_balance(reports/bs/current, rl('Historical_Earnings')),
-account_balance(reports/pl/historical, rl('Comprehensive_Income')))
+			account_balance(reports/bs/current, rl('Historical_Earnings')),
+			account_balance(reports/pl/historical, rl('Comprehensive_Income')))
 	],
 
 	Smsf_crosschecks = [
 		equality(
-account_balance(reports/bs/current, rl('Equity_Aggregate_Historical')),
-[]
+			account_balance(reports/bs/current, rl('Equity_Aggregate_Historical')),
+			[]
 		),
 		equality(
-account_balance(reports/bs/current, rl('Bank_Opening_Balances')),
-[]
+			account_balance(reports/bs/current, rl('Bank_Opening_Balances')),
+			[]
 		),
 		equality(
-fact_value(aspects([concept - smsf/income_tax/'Net Tax refundable/payable'])),
-fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Net Tax refundable/payable']))),
+			fact_value(aspects([concept - smsf/income_tax/'Net Tax refundable/payable'])),
+			fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Net Tax refundable/payable']))),
 		equality(
-fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Total'])),
-fact_value(aspects([concept - smsf/income_tax/'to pay']))),
+			fact_value(aspects([concept - smsf/income_tax/reconcilliation/'Total'])),
+			fact_value(aspects([concept - smsf/income_tax/'to pay']))),
 		equality(
-account_balance(reports/pl/current, rl('Distribution_Revenue')),
-fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:distribution_income))]))),
+			account_balance(reports/pl/current, rl('Distribution_Revenue')),
+			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:distribution_income))]))),
 		equality(
-account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Resolved_Accrual')),
-fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:accrual))]))),
+			account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Resolved_Accrual')),
+			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:accrual))]))),
 		equality(
-account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Distribution_Cash')),
-fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:bank))]))),
+			account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Distribution_Cash')),
+			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:bank))]))),
 		equality(
-account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Foreign_Credit')),
-fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:foreign_credit))]))),
+			account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Foreign_Credit')),
+			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:foreign_credit))]))),
 		equality(
-account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Franking_Credit')),
-fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])))
+			account_balance(reports/pl/current, rl('Distribution_Revenue'/Unit/'Franking_Credit')),
+			fact_value(aspects([concept - ($>rdf_global_id(smsf_distribution_ui:franking_credit))])))
 	],
 /*
 	tax statement:
