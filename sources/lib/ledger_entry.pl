@@ -65,7 +65,7 @@
 	!report_entry_gl_account(Entry, Account),
 	entry_normal_side_values(Entry, Account, Values_List).
 
- entry_normal_side_values(Entry, Account, Values_List) :-
+ entry_normal_side_values(Entry, _Account, Values_List) :-
 	doc(Entry, report_entries:normal_side_values, Values_List),
 	!.
 
