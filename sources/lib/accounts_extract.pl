@@ -25,24 +25,9 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 	load_accountHierarchy_element(Url, AccountHierarchy),
 	extract_accounts_from_accountHierarchy_element(AccountHierarchy).
 
- default_account_hierarchy(Taxonomy, Url) :-
-		rdf_equal2(Taxonomy, account_taxonomies:base)
-	->	Url = 'base.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:investments)
-	->	Url = 'investments.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:investments_simple)
-	->	Url = 'investments_simple.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:investments__legacy)
-	->	Url = 'investments__legacy.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:investments__legacy2)
-	->	Url = 'investments__legacy2.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:legacy)
-	->	Url = 'legacy.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:livestock)
-	->	Url = 'livestock.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:smsf)
-	->	Url = 'smsf.xml'
-	.
+ default_account_hierarchy(Taxonomy, Filename) :-
+ 		rdf_current_prefix(account_taxonomies, At),
+ 		atom_concat(At, Filename, Taxonomy).
 
  absolutize_account_hierarchy_path(Url_Or_Path, Url_Or_Path2) :-
 	(	is_url(Url_Or_Path)
