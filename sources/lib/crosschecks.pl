@@ -1,3 +1,4 @@
+% todo: crosschecks2, where
 
 
  crosschecks_report0(Sd, Json) :-
@@ -167,9 +168,12 @@
 	}.
 
 
- evaluate_equality(Sd, equality(A, B), crosscheck{check:Check, evaluation:Evaluation, status:Status, diff: Diff}) :-
-	evaluate(Sd, A, A2),
-	evaluate(Sd, B, B2),
+ evaluate_equality(Sd, equality(A, B), C) :-
+
+	evaluate(C, Sd, A, A2),
+	evaluate(C, Sd, B, B2),
+
+
 	(
 	 crosscheck_compare(A2, B2)
 	->
@@ -185,53 +189,69 @@
       vec_sub(A2, B2, Diff)
 	 )
 	),
+
+
 	Check = check{op: Equality_Str, a:A, b:B},
-	Evaluation = evaluation{op: Equality_Str, a:A2, b:B2}.
-	
+	Evaluation = evaluation{op: Equality_Str, a:A2, b:B2},
 
-crosscheck_compare(A, B) :-
+	C = crosscheck{check:Check, evaluation:Evaluation, status:Status, diff: Diff},
+
+ 	doc_new_uri("crosscheck", Crosscheck),
+	doc_add(Crosscheck, kb:data, C).
+
+
+
+ crosscheck_compare(A, B) :-
 	vecs_are_almost_equal(A, B).
-	
 
-evaluate(Sd, Term, Value) :-
+
+ evaluate(Crosscheck, Sd, Term, Value) :-
 	(	evaluate2(Sd, Term, Value)
 	->	true
-	;	Value = evaluation_failed(Term, $>gensym(evaluation_failure))).
+	;	Value = evaluation_failed(Term, $>gensym(evaluation_failure))),
 
-evaluate2(Sd, report_value(Key), Values_List) :-
+	% this is useless until the evaluate2's actually deal with a kind of data that are stored in doc, and the links can be followed. vec_sum would have to be vec_sum_with_proof, etc.
+	doc_add(Crosscheck, kb:mentions, Value).
+
+
+ evaluate2(Sd, report_value(Key), Values_List) :-
 	path_get_dict(Key, Sd, Values_List).
 		
 /* get vector of values in normal side, of an account, as provided by tree of entry(..) terms. Return [] if not found. */
 
-evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
-	/* get report out of static data */
+ evaluate2(Sd, account_balance(Report_Id, Acct), Values_List) :-
+	/* get report out of static data, such as "reports/pl/current" */
 	*path_get_dict(Report_Id, Sd, Report_wrapper),
-	!is_dict(Report_wrapper),
+
+	/* it's a dict, such as creted by balance_sheet_at, where entries is a list of make_report_entry uris */
+	assertion(is_dict(Report_wrapper)),
 	Entries = Report_wrapper.entries,
 	assertion(is_list(Entries)),
+
 	findall(
 		Values_List,
 		report_report_entry_normal_side_values_by_acct(Entries, Acct, Values_List),
 		Values_List0
 	),
+	assertion(Values_List=[_]), %??
+
+	% maplist(link_crosscheck_to_vector..
+
 	vec_sum(Values_List0, Values_List).
 
-evaluate2(_, fact_value(Aspects), Values_List) :-
+  evaluate2(_, fact_value(Aspects), Values_List) :-
 	evaluate_fact2(Aspects, Values_List).
 
-evaluate2(_, Vec, Vec) :-
+ evaluate2(_, Vec, Vec) :-
 	is_list(Vec).
 
-report_report_entry_normal_side_values_by_acct(Entries, Acct, Values_List) :-
+ report_report_entry_normal_side_values_by_acct(Entries, Acct, Values_List) :-
 	assertion(is_list(Entries)),
-	(	Acct = uri(Account_uri)
-	->	true
-	;	(
-			assertion(Acct = rl(_)),
-			account_by_role(Acct, Account_uri)
-		)
-	),
-	report_entry_normal_side_values(Entries, Account_uri, Values_List).
+	resolve_account(Acct, Account_uri),
+	/* pick the entry out of Entries, and get the normal side values */
+	%report_entry_normal_side_values(Entries, Account_uri, Values_List).
+	accounts_report_entry_by_account_uri(Entries, Account_uri, Entry),
+	entry_normal_side_values(Entry, Account_uri, Values_List).
 
 
  check_account_is_zero(Sr, Specifier) :-

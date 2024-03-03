@@ -50,6 +50,8 @@ see also wiki/specifying_account_hierarchies.md
  account_normal_side(Uri, X) :-
 	doc(Uri, accounts:normal_side, X, accounts).
 
+
+
  vector_of_coords_to_vector_of_values_by_account_normal_side(Account_Id, Coords, Values) :-
 	!account_normal_side(Account_Id, Side),
 	!vector_of_coords_vs_vector_of_values(Side, Coords, Values).
@@ -98,6 +100,15 @@ find account by a user-entered name
 		(
 			doc(As, l:has_account, A),
 			account_name(A, Name)
+		)
+	).
+
+ resolve_account(Acct, Account_uri) :-
+	(	Acct = uri(Account_uri)
+	->	true
+	;	(
+			assertion(Acct = rl(_)),
+			account_by_role(Acct, Account_uri)
 		)
 	).
 

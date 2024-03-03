@@ -7,6 +7,7 @@
 	doc_add(Uri, report_entries:name, Name),
 	doc_add(Uri, report_entries:children, Children).
 
+ /* see report_entry_total_vec */
  set_report_entry_total_vec(Uri, Balance) :-
  	t(Uri,l:report_entry),
 	!doc_add(Uri, report_entries:total_vec, Balance).
@@ -39,6 +40,9 @@
  	t(Entry,l:report_entry),
 	doc(Entry, report_entries:name, Name).
 
+ /*
+ note that set_report_entry_total_vec is currently called in different ways, cashflow sets this to proofed vector.
+  */
  report_entry_total_vec(Entry, X) :-
  	t(Entry,l:report_entry),
 	doc(Entry, report_entries:total_vec, X).
@@ -58,10 +62,18 @@
 	doc(Entry, report_entries:transaction_count, X).
 
  entry_normal_side_values(Entry, Values_List) :-
- 	t(Entry,l:report_entry),
-	!report_entry_total_vec(Entry, Balance),
 	!report_entry_gl_account(Entry, Account),
-	!vector_of_coords_to_vector_of_values_by_account_normal_side(Account, Balance, Values_List).
+	entry_normal_side_values(Entry, Account, Values_List).
+
+ entry_normal_side_values(Entry, Account, Values_List) :-
+	doc(Entry, report_entries:normal_side_values, Values_List),
+	!.
+
+ entry_normal_side_values(Entry, Account, Values_List) :-
+ 	t(Entry, l:report_entry),
+	!report_entry_total_vec(Entry, Balance),
+	!vector_of_coords_to_vector_of_values_by_account_normal_side(Account, Balance, Values_List),
+	doc_add(Entry, report_entries:normal_side_values, Values_List).
 
 
 
@@ -82,7 +94,7 @@ operations on lists of entries
  report_entry_normal_side_values(Entries, Account_uri, Values_List) :-
  	assertion(is_list(Entries)),
 	accounts_report_entry_by_account_uri(Entries, Account_uri, Entry),
-	entry_normal_side_values(Entry, Values_List).
+	entry_normal_side_values(Entry, Account_uri, Values_List).
 
  accounts_report_entry_by_account_role_nothrow(_Sd, Report, Role, Entry) :-
 	account_by_role(Role, Id),
