@@ -33,7 +33,7 @@
 :- [bank_accounts].
 :- [bank_statement].
 :- [cashflow].
-:- [crosschecks_report].
+:- [crosschecks].
 :- [detail_accounts].
 :- [exchange].
 :- [exchange_dates].

@@ -276,6 +276,7 @@ report_entry_fill_in_totals(Entry) :-
 	->	true
 	;	Own_Vec = []),
 	flatten([Own_Vec, Child_Vecs], Total_Vecs),
+
 	!vec_sum_with_proof(Total_Vecs, Total_Vec),
 	!set_report_entry_total_vec(Entry, Total_Vec).
 
