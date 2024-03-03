@@ -15,7 +15,7 @@ end
 
 
 rrr > secrets/AGRAPH_SUPER_PASSWORD ;e
-echo admin > secrets/AGRAPH_SUPER_USER ;e
+echo -n admin > secrets/AGRAPH_SUPER_USER ;e
 rrr >> secrets/AGRAPH_SUPER_USER ;e
 
 
