@@ -308,7 +308,7 @@ async def get_file(request: Request, worker_id: str, data: dict):
 	log.debug('get_file %s', path)
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	if worker.task:
-		if path in worker.task.input_files:
+		if path in [PosixPath(x) for x in worker.task.input_files]:
 			return file_to_json(path)
 		else:
 			raise Exception(f'{path=} not in {worker.task.input_files=}')
