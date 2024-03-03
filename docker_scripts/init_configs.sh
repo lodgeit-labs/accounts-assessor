@@ -6,7 +6,14 @@ set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
 # if we're running under CI, the working directory is cleared every time, so we need to do this every time. This is achieved by calling this script from the workflow yaml file.
 
 cd ..
+
 cp -r secrets_example secrets ;e
+
+sha256sum /dev/urandom | head -c 64 > secrets/AGRAPH_SUPER_PASSWORD ;e
+echo admin > secrets/AGRAPH_SUPER_USER ;e
+sha256sum /dev/urandom | head -c 64 >> secrets/AGRAPH_SUPER_USER ;e
+
+
 cp -r sources/config_example/production sources/config ;e
 
 
