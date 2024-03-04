@@ -20,8 +20,8 @@ def write_htaccess(user, path):
 
 RewriteEngine On
 
-SetEnvIf CaddyBasicAuthUser "^{user}$" CaddyBasicAuthUser=$1
-Allow from env=CaddyBasicAuthUser
+SetEnvIf Caddybasicauthuser "^{user}$" Caddybasicauthuser=$1
+Allow from env=Caddybasicauthuser
 
 SetEnvIf X-Forwarded-User "^{user}$" OauthUser=$1
 Allow from env=OauthUser
