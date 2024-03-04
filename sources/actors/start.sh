@@ -25,7 +25,7 @@ if [ ! -z $WATCHMEDO ]; then
 else
   ./start2.sh trusted_workers_health &
   child0=$!
-  ./start2.sh trusted_workers_default &
+  ./start2.sh postprocessing &
   child1=$!
 fi
 
