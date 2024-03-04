@@ -13,10 +13,10 @@ function rrr
   cat /dev/urandom | head -c 64 | sha512sum  | grep -o  '[0-9a-fA-F]\{30\}' | head -n 1
 end
 
-
-rrr > secrets/AGRAPH_SUPER_PASSWORD ;e
 echo -n admin > secrets/AGRAPH_SUPER_USER ;e
 rrr >> secrets/AGRAPH_SUPER_USER ;e
+
+rrr > secrets/AGRAPH_SUPER_PASSWORD ;e
 
 
 cp -r sources/config_example/production sources/config ;e

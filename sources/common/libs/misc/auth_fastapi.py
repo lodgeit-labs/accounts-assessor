@@ -1,6 +1,8 @@
 from fastapi import Request
 import logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 """
 the header that Caddy sends is CaddyBasicAuthUser, configured in Caddyfile.
