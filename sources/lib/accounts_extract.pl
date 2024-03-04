@@ -33,7 +33,7 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 	(	is_url(Url_Or_Path)
 	->	Url_Or_Path2 = Url_Or_Path
 	;	(	http_safe_file(Url_Or_Path, []),
-			atomics_to_string(['default_account_hierarchies/',Url_Or_Path],Url_Or_Path1),
+			atomics_to_string(['default_account_hierarchies/',Url_Or_Path, '.xml'],Url_Or_Path1),
 			catch(
 				absolute_file_name(my_static(Url_Or_Path1), Url_Or_Path2, [ access(read) ]),
 				error(existence_error(source_sink,_),_),
