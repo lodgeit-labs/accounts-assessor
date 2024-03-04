@@ -1,8 +1,10 @@
-:- if(\+getenv('SWIPL_NODEBUG', true)).
+
+
+:- if(env_bool('SWIPL_NODEBUG', true)).
+	:- format(user_error, 'SWIPL_NODEBUG on~n', []).
+:- else.
 	:- format(user_error, 'SWIPL_NODEBUG off~n', []).
 	:- debug.
-:- else.
-	:- format(user_error, 'SWIPL_NODEBUG on~n', []).
 :- endif.
 
 

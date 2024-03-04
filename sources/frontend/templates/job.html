@@ -19,21 +19,19 @@
 </head>
 <body>
     
-    Job {{job_id}}
-    
-    <h1>{{status}}</h1>
-    
-    <pre>{{json}}</pre>
+    <h3>{{status}}</h3>
 
+      <span style="height:50vh">
+      Job {{job_id}}
+      
+      <pre>{{json}}</pre>
 
-    <div>
-    <!--<div class="chart-container" style="position: relative; height:40vh; width:80vw"> -->
-        <canvas id="mem_chart"></canvas>
-        <!--</div> -->
-        </div>
+    </span>
+    
+    <canvas  style="height:20vh; width:80vw" id="mem_chart"></canvas>
     
     
-        <script>
+<script>
     
     document.addEventListener("DOMContentLoaded", function() {
                 const data = {{mem_data|tojson}};
