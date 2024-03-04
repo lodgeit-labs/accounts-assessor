@@ -644,6 +644,7 @@ ic_ui:investment_calculator_sheets
 	a excel:sheet_set;
 	excel:sheets
 	(
+		ic_ui:accounts_sheet
 		ic_ui:action_verbs_sheet
 		ic_ui:unit_values_sheet
 		ic_ui:bank_statement_sheet
