@@ -21,6 +21,8 @@ the header that oauth2-proxy sends are X-Forwarded-Email etc.
 def get_user(request: Request):
 
 	# get user from header coming from oauth2-proxy
+	
+	# may need to be lowercased too?
 	authorization = request.headers.get('X-Forwarded-Email', None)
 	logger.info('X-Forwarded-Email: %s' % authorization)
 	authorization = request.headers.get('X-Forwarded-User', None)

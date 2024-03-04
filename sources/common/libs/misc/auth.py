@@ -14,35 +14,23 @@ def write_htaccess(user, path):
 		f.write(f"""{user}\n""")
 
 	if user != 'nobody':
-		user = re.escape(user)
-		with open(P(path) / '.htaccess', 'w') as f:
-			f.write(f"""
-
+	
+		if user.endswith('@basicauth'):
+			user = user[:-len('@basicauth')]
+	
+			user = re.escape(user)
+			with open(P(path) / '.htaccess', 'w') as f:
+				f.write(f"""
 RewriteEngine On
-
-SetEnvIf Caddybasicauthuser "^{user}$" Caddybasicauthuser=$1
-Allow from env=Caddybasicauthuser
-
-SetEnvIf X-Forwarded-User "^{user}$" OauthUser=$1
-Allow from env=OauthUser
-
-Deny from all
-
+SetEnvIf Caddybasicauthuser "^{user}$" Caddybasicauthuser
+Require env Caddybasicauthuser
 """)
 
-
-
-
-# """
-# # Authorization: Basic <base64-encoded username:password>
-# authorization = request.headers.get('Authorization', None)
-# logger.info('Authorization: %s' % authorization)
-# if authorization is not None:
-# 	authorization = authorization.split(' ')
-# 	if len(authorization) == 2 and authorization[0] == 'Basic':
-# 		logger.info('authorization: %s' % authorization)
-# 		token = base64.b64decode(authorization[1]).decode()
-# 		token = token.split(':')
-# 		if len(token) == 2:
-# 			return token[0]# + '@basicauth'
-# """
+		else:
+			user = re.escape(user)
+			with open(P(path) / '.htaccess', 'w') as f:
+				f.write(f"""
+RewriteEngine On
+SetEnvIf X-Forwarded-User "^{user}$" OauthUser
+Require env OauthUser
+""")
