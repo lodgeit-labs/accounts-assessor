@@ -33,6 +33,8 @@ def get_user(request: Request):
 	# get user from header coming from caddy
 	authorization = request.headers.get('Caddybasicauthuser', None)
 	logger.info('Caddybasicauthuser: %s' % authorization)
+	if authorization == 'nobody':
+		return 'nobody'
 	if authorization is not None:
 		return authorization + '@basicauth'
 
