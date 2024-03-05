@@ -18,7 +18,6 @@ rrr >> secrets/AGRAPH_SUPER_USER ;e
 
 rrr > secrets/AGRAPH_SUPER_PASSWORD ;e
 
-
 cp -r sources/config_example/production sources/config ;e
 
 
