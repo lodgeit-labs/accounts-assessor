@@ -12,6 +12,10 @@ class Tools:
 				if dir == 'responses':
 					d = os.path.join(root, dir)
 					print(root, dir)
-					os.rename(d, os.path.join(root, 'results'))
+					#os.rename(d, os.path.join(root, 'results'))
+				if dir == 'request':
+					d = os.path.join(root, dir)
+					print(root, dir)
+					os.rename(d, os.path.join(root, 'inputs'))
 
 fire.Fire(Tools)
