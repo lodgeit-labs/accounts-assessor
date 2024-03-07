@@ -252,7 +252,7 @@ class TestResultImmediateXml(luigi.Task):
 		with result_xml.temporary_path() as result_xml_fn:
 			with open(result_xml_fn, 'w') as result_xml_fd:
 				result_xml_fd.write(resp.text)
-		job['result'] = 'responses/response.xml'
+		job['result'] = 'results/response.xml'
 		
 		with self.output().temporary_path() as response_fn:
 			with open(response_fn, 'w') as response_fd:

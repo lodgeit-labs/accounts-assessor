@@ -171,7 +171,7 @@ def write_multistep_testcase(
 	with open(case_dir / 'request.json', 'w') as f:
 		json.dump({"requested_output_format":"immediate_xml"}, f)
 	with open(case_dir / 'response.json', 'w') as f:
-		json.dump({"status":200,"result":"responses/response.xml"}, f)
+		json.dump({"status":200,"result":"results/response.xml"}, f)
 
 	inputs_dir = case_dir / 'request'
 	inputs_dir.mkdir(parents=True)
