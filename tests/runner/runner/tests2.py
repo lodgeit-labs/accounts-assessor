@@ -116,11 +116,11 @@ class TestPrepare(luigi.Task):
 
 	def run(self):
 		request_files_dir: pathlib.Path = P(self.test['path']) / 'inputs'
-		logging.getLogger('robust').debug(f'request_files_dir: {request_files_dir}')
+		logger.debug(f'request_files_dir: {request_files_dir}')
 		request_files_dir.mkdir(parents=True, exist_ok=True)
 		inputs = self.copy_inputs(request_files_dir)
 
-		logging.getLogger('robust').debug(f'done copying inputs.')
+		logger.debug(f'done copying inputs.')
 		inputs.append(self.write_job_json(request_files_dir))
 		with self.output().open('w') as out:
 			json_dump(inputs, out)
@@ -137,7 +137,7 @@ class TestPrepare(luigi.Task):
 				if '/.#' in str(input_file):
 					continue
 				final_name = request_files_dir / input_file.name
-				logging.getLogger('robust').debug(f'copying {input_file}')
+				logger.debug(f'copying {input_file}')
 				shutil.copyfile(input_file, final_name)
 			files.append(final_name)
 		return files
@@ -390,59 +390,101 @@ class TestEvaluate(luigi.Task):
 
 	def run(self):
 
+
 		logger.debug(f'')
 		logger.debug(f'')
-		logger.debug(f'TestEvaluate')
+		logger.debug(f'TestEvaluate:')
+
 
 		# judiciously picked list of interesting differences between expected and actual results.. or just the first difference
-		delta:list[dict] = []
+		delta: list[dict] = []
 
-		# job info / response json sent by robust api
+		# job json / response json sent by robust api, coming through the TestResult requires()'d above
 		job_fn = P(self.input().path)
 		with open(job_fn) as job_fd:
 			job = json.load(job_fd)
 
-		def done():
+		def done(critical_delta=None):
+			if critical_delta is not None:
+				delta.append(critical_delta)
 			with self.output()['evaluation'].open('w') as out:
 				json_dump({'test':dict(self.test), 'job': job, 'delta':delta}, out)
 
 
+		# get list of saved reports
+		testcase_responses_dir = self.testcasedir/'responses'
+		expected_reports = sorted(filter(lambda x: not (testcase_responses_dir/x).is_dir(), glob.glob(root_dir=testcase_responses_dir, pathname='*')))
+		logger.debug(f'{expected_reports=}')
+		logger.debug(f'')
+
 		# directory where we'll download reports that we want to analyze
-		results: luigi.LocalTarget = self.output()['responses']
+		results: luigi.LocalTarget = self.output()['results']
 		P(results.path).mkdir(parents=True, exist_ok=True)
 
 
+
+
+		#
+		# tackle issues with job.json nonexistent or job status differs:
+		#
+
+
 		job_expected_fn = os.path.abspath(P(self.test['suite']) / self.test['dir'] / 'job.json')
-		logging.getLogger('robust').info(f'{job_expected_fn=}')
+		logger.info(f'{job_expected_fn=}')
+		logger.debug(f'')
 		overwrite_job_json_op = {"op": "cp", "src": str(self.input().path), "dst": str(job_expected_fn)}
+		
 
 		try:
 			job_expected = json.load(open(job_expected_fn))
 		except FileNotFoundError:
-			jobfile_missing_delta = {
+			return done({
 							"msg":"job.json is missing in testcase",
 							"fix": overwrite_job_json_op
-						}
-			delta.append(jobfile_missing_delta)
-			return done()
+						})
 
 
 		if job['status'] != job_expected['status']:
-			delta.append({
+			return done({
 				"msg": f"job['status'] differs, {job['status']=} != {job_expected['status']=}",
 				"fix": overwrite_job_json_op
 			})
-			return done()
 		
 		
-		rrr = self.testcasedir/'responses'
-		expected_reports = sorted(filter(lambda x: not (rrr/x).is_dir(), glob.glob(root_dir=rrr, pathname='*')))
-		logger.debug(f'{expected_reports=}')
-		reports = job['result']['reports']
-		logger.debug(f'{reports=}')
+		if job['alerts'] != job_expected['alerts']:
+			delta.append({
+				"msg": f"job['alerts'] differs, {job['alerts']=} != {job_expected['alerts']=}",
+				"fix": overwrite_job_json_op
+			})
+		
+		
+		reports = job['result'].get('reports')
+		expected_reports = job_expected['result'].get('reports')
+		
+		if not (type(reports) == list and type(expected_reports) == list):
+			if reports != expected_reports:
+				return done({
+					"msg": f"job['result']['reports'] != job_expected['result']['reports']",
+					"fix": overwrite_job_json_op
+				})
+			
+		if len(reports) != len(expected_reports):
+			return done({
+				"msg": f"len(reports) != len(expected_reports)",
+				"fix": overwrite_job_json_op
+			})
 
 		
-		# check that job json actually shows the same alers as alerts json. The alerts in job json are a convenience for excel.
+		if expected_reports != []:
+			if job['status'] != 'Success':
+				delta.append({
+					"msg":"extraneous saved report files in a testcase that should fail"
+				})
+				return done()
+			
+		
+		# check that job json actually shows the same alerts as alerts json. 
+		# (alerts in job json are a convenience for excel).
 		alerts_json = json.load(open(fetch_report(results.path, find_report_by_key(job['result']['reports'], 'alerts_json'))))	
 		if alerts_json != job['result']['alerts']:
 			delta.append('job json alerts differ from alerts json, this should not happen')
@@ -453,67 +495,41 @@ class TestEvaluate(luigi.Task):
 			alerts_expected = json.load(open(self.testcasedir / 'responses' / 'alerts_json.json'))
 			if alerts_expected != alerts_json:
 				delta.append({
-					"msg": f"alerts_expected != alerts_got",
+					"msg": f"alerts_expected != alerts_got: {alerts_expected} != {alerts_json}",
 					"fix": {"op": "cp", "dst": str(self.testcasedir / 'responses' / 'alerts_json.json'), "src": P(results.path) / 'alerts_json.json'}
 				})
 
-		
-		
-		
-		
-		
-		# if expected_reports != []:
-		# 	if job['status'] != 'Success':
-		# 		delta.append({
-		# 			"msg":"extraneous saved report files in a testcase that should fail"
-		# 		})
-		# 		return done()
-		# 
-		# 	for expected_report in expected_reports:
-		# 		received_report = find_report_by_key(job['result']['reports'], 'fn', expected_report)
-		# 		if received_report is None:
-		# 			delta.append({
-		# 				"msg": f"report {expected_fn.name} is missing in results",
-		# 				"fix": {"op": "cp", "src": str(expected_fn), "dst": results.path}
-		# 			})
-		# 		else:
-		# 			reports_to_compare.append({'expected_fn': expected_fn, 'received_url': received_report['url']})
-		
-		
-		
-		
-		# reports_to_compare = []
-		# 
-		# for r in expected_reports:
-		# 	fn = r['fn']
-		# 	received_report = find_report_by_key(reports, 'fn', fn)
-		# 	if received_report is None:
-		# 		delta.append({
-		# 			"msg": f"report {fn} is missing in testcase",
-		# 			"fix": {"op": "cp", "src": fn, "dst": results.path}
-		# 		})
-		# 	else:
-		# 		reports_to_compare.append({'expected_fn': fn, 'received_url': received_report['url']})
-		# #
-		#
-		#
-		# reports = []
-		# if job['status'] == 'Success':
-		# 	result = job['result']
-		# 	if type(result) != dict or 'reports' not in result:
-		# 		delta.append("""type(result) != dict or 'reports' not in result""")
-		# 	else:
-		# 		reports = result['reports']
-		#
-		#
-		#
-		# 		with results.temporary_path() as tmp:
-		# 			alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
-		#
-		# 		alerts_expected = json.load(open(P(self.test['suite']) / 'responses' / 'alerts_json.json'))
-		#
-		# 		if alerts_expected != alerts_got:
-		# 			delta.append("""alerts_expected != alerts_got""")
+		for i, report in enumerate(reports):
+			expected_report = expected_reports[i]
+			if report['key'] != expected_report['key']:
+				done({
+					"msg": f"report['key'] != expected_report['key']: {report['key']} != {expected_report['key']}",
+					"fix": overwrite_job_json_op
+				})
+
+			key = report['key']
+			if any(key.endswith(x) for x in 'html directory url file'.split())
+				continue
+			
+			if key.endswith('json'):
+				got_json = json.load(open(fetch_report(results.path, report['url']))
+				expected_json = json.load(open(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]))
+				if got_json != expected_json:
+					delta.append({
+						"msg": f"got_json != expected_json",
+						"fix": {"op": "cp", "src": str(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]), "dst": results.path}
+					})
+			elif key.endswith('xml'):
+				got_xml = xmlparse(fetch_report(results.path, report['url']))
+				expected_xml = xmlparse(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1])
+				if canonicalize(got_xml) != canonicalize(expected_xml):
+					delta.append({
+						"msg": f"canonicalize(got_xml) != canonicalize(expected_xml)",
+						"fix": {"op": "cp", "src": str(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]), "dst": results.path}
+					})
+			else:
+				raise Exception(f'unsupported report type: {key}')
+				
 		return done()
 
 
@@ -521,7 +537,7 @@ class TestEvaluate(luigi.Task):
 		return {
 			# this creates some chance for discrepancies to creep in.. "exceptional cases, for example when central locking fails "
 			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
-			'responses':luigi.LocalTarget(P(self.test['path']) / 'responses')
+			'results':luigi.LocalTarget(P(self.test['path']) / 'results')
 		}
 
 
@@ -658,16 +674,16 @@ class Summary(luigi.Task):
 
 
 def print_summary_summary(summary):
-	logging.getLogger('robust').info('')
+	logger.info('')
 	for i in summary['bad']:
-		logging.getLogger('robust').info(json.dumps(i, indent=4))
-	logging.getLogger('robust').info(summary['stats'])
-	logging.getLogger('robust').info('')
+		logger.info(json.dumps(i, indent=4))
+	logger.info(summary['stats'])
+	logger.info('')
 
 
 @Summary.event_handler(luigi.Event.SUCCESS)
 def celebrate_success(task):
-	logging.getLogger('robust').info('tadaaaa')
+	logger.info('tadaaaa')
 	print_summary_summary(task.summary)
 
 
@@ -793,3 +809,47 @@ ts = luigi.Parameter(default=datetime.datetime.utcnow().isoformat())
 # a = LocalTarget('./banana/nanana/na')
 # a.makedirs()
 """
+
+
+# 
+# 	for expected_report in expected_reports:
+# 		received_report = find_report_by_key(job['result']['reports'], 'fn', expected_report)
+# 		if received_report is None:
+# 			delta.append({
+# 				"msg": f"report {expected_fn.name} is missing in results",
+# 				"fix": {"op": "cp", "src": str(expected_fn), "dst": results.path}
+# 			})
+# 		else:
+# 			reports_to_compare.append({'expected_fn': expected_fn, 'received_url': received_report['url']})
+# reports_to_compare = []
+# 
+# for r in expected_reports:
+# 	fn = r['fn']
+# 	received_report = find_report_by_key(reports, 'fn', fn)
+# 	if received_report is None:
+# 		delta.append({
+# 			"msg": f"report {fn} is missing in testcase",
+# 			"fix": {"op": "cp", "src": fn, "dst": results.path}
+# 		})
+# 	else:
+# 		reports_to_compare.append({'expected_fn': fn, 'received_url': received_report['url']})
+# #
+#
+#
+# reports = []
+# if job['status'] == 'Success':
+# 	result = job['result']
+# 	if type(result) != dict or 'reports' not in result:
+# 		delta.append("""type(result) != dict or 'reports' not in result""")
+# 	else:
+# 		reports = result['reports']
+#
+#
+#
+# 		with results.temporary_path() as tmp:
+# 			alerts_got = json.load(open(fetch_report(tmp, find_report_by_key(reports, 'alerts_json'))))
+#
+# 		alerts_expected = json.load(open(P(self.test['suite']) / 'results' / 'alerts_json.json'))
+#
+# 		if alerts_expected != alerts_got:
+# 			delta.append("""alerts_expected != alerts_got""")
