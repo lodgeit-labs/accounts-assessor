@@ -129,7 +129,7 @@ class TestPrepare(luigi.Task):
 	def copy_inputs(self, request_files_dir):
 		files = []
 		input_file: pathlib.Path
-		for input_file in sorted(filter(lambda x: not x.is_dir(), 	(P(self.test['suite']) / self.test['dir']).glob('request/*'))):
+		for input_file in sorted(filter(lambda x: not x.is_dir(), 	(P(self.test['suite']) / self.test['dir']).glob('inputs/*'))):
 			final_name = None
 			if str(input_file).endswith('/request.xml'):
 				final_name = Xml2rdf().xml2rdf(input_file, request_files_dir)
@@ -708,7 +708,7 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 	#dirs2 = list(filter(lambda x: x not in [y.parent for y in dirs1], dirs1))
 
 	for d in dirs0:
-		if glob.glob(root_dir=suite, pathname=str(d) + '/request/*') != []:
+		if glob.glob(root_dir=suite, pathname=str(d) + '/inputs/*') != []:
 			yield d
 	#return dirs2
 
