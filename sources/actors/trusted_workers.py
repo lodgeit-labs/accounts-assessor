@@ -1,6 +1,8 @@
 #sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common/libs/misc')))
+import subprocess
 import sys, os
-from pathlib import Path
+from pathlib import Path, PosixPath
+from shutil import make_archive
 
 import rdflib
 import rdflib.plugins.serializers.nquads
@@ -8,6 +10,7 @@ import agraph
 from tasking import remoulade
 import logging
 
+from tmp_dir_path import get_tmp_directory_absolute_path
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -17,9 +20,8 @@ log.warning("warning from trusted_workers.py")
 
 
 
-#@remoulade.actor(queue='postprocessing', priority=1, time_limit=1000*60*60*24*365)
 @remoulade.actor(priority=1, time_limit=1000*60*60*24*365, queue_name='postprocessing')
-def postprocess_doc(tmp_path, uris, user):
+def postprocess_doc(tmp_name, tmp_path, uris, user):
 	tmp_path = Path(tmp_path)
 	log.info('postprocess_doc...')
 	
@@ -29,6 +31,15 @@ def postprocess_doc(tmp_path, uris, user):
 		put_doc_dump_into_triplestore(nq_fn, uris, user)
 		#generate_yed_file(g, tmp_path)
 		#generate_gl_json(g)
+		
+		# todo export xlsx's
+		
+		
+	t = PosixPath(get_tmp_directory_absolute_path(tmp_name))
+	z = str(t)+'.zip'
+	subprocess.check_call(['/usr/bin/zip', '-r', t/(tmp_name+'.zip'), tmp_name, '--exclude', '*.zip'], cwd=get_tmp_directory_absolute_path('.'))
+		
+		
 remoulade.declare_actors([postprocess_doc])
 
 

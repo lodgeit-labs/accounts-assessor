@@ -32,7 +32,9 @@ RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ign
 
 
 
-
+USER root
+RUN apt-get install -y zip
+USER myuser:myuser
 
 
 WORKDIR $APPPATH

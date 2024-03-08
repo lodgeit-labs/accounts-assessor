@@ -30,7 +30,7 @@
 	do we have this cached already?
 */
 exchange_rates(Day, Exchange_Rates) :-
-	format(user_error, '~q ...', [persistently_cached_exchange_rates(Day, Exchange_Rates)]),
+	format(user_error, '~q ...~n', [persistently_cached_exchange_rates(Day, Exchange_Rates)]),
 	persistently_cached_exchange_rates(Day, Exchange_Rates),
 	!.
 
@@ -106,6 +106,7 @@ This one lets us compute unrealized gains excluding forex declaratively. The com
 		[Report_Currency],
 		Purchase_Date
 	),
+	!,
 	exchange_rate2(Table, Purchase_Date, 
 		Purchase_Currency, Report_Currency, Old_Rate),
 	exchange_rate2(Table, Day, 
@@ -161,6 +162,7 @@ chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, _)
 	ct(S,	
 		best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate)).
 
+:- table(chained_exchange_rate/5).
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
 	Length > 0,
 	

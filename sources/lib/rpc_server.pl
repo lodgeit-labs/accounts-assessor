@@ -1,11 +1,11 @@
 
-
-:- if(env_bool('SWIPL_NODEBUG', true)).
-	:- format(user_error, 'SWIPL_NODEBUG on~n', []).
-:- else.
-	:- format(user_error, 'SWIPL_NODEBUG off~n', []).
-	:- debug.
-:- endif.
+% debug is invoked in cmdline goal, so this doesnt make sense i think
+%:- if(env_bool('SWIPL_NODEBUG', true)).
+%	:- format(user_error, 'SWIPL_NODEBUG on~n', []).
+%:- else.
+%	:- format(user_error, 'SWIPL_NODEBUG off~n', []).
+%	:- debug.
+%:- endif.
 
 
 :- initialization(init_guitracer).

@@ -169,10 +169,10 @@
 
 
  evaluate_equality(Sd, equality(A, B), C) :-
-
-	evaluate(C, Sd, A, A2),
-	evaluate(C, Sd, B, B2),
-
+ 	doc_new_uri("crosscheck", Crosscheck_uri),
+ 	
+	evaluate(Crosscheck_uri, Sd, A, A2),
+	evaluate(Crosscheck_uri, Sd, B, B2),
 
 	(
 	 crosscheck_compare(A2, B2)
@@ -196,8 +196,7 @@
 
 	C = crosscheck{check:Check, evaluation:Evaluation, status:Status, diff: Diff},
 
- 	doc_new_uri("crosscheck", Crosscheck),
-	doc_add(Crosscheck, kb:data, C).
+	doc_add(Crosscheck_uri, kb:data, C).
 
 
 
@@ -205,13 +204,13 @@
 	vecs_are_almost_equal(A, B).
 
 
- evaluate(Crosscheck, Sd, Term, Value) :-
+ evaluate(Crosscheck_uri, Sd, Term, Value) :-
 	(	evaluate2(Sd, Term, Value)
 	->	true
 	;	Value = evaluation_failed(Term, $>gensym(evaluation_failure))),
 
 	% this is useless until the evaluate2's actually deal with a kind of data that are stored in doc, and the links can be followed. vec_sum would have to be vec_sum_with_proof, etc.
-	doc_add(Crosscheck, kb:mentions, Value).
+	doc_add(Crosscheck_uri, kb:checked_value, Value).
 
 
  evaluate2(Sd, report_value(Key), Values_List) :-

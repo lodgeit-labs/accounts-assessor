@@ -58,10 +58,10 @@
 	;	true),
 	(	Solutions_len #> 1
 	->	json_write(current_output, err{warning:m{message:'multiple solutions'}})
-	;	true),
+	;	true).
 
 	%true.%
-	nicety((cf(make_zip)->true;true)).
+	%nicety((cf(make_zip)->true;true)).
 
 
  flag_default('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', false).

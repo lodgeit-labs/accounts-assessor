@@ -24,3 +24,6 @@ primary_region = 'mad'
   memory = '8gb'
   cpu_kind = 'performance'
   cpus = 1
+
+# fly deploy --ha=false
+#

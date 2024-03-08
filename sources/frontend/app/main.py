@@ -287,10 +287,12 @@ async def enrich_job_json_with_duration(message):
 	# '2012-05-29T19:30:03.283Z'
 	# "2023-09-21T10:16:44.571279+00:00",
 	enqueued_datetime = dateutil.parser.parse(message['enqueued_datetime'])
+	started_datetime = message.get('started_datetime', None)
 	end_datetime = message.get('end_datetime', None)
 	if end_datetime is not None:
 		end_datetime = dateutil.parser.parse(end_datetime)
-		message['duration'] = str(end_datetime - enqueued_datetime)
+		message['wait_time'] = str(end_datetime - enqueued_datetime)
+		message['duration'] = str(end_datetime - started_datetime)
 
 
 
