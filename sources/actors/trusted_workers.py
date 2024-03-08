@@ -33,14 +33,15 @@ def postprocess_doc(tmp_name, tmp_path, uris, user):
 		#generate_gl_json(g)
 		
 		# todo export xlsx's
-		
-		
-	t = PosixPath(get_tmp_directory_absolute_path(tmp_name))
-	z = str(t)+'.zip'
-	subprocess.check_call(['/usr/bin/zip', '-r', t/(tmp_name+'.zip'), tmp_name, '--exclude', '*.zip'], cwd=get_tmp_directory_absolute_path('.'))
-		
-		
-remoulade.declare_actors([postprocess_doc])
+
+		ln(f'{tmp_path}.zip', f'../../archive/{tmp_name}')
+
+
+@remoulade.actor(priority=1, time_limit=1000*60*60*24*365, queue_name='postprocessing')
+def archive(tmp_name, tmp_path, uris, user):
+	pass
+
+remoulade.declare_actors([postprocess_doc, archive])
 
 
 

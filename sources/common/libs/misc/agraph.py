@@ -31,12 +31,11 @@ def registerEncodedIdPrefix(a, prefix):
 	a.registerEncodedIdPrefix(prefix, 'https://rdf.lodgeit.net.au/v1/' + prefix + '[a-p]{15}')
 
 
-#_agc = None
+_agcs = {}
 
 def agc(repo='a') -> RepositoryConnection:
-	#global _agc
-	#if _agc is not None:
-	#	return _agc
+	if repo in _agcs:
+		return _agcs[repo]
 
 	AGRAPH_SECRET_USER = secret('AGRAPH_SUPER_USER')
 	AGRAPH_SECRET_PASSWORD = secret('AGRAPH_SUPER_PASSWORD')
