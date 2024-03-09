@@ -10,7 +10,7 @@ import agraph
 from tasking import remoulade
 import logging
 
-from tmp_dir_path import get_tmp_directory_absolute_path
+from tmp_dir_path import get_tmp_directory_absolute_path, ln
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -21,9 +21,9 @@ log.warning("warning from trusted_workers.py")
 
 
 @remoulade.actor(priority=1, time_limit=1000*60*60*24*365, queue_name='postprocessing')
-def postprocess_doc(tmp_name, tmp_path, uris, user):
+def postprocess(job, request_directory, tmp_name, tmp_path, uris, user):
 	tmp_path = Path(tmp_path)
-	log.info('postprocess_doc...')
+	log.info('postprocess...')
 	
 	g = load_doc_dump(tmp_path)
 	if g:
@@ -34,14 +34,35 @@ def postprocess_doc(tmp_name, tmp_path, uris, user):
 		
 		# todo export xlsx's
 
-		ln(f'{tmp_path}.zip', f'../../archive/{tmp_name}')
+		create_html_with_link(tmp_path/'job.html', dict(
+			Job=f'../{job}',
+			Inputs=f'../{request_directory}',
+			Archive=f'../../view/archive/{job}/{tmp_name}',
+		))
+		
+
+remoulade.declare_actors([postprocess])
 
 
-@remoulade.actor(priority=1, time_limit=1000*60*60*24*365, queue_name='postprocessing')
-def archive(tmp_name, tmp_path, uris, user):
-	pass
+def create_html_with_link(filename, links):
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <body>"""
+    for k,v in links.items():
+    	html_content += f"""<a href="{v}">{k}</a><br>"""
+    html_content += """</body>
+    </html>
+    """
+    with open(filename, 'w') as file:
+        file.write(html_content)
+        
 
-remoulade.declare_actors([postprocess_doc, archive])
+# @remoulade.actor(priority=1, time_limit=1000*60*60*24*365, queue_name='postprocessing')
+# def archive(tmp_name, tmp_path, uris, user):
+# 	pass
+# 
+# remoulade.declare_actors([archive])
 
 
 

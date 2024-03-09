@@ -73,7 +73,7 @@ def call_prolog_calculator(
 	result_tmp_directory_name, result_tmp_directory_path = create_tmp_for_user(worker_options['user'])
 	
 	# create symlink to inputs 
-	ln('../'+request_directory, result_tmp_directory_path + '/inputs')
+	#ln('../'+request_directory, result_tmp_directory_path + '/inputs')
 	
 	# potentially convert request files to rdf (this invokes other actors)
 	converted_request_files = preprocess_request_files(files_in_dir(get_tmp_directory_absolute_path(request_directory)), xlsx_extraction_rdf_root)
@@ -130,8 +130,10 @@ def call_prolog_calculator(
 	ln('../' + result_tmp_directory_name, params['final_result_tmp_directory_path'] + '/completed')
 
 	
-	log.info('postprocess_doc(%s, %s, %s)' % (result_tmp_directory_path, result.get('uris'), worker_options['user']))
-	trusted_workers.postprocess_doc.send_with_options(kwargs=dict(
+	log.info('postprocess(%s, %s, %s)' % (result_tmp_directory_path, result.get('uris'), worker_options['user']))
+	trusted_workers.postprocess.send_with_options(kwargs=dict(
+		job=params['final_result_tmp_directory_name'],
+		request_directory=request_directory,
 		tmp_name=result_tmp_directory_name,
 		tmp_path=result_tmp_directory_path,
 		uris=result.get('uris'),

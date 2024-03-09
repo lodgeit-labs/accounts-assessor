@@ -157,12 +157,12 @@ best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate) :-
 
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
+:- table(chained_exchange_rate/5).
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, _) :-
 	format(string(S), '~q', [best_nonchained_exchange_rate('Table', Day, Src_Currency, Dest_Currency, Exchange_Rate)]),
 	ct(S,	
 		best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate)).
 
-:- table(chained_exchange_rate/5).
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
 	Length > 0,
 	

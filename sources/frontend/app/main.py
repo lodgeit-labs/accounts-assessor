@@ -1,3 +1,4 @@
+import subprocess
 import sys, os
 
 
@@ -52,8 +53,8 @@ templates = Jinja2Templates(directory="templates")
 #from agraph import agc
 
 from fs_utils import directory_files, find_report_by_key
-from tmp_dir import create_tmp_for_user
-from tmp_dir_path import get_tmp_directory_absolute_path
+from tmp_dir import create_tmp_for_user, get_unique_id
+from tmp_dir_path import get_tmp_directory_absolute_path, ln
 from auth_fastapi import get_user
 
 
@@ -236,14 +237,37 @@ def write_mem_stuff(message_id):
 
 
 def calculator_job_by_id(id: str):
+	id = re.sub(r'[^a-zA-Z0-9_\-\.]', '', id)
 	r = requests.get(os.environ['REMOULADE_API'] + '/messages/states/' + id)
 	if not r.ok:
 		return None
 	message = r.json()
 	if message['actor_name'] not in ["call_prolog_calculator"]:
 		return None
+	#logger.info('job: %s' % message)
 	enrich_job_json_with_duration(message)
+	enrich_job_json_with_result(message)
 	return message
+
+
+def enrich_job_json_with_result(message):
+	# a dict with either result or error key (i think...)
+	result = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + message['message_id'], params={'max_size':'99999999'#'raise_on_error':False # this is ignored
+	})
+	try:
+		result = result.json()
+	except Exception as e:
+		logger.warning('nonsense received from remoulade api:')
+		logger.warning('result: %s' % result.text)
+		logger.warning('error: %s' % e)
+
+	if 'result' in result:
+		try:
+			message['result'] = json.loads(result['result'])
+		except JSONDecodeError:
+			message['result'] = result['result']
+	else:
+		message['result'] = {}
 
 
 @app.get('/api/job/{id}')
@@ -252,7 +276,6 @@ async def get_job_by_id(request: Request, id: str):
 	get job json
 	"""
 	user = get_user(request)
-
 	message = calculator_job_by_id(id)
 	if message is None:
 		return PlainTextResponse(f'job {id=} not found', status_code=404)
@@ -264,24 +287,6 @@ async def get_job_by_id(request: Request, id: str):
 		r = dict(error='not authorized', job_user=job_user, user=user)
 		logger.info('not authorized: %s' % r)
 		return r
-
-	# a dict with either result or error key (i think...)
-	result = requests.get(os.environ['REMOULADE_API'] + '/messages/result/' + id, params={'max_size':'99999999'#'raise_on_error':False # this is ignored
-	})
-	try:
-		result = result.json()
-	except Exception as e:
-		logger.info('nonsense received from remoulade api:')
-		logger.info('result: %s' % result.text)
-		logger.info('error: %s' % e)
-
-	if 'result' in result:
-		try:
-			message['result'] = json.loads(result['result'])
-		except JSONDecodeError:
-			message['result'] = result['result']
-	else:
-		message['result'] = {}
 		
 	return message
 
@@ -291,13 +296,16 @@ def enrich_job_json_with_duration(message):
 	# '2012-05-29T19:30:03.283Z'
 	# "2023-09-21T10:16:44.571279+00:00",
 	enqueued_datetime = dateutil.parser.parse(message['enqueued_datetime'])
-	started_datetime = message.get('started_datetime', None)
 	end_datetime = message.get('end_datetime', None)
 	if end_datetime is not None:
 		end_datetime = dateutil.parser.parse(end_datetime)
+		
 		message['wait_time'] = str(end_datetime - enqueued_datetime)
-		message['duration'] = str(end_datetime - started_datetime)
-
+	
+		started_datetime = message.get('started_datetime', None)
+		if started_datetime is not None:
+			started_datetime = dateutil.parser.parse(started_datetime)
+			message['duration'] = str(end_datetime - started_datetime)
 
 
 @app.post("/reference")
@@ -355,49 +363,55 @@ def upload_form(request: Request):
 
 
 @app.get("/view/archive/{job}/{task_directory}")
-def archive(request: Request, job: str):
+def archive(request: Request, job: str, task_directory: str):
 	message = calculator_job_by_id(job)
-	# sanitize task_directory
-	task_directory = re.sub(r'[^a-zA-Z0-9_\-]', '', task_directory)
+	public_url = get_public_url(request)
+	
+	# sanitize task_directory parameter, just for security
+	task_directory = re.sub(r'[^a-zA-Z0-9_\-\.]', '', task_directory)
 	# todo: check that it belongs to user
 
 	if message is None:
 		return PlainTextResponse(f'job {job=} not found', status_code=404)
 
 	archive_dir_path = PosixPath(get_tmp_directory_absolute_path(job)) / 'archive'
-	zip_path = archive_dir_path / f'{job}.zip'
-	zip_url = public_url + '/tmp/' +  job + '/archive/' + job + '.zip'
+	zip_path = archive_dir_path / f'{task_directory}.zip'
+	zip_url = public_url + '/tmp/' + job + '/archive/' + task_directory + '.zip'
 
 	if archive_dir_path.is_dir():
 		if zip_path.is_file():
 			return RedirectResponse(zip_url)
 		else:
-			return TextResponse(f'archiving in progress: {zip_path}')
+			return PlainTextResponse(f'archiving in progress: {archive_dir_path=} {zip_path=}')
 	else:
-		create_archive(job, task_directory, message, zip_path)
+		create_archive(task_directory, message, archive_dir_path, zip_path)
 		return RedirectResponse(zip_url)
 
 
 
-def create_archive(job, task_directory, message, final_zip_path):
+def create_archive(task_directory, message, archive_dir_path, final_zip_path):
 
-	workdir = PosixPath(final_zip_path + get_unique_id())
+	workdir = PosixPath(archive_dir_path / get_unique_id())
 	workdir.mkdir(parents=True, exist_ok=True)
-	zip_primary_path = workdir / 'zip.zip'
+	zip_primary_fn = 'zip.zip'
+	zip_primary_path = workdir / zip_primary_fn
 
-	zip_sources_dir = workdir / job
+	zip_sources_dir = workdir / task_directory
 	zip_sources_dir.mkdir(parents=True, exist_ok=True)
+	
 	with open(zip_sources_dir / 'job.json', 'w') as f:
-		json.dump(f, message)
+		json.dump(message, f, indent=4)
 
-	# /tmp/job/archive/workdir/inputs -> /tmp/inputs
-	inputs_path_relative = '../../../' + message['kwargs']['request_directory']
-	results_path_relative = '../../../' + task_directory
+	# /tmp/job/archive/workdir/task_directory/inputs -> /tmp/inputs
+	inputs_path_relative = '../../../../' + message['kwargs']['request_directory']
+	results_path_relative = '../../../../' + task_directory
 
 	ln(inputs_path_relative, zip_sources_dir / 'inputs')
 	ln(results_path_relative, zip_sources_dir / 'results')
 
-	subprocess.check_call(['/usr/bin/zip', '-r', zip_primary_path, zip_sources_dir], cwd=workdir)
+	cmd = dict(args=['/usr/bin/zip', '-r', zip_primary_fn, task_directory], cwd=workdir)
+	logger.info('cmd: %s' % cmd)
+	subprocess.check_call(**cmd)
 	os.rename(zip_primary_path, final_zip_path)
 
 
