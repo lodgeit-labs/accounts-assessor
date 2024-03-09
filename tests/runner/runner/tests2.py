@@ -508,11 +508,11 @@ class TestEvaluate(luigi.Task):
 				})
 
 			key = report['key']
-			if any(key.endswith(x) for x in 'html directory url file'.split())
+			if any(key.endswith(x) for x in 'html directory url file'.split()):
 				continue
 			
 			if key.endswith('json'):
-				got_json = json.load(open(fetch_report(results.path, report['url']))
+				got_json = json.load(open(fetch_report(results.path, report['url'])))
 				expected_json = json.load(open(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]))
 				if got_json != expected_json:
 					delta.append({
@@ -536,8 +536,8 @@ class TestEvaluate(luigi.Task):
 	def output(self):
 		return {
 			# this creates some chance for discrepancies to creep in.. "exceptional cases, for example when central locking fails "
-			'evaluation':luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
-			'results':luigi.LocalTarget(P(self.test['path']) / 'results')
+			'evaluation': luigi.LocalTarget(P(self.test['path']) / 'evaluation.json'),
+			'results': luigi.LocalTarget(P(self.test['path']) / 'results')
 		}
 
 
@@ -549,7 +549,7 @@ def fetch_report(tmp, url):
 	ppp = urlparse(url)
 	logger.debug(f'{ppp=}')
 	fn = pathlib.Path(ppp.path).name
-	#fn = ppp.path.split('/')[-1]
+	# fn = ppp.path.split('/')[-1]
 	out = P(tmp) / fn
 	if not out.exists():
 		with open(out, 'wb') as result_file:
