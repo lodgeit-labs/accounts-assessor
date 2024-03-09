@@ -6,5 +6,4 @@ xmldiff
 furl
 psutil
 #file://../../sdk
-
-
+rdflib

@@ -15,7 +15,7 @@
     {% for message in object_list %}
     <tr>
     <td>{{ message.created }}</td>
-    <td>{{ message.contents }}</td>
+    <td><pre>{{ message.contents_pretty }}</pre></td>
     <td>{{ message.status }}</td>
     <td><a href="{% url "message_view" message.id %}">view</a></td>
     <td><a href="{% url "message_edit" message.id %}">edit</a></td>
