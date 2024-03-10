@@ -59,7 +59,7 @@
 			</account>
 
 			<account name="Gains/-Losses" role="Gains">
-				<account name="Investment_Income" parent_role="Gains" role="Trading_Accounts!Investment_Income"/>
+				<account name="Investment_Income" role="Trading_Accounts!Investment_Income"/>
 				<account name="Transfer_Clearing_Account" />
 			</account>
 
