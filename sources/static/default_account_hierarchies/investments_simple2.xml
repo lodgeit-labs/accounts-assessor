@@ -13,6 +13,7 @@
 					</account>
 				</account>
 				<account role="Non_Current_Assets" name="Non_Current_Assets">
+					<account name="Financial_Investments" role="Financial_Investments!Financial_Investments"/>
 				</account>
 			</account>
 			<account normal_side="credit" name="Liabilities">
@@ -58,6 +59,7 @@
 			</account>
 
 			<account name="Gains/-Losses" role="Gains">
+				<account name="Investment_Income" parent_role="Gains" role="Trading_Accounts!Investment_Income"/>
 				<account name="Transfer_Clearing_Account" />
 			</account>
 
