@@ -93,10 +93,10 @@ hp:hp_contract a rdfs:Class.
 l:action_verb  a rdfs:Class.
 l:s_transaction   a rdfs:Class.
 l:transaction    a rdfs:Class.
- l:fact     a rdfs:Class.
+l:fact     a rdfs:Class.
 l:report_entry  a rdfs:Class.
- l:livestock_data a rdfs:Class.
-  l:theory a rdfs:Class.
+l:livestock_data a rdfs:Class.
+l:theory a rdfs:Class.
 excel:template_instance  a rdfs:Class.
 excel:template_instance_example a rdfs:Class.
 excel:example_sheet_set a rdfs:Class.
@@ -1081,8 +1081,9 @@ ic_ui:report_details
 	).
 
 ic_ui:job_notes
-	excel:position [excel:col "C"; excel:row "2"];
-	excel:title "job notes";
+	excel:position [excel:col "A"; excel:row "12"];
+	excel:alternative_positions ([excel:col "C"; excel:row "2"]);
+	excel:title "notes";
 	excel:cardinality excel:multi;
 	excel:class ic_ui:job_note;
 	excel:fields (
@@ -1098,16 +1099,14 @@ ic:fifo rdfs:label "FIFO".
 
 
 ic_ui:account_taxonomies
-	excel:position [excel:col "D"; excel:row "5"];
+	excel:position [excel:col "D"; excel:row "3"];
 	excel:title "account taxonomies";
 	excel:cardinality excel:multi;
 	excel:class ic_ui:account_taxonomy;
 	excel:fields (
 		[	excel:property account_taxonomies:url;
 			excel:type excel:uri;
-			excel:comment "use one of the pre-defined shorthands, or specify a full URL of a XBRL taxonomy or an XML file."]
-		[	excel:property account_taxonomies:note;
-			excel:type xsd:string]
+			excel:comment "note:\n use one of the pre-defined shorthands, or specify a full URL of a XBRL taxonomy or an XML file."]
 	).
 
 account_taxonomies:url rdfs:range account_taxonomies:Account_taxonomy.
