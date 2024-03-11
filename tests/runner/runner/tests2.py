@@ -339,6 +339,11 @@ def cpop(src, dst):
 	return {"op": "cp", "src": str(src), "dst": str(dst), 'link':link}
 
 
+def xml_delta(a, b):
+	
+	# swipl -s ../../sources/public_lib/lodgeit_solvers/prolog/utils/compare_xml.pl -g 'compare_xml_files("/home/koom/repos/koo5/accounts-assessor/0/accounts-assessor/tests/endpoint_tests/ledger/good/BankDemo2_xlsx-LodgeiT__July4b/results/xbrl_instance.xml","/home/koom/robust_tmp/last_result/000000_xbrl_instance.xml"),halt.'
+	
+	return dict(msg='xmls differ', fix=cpop(a, b))
 
 
 class TestEvaluate(luigi.Task):
@@ -368,10 +373,18 @@ class TestEvaluate(luigi.Task):
 			job = json.load(job_fd)
 
 		def done(critical_delta=None):
-			if critical_delta is not None:
-				delta.append(critical_delta)
+			maybe_append_delta(critical_delta)
 			with self.output()['evaluation'].open('w') as out:
 				json_dump({'test': dict(self.test), 'job': job, 'delta': delta}, out)
+
+		def maybe_append_delta(d):
+			if d:
+				delta.append(d)
+			return d
+
+		def maybe_done(d):
+			if d:
+				return done(d)
 
 		# get list of saved reports
 		testcase_results_dir = self.testcasedir / 'results'
@@ -445,21 +458,11 @@ class TestEvaluate(luigi.Task):
 				if got_json != expected_json:
 					delta.append({"msg": f"got_json != expected_json", "fix": {"op": "cp", "src": str(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]), "dst": results.path}})
 			elif key.endswith('xml'):
-
-
-				# got_xml = xmlparse(fetch_report(results.path, report['url']))
-				# expected_xml = xmlparse(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1])
-				# 
-				# 
-				# if canonicalize(got_xml) != canonicalize(expected_xml):
-				# 	delta.append({"msg": f"canonicalize(got_xml) != canonicalize(expected_xml)", "fix": {"op": "cp", "src": str(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]), "dst": results.path}})
-
-			
-				# swipl -s ../../sources/public_lib/lodgeit_solvers/prolog/utils/compare_xml.pl -g 'compare_xml_files("/home/koom/repos/koo5/accounts-assessor/0/accounts-assessor/tests/endpoint_tests/ledger/good/BankDemo2_xlsx-LodgeiT__July4b/results/xbrl_instance.xml","/home/koom/robust_tmp/last_result/000000_xbrl_instance.xml"),halt.'
-			
-			
-				# we have some fixing to do in xbrl instance generator ... item ordering might be a problem.
-			
+				
+				maybe_done(xml_delta(
+					fetch_report(results.path, report['url']),
+					self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1])
+				)			
 
 			else:
 				raise Exception(f'unsupported report type: {key}')
@@ -725,3 +728,11 @@ def robust_testcase_dirs(suite='.', dirglob=''):
 #
 # 		if alerts_expected != alerts_got:
 # 			delta.append("""alerts_expected != alerts_got""")
+
+
+# got_xml = xmlparse(fetch_report(results.path, report['url']))
+# expected_xml = xmlparse(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1])
+# # 
+# 
+# if canonicalize(got_xml) != canonicalize(expected_xml):
+# 	delta.append({"msg": f"canonicalize(got_xml) != canonicalize(expected_xml)", "fix": {"op": "cp", "src": str(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]), "dst": results.path}})
