@@ -64,6 +64,7 @@
 
 			<account name="Gains/-Losses" role="Gains">
 				<account name="Transfer_Clearing_Account" />
+				<account name="ExchangeGain" />
 			</account>
 
 		</account>
