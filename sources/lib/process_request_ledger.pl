@@ -177,8 +177,8 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 		Closed_books_static_data.report_currency,
 		Sr.bs.current.entries,
 		Sr.pl.current.entries,
-		Sr.pl.historical,
-	Sr.tb)),
+		Sr.tb
+	)),
 	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 

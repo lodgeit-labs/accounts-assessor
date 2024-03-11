@@ -87,7 +87,7 @@
 
  process_request2 :-
 	!cf(collect_alerts(Alerts3, Alerts_html)),
-	!(make_json_report(Alerts3, alerts_json)),
+	!(make_json_report(Alerts3, alerts)),
 	!cf(make_alerts_report(Alerts_html)),
 
 	%nicety

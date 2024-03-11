@@ -40,6 +40,16 @@
  	t(Entry,l:report_entry),
 	doc(Entry, report_entries:name, Name).
 
+ report_entry_xmlsane_name(Entry, Name) :-
+	doc(Entry, l:sane, Name, xml),!.
+	
+ report_entry_xmlsane_name(Entry, Name) :-	
+	report_entry_name(Entry, Name0),
+	% todo, check uniqueness
+	sane_xml_element_id_from_term(Name0, '', Name),
+	doc_add(Entry, l:sane, Name, xml),!.
+
+
  /*
  note that set_report_entry_total_vec is currently called in different ways, cashflow sets this to proofed vector.
   */

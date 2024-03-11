@@ -8,6 +8,7 @@
     <content url="file://$MODULE_DIR$/../public_lib/lodgeit_solvers/prolog/utils">
       <excludeFolder url="file://$MODULE_DIR$/../public_lib/lodgeit_solvers/prolog/utils/tests" />
     </content>
+    <content url="file://$MODULE_DIR$/../public_lib/prolog_xbrl/instance_output" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

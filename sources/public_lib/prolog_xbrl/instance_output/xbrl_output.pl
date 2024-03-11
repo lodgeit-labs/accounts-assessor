@@ -1,7 +1,8 @@
 
 :- record section(context, header, entries, footer).
 
- 'create XBRL instance'(Xbrl, Static_Data, Start_Date, End_Date, Report_Currency, Balance_Sheet, ProfitAndLoss, _ProfitAndLoss2_Historical, Trial_Balance) :-
+ 'create XBRL instance'(Xbrl, Static_Data, Start_Date, End_Date, Report_Currency, Balance_Sheet, ProfitAndLoss, Trial_Balance) :-
+ 
 	Fact_Sections = [
 		section(Instant_Context_Id_Base, '\n<!-- balance sheet: -->\n', Balance_Sheet, ''),
 		section(Duration_Context_Id_Base, '\n<!-- profit and loss: -->\n', ProfitAndLoss, ''),

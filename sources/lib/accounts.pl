@@ -199,7 +199,7 @@ find account by a user-entered name
 	grab_and_inc_current_num(accounts_json_phase, Phase),
 	make_symlinked_json_report(
 		Dicts,
-		$>atomic_list_concat(['accounts', Phase, '.json']),
+		$>atomic_list_concat(['accounts', Phase]),
 		'accounts.json'
 	).
 
