@@ -457,8 +457,9 @@ class TestEvaluate(luigi.Task):
 			if key.endswith('json'):
 				got_json = json.load(open(fetch_report(results.path, report['val']['url'])))
 				expected_json = json.load(open(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]))
-				if got_json != expected_json:
-					delta.append({"msg": f"got_json != expected_json", "fix": {"op": "cp", "src": str(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]), "dst": results.path}})
+				d = json_delta(got_json, expected_json)
+				if d:
+					done({"msg": f"got_json != expected_json: {d}", "fix": {"op": "cp", "src": str(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]), "dst": results.path}})
 			
 			elif key == 'xbrl_instance':
 				
