@@ -10,7 +10,6 @@ import lxml.etree
 from luigi.freezing import FrozenOrderedDict
 from defusedxml.ElementTree import parse as xmlparse
 import xmldiff
-import xmldiff.main, xmldiff.formatting
 import requests
 import datetime
 import logging
@@ -26,7 +25,7 @@ from urllib.parse import urlparse
 
 # from luigi.parameter import_DictParamEncoder
 
-from runner.compare import my_xml_diff
+import runner.compare as compare
 from runner.utils import *
 
 # print(sys.path)
@@ -291,7 +290,7 @@ class TestEvaluateImmediateXml(luigi.Task):
 			logger.debug((result))
 			logger.debug((expected))
 
-			return done(list(my_xml_diff(result, expected)))
+			return done(list(compare.my_xml_diff(result, expected)))
 
 		return done([])
 
@@ -341,10 +340,13 @@ def cpop(src, dst):
 
 def xml_delta(a, b):
 	
-	# swipl -s ../../sources/public_lib/lodgeit_solvers/prolog/utils/compare_xml.pl -g 'compare_xml_files("/home/koom/repos/koo5/accounts-assessor/0/accounts-assessor/tests/endpoint_tests/ledger/good/BankDemo2_xlsx-LodgeiT__July4b/results/xbrl_instance.xml","/home/koom/robust_tmp/last_result/000000_xbrl_instance.xml"),halt.'
+	o = compare.xml_delta(a, b)
+		
+	return dict(msg="""xmls differ:
+got: {a}
+expected: {b}
+diff: {o}""", fix=cpop(a, b))	
 	
-	return dict(msg='xmls differ', fix=cpop(a, b))
-
 
 class TestEvaluate(luigi.Task):
 	priority = 100
@@ -453,14 +455,16 @@ class TestEvaluate(luigi.Task):
 				continue
 
 			if key.endswith('json'):
-				got_json = json.load(open(fetch_report(results.path, report['url'])))
+				got_json = json.load(open(fetch_report(results.path, report['val']['url'])))
 				expected_json = json.load(open(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]))
 				if got_json != expected_json:
 					delta.append({"msg": f"got_json != expected_json", "fix": {"op": "cp", "src": str(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]), "dst": results.path}})
-			elif key.endswith('xml'):
+			
+			elif key == 'xbrl_instance':
 				
+				logger.debug(f'{report=}')
 				maybe_done(xml_delta(
-					fetch_report(results.path, report['url']),
+					fetch_report(results.path, report['val']['url']),
 					self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1])
 				)			
 
