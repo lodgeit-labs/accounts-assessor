@@ -342,7 +342,7 @@ def xml_delta(a, b):
 	
 	o = compare.xml_delta(a, b)
 		
-	return dict(msg="""xmls differ:
+	return dict(msg=f"""xmls differ:
 got: {a}
 expected: {b}
 diff: {o}""", fix=cpop(a, b))	
@@ -451,26 +451,39 @@ class TestEvaluate(luigi.Task):
 				done({"msg": f"report['key'] != expected_report['key']: {report['key']} != {expected_report['key']}", "fix": overwrite_job_json_op})
 
 			key = report['key']
-			if any(key.endswith(x) for x in 'html directory url file'.split()):
+			if any(key.endswith(x) for x in 'directory url'.split()):
 				continue
 
-			if key.endswith('json'):
-				got_json = json.load(open(fetch_report(results.path, report['val']['url'])))
-				expected_json = json.load(open(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]))
-				d = compare.json_delta(got_json, expected_json)
-				if d:
-					done({"msg": f"got_json != expected_json: {d}", "fix": {"op": "cp", "src": str(self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1]), "dst": results.path}})
-			
-			elif key == 'xbrl_instance':
-				
-				logger.debug(f'{report=}')
-				maybe_done(xml_delta(
-					fetch_report(results.path, report['val']['url']),
-					self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1])
-				)			
+			expected_report_url = expected_report['val']['url']
+			expected_report_file_path = self.testcasedir / 'results' / expected_report_url.split('/')[-1]
 
-			else:
-				raise Exception(f'unsupported report key: {key}')
+			# if not expected_report_file_path.exists():
+			# 	delta.append({"msg": f"(testcase problem) expected_report_file_path does not exist: {expected_report_file_path}", "fix": {"op": "fetch_report", "src":expected_report_url , "dst": expected_report_file_path}})
+			
+			if expected_report_file_path.exists():
+			
+				if key.endswith('html'):
+					#delta.append(html_delta(fetch_report(results.path, report['val']['url']), expected_report_file_path))
+					continue
+			
+				if key.endswith('json'):
+					fetched_report = fetch_report(results.path, report['val']['url'])
+					got_json = json.load(open(fetched_report))
+					expected_json = json.load(open(expected_report_file_path))
+					d = compare.json_delta(got_json, expected_json)
+					if d:
+						done({"msg": f"got_json != expected_json: {d}", "fix": {"op": "cp", "src": fetched_report, "dst": expected_report_file_path}})
+				
+				elif key == 'xbrl_instance':
+					
+					logger.debug(f'{report=}')
+					maybe_done(xml_delta(
+						fetch_report(results.path, report['val']['url']),
+						self.testcasedir / 'results' / expected_report['val']['url'].split('/')[-1])
+					)			
+	
+				else:
+					raise Exception(f'unsupported report key: {key}')
 
 		return done()
 

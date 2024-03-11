@@ -33,6 +33,10 @@ class Tools:
 							rename(d,'investment_report_since_beginning.json', '000000_investment_report_since_beginning.json')
 							rename(d,'investment_report_since_beginning.json', '000000_investment_report_since_beginning.json')
 							rename(d,'reports_json.json', '000000_reports_json.json')
+							rename(d,'general_ledger_json.json', '000000_general_ledger_json.json')
+							rename(d,'alerts_json.json', '000000_alerts.json')
+							rename(d,'alerts.html', '000000_alerts.html')
+							
 							
 							# if file in ['xbrl_instance.xml', 'cashflow.html', 'crosschecks.html', 'general_ledger_json.json', , 'investment_report.html', 'investment_report.json', 'investment_report_since_beginning.html', 'investment_report_since_beginning.json', 'link.html', 'profit_and_loss.html', 'profit_and_loss_historical.html', 'reports_json.json', 'request.xml']:
 							# 	subprocess.check_call(['git', 'mv', os.path.join(d, file), os.path.join(d, '000000_' + file)])
