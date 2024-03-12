@@ -17,7 +17,7 @@ def get_unique_id():
 def create_tmp_directory_name():
 	""" create a unique name """
 	return '.'.join([
-		str(server_started_time),
+		'UTC' + datetime.datetime.utcnow().strftime('%Y_%m_%d__%H_%M_%S'),
 		str(os.getpid()),
 		str(client_request_id.inc()),
 		get_unique_id()])
