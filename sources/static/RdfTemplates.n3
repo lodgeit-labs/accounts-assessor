@@ -1081,8 +1081,20 @@ ic_ui:report_details
 	).
 
 ic_ui:job_notes
+	#excel:position [excel:col "A"; excel:row "12"];
+	#excel:alternative_positions ([excel:col "C"; excel:row "2"]);
+	excel:position [excel:col "C"; excel:row "2"];	
+	#excel:title "notes";
+	excel:title "job notes";
+	excel:cardinality excel:multi;
+	excel:class ic_ui:job_note;
+	excel:fields (
+		[	excel:property ic_ui:note;
+			excel:type xsd:string]
+	).
+
+ic_ui:job_notes2
 	excel:position [excel:col "A"; excel:row "12"];
-	excel:alternative_positions ([excel:col "C"; excel:row "2"]);
 	excel:title "notes";
 	excel:cardinality excel:multi;
 	excel:class ic_ui:job_note;
@@ -1099,6 +1111,17 @@ ic:fifo rdfs:label "FIFO".
 
 
 ic_ui:account_taxonomies
+	excel:position [excel:col "D"; excel:row "5"];
+	excel:title "account taxonomies";
+	excel:cardinality excel:multi;
+	excel:class ic_ui:account_taxonomy;
+	excel:fields (
+		[	excel:property account_taxonomies:url;
+			excel:type excel:uri;
+			excel:comment "note:\n use one of the pre-defined shorthands, or specify a full URL of a XBRL taxonomy or an XML file."]
+	).
+
+ic_ui:account_taxonomies2
 	excel:position [excel:col "D"; excel:row "3"];
 	excel:title "account taxonomies";
 	excel:cardinality excel:multi;
