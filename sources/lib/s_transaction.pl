@@ -188,7 +188,7 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 
  prepreprocess_s_transaction0(In, Out) :-
  	pretty_st_string(In, Sts),
-	push_format('pre-pre-processing source transaction:~n ~w~n', [Sts]),
+	push_format('pre-pre-processing source transaction:~n ~w', [Sts]),
 	prepreprocess_s_transaction(In, Out),
 	pop_context.
 
@@ -240,11 +240,12 @@ prepreprocess_s_transaction(T, T) :-
 % This Prolog rule handles the case when only the exchanged units are known (for example GOOG)  and
 % hence it is desired for the program to infer the count.
  infer_exchanged_units_count(S_Transaction, NS_Transaction) :-
-	result_property(l:exchange_rates, Exchange_Rates),
 	s_transaction_exchanged(S_Transaction, bases(Goods_Bases)),
 	s_transaction_day(S_Transaction, Transaction_Date),
 	s_transaction_vector(S_Transaction, Vector),
 	% infer the count by money debit/credit and exchange rate
+	%gtrace,
+	result_property(l:exchange_rates_even_at_cost, Exchange_Rates),
 	vec_change_bases_throw(Exchange_Rates, Transaction_Date, Goods_Bases, Vector, Vector_Exchanged),
 	vec_inverse(Vector_Exchanged, Vector_Exchanged_Inverted),
 	doc_set_s_transaction_field(exchanged, S_Transaction, vector(Vector_Exchanged_Inverted), NS_Transaction, infer_exchanged_units_count).
@@ -325,114 +326,6 @@ handle_additional_file(Bn, S_Transactions) :-
 	->	true
 	;	throw_string(['unrecognized file format (', Bn, ')'])).
 
-
-
-
-/*
-┏━┓╺┳┓┏━╸
-┣┳┛ ┃┃┣╸
-╹┗╸╺┻┛╹
-*/
-
-'extract bank statement transactions'(S_Transactions) :-
-	%format(user_error, '~q~n', ['extract bank statement transactions'(S_Transactions)]),
-
-	findall(
-		Acc,
-		(
-			bank_account(Acc),
-			once(doc(Acc, l:raw_items, _))
-		),
-		Accts
-	),
-	maplist('extract bank statement transactions2', Accts, S_Transactions0),
-	!flatten(S_Transactions0, S_Transactions2),
-	maplist(!invert_s_transaction_vector, S_Transactions2, S_Transactions).
-
- 'extract bank statement transactions2'(Acc, S_Transactions1) :-
-	push_format('extract bank statement transactions from: ~w', [$>sheet_and_cell_string($>doc(Acc, l:source))]),
-	!doc(Acc, l:currency, Account_Currency),
-	!doc(Acc, l:name, Account_Name),
-	!doc(Acc, l:raw_items, Items),
-	!doc(Acc, l:source_type, Source_Type),
-	!maplist('extract bank statement transaction'(Source_Type, Account_Currency, Account_Name), Items, S_Transactions0),
- 	exclude(var, S_Transactions0, S_Transactions1),
-	cf('bank statement transactions are ordered by date'(Acc, S_Transactions1)),
-	pop_format.
-
-
- 'bank statement transactions are ordered by date'(Acc, Sts) :-
- 	'bank statement transactions are ordered by date2'(Acc, '', Sts).
-
-
- 'bank statement transactions are ordered by date2'(_, _, []).
-
- 'bank statement transactions are ordered by date2'(Acc, Last, [T1|Sts]) :-
- 	s_transaction_day(T1, Day),
- 	(	Last @=< Day
- 	->	'bank statement transactions are ordered by date2'(Acc, Last, Sts)
- 	;	(
-			add_alert(
-				'WARNING',
-				$>format(
-					string(<$),
-					'transactions are not in date order in ~w',
-					[$>sheet_and_cell_string($>doc(Acc, l:source))]
-				),
-				Alert
-			),
-			doc_add(Acc, l:has_alert, Alert)
-		)
-	).
-
-
- /* accept empty row */
- 'extract bank statement transaction'(Source_Type, _, _, Item, _) :-
- 	e(Source_Type, ic_ui:bank_statement_sheet),
-	\+doc_value(Item, bs:transaction_description, _),
-	\+read_date(Item, bs:bank_transaction_date, _),
-	\+doc_value(Item,bs:units_count,_),
-	\+doc_value(Item,bs:units_type,_),
-	\+doc_value(Item,bs:transaction_description2,_),
-	\+doc_value(Item,bs:debit,_),
-	\+doc_value(Item,bs:credit,_),
-	!.
-
-'extract bank statement transaction'(_Source_Type, Account_Currency, Account_Name, Item, S_Transaction) :-
-	push_format('extract bank statement transaction from: ~w', [$>sheet_and_cell_string(Item)]),
-	atom_string(Action_verb_name, $>rpv(Item, bs:transaction_description)),
-	!read_date(Item, bs:bank_transaction_date, Date),
-
-	(doc_value(Item,bs:units_count,Units_count) -> true ; Units_count = nil(nil) ),
-
-	(	doc_value(Item,bs:units_type,Units_type0)
-	->	atom_string(Units_type, Units_type0)
-	;	Units_type = nil(nil)),
-
-	(doc_value(Item,bs:transaction_description2,Description2) -> true ; Description2='' ),
-
-	( doc_value(Item,bs:debit,Bank_Debit) -> true ; Bank_Debit = 0 ),
-	( doc_value(Item,bs:credit,Bank_Credit) -> true ; Bank_Credit = 0 ),
-	Dr is rationalize(Bank_Debit - Bank_Credit),
-
-	Coord = coord(Account_Currency, Dr),
-	(	Dr < 0
-	->	Money_side = kb:debit
-	;	Money_side = kb:credit),
-
-	!extract_exchanged_value2(Money_side, Units_type, Units_count, Exchanged),
-
-	!doc_add_s_transaction(
-		Date,
-		Action_verb_name,
-		[Coord],
-		bank_account_name(Account_Name),
-		Exchanged,
-		misc{desc2:Description2},
-		S_Transaction
-	),
-	!doc_add(S_Transaction, l:source, Item),
-	pop_context.
 
 
 

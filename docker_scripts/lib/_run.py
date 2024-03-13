@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
-import datetime
-import os,subprocess,time,shlex,logging,sys,threading,tempfile
+
+import os,subprocess,time,shlex,logging,sys,threading,tempfile,datetime
+
+
+def check_installation():
+
+	flag = subprocess.check_output(['./flag.sh']).decode().strip()
+	if not os.path.exists(flag):
+		raise Exception(f'{flag} not found, run first_run.sh')
+
+check_installation()
+
+
+
 from itertools import count
 import click
 import yaml
@@ -9,7 +21,7 @@ from urllib.parse import urlparse
 import queue
 import libtmux
 import io
-
+import lib.remove_all_anonymous_volumes
 
 
 #l = logging.getLogger()
@@ -42,6 +54,10 @@ logger.add("/tmp/robust_run.log", backtrace=True, diagnose=True, enqueue=True)
 sq = shlex.quote
 ss = shlex.split
 
+
+def transfer_option(dict1, key, dict2):
+	dict2[key] = dict1[key]
+	del dict1[key]
 
 
 def ccd(cmd, env):
@@ -96,6 +112,7 @@ def cli():
 	pass
 
 
+
 @cli.command(
 	help="""deploy the docker compose/stack""",
 	context_settings=dict(
@@ -105,34 +122,28 @@ def cli():
 
 
 @click.option('-of', '--offline', 		type=bool, 	default=False,
-	help="don't use internet..")
+	help="don't pull base images.")
 
 @click.option('-de', '--develop', 		type=bool, 	default=False,
-	help="Development and debugging mode. CPU-intensive.")
+	help="Development and debugging mode across the whole stack. CPU-intensive.")
 
 @click.option('-sr', '--stay_running', 				type=bool, 	default=True,
 	help="keep the script running after the stack is brought up.")
-
-#@click.option('-d1', '--debug_frontend_server', 				type=bool, 	default=False,
-# 	help="")
 
 @click.option('-pp', '--port_postfix', 				type=str, 	default='', 
 	help="last two or more digits of the services' public ports. Also identifies the particular docker stack.")
 
 @click.option('-hn', '--use_host_network', 			type=bool, 	default=False, 
-	help="tell docker to attach the containers to host network, rather than creating one?")
+	help="tell docker to attach the containers to host network, rather than creating isolated one. Useful for development.")
 
 @click.option('-ms', '--mount_host_sources_dir', 	type=bool, 	default=False, 
 	help="bind-mount source code directories, instead of copying them into images. Useful for development.")
 
-@click.option('-nr', '--django_noreload', 			type=bool, 	default=True,
-	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
-
-#@click.option('-nr', '--django_noreload', 			type=bool, 	default=True,
-#	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
-
 @click.option('-pu', '--public_url', 				type=str, 	default="http://localhost",
-	help="The public-facing url, including scheme and, optionally, port. Used in django to construct URLs, and hostname is used in Caddy and apache.")
+	help="The public-facing url, including scheme and, optionally, port. Used in Caddy and apache.")
+
+@click.option('-au', '--agraph_url', 				type=str, 	default="http://localhost:10077",
+	help="The public-facing url, including scheme and port")
 
 @click.option('-pg', '--enable_public_gateway', type=bool, default=True,
 	help="enable Caddy (on ports 80 and 443). This generally does not make much sense on a development machine, because 1) you're only getting a self-signed cert that excel will refuse, 2)maybe you already have another web server listening on these ports, 3) using -pp (non-standard ports) in combination with https will give you trouble. 4) You must access the server by a hostname, not just IP.")
@@ -146,42 +157,68 @@ def cli():
 @click.option('-rm', '--rm_stack', type=bool, default=True,
 	help="rm the stack and deploy it afresh.")
 
+@click.option('-rmav', '--remove_anonymous_volumes', type=bool, default=False, help='remove unlabelled volumes before deploying. This is useful for development, but dangerous. There is currently no easy way to delete just volumes created by the stack..') # we would have to inspect the running stack i guess.
+
 @click.option('-co', '--compose', type=bool, default=False,
 	help="use docker-compose instead of stack/swarm. Implies use_host_network. ")
 
 @click.option('-os', '--omit_service', 'omit_services', type=str, default=[], multiple=True,
 	help=" ")
 
-@click.option('-in', '--include_service', 'include_services', type=str, default=[], multiple=True,
+@click.option('-os', '--only_service', 'only_services', type=str, default=[], multiple=True,
 	help=" ")
 
 @click.option('-oi', '--omit_image', 'omit_images', type=str, default=[], multiple=True,
 	help="skip building image for service")
 
+@click.option('-oi', '--only_image', 'only_images', type=str, default=[], multiple=True,
+	help="skip building image for all other services")
+
 @click.option('-sd', '--secrets_dir', type=str, default='../secrets/',
 	help=" ")
 
 #@click.argument('build_args', nargs=-1, type=click.UNPROCESSED)
-@click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images")
+@click.option('-nc', '--no_cache', type=str, default=[], multiple=True,	help="avoid builder cache for these images. Useful to force reinstalling pip packages, for example")
 
 @click.option('-tc', '--terminal_cmd', 'terminal_cmd', type=str, default='mate-terminal -e "tmux attach-session -t {session_name}"', help="""`mate-terminal -e "tmux attach-session -t {session_name}"` by default. A format string for a command to run for viewing the progress of docker commands. Empty string to disable.""")
 
 @click.option('-ts', '--tmux_session_name', 'tmux_session_name', type=str, default='', help='name of a pre-existing tmux session to run docker commands in. Defaults to an empty string - create a new session.')
 
-@click.option('-ws', '--workers_scale', 'workers_scale', type=int, default=1, help='number of worker containers to spawn')
+@click.option('-ia', '--actors_scale', 'actors_scale', type=int, default=1, help='number of actors containers to spawn')
+
+@click.option('-wp', '--worker_processes', 'worker_processes', type=int, default=1, help='number of uvicorn worker processes to spawn in each worker container')
 
 @click.option('-ss', '--container_startup_sequencing', 'container_startup_sequencing', type=bool, default=True, help='obey depends_on declarations in compose file. If false, containers will be started in parallel. This is useful for development, unless you are debugging problems that occur on container startup, but may cause problems in production, if requests are made when not all services are ready. Note that waitforit is still used to wait for services to be ready.')
 
+# no django anywhere anymore, except in internal_services, which are development tools not used right now, it's not yet clear if it's needed that they be started by this script at some point, but probably yes, as a sort of administrative backend maybe.
+@click.option('-nr', '--django_noreload', 			type=bool, 	default=True,
+	help="--noreload. Disables python source file watcher-reloader (to save CPU). Prolog code is still reloaded on every server invocation (even when not bind-mounted...)")
+
+@click.option('-mu', '--manager_url', 'manager_url', type=str, default='http://localhost:9111', help='')
+
+@click.option('-pyd', '--pydevd', 'pydevd', type=bool, default=False, help='enable pydev')
+
+@click.option('-wg', '--WORKER_GRACE_PERIOD', 'WORKER_GRACE_PERIOD', type=int, default=100, help='')
+
+@click.option('-fl', '--fly', 'fly', type=bool, default=False, help='manage worker fly.io machines')
+
+
 #@click.option('-xs', '--xpce_scale', 'xpce_scale', type=real, default=1, help='XPCE UI scale')
 
-@click.pass_context
-def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_build, rm_stack, terminal_cmd, tmux_session_name, **choices):
-	no_cache = choices['no_cache']
-	del choices['no_cache']
-	omit_images = choices['omit_images']
-	del choices['omit_images']
 
-	public_host = urlparse(public_url).hostname
+@click.pass_context
+def run(click_ctx, stay_running, offline, port_postfix, public_url, rm_stack, terminal_cmd, tmux_session_name, **choices):
+
+	build_options = {}
+	
+	transfer_option(choices, 'omit_images', build_options)
+	transfer_option(choices, 'only_images', build_options)
+	transfer_option(choices, 'no_cache', build_options)
+	transfer_option(choices, 'parallel_build', build_options)
+
+	public_url_parsed = urlparse(public_url)
+	public_host = public_url_parsed.hostname
+	public_scheme = public_url_parsed.scheme
 	compose = choices['compose']
 
 	# caddy is just gonna listen on 80 and 443 always.
@@ -192,13 +229,13 @@ def run(click_ctx, stay_running, offline, port_postfix, public_url, parallel_bui
 	else:
 		frontend = 'frontend'
 
-	with open('apache/conf/dynamic.conf','w') as f:
+	with open('apache/conf/dynamic.conf', 'w') as f:
 		f.write(
 			f"""
 ServerName {public_host}
 			""")
-
-		paths = 'health_check health chat upload reference api view div7a .well-known/ai-plugin.json openapi.json docs ai2 ai3'.split()
+		
+		paths = 'health_check health chat upload reference api view div7a openapi.json docs ai3'.split()
 			
 		for path in paths:
 			f.write(
@@ -206,32 +243,55 @@ ServerName {public_host}
 ServerName {public_host}
 ProxyPassReverse "/{path}" "http://{frontend}:7788/{path}"
 ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999 timeout=999999999 retry=999999999 acquire=999999999 Keepalive=Off
-				""")
-
-	pp = port_postfix
+""")
 
 	if choices['mount_host_sources_dir']:
 		hollow = 'hollow'
 	else:
 		hollow = 'full'
 	
+	
+	agraph_port = 10077
+	setup_agraph(agraph_port)
+	if choices['agraph_url'] is None:
+		choices['agraph_url'] = f'{public_scheme}://{public_host}:{str(agraph_port)}'
+	
+	
 	hn = choices['use_host_network']
 
 	e = {
-		"PP": pp,
+		'BETTER_EXCEPTIONS': '1',
+		'FLY': str(choices['fly']),
+		"WORKER_GRACE_PERIOD": str(choices['WORKER_GRACE_PERIOD']),
+		"WORKER_PROCESSES": str(choices['worker_processes']),
+		'MANAGER_URL': choices['manager_url'],
+		"PP": port_postfix,
 		'DISPLAY':os.environ.get('DISPLAY', ''),
 		'RABBITMQ_URL': "localhost:5672" if hn else "rabbitmq:5672",
 		'REDIS_HOST':  'redis://localhost' if hn else 'redis://redis',
 		'AGRAPH_HOST': 'localhost' if hn else 'agraph',
-		'AGRAPH_PORT': '10035',
-		'REMOULADE_PG_URI': 'postgresql://remoulade@localhost:5433/remoulade' if hn else 'postgresql://remoulade@postgres:5433/remoulade',
+		'AGRAPH_PORT': str(agraph_port),
+		'AGRAPH_URL': choices['agraph_url'],
+		'REMOULADE_PG_URI': 'postgresql://postgres@localhost:5433/remoulade' if hn else 'postgresql://postgres@postgres:5433/remoulade',
 		'REMOULADE_API': 'http://localhost:5005' if hn else 'http://remoulade-api:5005',
 		'SERVICES_URL': 'http://localhost:17788' if hn else 'http://services:17788',
 		'CSHARP_SERVICES_URL': 'http://localhost:17789' if hn else 'http://csharp-services:17789',
+		'DOWNLOAD_BASTION_URL': 'http://localhost:6457' if hn else 'http://download:6457',
+		'ALL_PROXY': 'http://localhost:3128' if hn else 'http://webproxy:3128',
 	}
+
+	#del choices['fly']
+	del choices['agraph_url']
+	del choices['manager_url']
+	del choices['WORKER_GRACE_PERIOD']
+
 	#
 	# if choices['display']:
 	# 	e['DISPLAY']' = os.environ.get('DISPLAY', '')
+
+	if choices['pydevd']:
+		e['PYDEVD'] = 'true'
+	del choices['pydevd']
 
 	if choices['develop']:
 		e['FLASK_DEBUG'] = '1'
@@ -246,10 +306,13 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	#for ch in choices.items()
 		#f'svcenv_{service}_{var}'
 
+	remove_anonymous_volumes = choices['remove_anonymous_volumes']
+	del choices['remove_anonymous_volumes']
+	
 
 	stack_fn = generate_stack_file(port_postfix, public_url, choices, e)
 	if rm_stack and not compose:
-		shell('docker stack rm robust' + pp)
+		shell('docker stack rm robust' + port_postfix)
 
 	compose_cmd = 'docker-compose -f ' + stack_fn + ' -p robust --compatibility '
 
@@ -259,12 +322,23 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
 
-	build(offline, **{'port_postfix':pp,'mode':hollow,'parallel':parallel_build,'no_cache':no_cache, 'omit_images':omit_images})
+	#del choices['worker_processes']
+
+	build_options.update({'port_postfix':port_postfix,'mode':hollow})
+	build(offline, **build_options)
 
 	if rm_stack:
+		
+		# this was motivated by postgres, which would otherwise initialize once, and then old configuration would linger forever. 
+		if remove_anonymous_volumes:
+			lib.remove_all_anonymous_volumes.remove_anonymous_volumes()
+		
+		# flush old messages
+		subprocess.call(ss('docker volume rm robust_rabbitmq'))
+
 		print('wait for old network to disappear..')
 		while True:
-			cmdxxx = "docker network ls | grep robust" + pp
+			cmdxxx = "docker network ls | grep robust" + port_postfix
 			p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
 			print(cmdxxx + ': ' + str(p.returncode) + ':')
 			print(p.stdout)
@@ -279,7 +353,6 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	if compose:
 
-
 		if stay_running:
 			import atexit
 			def shutdown():
@@ -288,8 +361,8 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 		try:
 			threading.Thread(daemon=True, target = logtail, args = (compose_cmd,)).start()
-			
 			ccd(ss(compose_cmd + ' up --remove-orphans ' + ('' if stay_running else ' --detach')), env={})
+
 		except subprocess.CalledProcessError:
 			ccd(ss('docker ps'), env={})
 
@@ -301,9 +374,23 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 			exit(1)
 
 	else:
-		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+pp], env={})
-		shell('docker stack ps robust'+pp + ' --no-trunc')
-		shell('./follow_logs_noagraph.sh '+pp)
+		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+port_postfix], env={})
+		shell('docker stack ps robust'+port_postfix + ' --no-trunc')
+		shell('./follow_logs_noagraph.sh '+port_postfix)
+
+
+
+
+def setup_agraph(agraph_port):
+	with open('agraph/etc/agraph.cfg', 'w') as o:
+		with open('agraph/etc/agraph.cfg.template', 'r') as i:
+			o.write(i.read())
+		o.write(f"""
+Port {agraph_port}
+SuperUser {open('../secrets/AGRAPH_SUPER_USER').read().strip()}:{open('../secrets/AGRAPH_SUPER_PASSWORD').read().strip()}
+""")
+
+
 
 
 def logtail(compose_events_cmd):
@@ -382,7 +469,7 @@ def identity_envvars(tws):
 	This way, we don't rely on docker-compose to pass these env vars through.
 	"""
 	for s in tws['services'].values():
-		if 'environment' not in s:
+		if 'environment' not in s or s['environment'] is None:
 			s['environment'] = {}
 		print(s['environment'])
 		for k,v in s['environment'].items():
@@ -410,11 +497,12 @@ def generate_stack_file(port_postfix, PUBLIC_URL, choices, env):
 	return fn
 
 
-def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, include_services, secrets_dir, workers_scale, container_startup_sequencing):
+def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host_sources_dir, django_noreload, enable_public_gateway, enable_public_insecure, compose, omit_services, only_services, secrets_dir, actors_scale, container_startup_sequencing, worker_processes, fly):
 
 	res = deepcopy(src)
 	services = res['services']
 	services['frontend']['environment']['PUBLIC_URL'] = PUBLIC_URL
+	services['actors']  ['environment']['PUBLIC_URL'] = PUBLIC_URL
 	services['services']['environment']['PUBLIC_URL'] = PUBLIC_URL
 
 	if not enable_public_gateway:
@@ -445,14 +533,21 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 			else:
 				v['networks'] = ['hostnet']
 
+		if not fly and 'secrets' in v:
+			try:
+				v['secrets'].remove('FLYCTL_API_TOKEN')
+			except ValueError:
+				pass
+
+
 	if compose:
 		del res['networks']
 		for k,v in services.items():
 			v['ports'] = []
 				# for port in v['hostnet_ports']:
 				# 	v['ports'].append(str(port)+':'+str(port))
-
-			del v['networks']
+			if 'networks' in v:
+				del v['networks']
 			if 'deploy' in v:
 				#del v['deploy']
 				pass
@@ -464,9 +559,9 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 					if 'delay' in v['deploy']['restart_policy']:
 						del v['deploy']['restart_policy']['delay']
 
-	for x in ['workers']:
+	for x in ['actors']:
 		if x in services:
-			services[x].get('deploy', {})['replicas'] = workers_scale
+			services[x].get('deploy', {})['replicas'] = actors_scale
 
 
 	for k,v in services.items():
@@ -475,28 +570,30 @@ def tweaked_services(src, port_postfix, PUBLIC_URL, use_host_network, mount_host
 		if not container_startup_sequencing:
 			v['depends_on'] = {}
 
-	if mount_host_sources_dir:
-		for x in ['workers','services','frontend', 'remoulade-api', 'download']:
-			if x in services:
-				service = services[x]
+	for x in ['worker', 'workers', 'manager', 'actors', 'services', 'frontend', 'remoulade-api', 'download']:
+		if x in services:
+			service = services[x]
+			if mount_host_sources_dir:
 				if 'volumes' not in service:
 					service['volumes'] = []
 				service['volumes'].append('../sources:/app/sources')
 				assert service['image'] == f'koo5/{x}${{PP}}:latest', service['image']
 				service['image'] = f'koo5/{x}-hlw{port_postfix}:latest'
 
-		services['workers']['volumes'].append('../sources/swipl/xpce:/home/myuser/.config/swi-prolog/xpce')
-
 	if 'DISPLAY' in os.environ:
-		if 'workers' in services:
-			services['workers']['environment']['DISPLAY'] = "${DISPLAY}"
+		if 'worker' in services:
+			services['worker']['environment']['DISPLAY'] = "${DISPLAY}"
+
+	if worker_processes == 0:
+		if not 'worker' in omit_services:
+			omit_services += ('worker',)
 
 	for s in omit_services:
 		delete_service(services, s)
 
-	if len(include_services) != 0:
+	if only_services:
 		for k,v in list(services.items()):
-			if k not in include_services:
+			if k not in only_services:
 				delete_service(services, k)
 
 	return res
@@ -642,26 +739,37 @@ def realpath(x):
 
 
 
-def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
+def build(offline, port_postfix, mode, parallel_build, no_cache, omit_images, only_images):
 	global _parallel
-	_parallel=parallel
+	_parallel=parallel_build
 
 
 	cc('./lib/git_info.fish')
 
 	def svc(service_name, dir, cmd, dockerfile):
-		if service_name not in omit_images:
-			return task(service_name + '_build', dir, (cmd + ' -f "{dockerfile}" . ').format(
+		if service_name not in omit_images and (not only_images or service_name in only_images):
+			appdir = service_name.replace("-","_")
+			args = dict(
+				APPDIR=appdir, 
+				APPPATH = f'/app/sources/{appdir}'
+			)
+			return task(service_name + '_build', dir, (cmd + ' {args} -f "{dockerfile}" . ').format(
 				port_postfix=port_postfix,
 				service_name=service_name,
-				dockerfile=dockerfile
+				dockerfile=dockerfile,
+				args=' '.join([f'--build-arg {n}={v}' for n,v in args.items()])
 			))
+			
+					
+			
+
+			
 
 	pull = '' if offline else '--pull '
 	dbptks = f'docker build {pull} -t "koo5/{{service_name}}'
 	dbtks = 'docker build -t "koo5/{service_name}'
 
-	ubuntu = task('ubuntu' + '_build', 'ubuntu', f'docker build {pull} -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "Dockerfile" . ')
+	ubuntu = task('ubuntu' + '_build', '../sources/', f'docker build {pull} -t "koo5/ubuntu" '+('--no-cache' if 'ubuntu' in no_cache else '')+' -f "../docker_scripts/ubuntu/Dockerfile" . ')
 
 	svc('apache', 		  'apache', 						dbptks+'{port_postfix}"', 	"Dockerfile")
 	svc('agraph', 		  'agraph', 						dbptks+'{port_postfix}"', 	"Dockerfile")
@@ -672,19 +780,24 @@ def build(offline, port_postfix, mode, parallel, no_cache, omit_images):
 
 	svc('download',				'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/download/Dockerfile_hollow")
 	svc('remoulade-api', 		'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/remoulade_api/Dockerfile_hollow")
-	svc('workers', 				'../sources/', dbtks+'-hlw{port_postfix}"', "workers/Dockerfile_hollow")
+	svc('actors',				'../sources/', dbtks+'-hlw{port_postfix}"', "actors/Dockerfile_hollow")
+	svc('worker',				'../sources/', dbtks+'-hlw{port_postfix}"', "worker/Dockerfile_hollow")
+	svc('manager',				'../sources/', dbtks+'-hlw{port_postfix}"', "manager/Dockerfile_hollow")
 	svc('internal-services',		'../sources/', dbtks+'-hlw{port_postfix}"', "internal_services/Dockerfile_hollow")
-	svc('services', 			'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/services/Dockerfile_hollow")
-	svc('frontend', 			'../sources/', dbtks+'-hlw{port_postfix}"', "../docker_scripts/frontend/Dockerfile_hollow")
+	svc('services',				'../sources/', dbtks+'-hlw{port_postfix}"', "services/Dockerfile_hollow")
+	svc('frontend',				'../sources/', dbtks+'-hlw{port_postfix}"', "frontend/Dockerfile_hollow")
 
 	os.set_blocking(sys.stdout.fileno(), False)
 	print("ok?")
 	join_all()
 
-	if mode == "full": # not hollow
-		svc('workers',	'../sources/', dbtks+'{port_postfix}"', "workers/Dockerfile")
-		svc('services',	'../sources/', dbtks+'{port_postfix}"', "services/Dockerfile")
-		svc('frontend',	'../sources/', dbtks+'{port_postfix}"', "frontend/Dockerfile")
+	#if mode == "full": # not hollow
+	# 	svc('manager',			'../sources/', dbtks+'{port_postfix}"', "manager/Dockerfile")
+	svc('worker',			'../sources/', dbtks+'{port_postfix}"', "worker/Dockerfile")
+	# 	svc('workers',			'../sources/', dbtks+'{port_postfix}"', "workers/Dockerfile")
+	# 	svc('services',			'../sources/', dbtks+'{port_postfix}"', "services/Dockerfile")
+	# 	svc('csharp-services',	'../sources/', dbtks+'{port_postfix}"', "csharp-services/Dockerfile")
+	# 	svc('frontend',			'../sources/', dbtks+'{port_postfix}"', "frontend/Dockerfile")
 
 	join_all()
 	print("ok!")

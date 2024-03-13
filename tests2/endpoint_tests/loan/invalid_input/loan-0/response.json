@@ -1,5 +1,0 @@
-{
-    "result": "outputs/result.xml",
-    "status": 500,
-    "url": "http://jj.internal:8877/upload?request_format=xml&requested_output_format=immediate_xml"
-}

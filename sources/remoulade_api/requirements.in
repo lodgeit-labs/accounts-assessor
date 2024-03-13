@@ -6,3 +6,4 @@ flask-apispec
 
 
 agraph-python==101.0.7
+rdflib

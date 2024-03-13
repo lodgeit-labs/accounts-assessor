@@ -1,0 +1,238 @@
+{
+    "actor_name": "call_prolog_calculator",
+    "args": [],
+    "duration": "0:00:16.050892",
+    "end_datetime": "2024-03-11T21:48:28.661672+00:00",
+    "enqueued_datetime": "2024-03-11T21:48:12.516332+00:00",
+    "kwargs": {
+        "public_url": "http://jj.internal:8877",
+        "request_directory": "1710176156.8869538.77.5.D0F33EFx2510",
+        "request_format": "rdf",
+        "worker_options": {
+            "ROBUST_ENABLE_NICETY_REPORTS": true,
+            "prolog_debug": true,
+            "skip_dev_runner": false,
+            "user": "nobody"
+        }
+    },
+    "message_id": "a039c221-d2b9-4e54-829c-7f1bc6503b5a",
+    "options": {},
+    "priority": 0,
+    "queue_name": "default",
+    "result": {
+        "alerts": [],
+        "reports": [
+            {
+                "key": "alerts_html",
+                "title": "alerts",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_alerts.html"
+                }
+            },
+            {
+                "key": "crosschecks_html",
+                "title": "crosschecks",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_crosschecks.html"
+                }
+            },
+            {
+                "key": "context_trace_html",
+                "title": "context_trace",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_context_trace.html"
+                }
+            },
+            {
+                "key": "profit_and_loss.html",
+                "title": "profit and loss from 2018-07-01 to 2019-06-30 (AUD) - at market",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_final_profit_and_loss.html"
+                }
+            },
+            {
+                "key": "profit_and_loss_historical.html",
+                "title": "profit and loss - historical from 1-01-01 to 2018-06-30 (AUD) - at market",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_final_profit_and_loss_historical.html"
+                }
+            },
+            {
+                "key": "investment_report_html",
+                "title": "investment report from 2018-07-01 to 2019-06-30 (AUD) - at market",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_investment_report.html"
+                }
+            },
+            {
+                "key": "investment_report_since_beginning_html",
+                "title": "investment report from 1-01-01 to 2019-06-30 (AUD) - at market",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_investment_report_since_beginning.html"
+                }
+            },
+            {
+                "key": "cashflow_html",
+                "title": "cash flow from 2018-07-01 to 2019-06-30 (AUD)",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_cashflow.html"
+                }
+            },
+            {
+                "key": "balance_sheet.html",
+                "title": "balance sheet from 2018-07-01 to 2019-06-30 (AUD) - at market",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_final_balance_sheet.html"
+                }
+            },
+            {
+                "key": "balance_sheet_delta.html",
+                "title": "balance sheet delta from 2018-07-01 to 2019-06-30 (AUD) - at market",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_final_balance_sheet_delta.html"
+                }
+            },
+            {
+                "key": "balance_sheet_historical.html",
+                "title": "balance sheet - historical from 1-01-01 to 2018-06-30 (AUD) - at market",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_final_balance_sheet_historical.html"
+                }
+            },
+            {
+                "key": "gl_html",
+                "title": "GL viewer",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/general_ledger_viewer/link.html"
+                }
+            },
+            {
+                "key": "xbrl_instance",
+                "title": "xbrl_instance",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_xbrl_instance.xml"
+                }
+            },
+            {
+                "key": "reports_json_json",
+                "title": "reports_json",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_reports_json.json"
+                }
+            },
+            {
+                "key": "investment_report_since_beginning_json",
+                "title": "investment_report_since_beginning",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_investment_report_since_beginning.json"
+                }
+            },
+            {
+                "key": "investment_report_json",
+                "title": "investment_report",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_investment_report.json"
+                }
+            },
+            {
+                "key": "general_ledger_json_json",
+                "title": "general_ledger_json",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_general_ledger_json.json"
+                }
+            },
+            {
+                "key": "alerts_json",
+                "title": "alerts",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_alerts.json"
+                }
+            },
+            {
+                "key": "accounts2_json",
+                "title": "accounts2",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_accounts2.json"
+                }
+            },
+            {
+                "key": "accounts1_json",
+                "title": "accounts1",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_accounts1.json"
+                }
+            },
+            {
+                "key": "accounts0_json",
+                "title": "accounts0",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_accounts0.json"
+                }
+            },
+            {
+                "key": "response.n3",
+                "title": "response.n3",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_response.n3"
+                }
+            },
+            {
+                "key": "result_sheets",
+                "title": "doc_result_sheets.turtle",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_doc_result_sheets.turtle"
+                }
+            },
+            {
+                "key": "doc_final.turtle",
+                "title": "doc_final.turtle",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_doc_final.turtle"
+                }
+            },
+            {
+                "key": "doc_final.trig",
+                "title": "doc_final.trig",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/000000_doc_final.trig"
+                }
+            },
+            {
+                "key": "request_n3",
+                "title": "request_n3",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/request.n3"
+                }
+            },
+            {
+                "key": "request_file",
+                "title": "request_file",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/request.n3"
+                }
+            },
+            {
+                "key": "job_tmp_url",
+                "title": "job_tmp_url",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/../a039c221-d2b9-4e54-829c-7f1bc6503b5a"
+                }
+            },
+            {
+                "key": "task_directory",
+                "title": "task_directory",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1710176156.977812.71.12.D0F33EFx2520/"
+                }
+            }
+        ],
+        "uris": {
+            "request_uri": "https://rdf.tmp/requests/1710176156.977812.71.12.D0F33EFx2520",
+            "result_data_uri_base": "https://rdf.tmp/results/1710176156.977812.71.12.D0F33EFx2520/",
+            "result_tmp_directory_name": "1710176156.977812.71.12.D0F33EFx2520"
+        }
+    },
+    "started_datetime": "2024-03-11T21:48:12.610780+00:00",
+    "status": "Success",
+    "wait_time": "0:00:16.145340"
+}

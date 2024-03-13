@@ -7,8 +7,8 @@ _term() {
   kill -TERM "$child" 2>/dev/null
 }
 trap _term SIGTERM
-flask run -h "0.0.0.0" --port 5005 --no-debugger & #--no-reload
+flask run -h "0.0.0.0" --port 5005 --no-debugger & #--no-reload # the reloader is too greedy...
 child=$! 
 wait "$child"
-echo "end"
+echo ".process end ======================================================================= end process ."
 

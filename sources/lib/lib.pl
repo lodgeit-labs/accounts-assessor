@@ -33,7 +33,7 @@
 :- [bank_accounts].
 :- [bank_statement].
 :- [cashflow].
-:- [crosschecks_report].
+:- [crosschecks].
 :- [detail_accounts].
 :- [exchange].
 :- [exchange_dates].
@@ -79,7 +79,6 @@
 :- [state].
 :- [system_accounts].
 :- [tables].
-%:- [testcase_converter].
 :- [trading].
 :- [transactions].
 :- [trial_balance].

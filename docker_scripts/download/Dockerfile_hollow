@@ -1,26 +1,34 @@
 FROM koo5/ubuntu
+ARG APPDIR
+ARG APPPATH
 
-WORKDIR /app/
-ARG REQUIREMENTS_FILE=requirements.txt
 
-COPY download_bastion/${REQUIREMENTS_FILE} /app/sources/download_bastion/
-RUN python3 -m pip install --upgrade --no-cache-dir -r /app/sources/download_bastion/${REQUIREMENTS_FILE}
 
-COPY common/ /app/sources/common/
 
-EXPOSE 6457
-RUN mkdir -p /app/server_root/tmp
-RUN chown myuser:myuser /app/server_root/tmp
+
+# python requirements (common block)
+USER myuser:myuser
+WORKDIR $APPPATH
+COPY $APPDIR/requirements.txt .
+COPY $APPDIR/requirements-dev.txt .
+RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements.txt
+RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements-dev.txt
+USER root
+
+
+
+
+
+
+
+WORKDIR $APPPATH
 USER myuser
-VOLUME /app/server_root/tmp
-VOLUME /app/sources/
-
-ENV PYTHONUNBUFFERED=1
-ENV WATCHMEDO_INTERVAL=5
-ENV WATCHMEDO=true
-
-
-WORKDIR /app/sources/download_bastion
-
 CMD ["./start.sh"]
-HEALTHCHECK CMD curl http://127.0.0.1:6457
+ENV HC="curl http://127.0.0.1:6457/health" 
+
+
+
+
+
+#start interval is the time between health checks during the start period. This option requires Docker Engine version 25.0 or later.
+HEALTHCHECK --interval=2s --timeout=600s CMD { test -f /healthcheck/ok && echo -n "sleep.." && sleep 555 && echo -n "hc..>> " && /bin/sh -c '/bin/sh -c "$HC"' && echo -n " <<..hc passed." ; } || { echo -n "hc..>> " && echo -n "$HC" && echo -n " <<... " && /bin/sh -c '/bin/sh -c "$HC"' && echo -n " << first hc passed." && touch /healthcheck/ok && echo " flag stored." ; } 

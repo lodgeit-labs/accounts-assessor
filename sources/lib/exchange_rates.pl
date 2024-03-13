@@ -17,10 +17,12 @@
 
 :- dynamic exchange_rates/2.
 :- persistent(persistently_cached_exchange_rates(day: any, rates:list)).
-:- initialization(init_exchange_rates).
+%:- initialization(init_exchange_rates).
 
-init_exchange_rates :-
-	absolute_file_name(my_cache('persistently_cached_exchange_rates.pl'), File, []),
+
+
+ init_exchange_rates_tmp_cache :-
+	absolute_tmp_path(loc(file_name, 'exchange_rates.pl'), loc(absolute_path, File)),	
 	db_attach(File, []).
 
 
@@ -28,7 +30,8 @@ init_exchange_rates :-
 	do we have this cached already?
 */
 exchange_rates(Day, Exchange_Rates) :-
-	cf(persistently_cached_exchange_rates(Day, Exchange_Rates)),
+	format(user_error, '~q ...~n', [persistently_cached_exchange_rates(Day, Exchange_Rates)]),
+	persistently_cached_exchange_rates(Day, Exchange_Rates),
 	!.
 
 /* 
@@ -39,7 +42,7 @@ exchange_rates(Day, Exchange_Rates) :-
 	% 2, because timezones and stuff. This should result in us not making queries for exchange rates more than 48h into the future, but definitely not to errorneously refusing to query because we think Day is in future when it isnt.
 	add_days(Today, 2, Tomorrow),
 	Day @=< Tomorrow,
-	cf(fetch_exchange_rates(Day, Exchange_Rates)).
+	fetch_exchange_rates(Day, Exchange_Rates).
 
 % Obtains all available exchange rates on the day Day using an arbitrary base currency
 % from exchangeratesapi.io. The results are memoized because this operation is slow and
@@ -49,8 +52,12 @@ exchange_rates(Day, Exchange_Rates) :-
 fetch_exchange_rates(Date, Exchange_Rates) :-
 	/* note that invalid dates get "recomputed", for example date(2010,1,33) becomes 2010-02-02 */
 	format_time(string(Date_Str), "%Y-%m-%d", Date),
-	string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
-	string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
+	
+	%string_concat("http://openexchangerates.org/api/historical/", Date_Str, Query_Url_A),
+	%string_concat(Query_Url_A, ".json?app_id=677e4a964d1b44c99f2053e21307d31a", Query_Url),
+	%atomic_list_concat([$>manager_url(<$), '/exchange_rates/', Date_Str], Query_Url),
+	atomic_list_concat(['http://localhost:1111/exchange_rates/', Date_Str], Query_Url),
+	
 	format(user_error, '~w ...', [Query_Url]),
 	catch(
 		http_open(Query_Url, Stream, [request_header('User-Agent'='Robust1')]),
@@ -74,8 +81,9 @@ fetch_exchange_rates(Date, Exchange_Rates) :-
 		Exchange_Rates
 	),
 	close(Stream),
-	format(user_error, '..ok.\n', []),
-	assert_rates(Date, Exchange_Rates).
+	format(user_error, '..ok.\n', [])
+	,assert_rates(Date, Exchange_Rates)
+	.
 
 /* 
 	now put it in the cache file 
@@ -98,6 +106,7 @@ This one lets us compute unrealized gains excluding forex declaratively. The com
 		[Report_Currency],
 		Purchase_Date
 	),
+	!,
 	exchange_rate2(Table, Purchase_Date, 
 		Purchase_Currency, Report_Currency, Old_Rate),
 	exchange_rate2(Table, Day, 
@@ -148,23 +157,34 @@ best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate) :-
 
 % Derive an exchange rate from the source to the destination currency by chaining together
 % =< Length exchange rates.
+:- table(chained_exchange_rate/5).
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, _) :-
-	best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate).
+	format(string(S), '~q', [best_nonchained_exchange_rate('Table', Day, Src_Currency, Dest_Currency, Exchange_Rate)]),
+	ct(S,	
+		best_nonchained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate)).
 
 chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate, Length) :-
 	Length > 0,
-	(
-		var(Dest_Currency)
-	->
-		true
-	;
-		Dest_Currency \= Src_Currency
-	),
+	
+	dif(Dest_Currency, Src_Currency),
+	dif(Int_Currency, Src_Currency),
+	dif(Int_Currency, Dest_Currency),
+	
 	/* get conversions into any currency */
-	best_nonchained_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
-	Int_Currency \= Src_Currency,
+%cf?
+	ct(
+		best_nonchained_exchange_rate('Table', Day, Src_Currency, Int_Currency, Head_Exchange_Rate),
+		best_nonchained_exchange_rate(Table, Day, Src_Currency, Int_Currency, Head_Exchange_Rate)
+	),
+	
 	New_Length is Length - 1,
-	chained_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length),
+	
+%cf?
+	format(string(S), '~q', [chained_exchange_rate('Table', Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length)]),
+	ct(
+		S,
+		chained_exchange_rate(Table, Day, Int_Currency, Dest_Currency, Tail_Exchange_Rate, New_Length)),
+	
 	{Exchange_Rate = Head_Exchange_Rate * Tail_Exchange_Rate}.
 
 /*
@@ -190,16 +210,15 @@ It makes sure that not only is the unit value from correct date used, but that a
 	),
 	(	Best_Rates1 \= []
 	->	Best_Rates = Best_Rates1
-	;	(	false
-		->	%for debugging, find all exchange rates just to make sure they are all the same:
-			!findall(
+	;	(	false %for debugging, find all exchange rates just to make sure they are all the same:
+		->	!findall(
 				(Dest_Currency, Rate),
 				chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2),
 				Best_Rates
 			)
 		;	(
 				Best_Rates = [(Dest_Currency, Rate)], 
-				once(chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 2))
+				once(chained_exchange_rate(Table, Day, Src_Currency, Dest_Currency, Rate, 1))
 			)
 		)
 	),
@@ -258,31 +277,33 @@ exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	),
 	Exchange_Rates_Sorted = [Exchange_Rate_Out|_].
 
+
+
 :- table(exchange_rate/5).
-exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
+ exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out) :-
 	push_format('~q', [exchange_rate(Day, Src_Currency, Dest_Currency)]),
 	%write(exchange_rate(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out)),writeln('...'),
 	exchange_rate2(Table, Day, Src_Currency, Dest_Currency, Exchange_Rate_Out),
 	pop_format
 	.
 
-exchange_rate_throw(Table, Day, Src, Dest, Exchange_Rate_Out) :-
+ exchange_rate_throw(Table, Day, Src, Dest, Exchange_Rate_Out) :-
 	(	exchange_rate(Table, Day, Src, Dest, Exchange_Rate_Out)
 	->	true
 	;	exchange_rate_do_throw(Day, Src, Dest)).
 
-exchange_rate_do_throw(Day, Src, Dest) :-
+ exchange_rate_do_throw(Day, Src, Dest) :-
 	(	'is required exchange rate physically in future'(Day)
 	->	Msg2 = ', date in future?'
 	;	Msg2 = ''),
 	throw_format('no exchange rate found: Day:~w, Src:~w, Dest:~w~w\n', [Day, Src, Dest, Msg2]).
 
-'is required exchange rate physically in future'(Day) :-
+ 'is required exchange rate physically in future'(Day) :-
 	!date(Today),
 	Day @> Today.
 
 	
-is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
+ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 	member(Dest_Currency, Bases),
 	exchange_rate(Table, Day, Src_Currency, Dest_Currency, _Exchange_Rate).
 
@@ -293,31 +314,34 @@ is_exchangeable_into_request_bases(Table, Day, Src_Currency, Bases) :-
 ┗━╸╹ ╹ ╹ ╹┗╸╹ ╹┗━╸ ╹
 */
  extract_exchange_rates :-
+ 	extract_exchange_rates1(Exchange_Rates),
 	(	at_cost
-	->	Exchange_Rates = []
-	;	extract_exchange_rates1(Exchange_Rates)),
-	!add_comment_stringize('Exchange rates extracted', Exchange_Rates),
-	!result_add_property(l:exchange_rates, Exchange_Rates).
+	->	!result_add_property(l:exchange_rates, [])
+	;	!result_add_property(l:exchange_rates, Exchange_Rates)),
+	!result_add_property(l:exchange_rates_even_at_cost, Exchange_Rates),
+	!add_comment_stringize('Exchange rates extracted', Exchange_Rates).
+	
+	
 
 
  extract_exchange_rates1(Exchange_Rates) :-
- 	!get_sheet_data(ic_ui:unit_values_sheet, X),
-
-	(	(
-			doc(X, excel:has_unknown_fields, Fields0),
-			!doc_list_items(Fields0, Fields),
-			maplist(!parse_date_field, Fields)
+ 	(	get_optional_singleton_sheet_data(ic_ui:unit_values_sheet, X)
+ 	->	(
+			(	doc(X, excel:has_unknown_fields, Fields0)
+			->	(
+					!doc_list_items(Fields0, Fields),
+					maplist(!parse_date_field, Fields)
+				)
+			;	Fields = []),
+		
+			!doc(X, rdf:value, Items0),
+			!doc_list_items(Items0, Items),
+			maplist(extract_exchange_rates2(Fields), Items, Exchange_Rates0),
+		
+			flatten(Exchange_Rates0, Exchange_Rates),
+			maplist(assert_ground, Exchange_Rates)
 		)
-	->	true
-	;	Fields = []),
-
-	!doc(X, rdf:value, Items0),
-	!doc_list_items(Items0, Items),
-	maplist(extract_exchange_rates2(Fields), Items, Exchange_Rates0),
-
-	flatten(Exchange_Rates0, Exchange_Rates),
-	maplist(assert_ground, Exchange_Rates),
-	true.
+	;	Exchange_Rates = []).
 
 
  parse_date_field(Field) :-

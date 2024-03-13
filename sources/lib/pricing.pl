@@ -39,7 +39,10 @@ add_bought_items(Pricing_Method, Added, (Outstanding_In, Investments_In), (Outst
 
 find_items_to_sell(Pricing_Method, Type, Sale_Count, Sale_Date, Sale_Unit_Price, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out), Cost) :-
 	/* this logic is same for both pricing methods */
+
+	% eq?
 	((rdf_global_id(ic:lifo,Pricing_Method),!);(rdf_global_id(ic:fifo,Pricing_Method))),
+
 	find_items_to_sell2(Type, Sale_Count, Sale_Date, Sale_Unit_Price, Outstanding_In, Investments_In, Outstanding_Out, Investments_Out, Cost)
 	%,print_term(find_items_to_sell(Pricing_Method, Type, Sale_Count, Sale_Date, Sale_Unit_Price, (Outstanding_In, Investments_In), (Outstanding_Out, Investments_Out), Cost),[])
 	.

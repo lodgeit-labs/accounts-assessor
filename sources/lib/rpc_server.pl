@@ -1,9 +1,11 @@
-:- if(\+getenv('SWIPL_NODEBUG', true)).
-	:- format(user_error, 'SWIPL_NODEBUG off~n', []).
-	:- debug.
-:- else.
-	:- format(user_error, 'SWIPL_NODEBUG on~n', []).
-:- endif.
+
+% debug is invoked in cmdline goal, so this doesnt make sense i think
+%:- if(env_bool('SWIPL_NODEBUG', true)).
+%	:- format(user_error, 'SWIPL_NODEBUG on~n', []).
+%:- else.
+%	:- format(user_error, 'SWIPL_NODEBUG off~n', []).
+%	:- debug.
+%:- endif.
 
 
 :- initialization(init_guitracer).
@@ -66,8 +68,8 @@ process_request_rpc_cmdline3("chat", Dict) :-
 	!(chat:do_chat(Dict, Response)),
 	json_write(current_output, Response).
 
-process_request_rpc_cmdline3(_,_) :-
-	json_write(current_output, response{status:error, message:unknown_method}).
+process_request_rpc_cmdline3(Method,_) :-
+	json_write(current_output, response{status:error, message:unknown_method, method:Method}).
 
 
 

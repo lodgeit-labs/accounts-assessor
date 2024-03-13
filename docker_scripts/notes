@@ -1,0 +1,13 @@
+ docker run \
+       --name squid \
+       -e TZ=Europe/London \
+       -e PROXY_UID=13 \
+       -e PROXY_GID=13 \
+       -v (pwd)/squid/etc/:/etc/squid \
+       -p 3128:3128 \
+       -p 3129:3129 \
+       -it distahl/squid
+
+
+cat squid/etc/**conf | grep -v "#" | uniq
+

@@ -2,6 +2,13 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/../.." vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../CsharpServices" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libs/remoulade" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libs/sdk" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../depr" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../download" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../public_lib/lodgeit_solvers" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../super-bowl" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../wait-for-it" vcs="Git" />
   </component>
 </project>

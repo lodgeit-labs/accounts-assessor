@@ -1,28 +1,62 @@
 FROM koo5/ubuntu
+ARG APPDIR
+ARG APPPATH
+
+
+
+
+
+# python requirements (common block)
+USER myuser:myuser
+WORKDIR $APPPATH
+COPY $APPDIR/requirements.txt .
+COPY $APPDIR/requirements-dev.txt .
+RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements.txt
+RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements-dev.txt
+USER root
+
+
+
+
+
+
+# remoulade (common block)
 
 RUN apt-get install -y libpq-dev
-WORKDIR /app/sources
-COPY wait-for-it wait-for-it
+# this has to be made writeable because python wants to write it's eggs in there
+COPY --chown=myuser:myuser common/libs/remoulade/ /app/sources/common/libs/remoulade/
+USER myuser:myuser
+RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install -v --upgrade --ignore-installed --user /app/sources/common/libs/remoulade/[rabbitmq,redis,postgres]
 
-COPY remoulade_api/requirements.txt remoulade_api/requirements.txt
-RUN python3 -m pip install --no-cache-dir -r /app/sources/remoulade_api/requirements.txt
 
 
-COPY common/libs/remoulade common/libs/remoulade
 
-RUN python3 -m pip install --no-cache-dir -e /app/sources/common/libs/remoulade[rabbitmq,redis,postgres]
 
-#COPY remoulade_api remoulade_api
-#COPY workers workers
+
+# flask stuff
 
 ENV FLASK_APP=main
 ENV FLASK_ENV=development
 ENV FLASK_DEBUG=1
-ENV PYTHONUNBUFFERED=1
 
-VOLUME /app/sources/
 
-WORKDIR /app/sources/remoulade_api
 
-ENTRYPOINT ["/app/sources/remoulade_api/start.sh"]
-HEALTHCHECK CMD curl http://127.0.0.1:5005/actors
+
+
+
+
+WORKDIR $APPPATH
+USER myuser
+ENTRYPOINT ["./start.sh"]
+ENV HC="curl http://127.0.0.1:5005/actors"
+
+
+
+
+
+
+
+#start interval is the time between health checks during the start period. This option requires Docker Engine version 25.0 or later.
+HEALTHCHECK --interval=2s --timeout=600s CMD { test -f /healthcheck/ok && echo -n "sleep.." && sleep 555 && echo -n "hc..>> " && /bin/sh -c '/bin/sh -c "$HC"' && echo -n " <<..hc passed." ; } || { echo -n "hc..>> " && echo -n "$HC" && echo -n " <<... " && /bin/sh -c '/bin/sh -c "$HC"' && echo -n " << first hc passed." && touch /healthcheck/ok && echo " flag stored." ; }
+
+

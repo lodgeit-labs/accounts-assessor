@@ -18,7 +18,7 @@ def index(request):
 		status = 'ok'
 	else:
 		status = 'error'
-	if params.get('quiet_success') == True and status == 'ok':
+	if params.get('quiet_success') == '1' and status == 'ok':
 		return JsonResponse({'status':'ok'})
 	m = Message(
 		status=status,

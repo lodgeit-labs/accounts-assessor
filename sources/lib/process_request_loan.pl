@@ -1,14 +1,47 @@
+/*
+issues:
+
+one-year-term-loans-fail-but-shouldnt
+
+
+http://jj.internal:8877/tmp/1695151827.3973653.37.15.1D58C77x10596/000001_loan_records.html demonstrates two problems:
+1) record 2 should show that interest is added to the outstanding one dollar, closing_balance seems wrong
+2) no more records are generated after
+
+
+
+http://jj.internal:8877/tmp/f1c99c27-d650-434b-894e-5e1207bf00ef/1695151827.3973653.37.9.1D58C77x10572/000000_loan_records.html
+record 4, 2015-07-01 is closing date of 14-15 period?
+
+
+
+
+
+how to make the code accept an overpayment? the basic idea is to split the overpayment in two. But doing that in current code means changing how we are threading Payments through all relevant preds, as a start..
+
+
+
+is it the case that at least one payment is expected / assumed, each year? That'd explain why a 7-year-termed loan is cut off after ~7 records maybe?
+
+
+*/
+
+
+
 
  process_request_loan(Request_File, DOM) :-
-
+%gtrace,
 	% startDate and endDate in the request xml are ignored.
 	% they are not used in the computation.
+
+	%format(user_error, '~n~q~n', [DOM]),
 
 	/* for example 2014 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Income year of loan creation', @value=CreationIncomeYear), _E1),
 
 	% yep, seems to be a loan request xml.
-	validate_xml2(Request_File, 'bases/Reports.xsd'),
+	resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), XSD),
+	validate_xml2(Request_File, XSD),
 
 	/* for example 5 */
 	xpath(DOM, //reports/loanDetails/loanAgreement/field(@name='Full term of loan in years', @value=Term), _E2),
@@ -37,13 +70,12 @@
 	findall(loan_repayment(Date, Value), xpath(DOM, //reports/loanDetails/repayments/repayment(@date=Date, @value=Value), _E7), LoanRepayments),
 	atom_number(ComputationYear, NIncomeYear),
 
-%gtrace,
-
 	findall(Summary1, loan_agr_summary_python0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary1), [Summary1]),
 
 	div7a_xml_loan_response(NIncomeYear, Summary1, Url),
 	add_report_file(0, 'result', 'result', Url),
 
+	% prolog implementation was shown to fail for some inputs, so it is currently not used
 	/* (	loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary2)
 	->	(
 			div7a_xml_loan_response(NIncomeYear, Summary2, _),
@@ -129,12 +161,9 @@
 
 
  loan_agr_summary_python(LA, Summary_dict) :-
-	!ground(LA),
+ 	!ground(LA),
 	my_request_tmp_dir_path(Tmp_Dir_Path),
-	services_rpc('div7a', _{tmp_dir_path:Tmp_Dir_Path,data:LA}, R),
-	(	(get_dict(result, R, Summary_dict0), Summary_dict0 \= "error")
-	->	true
-	;	throw_string(R.error_message)),
+	!json_post_result(['http://127.0.0.1:1111/div7a'], _{tmp_dir_path:Tmp_Dir_Path,data:LA}, Summary_dict0),
 	Summary_dict = _{
 				opening_balance: _,
 				interest_rate: _,
@@ -172,7 +201,7 @@ repayment_to_json(Repayment, Json) :-
 
 	% read the schema file
 	resolve_specifier(loc(specifier, my_schemas('responses/LoanResponse.xsd')), LoanResponseXSD),
-	!validate_xml(Path, LoanResponseXSD, []).
+	!validate_xml2(Path, LoanResponseXSD).
 	
 
  xml_loan_response(
