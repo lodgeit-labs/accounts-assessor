@@ -660,26 +660,47 @@ ic_ui:investment_calculator_sheets
 		ic_ui:unit_types_sheet
 	).
 
-ic_ui:investment_calculator_sheets_v2_example
-	a excel:template_sheet_set;
-	kb:succeeds ic_ui:investment_calculator_sheets;
-	kb:is_backwards_compatible [
-		kb:with ic_ui:investment_calculator_sheets;
-		rdf:value false;
-		rdfs:comment "unit_types_sheet_v2 changed interpretation of column xx and added column yy"];
+ic_ui:investment_calculator_sheets2
+	a excel:sheet_set;
 	excel:sheets
 	(
-		ic_ui:report_details_sheet
+		ic_ui:accounts_sheet
+		ic_ui:action_verbs_sheet
+		ic_ui:unit_values_sheet
+		ic_ui:bank_statement_sheet
+		ic_ui:report_details_sheet2
 		smsf_ui:members_sheet
 		smsf_ui:distribution_sheet
 		smsf_ui:income_tax_sheet
 		ic_ui:reallocation_sheet
 		ic_ui:gl_input_sheet
 		ic_ui:action_input_sheet
+		ic_ui:transaction_input_sheet
 		ic_ui:additional_files_sheet
-		ic_ui:unit_types_sheet_v2
-		ic_ui:some_new_sheet_reliant_on_unit_types_sheet_being_v2
+		ic_ui:unit_types_sheet
 	).
+
+
+#ic_ui:investment_calculator_sheets_v2_example
+#	a excel:template_sheet_set;
+#	kb:succeeds ic_ui:investment_calculator_sheets;
+#	kb:is_backwards_compatible [
+#		kb:with ic_ui:investment_calculator_sheets;
+#		rdf:value false;
+#		rdfs:comment "unit_types_sheet_v2 changed interpretation of column xx and added column yy"];
+#	excel:sheets
+#	(
+#		ic_ui:report_details_sheet
+#		smsf_ui:members_sheet
+#		smsf_ui:distribution_sheet
+#		smsf_ui:income_tax_sheet
+#		ic_ui:reallocation_sheet
+#		ic_ui:gl_input_sheet
+#		ic_ui:action_input_sheet
+#		ic_ui:additional_files_sheet
+#		ic_ui:unit_types_sheet_v2
+#		ic_ui:some_new_sheet_reliant_on_unit_types_sheet_being_v2
+#	).
 
 
 
@@ -1080,11 +1101,22 @@ ic_ui:report_details
 		[excel:property ic_ui:job_notes; excel:template ic_ui:job_notes]
 	).
 
+ic_ui:report_details2
+	a excel:template;
+	excel:cardinality excel:single;
+	excel:class ic:report_details;
+	excel:fields (
+		[excel:property ic:from; excel:type xsd:date]
+		[excel:property ic:to; excel:type xsd:date]
+		[excel:property ic:currency; excel:type xsd:string]
+		[excel:property ic:cost_or_market; excel:type excel:uri]
+		[excel:property ic:pricing_method; excel:type excel:uri]
+		[excel:property ic_ui:account_taxonomies; excel:template ic_ui:account_taxonomies2]
+		[excel:property ic_ui:job_notes; excel:template ic_ui:job_notes2]
+	).
+
 ic_ui:job_notes
-	#excel:position [excel:col "A"; excel:row "12"];
-	#excel:alternative_positions ([excel:col "C"; excel:row "2"]);
 	excel:position [excel:col "C"; excel:row "2"];	
-	#excel:title "notes";
 	excel:title "job notes";
 	excel:cardinality excel:multi;
 	excel:class ic_ui:job_note;
@@ -1095,7 +1127,9 @@ ic_ui:job_notes
 
 ic_ui:job_notes2
 	excel:position [excel:col "A"; excel:row "12"];
+	excel:alternative_positions ([excel:col "C"; excel:row "2"]);
 	excel:title "notes";
+	excel:alternative_titles ("job notes");
 	excel:cardinality excel:multi;
 	excel:class ic_ui:job_note;
 	excel:fields (
@@ -1123,6 +1157,7 @@ ic_ui:account_taxonomies
 
 ic_ui:account_taxonomies2
 	excel:position [excel:col "D"; excel:row "3"];
+	excel:alternative_positions([excel:col "D"; excel:row "5"]);
 	excel:title "account taxonomies";
 	excel:cardinality excel:multi;
 	excel:class ic_ui:account_taxonomy;
