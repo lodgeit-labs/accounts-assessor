@@ -22,7 +22,7 @@ click==8.1.3
     # via uvicorn
 exceptiongroup==1.1.2
     # via anyio
-fastapi==0.99.1
+fastapi==0.109.1
     # via frontend (pyproject.toml)
 future==0.18.3
     # via agraph-python
