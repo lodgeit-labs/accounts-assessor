@@ -717,7 +717,7 @@ ic_ui:investment_calculator_example
 			excel:sheet_instance_has_sheet_data ic_ui:unit_values_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:bank_statement_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:bank_statement_example]
-		[	excel:sheet_instance_has_sheet_type ic_ui:report_details_sheet;
+		[	excel:sheet_instance_has_sheet_type ic_ui:report_details_sheet2;
 			excel:sheet_instance_has_sheet_data ic_ui:report_details_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:reallocation_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:reallocation_example]
@@ -906,6 +906,9 @@ ic:unit_types
 
 ic_ui:report_details_sheet
 	excel:root ic_ui:report_details.
+
+ic_ui:report_details_sheet2
+	excel:root ic_ui:report_details2.
 
 ic_ui:report_details_example
 	a excel:template_instance_example;
@@ -1129,7 +1132,6 @@ ic_ui:job_notes2
 	excel:position [excel:col "A"; excel:row "12"];
 	excel:alternative_positions ([excel:col "C"; excel:row "2"]);
 	excel:title "notes";
-	excel:alternative_titles ("job notes");
 	excel:cardinality excel:multi;
 	excel:class ic_ui:job_note;
 	excel:fields (
