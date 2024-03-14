@@ -11,7 +11,7 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
  process_request_ledger :-
 	ct(
 		"is this an Investment Calculator query?",
-		get_optional_singleton_sheet(ic_ui:report_details_sheet, _)
+		report_details(_)
 	),
 	%progress(),
  	!ledger_initialization,
@@ -366,5 +366,5 @@ flag_default('PREPARE_UNIQUE_TAXONOMY_URL', true).
 
 
  report_details(Details) :-
-	get_singleton_sheet_data(ic_ui:report_details_sheet, Details).
+ 	append($>get_sheets_data(ic_ui:report_details_sheet), $>get_sheets_data(ic_ui:report_details_sheet2), [Details]).
 

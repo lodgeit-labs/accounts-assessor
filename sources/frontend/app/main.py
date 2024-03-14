@@ -416,14 +416,14 @@ def create_archive(task_directory, message, archive_dir_path, final_zip_path):
 
 
 @app.post("/upload")
-def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
+def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, original_xlsx: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
 	"""
 	Trigger a calculator by uploading one or more input files.
 	"""
 	
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 
-	for file in [file1, file2]:
+	for file in [file1, file2, original_xlsx]:
 		if file is None:
 			continue
 		if file.filename == '':
