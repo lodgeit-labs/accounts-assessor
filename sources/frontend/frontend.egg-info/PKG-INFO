@@ -9,8 +9,9 @@ Requires-Dist: python-multipart
 Requires-Dist: agraph-python==101.0.7
 Requires-Dist: pycurl
 Requires-Dist: uvicorn[standard]
-Requires-Dist: gunicorn
 Requires-Dist: pydantic
 Requires-Dist: requests
+Requires-Dist: rdflib
 Provides-Extra: dev
 Requires-Dist: watchdog; extra == "dev"
+Requires-Dist: better_exceptions; extra == "dev"

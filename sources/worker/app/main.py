@@ -58,7 +58,7 @@ from pydantic import Field
 from pydantic import BaseModel
 import logging, traceback
 import os, sys, logging, re, shlex, subprocess, json, threading
-from pydantic.fields import Annotated
+from typing import Annotated
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc')))
 import download
 
