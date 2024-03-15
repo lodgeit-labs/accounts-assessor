@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+setup.cfg
+app/__init__.py
+app/main.py
+services.egg-info/PKG-INFO
+services.egg-info/SOURCES.txt
+services.egg-info/dependency_links.txt
+services.egg-info/requires.txt
+services.egg-info/top_level.txt

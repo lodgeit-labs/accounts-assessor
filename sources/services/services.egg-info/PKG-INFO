@@ -1,0 +1,22 @@
+Metadata-Version: 2.1
+Name: services
+Version: 0.1.0
+Requires-Dist: PyYAML
+Requires-Dist: agraph-python==101.0.7
+Requires-Dist: urllib3
+Requires-Dist: arelle-release==2.3.4
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: pycurl
+Requires-Dist: psutil
+Requires-Dist: sortedcontainers
+Requires-Dist: defusedxml
+Requires-Dist: xmlschema~=1.5
+Requires-Dist: requests
+Requires-Dist: sortedcontainers
+Requires-Dist: pandas
+Requires-Dist: jinja2
+Provides-Extra: dev
+Requires-Dist: fire; extra == "dev"
+Requires-Dist: watchdog; extra == "dev"
+Requires-Dist: better_exceptions; extra == "dev"

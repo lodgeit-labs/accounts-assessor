@@ -8,9 +8,9 @@ ARG APPPATH
 # python requirements (common block)
 USER myuser:myuser
 WORKDIR $APPPATH
-COPY $APPDIR/requirements.txt .
+#COPY $APPDIR/requirements.txt .
 COPY $APPDIR/requirements-dev.txt .
-RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements.txt
+#RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements.txt
 RUN PYTHONUSERBASE=/home/myuser/.local python3 -m pip install --upgrade --ignore-installed --user --no-cache-dir -r requirements-dev.txt
 USER root
 
