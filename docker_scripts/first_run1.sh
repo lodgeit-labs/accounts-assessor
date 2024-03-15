@@ -20,7 +20,8 @@ which docker; or sudo apt install docker.io golang-docker-credential-helpers ;e
 sudo usermod -aG docker $USER ;e # fixme, how to apply this without logging out?
 
 # compose is a tad more suitable for development than swarm 
-which docker-compose; or ./first_run1c.sh; e
+#which docker-compose; or 
+./install_docker_compose.sh; e
 docker-compose version;e
 #sudo apt install -y docker-compose ;e
 
