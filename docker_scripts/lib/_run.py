@@ -24,31 +24,45 @@ import io
 import lib.remove_all_anonymous_volumes
 
 
-#l = logging.getLogger()
-#l.setLevel(logging.DEBUG)
-#l.addHandler(logging.StreamHandler())
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
-from loguru import logger
 
-logger.debug("That's it, beautiful and simple logging!")
-class InterceptHandler(logging.Handler):
-    def emit(self, record):
-        # Get corresponding Loguru level if it exists.
-        try:
-            level = logger.level(record.levelname).name
-        except ValueError:
-            level = record.levelno
+#from loguru import logger
+# class InterceptHandler(logging.Handler):
+#     def emit(self, record):
+#         # Get corresponding Loguru level if it exists.
+#         try:
+#             level = logger.level(record.levelname).name
+#         except ValueError:
+#             level = record.levelno
+# 
+#         # Find caller from where originated the logged message.
+#         frame, depth = sys._getframe(6), 6
+#         while frame and frame.f_code.co_filename == logging.__file__:
+#             frame = frame.f_back
+#             depth += 1
+# 
+#         logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+# 
+# logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+#logger.remove()
+#logger.add(sys.stderr, format="{time} {level} {message}", level="INFO")
+#logger.add("/tmp/robust_run.log", backtrace=True, diagnose=True, enqueue=True)
 
-        # Find caller from where originated the logged message.
-        frame, depth = sys._getframe(6), 6
-        while frame and frame.f_code.co_filename == logging.__file__:
-            frame = frame.f_back
-            depth += 1
 
-        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+logging.getLogger('libtmux').setLevel(logging.WARNING)
 
-logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
-logger.add("/tmp/robust_run.log", backtrace=True, diagnose=True, enqueue=True)
+tmuxer_logger = logging.getLogger('tmuxer')
+tmuxer_logger.setLevel(logging.INFO)
+
+logtail_logger = logging.getLogger('logtail')
+
+
+logger.debug("debug from _run.py")
+logger.info("info from _run.py")
+logger.warning("warning from _run.py")
 
 
 sq = shlex.quote
@@ -62,10 +76,15 @@ def transfer_option(dict1, key, dict2):
 
 def ccd(cmd, env):
 	eee = ' '.join([f'{k}={(v).__repr__()}' for k,v in env.items()]) + '\\\n' + shlex.join(cmd)
-	logging.getLogger().info(eee)
+	logger.debug(eee)
 	e = os.environ.copy()
 	e.update(env)
 	subprocess.check_call(cmd, env=e)
+
+def call_with_info(cmd):
+	logger.info(cmd)
+	subprocess.call(shlex.split(cmd))
+	logger.info('.')
 
 def call(cmd, env):
 	e = os.environ.copy()
@@ -77,9 +96,6 @@ def call(cmd, env):
 tmux_stuff = queue.SimpleQueue()
 
 def tmuxer(tmux_session_name, terminal_cmd):
-
-	logging.getLogger('libtmux').setLevel(logging.WARNING)
-
 	tmux_server = libtmux.Server()
 	#if tmux_session_name == '':
 	tmux_session = tmux_server.new_session(session_name='robust_'+str(datetime.datetime.utcnow().timestamp()).replace('.', '_'))
@@ -89,7 +105,7 @@ def tmuxer(tmux_session_name, terminal_cmd):
 	terminal_cmd = terminal_cmd.format(session_name=tmux_session.name)
 	if terminal_cmd != '':
 		vvv = shlex.split(terminal_cmd)
-		print(shlex.join(vvv))
+		tmuxer_logger.debug(shlex.join(vvv))
 		subprocess.Popen(vvv)
 
 	while True:
@@ -100,10 +116,10 @@ def tmuxer(tmux_session_name, terminal_cmd):
 			pass
 
 
-@logger.catch
+#@logger.catch
 def tmux_session_new_window(tmux_session, window_name, window_shell):
-	print(f"""ppp tmux_session.new_window(window_name={window_name}, window_shell={window_shell})""")
-	logging.getLogger('tmuxer').debug(f"""tmux_session.new_window(window_name={window_name}, window_shell={window_shell})""")
+	#print(f"""ppp tmux_session.new_window(window_name={window_name}, window_shell={window_shell})""")
+	tmuxer_logger.debug(f"""tmux_session.new_window(window_name={window_name}, window_shell={window_shell})""")
 	tmux_session.new_window(window_name=window_name, window_shell=window_shell)
 
 
@@ -318,6 +334,7 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	if not offline:
 		# this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it) https://github.com/docker/compose#docker-compose-v2
+		logger.info('pulling images (those that will be built locally are expected to fail..)') 
 		call(ss(compose_cmd + ' pull --ignore-pull-failures --include-deps '), env={})
 
 	threading.Thread(target=tmuxer, args=(tmux_session_name, terminal_cmd), daemon=True).start()
@@ -333,21 +350,23 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 		if remove_anonymous_volumes:
 			lib.remove_all_anonymous_volumes.remove_anonymous_volumes()
 		
-		# flush old messages
-		subprocess.call(ss('docker volume rm robust_rabbitmq'))
+		logger.info('flush old messages:')
+		call_with_info('docker volume rm robust_rabbitmq')
 
-		print('wait for old network to disappear..')
+		logger.info('wait for old network to disappear..')
 		while True:
 			cmdxxx = "docker network ls | grep robust" + port_postfix
 			p = subprocess.run(cmdxxx, shell=True, stdout=subprocess.PIPE)
-			print(cmdxxx + ': ' + str(p.returncode) + ':')
-			print(p.stdout)
+			logger.info(cmdxxx + ': ' + str(p.returncode) + ':')
+			logger.info(p.stdout)
 			if p.returncode:
+				logger.info('ok, network is gone.')
+				logger.info('.')
 				break
 			time.sleep(1)
 
-	shell('pwd')
-	shell('./lib/git_info.fish')
+	#shell('pwd')
+	call_with_info('./lib/git_info.fish')
 
 	open('../generated_stack_files/build_done.flag', "w").write('1')
 
@@ -398,8 +417,8 @@ def logtail(compose_events_cmd):
 	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 	for line in io.TextIOWrapper(proc.stdout, encoding="utf-8"):
 		if 'container start' in line or 'container die' in line:
-			print('logtail: ' + line)
-			logging.getLogger('logtail').debug('logtail: ' + line)
+			#print('logtail: ' + line)
+			logtail_logger.info('logtail: ' + line)
 		if 'container start' in line:
 			s = line.split()
 			container_id = s[4]
@@ -471,7 +490,7 @@ def identity_envvars(tws):
 	for s in tws['services'].values():
 		if 'environment' not in s or s['environment'] is None:
 			s['environment'] = {}
-		print(s['environment'])
+		logger.debug(s['environment'])
 		for k,v in s['environment'].items():
 			if v is None:
 				s['environment'][k] = '${'+k+'}'
@@ -621,9 +640,9 @@ def files_in_dir(dir):
 
 
 def shell(cmd):
-	print('>')
-	print(cmd)
-	print('>')
+	logger.info('>')
+	logger.info(cmd)
+	logger.info('>')
 	r = os.system(cmd)
 	if r != 0:
 		exit(r)
@@ -635,6 +654,9 @@ def shell(cmd):
 subtask_counter = count(1).__next__
 
 class ExcThread(threading.Thread):
+
+	"""Thread that propagates exceptions to the parent thread but also logs them to the logger."""
+
 	def __init__(self, group=None, target=None, name=None,
                  args=(), kwargs=None, *, daemon=None):
 		super().__init__(group, target, f"subtask {subtask_counter()}", args, kwargs, daemon=daemon)
@@ -655,14 +677,22 @@ class ExcThread(threading.Thread):
 			#if self.task:
 			#	task = ' (' + str(self.task) + ')'
 			msg = f"{self.getName()}{task} threw an exception: {self.exc[1]}"
-			print(msg)
+			logger.crit(msg)
 			#exit(1)
 			new_exc = Exception(msg)
 			raise new_exc.with_traceback(self.exc[2])
 
 
+class ExcThread2(ExcThread):
+
+	def pretty_str(self):
+		return f"cd {self.kwargs['cwd']}; {self.args[0]}"
+		
+		
+		
 def join_all():
 	join(threads)
+	threads.clear()
 
 def join(t):
 	errors = []
@@ -675,21 +705,20 @@ def join(t):
 			if thread not in t:
 				join_one(thread, errors)
 		# reiterate all the errors
-		print()
-		print('command failed:')
+		logger.critical('failed command %s :', thread.pretty_str())
 		for error in errors:
-			print(error)
+			logger.error(error)
 		sys.exit(1)
 
 
 def join_one(thread, errors):
 	try:
 		thread.join()
-		print(f"{thread.name} done ({thread.kwargs} {thread.args})")
+		#logger.info(f"{thread.name} done ({thread.kwargs} {thread.args})")
+		logger.info(f"{thread.name} done ({thread.pretty_str()})")
 	except Exception as e:
 		errors.append(e)
-		print('subtask failed!')
-		print()
+		logger.critical('subtask failed!')
 
 
 
@@ -709,18 +738,19 @@ def task(name, dir, cmd):
 	global files
 
 	cmd = 'stdbuf -oL -eL ' + cmd
-	intro = '\n\ncd ' + shlex.quote(dir) + '\n' + shlex.quote(cmd) + '\n...'
 	stdo = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_out_', mode='w+')
 	stde = tempfile.NamedTemporaryFile(buffering=1, prefix=name+'_err_', mode='w+')
-	files += [stde, stdo]
-	tailcmd = 'tail -f '+ stdo.name + ' ' + stde.name
-	tmux_stuff.put({'window_name':name[:5], 'window_shell':tailcmd})
-	subprocess.Popen(shlex.split(tailcmd))
 
-	sys.stdout.write(intro)
+	intro = 'cd ' + shlex.quote(dir) + '; ' + cmd
+	logger.debug(intro)
 	stdo.write(intro)
 
-	thread = ExcThread(target = ccss, args = (cmd,), kwargs = {'cwd':dir, 'stdout':stdo, 'stderr':stde})
+	files += [stde, stdo]
+	tailcmd = 'tail -f '+ stdo.name + ' ' + stde.name + ' | awk \'{print "' + name + """: ", $0}'"""
+	tmux_stuff.put({'window_name':name[:5], 'window_shell':tailcmd})
+	subprocess.Popen(['bash', '-c', tailcmd]) 
+
+	thread = ExcThread2(target = ccss, args = (cmd,), kwargs = {'cwd':dir, 'stdout':stdo, 'stderr':stde})
 	thread.task = cmd
 	threads.append(thread)
 	thread.start()
@@ -788,19 +818,19 @@ def build(offline, port_postfix, mode, parallel_build, no_cache, omit_images, on
 	svc('frontend',				'../sources/', dbtks+'-hlw{port_postfix}"', "frontend/Dockerfile_hollow")
 
 	os.set_blocking(sys.stdout.fileno(), False)
-	print("ok?")
+	logger.debug("join_all...")
 	join_all()
 
 	#if mode == "full": # not hollow
 	# 	svc('manager',			'../sources/', dbtks+'{port_postfix}"', "manager/Dockerfile")
-	svc('worker',			'../sources/', dbtks+'{port_postfix}"', "worker/Dockerfile")
+	#svc('worker',			'../sources/', dbtks+'{port_postfix}"', "worker/Dockerfile")
 	# 	svc('workers',			'../sources/', dbtks+'{port_postfix}"', "workers/Dockerfile")
 	# 	svc('services',			'../sources/', dbtks+'{port_postfix}"', "services/Dockerfile")
 	# 	svc('csharp-services',	'../sources/', dbtks+'{port_postfix}"', "csharp-services/Dockerfile")
 	# 	svc('frontend',			'../sources/', dbtks+'{port_postfix}"', "frontend/Dockerfile")
 
 	join_all()
-	print("ok!")
+	logger.info("all done")
 
 
 if __name__ == '__main__':

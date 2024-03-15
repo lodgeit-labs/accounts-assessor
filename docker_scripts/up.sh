@@ -9,4 +9,4 @@ set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
 set VENV_PATH ./venv
 . $VENV_PATH/bin/activate.fish ;e
 
-PYTHONUNBUFFERED=true ./up.py $argv
+LOGURU_COLORIZE=false PYTHONUNBUFFERED=true ./up.py $argv
