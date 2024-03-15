@@ -13,6 +13,7 @@ check_installation()
 
 
 
+import atexit
 from itertools import count
 import click
 import yaml
@@ -143,7 +144,7 @@ def cli():
 @click.option('-de', '--develop', 		type=bool, 	default=False,
 	help="Development and debugging mode across the whole stack. CPU-intensive.")
 
-@click.option('-sr', '--stay_running', 				type=bool, 	default=True,
+@click.option('-ce', '--stay_running', 				type=bool, 	default=True,
 	help="keep the script running after the stack is brought up.")
 
 @click.option('-pp', '--port_postfix', 				type=str, 	default='', 
@@ -368,35 +369,72 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	#shell('pwd')
 	call_with_info('./lib/git_info.fish')
+	
 
-	open('../generated_stack_files/build_done.flag', "w").write('1')
+	threading.Thread(daemon=True, target = logtail, args = (compose_cmd,)).start()
+	threading.Thread(daemon=True, target = stack_up, args = (compose, compose_cmd, stack_fn, port_postfix)).start()
+	threading.Thread(daemon=True, target = hc).start()
 
-	if compose:
+	started = datetime.datetime.now()
 
-		if stay_running:
-			import atexit
-			def shutdown():
-				ccd(ss(compose_cmd + ' down  -t 999999 '), env={})
-			atexit.register(shutdown)
-
-		try:
-			threading.Thread(daemon=True, target = logtail, args = (compose_cmd,)).start()
-			ccd(ss(compose_cmd + ' up --remove-orphans ' + ('' if stay_running else ' --detach')), env={})
-
-		except subprocess.CalledProcessError:
-			ccd(ss('docker ps'), env={})
-
-			if stay_running:
-				atexit.unregister(shutdown)
-				while True:
-					time.sleep(1000)
-
+	while True:
+		time.sleep(1)
+		if not stay_running:
+			if health_check_passed.is_set():
+				logger.info('healthy')
+				exit(0)
+				
+			elif (datetime.datetime.now() - started).seconds > 5*60:
+				logger.critical('CI timeout exceeded..')
+				logger.critical()
+				exit(1)
+		
+		if stack_up_failed:
+			logger.warn('stack_up_failed')
 			exit(1)
+		
+	if not stack_up_failed:
+		ccd(ss(compose_cmd + ' down  -t 999999 '), env={})
 
-	else:
-		ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+port_postfix], env={})
-		shell('docker stack ps robust'+port_postfix + ' --no-trunc')
-		shell('./follow_logs_noagraph.sh '+port_postfix)
+
+
+
+def health_check(public_url):
+
+
+	try:
+		logger.info('health_check...')
+		subprocess.check_call(shlex.split(f"""curl -v --trace-time --retry-connrefused  --retry-delay 10 --retry 30 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' {public_url}/health_check"""))
+		logger.info('healthcheck ok')
+		health_check_passed.set()
+		
+	except Exception as e:
+		logger.critical(e)
+		logger.critical('healthcheck failed')
+		health_check_failed.set()
+
+
+
+health_check_passed = threading.Event()
+health_check_failed = threading.Event()
+stack_up_failed = False
+healthy = False
+
+
+def stack_up(compose, compose_cmd, stack_fn, port_postfix):
+	try:
+		if compose:
+			try:
+				ccd(ss(compose_cmd + ' up --timestamps --remove-orphans '), env={})
+			except subprocess.CalledProcessError:
+				ccd(ss('docker ps'), env={})		
+				stack_up_failed = True
+		else:
+			ccd(ss('docker stack deploy --prune --compose-file') + [stack_fn, 'robust'+port_postfix], env={})
+			shell('docker stack ps robust'+port_postfix + ' --no-trunc')
+			shell('./follow_logs_noagraph.sh '+port_postfix)
+	except Exception as e:
+		logger.error(e)
 
 
 
