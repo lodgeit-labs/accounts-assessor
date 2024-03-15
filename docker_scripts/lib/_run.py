@@ -330,10 +330,11 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 	if rm_stack and not compose:
 		shell('docker stack rm robust' + port_postfix)
 
-	compose_cmd = 'docker-compose -f ' + stack_fn + ' -p robust --compatibility '
+	compose_cmd = 'docker compose -f ' + stack_fn + ' -p robust --compatibility '
 
 	if not offline:
 		# this needs work. when --ignore-buildable ? (Docker Compose version v2.17.0-rc.1 has it) https://github.com/docker/compose#docker-compose-v2
+		
 		logger.info('pulling images (those that will be built locally are expected to fail..)') 
 		call(ss(compose_cmd + ' pull --ignore-pull-failures --include-deps '), env={})
 

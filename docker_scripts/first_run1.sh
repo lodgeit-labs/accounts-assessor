@@ -22,7 +22,8 @@ sudo usermod -aG docker $USER ;e # fixme, how to apply this without logging out?
 # compose is a tad more suitable for development than swarm 
 #which docker-compose; or 
 ./install_docker_compose.sh; e
-docker-compose version;e
+docker-compose version
+docker compose version
 #sudo apt install -y docker-compose ;e
 
 
