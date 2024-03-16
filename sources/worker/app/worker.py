@@ -163,10 +163,11 @@ def do_task(task):
 
 
 def upload_file(output_file):
-	log.info('upload_file %s', output_file)
-	json=file_to_json(output_file)
-	r = session.post(api_url + 'put_file', json=json)
-	r.raise_for_status()
+	if current_task.get('output_path'):
+		log.info('upload_file %s', output_file)
+		json=file_to_json(output_file)
+		r = session.post(api_url + 'put_file', json=json)
+		r.raise_for_status()
 
 
 
@@ -181,10 +182,9 @@ def download_file(input_file):
 
 
 def upload_mem_file():
-	if current_task:
-		if current_task.get('remote') and current_task.get('mem_file'):
-			log.info('upload_mem_file %s', current_task['mem_file'])
-			upload_file(current_task['mem_file'])
+	if current_task and current_task.get('remote') and current_task.get('mem_file') and current_task.get('output_path'):
+		log.info('upload_mem_file %s', current_task['mem_file'])
+		upload_file(current_task['mem_file'])
 
 
 

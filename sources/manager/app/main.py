@@ -171,8 +171,8 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 				# grace period, because in the loop below, we may think that we sent a response with task, but the worker might have been already disconnected. But we only record task_given_ts the first time we relay the task, so, if a worker keeps disconnecting, we eventually ...do...something?
 				log.warning(f"""{worker.id} should be working on {worker.
 						 task_id} and sending heartbeats, but it's coming back without result... {time_since_task_sent_to_worker=}""")
-				# there doesnt seem much point in purging it, because it will just come back again. The situation here implies a programming error or a problem with network / oom / etc..
-				#put_event(dict(type='forget_worker', worker=worker))
+				# It will just come back again, but we'll fail the job, and eventually stop the machine. The situation here implies a programming error or a problem with network / oom / etc..
+				put_event(dict(type='forget_worker', worker=worker))
 		else:
 			put_event(dict(type='worker_available', worker=worker))
 			# give synchronization_thread some time to assign task to worker. 
@@ -213,7 +213,7 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 			if not worker.task_given_ts:
 				worker.task_given_ts = datetime.datetime.now()
 			is_remote = (worker.info.get('host') != manager_host)
-			return outmsg | dict(task=dict(id = worker.task.id, proc=worker.task.proc, args=worker.task.args, worker_options=worker.task.worker_options, input_files=worker.task.input_files, remote=is_remote))
+			return outmsg | dict(task=dict(id = worker.task.id, proc=worker.task.proc, args=worker.task.args, worker_options=worker.task.worker_options, input_files=worker.task.input_files, output_path=worker.task.output_path, remote=is_remote))
 
 
 		loop_log.debug('sleep')
