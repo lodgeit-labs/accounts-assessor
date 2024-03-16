@@ -156,7 +156,7 @@ def cli():
 @click.option('-ms', '--mount_host_sources_dir', 	type=bool, 	default=False, 
 	help="bind-mount source code directories, instead of copying them into images. Useful for development.")
 
-@click.option('-pu', '--public_url', 				type=str, 	default="http://localhost",
+@click.option('-pu', '--public_url', 				type=str, 	default="http://localhost:8877",
 	help="The public-facing url, including scheme and, optionally, port. Used in Caddy and apache.")
 
 @click.option('-au', '--agraph_url', 				type=str, 	default="http://localhost:10077",
@@ -373,45 +373,63 @@ ProxyPass "/{path}" "http://{frontend}:7788/{path}"  connectiontimeout=999999999
 
 	threading.Thread(daemon=True, target = logtail, args = (compose_cmd,)).start()
 	threading.Thread(daemon=True, target = stack_up, args = (compose, compose_cmd, stack_fn, port_postfix)).start()
-	threading.Thread(daemon=True, target = hc).start()
+	if not stay_running:
+		threading.Thread(daemon=True, target = health_check, args=(public_url,)).start()
 
 	started = datetime.datetime.now()
+
+	def down():
+		if not stack_up_failed:
+			if stay_running:
+				timeout = 99999
+			else:
+				timeout = 1
+			ccd(ss(compose_cmd + ' down  -t ' + str(timeout)), env={})
+
+	atexit.register(down)
 
 	while True:
 		time.sleep(1)
 		if not stay_running:
 			if health_check_passed.is_set():
 				logger.info('healthy')
-				exit(0)
+				#down()
+				break
+				
+			if health_check_failed.is_set():
+				logger.info('error')
+				#down()
+				exit(1)
 				
 			elif (datetime.datetime.now() - started).seconds > 5*60:
 				logger.critical('CI timeout exceeded..')
 				logger.critical()
+				#down()
 				exit(1)
 		
 		if stack_up_failed:
 			logger.warn('stack_up_failed')
 			exit(1)
 		
-	if not stack_up_failed:
-		ccd(ss(compose_cmd + ' down  -t 999999 '), env={})
 
 
 
 
 def health_check(public_url):
-
-
-	try:
-		logger.info('health_check...')
-		subprocess.check_call(shlex.split(f"""curl -v --trace-time --retry-connrefused  --retry-delay 10 --retry 30 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' {public_url}/health_check"""))
-		logger.info('healthcheck ok')
-		health_check_passed.set()
-		
-	except Exception as e:
-		logger.critical(e)
-		logger.critical('healthcheck failed')
-		health_check_failed.set()
+	while True:
+		time.sleep(10)
+		try:
+			logger.info('health_check...')
+			subprocess.check_call(shlex.split(f"""curl -v --trace-time --retry-connrefused  --retry-delay 10 --retry 30 -L -S --fail --max-time 320 --header 'Content-Type: application/json' --data '---' {public_url}/health_check"""))
+			logger.info('healthcheck ok')
+			health_check_passed.set()
+			return
+		except subprocess.CalledProcessError as e:
+			pass
+		except Exception as e:
+			logger.critical(e)
+			logger.critical('healthcheck failed')
+			health_check_failed.set()
 
 
 
