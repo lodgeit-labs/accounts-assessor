@@ -1,0 +1,13 @@
+version: 1
+disable_existing_loggers: False
+loggers:
+  manager.loop:
+    level: INFO
+    handlers:
+      - default
+    propagate: no
+root:
+  level: DEBUG
+  handlers:
+    - default
+  propagate: no

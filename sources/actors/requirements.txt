@@ -1,0 +1,4 @@
+rdflib
+agraph-python==101.0.7
+urllib3==1.26.18 
+better_exceptions

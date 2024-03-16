@@ -17,6 +17,11 @@
       <excludeFolder url="file://$MODULE_DIR$/sources/common/venv" />
       <excludeFolder url="file://$MODULE_DIR$/sources/public_lib/prolog_xbrl" />
       <excludeFolder url="file://$MODULE_DIR$/sources/workers/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/common/libs/remoulade" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/frontend/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/services/unit_tests/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/sources/services/venv" />
+      <excludePattern pattern="venv" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

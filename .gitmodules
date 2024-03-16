@@ -18,7 +18,10 @@
 	path = sources/CsharpServices
 	url = https://github.com/koo5/CsharpServices
 [submodule "sdk"]
-	path = sdk
+	path = sources/common/libs/sdk
 	url = https://github.com/koo5/robust_sdk
 [submodule "remoulade"]
 	url = https://github.com/koo5/remoulade/
+[submodule "sources/download_bastion"]
+	path = sources/download
+	url = https://github.com/koo5/download_bastion

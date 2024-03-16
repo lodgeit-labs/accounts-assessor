@@ -27,6 +27,12 @@
 	format_cell(Target, Row.Column_ID, Column_Options, Formatted_Cell).
 
 
+
+
+
+
+/*dates*/
+
 format_cell(html, Date, _, Output) :-
 	Date = date(_,_,_),
 	format_date(Date, Output),
@@ -44,6 +50,12 @@ format_cell(excel, Date, _, Date) :-
 %	Output is Since_year_0 - Since_year_1900,
 %	!.
 %
+
+
+
+
+/*lists*/
+
 format_cell(_Target, [], _Options, []) :- !.
 
 format_cell(Target, [X|Xs], Options, [Output1, Output2]) :-
@@ -51,10 +63,22 @@ format_cell(Target, [X|Xs], Options, [Output1, Output2]) :-
 	format_cell(Target, Xs, Options, Output2),
 	!.
 
+
+
+
+
+/*?*/
 format_cell(Target, with_metadata(Value, _), Options, Output) :-
 	format_cell(Target, Value, Options, Output),
 	!.
 
+
+
+
+
+/*
+augment the result with a rdf link.
+*/
 format_cell(html, with_metadata(Value, _, Uri), Options, [Output, A]) :-
 	format_cell(html, Value, Options, Output),
 	!,
@@ -63,6 +87,9 @@ format_cell(html, with_metadata(Value, _, Uri), Options, [Output, A]) :-
 format_cell(excel, with_metadata(Value, _, Uri), Options, [Output, '->', Uri]) :-
 	format_cell(excel, Value, Options, Output),
 	!.
+
+
+
 
 
 
@@ -96,9 +123,19 @@ format_cell(excel, value(Unit, Value), Options, Output) :-
 	),
 	!.
 
+
+
+
+
+
 format_cell(_, exchange_rate(Date, Src, Dst, Rate), _, Output) :-
 	format_conversion(_, exchange_rate(Date, Src, Dst, Rate), Output),
 	!.
+
+
+
+
+
 
 format_cell(_, Other, _, Other) :-
 	atom(Other),!.
@@ -114,7 +151,9 @@ format_cell(_, text(X), _, X) :-
 	!.
 
 format_cell(_, Other, _, Str) :-
-	term_string(Other, Str).
+	round_term(Other, Other2),
+	term_string(Other2, Str).
+
 
 
 

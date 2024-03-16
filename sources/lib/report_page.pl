@@ -20,7 +20,8 @@
 
  make_json_report2(Dict, Fn, Final_fn) :-
 	dict_json_text(Dict, Json_Text),
-	Title = Fn, Key = Fn,
+	Title = Fn,
+	atomic_list_concat([Fn, '_json'], Key), 
 	atomic_list_concat([Fn, '.json'], Fn2_Value),
 	Fn2 = loc(file_name, Fn2_Value),
 	write_report_file(Fn2, Json_Text, Report_File_URL, Final_fn),

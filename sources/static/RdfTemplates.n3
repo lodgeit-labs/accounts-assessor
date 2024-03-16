@@ -1,3 +1,4 @@
+# see also doc.pl RdfTemplates.trig agraph.py
 
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
@@ -7,6 +8,7 @@
 
 @prefix : <excel_request#> .
 
+@prefix v1: <https://rdf.lodgeit.net.au/v1/> .
 @prefix l: <https://rdf.lodgeit.net.au/v1/request#> .
 @prefix av: <https://rdf.lodgeit.net.au/v1/action_verbs#> .
 @prefix bs: <https://rdf.lodgeit.net.au/v1/bank_statement#> .
@@ -34,6 +36,7 @@
 @prefix smsf_distribution: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#> .
 @prefix smsf_distribution_ui: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#> .
 @prefix reallocation: <https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#> .
+@prefix acc: <https://rdf.lodgeit.net.au/v1/calcs/ic/accounts#> .
 @prefix phases: <https://rdf.lodgeit.net.au/v1/phases#> .
 
 
@@ -44,8 +47,6 @@
 	:version "3.8.14"
 ].
 	
-
-phases:opening_balance a :Phase.
 
 
 :request l:templates_version "2".
@@ -92,10 +93,10 @@ hp:hp_contract a rdfs:Class.
 l:action_verb  a rdfs:Class.
 l:s_transaction   a rdfs:Class.
 l:transaction    a rdfs:Class.
- l:fact     a rdfs:Class.
+l:fact     a rdfs:Class.
 l:report_entry  a rdfs:Class.
- l:livestock_data a rdfs:Class.
-  l:theory a rdfs:Class.
+l:livestock_data a rdfs:Class.
+l:theory a rdfs:Class.
 excel:template_instance  a rdfs:Class.
 excel:template_instance_example a rdfs:Class.
 excel:example_sheet_set a rdfs:Class.
@@ -643,6 +644,7 @@ ic_ui:investment_calculator_sheets
 	a excel:sheet_set;
 	excel:sheets
 	(
+		ic_ui:accounts_sheet
 		ic_ui:action_verbs_sheet
 		ic_ui:unit_values_sheet
 		ic_ui:bank_statement_sheet
@@ -653,30 +655,52 @@ ic_ui:investment_calculator_sheets
 		ic_ui:reallocation_sheet
 		ic_ui:gl_input_sheet
 		ic_ui:action_input_sheet
+		ic_ui:transaction_input_sheet
 		ic_ui:additional_files_sheet
 		ic_ui:unit_types_sheet
 	).
 
-ic_ui:investment_calculator_sheets_v2_example
-	a excel:template_sheet_set;
-	kb:succeeds ic_ui:investment_calculator_sheets;
-	kb:is_backwards_compatible [
-		kb:with ic_ui:investment_calculator_sheets;
-		rdf:value false;
-		rdfs:comment "unit_types_sheet_v2 changed interpretation of column xx and added column yy"];
+ic_ui:investment_calculator_sheets2
+	a excel:sheet_set;
 	excel:sheets
 	(
-		ic_ui:report_details_sheet
+		ic_ui:accounts_sheet
+		ic_ui:action_verbs_sheet
+		ic_ui:unit_values_sheet
+		ic_ui:bank_statement_sheet
+		ic_ui:report_details_sheet2
 		smsf_ui:members_sheet
 		smsf_ui:distribution_sheet
 		smsf_ui:income_tax_sheet
 		ic_ui:reallocation_sheet
 		ic_ui:gl_input_sheet
 		ic_ui:action_input_sheet
+		ic_ui:transaction_input_sheet
 		ic_ui:additional_files_sheet
-		ic_ui:unit_types_sheet_v2
-		ic_ui:some_new_sheet_reliant_on_unit_types_sheet_being_v2
+		ic_ui:unit_types_sheet
 	).
+
+
+#ic_ui:investment_calculator_sheets_v2_example
+#	a excel:template_sheet_set;
+#	kb:succeeds ic_ui:investment_calculator_sheets;
+#	kb:is_backwards_compatible [
+#		kb:with ic_ui:investment_calculator_sheets;
+#		rdf:value false;
+#		rdfs:comment "unit_types_sheet_v2 changed interpretation of column xx and added column yy"];
+#	excel:sheets
+#	(
+#		ic_ui:report_details_sheet
+#		smsf_ui:members_sheet
+#		smsf_ui:distribution_sheet
+#		smsf_ui:income_tax_sheet
+#		ic_ui:reallocation_sheet
+#		ic_ui:gl_input_sheet
+#		ic_ui:action_input_sheet
+#		ic_ui:additional_files_sheet
+#		ic_ui:unit_types_sheet_v2
+#		ic_ui:some_new_sheet_reliant_on_unit_types_sheet_being_v2
+#	).
 
 
 
@@ -693,12 +717,16 @@ ic_ui:investment_calculator_example
 			excel:sheet_instance_has_sheet_data ic_ui:unit_values_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:bank_statement_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:bank_statement_example]
-		[	excel:sheet_instance_has_sheet_type ic_ui:report_details_sheet;
+		[	excel:sheet_instance_has_sheet_type ic_ui:report_details_sheet2;
 			excel:sheet_instance_has_sheet_data ic_ui:report_details_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:reallocation_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:reallocation_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:action_input_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:action_input_example]
+		[	excel:sheet_instance_has_sheet_type ic_ui:transaction_input_sheet;
+			excel:sheet_instance_has_sheet_data ic_ui:transaction_input_example]
+		[	excel:sheet_instance_has_sheet_type ic_ui:accounts_sheet;
+			excel:sheet_instance_has_sheet_data ic_ui:accounts_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:gl_input_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:gl_input_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:additional_files_sheet;
@@ -709,7 +737,32 @@ ic_ui:investment_calculator_example
 ).
 
 
+ic_ui:accounts_sheet
+	a excel:sheet_type;
+	excel:optional true;
+	excel:root ic:accounts.
+
+ic_ui:accounts_example
+	rdf:value ().
+
+ic:accounts
+	excel:position [excel:col "A"; excel:row "3"];
+	excel:title "action";
+	excel:cardinality excel:multi;
+	excel:class ic:account;
+	excel:fields (
+		[excel:property acc:normal_side; excel:type excel:uri]
+		[excel:property acc:parent_name; excel:type xsd:string]
+		[excel:property av:parent_role;  excel:type xsd:string]
+		[excel:property acc:name; excel:type xsd:string]
+		[excel:property acc:role; excel:type xsd:string]
+	).
+
+acc:normal_side rdfs:range reallocation:Drcr.
+
+
 ic_ui:action_verbs_sheet
+	excel:optional true;
 	excel:root ic:action_verbs.
 
 ic_ui:action_verbs_example
@@ -746,6 +799,7 @@ av:gst_rate_percent rdfs:label "GST Rate Percent".
 
 
 ic_ui:unit_values_sheet
+	excel:optional true;
 	excel:root ic:unit_valueses;
 	excel:name_prefix "unit_values".
 
@@ -833,6 +887,7 @@ ic_ui:bank_statement_items
 
 
 ic_ui:unit_types_sheet
+	excel:optional true;
 	excel:root ic:unit_types.
 
 ic_ui:unit_types_example
@@ -851,6 +906,9 @@ ic:unit_types
 
 ic_ui:report_details_sheet
 	excel:root ic_ui:report_details.
+
+ic_ui:report_details_sheet2
+	excel:root ic_ui:report_details2.
 
 ic_ui:report_details_example
 	a excel:template_instance_example;
@@ -924,6 +982,8 @@ ic_ui:gl
 ic:phase rdfs:range :Phase.
 phases:opening_balance a :Phase.
 phases:opening_balance rdfs:label "opening balance".
+phases:main a :Phase.
+
 
 ic_ui:action_input
 	a excel:template;
@@ -931,6 +991,7 @@ ic_ui:action_input
 	excel:title "action_input";
 	excel:cardinality excel:single;
 	excel:class ic:action_input;
+	excel:comment "Debits and credits in report currency are offset in (counter)account.";
 	excel:fields (
 		[excel:property ic:account; excel:type xsd:string]
 		[excel:property ic:items; excel:template ic_ui:action_input_entries_template]
@@ -1043,9 +1104,34 @@ ic_ui:report_details
 		[excel:property ic_ui:job_notes; excel:template ic_ui:job_notes]
 	).
 
+ic_ui:report_details2
+	a excel:template;
+	excel:cardinality excel:single;
+	excel:class ic:report_details;
+	excel:fields (
+		[excel:property ic:from; excel:type xsd:date]
+		[excel:property ic:to; excel:type xsd:date]
+		[excel:property ic:currency; excel:type xsd:string]
+		[excel:property ic:cost_or_market; excel:type excel:uri]
+		[excel:property ic:pricing_method; excel:type excel:uri]
+		[excel:property ic_ui:account_taxonomies; excel:template ic_ui:account_taxonomies2]
+		[excel:property ic_ui:job_notes; excel:template ic_ui:job_notes2]
+	).
+
 ic_ui:job_notes
-	excel:position [excel:col "C"; excel:row "2"];
+	excel:position [excel:col "C"; excel:row "2"];	
 	excel:title "job notes";
+	excel:cardinality excel:multi;
+	excel:class ic_ui:job_note;
+	excel:fields (
+		[	excel:property ic_ui:note;
+			excel:type xsd:string]
+	).
+
+ic_ui:job_notes2
+	excel:position [excel:col "A"; excel:row "12"];
+	excel:alternative_positions ([excel:col "C"; excel:row "2"]);
+	excel:title "notes";
 	excel:cardinality excel:multi;
 	excel:class ic_ui:job_note;
 	excel:fields (
@@ -1068,14 +1154,26 @@ ic_ui:account_taxonomies
 	excel:fields (
 		[	excel:property account_taxonomies:url;
 			excel:type excel:uri;
-			excel:comment "use one of the pre-defined shorthands or specify a full URL of a XBRL taxonomy or XML file"]
-		[	excel:property account_taxonomies:note;
-			excel:type xsd:string]
+			excel:comment "note:\n use one of the pre-defined shorthands, or specify a full URL of a XBRL taxonomy or an XML file."]
+	).
+
+ic_ui:account_taxonomies2
+	excel:position [excel:col "D"; excel:row "3"];
+	excel:alternative_positions([excel:col "D"; excel:row "5"]);
+	excel:title "account taxonomies";
+	excel:cardinality excel:multi;
+	excel:class ic_ui:account_taxonomy;
+	excel:fields (
+		[	excel:property account_taxonomies:url;
+			excel:type excel:uri;
+			excel:comment "note:\n use one of the pre-defined shorthands, or specify a full URL of a XBRL taxonomy or an XML file."]
 	).
 
 account_taxonomies:url rdfs:range account_taxonomies:Account_taxonomy.
 account_taxonomies:base a account_taxonomies:Account_taxonomy.
 account_taxonomies:investments a account_taxonomies:Account_taxonomy.
+account_taxonomies:investments_simple a account_taxonomies:Account_taxonomy.
+account_taxonomies:investments_simple2 a account_taxonomies:Account_taxonomy.
 account_taxonomies:livestock a account_taxonomies:Account_taxonomy.
 account_taxonomies:smsf a account_taxonomies:Account_taxonomy.
 
@@ -1085,6 +1183,14 @@ ic:cost_or_market rdfs:range ic:cost_or_market_type.
 ic:cost a ic:cost_or_market_type.
 ic:market a ic:cost_or_market_type.
 
+
+
+ic_ui:transaction_input_sheet
+	a excel:sheet_type;
+	excel:multiple_sheets_allowed true;
+	excel:optional true;
+	excel:name_prefix "transaction_input";
+	excel:root ic_ui:transaction_input.
 
 ic_ui:transaction_input
 	excel:cardinality excel:multi;
@@ -1100,6 +1206,10 @@ ic_ui:transaction_input
 		[excel:property ic:description2]
 		[excel:property ic:description3]
 	).
+
+ic_ui:transaction_input_example
+	rdf:value ().
+
 
 
 
@@ -19952,5 +20062,6 @@ div7a_ui:repayments
 		[excel:property div7a_repayment:date; excel:type xsd:dateTime]
 		[excel:property div7a_repayment:value; excel:type xsd:decimal]
 	).
+
 
 

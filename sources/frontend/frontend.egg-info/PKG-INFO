@@ -3,14 +3,15 @@ Name: frontend
 Version: 0.1.0
 Requires-Dist: jinja2
 Requires-Dist: pyyaml
-Requires-Dist: fastapi
-Requires-Dist: starlette>=0.27.0
+Requires-Dist: fastapi==0.110.0
+Requires-Dist: starlette>=0.36.2
 Requires-Dist: python-multipart
 Requires-Dist: agraph-python==101.0.7
 Requires-Dist: pycurl
 Requires-Dist: uvicorn[standard]
-Requires-Dist: gunicorn
 Requires-Dist: pydantic
 Requires-Dist: requests
+Requires-Dist: rdflib
 Provides-Extra: dev
 Requires-Dist: watchdog; extra == "dev"
+Requires-Dist: better_exceptions; extra == "dev"

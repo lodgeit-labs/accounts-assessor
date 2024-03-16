@@ -1,3 +1,9 @@
+ /* this was never tested i think.. */
+ 
+ /* now, this is a good (example of a) reason why maintain the cumbersome frontend -> proxy -> worker -> prolog -> python path.
+Prolog is the only codebase where we implement the RDF UI logic, (and where we'd probably continue its development.) */
+
+
  process_request_loan_rdf :-
 	ct(
 		"is this a Div7A Calculator query?",
@@ -25,7 +31,7 @@
     calculate_computation_year2(ComputationYearNumber, CreationIncomeYearNumber, NComputationYearIdx),
     maplist(convert_loan_rdf_repayments, $>!doc_list_items($>!doc(Loan, div7a:repayments)), Repayments),
 
-	loan_agr_summary(loan_agreement(
+	loan_agr_summary_python0(loan_agreement(
 		% loan_agr_contract_number:
 		0,
 		% loan_agr_principal_amount:

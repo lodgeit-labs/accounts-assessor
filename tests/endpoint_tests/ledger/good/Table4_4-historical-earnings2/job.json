@@ -1,0 +1,73 @@
+{
+    "actor_name": "call_prolog_calculator",
+    "args": [],
+    "duration": "0:01:54.319951",
+    "end_datetime": "2024-02-05T19:58:25.670583+00:00",
+    "enqueued_datetime": "2024-02-05T19:56:31.350632+00:00",
+    "kwargs": {
+        "public_url": "http://jj.internal:8877",
+        "request_directory": "1707160743.7049952.77.5.619BA71x37556",
+        "request_format": "xml",
+        "worker_options": {
+            "ROBUST_ENABLE_NICETY_REPORTS": false,
+            "prolog_debug": false,
+            "skip_dev_runner": true,
+            "user": "nobody"
+        }
+    },
+    "message_id": "c4b6c894-bd1d-4568-b3c0-d22a50d0cd03",
+    "options": {},
+    "priority": 0,
+    "queue_name": "default",
+    "result": {
+        "alerts": [
+            "deterministic_call_failed(user:process_xml_request(loc(absolute_path,\"/app/server_root/tmp/1707160743.7049952.77.5.619BA71x37556/dummy.xml\"),[element(reports,[ns('',xmlns):xsi='http://www.w3.org/2001/XMLSchema-instance',ns('',xmlns):xsd='http://www.w3.org/2001/XMLSchema',ns(xsi,'http://www.w3.org/2001/XMLSchema-instance'):schemaLocation='http://localhost:8080/taxonomy/basic.xsd'],[element(balanceSheetRequest,[],[element(generator,[],[element(date,[],['2019-07-04T14:59:53.952296Z']),element(source,[],['LodgeiT Tool']),element(author,[],[element(firstname,[],[waqas]),element(lastname,[],[awan]),element(company,[],[uhudsoft])])]),element(company,[],[element(abn,[],['12345678912']),element(tfn,[],[]),element(clientcode,[],[]),element(anzsic,[],[]),element(notes,[],[]),element(directors,[],[])]),element(startDate,[],['2000-01-03']),element(endDate,[],['2020-12-12']),element(defaultCurrency,[],[element(unitType,[],[])]),element(reportCurrency,[],[element(unitType,[],['CAD'])]),element(unitValues,[],[element(unitValue,[],[element(unitValue,[],['0.1']),element(unitValueDate,[],['2000-01-01']),element(unitType,[],['USD']),element(unitValueCurrency,[],['CAD'])]),element(unitValue,[],[element(unitValue,[],['1.2']),element(unitValueDate,[],['2000-01-02']),element(unitType,[],['USD']),element(unitValueCurrency,[],['CAD'])]),element(unitValue,[],[element(unitValue,[],['1.3']),element(unitValueDate,[],['2000-01-03']),element(unitType,[],['USD']),element(unitValueCurrency,[],['CAD'])]),element(unitValue,[],[element(unitValue,[],['1.25']),element(unitValueDate,[],['2000-01-05']),element(unitType,[],['USD']),element(unitValueCurrency,[],['CAD'])]),element(unitValue,[],[element(unitValue,[],['1.25']),element(unitValueDate,[],['2000-01-07']),element(unitType,[],['USD']),element(unitValueCurrency,[],['CAD'])]),element(unitValue,[],[element(unitValue,[],['1000']),element(unitValueDate,[],['2020-12-12']),element(unitType,[],['USD']),element(unitValueCurrency,[],['CAD'])])]),element(accounts,[],['default_account_hierarchy.xml']),element(accounts,[],[element('Expenses',[],[element('FoodExpenses',[],[])]),element('Liabilities',[],[element('RandomLiabilityType',[],[])])]),element(actionTaxonomy,[],[element(action,[],[element(id,[],['Introduce_Capital']),element(exchangeAccount,[],['ShareCapital']),element(tradingAccount,[],[]),element(description,[],['introduce capital'])]),element(action,[],[element(id,[],['Exchange']),element(exchangeAccount,[],['ClearingAccount']),element(tradingAccount,[],[]),element(description,[],[exchange])]),element(action,[],[element(id,[],['Buy_Food']),element(exchangeAccount,[],['FoodExpenses']),element(tradingAccount,[],[]),element(description,[],['buy food'])])]),element(bankStatement,[],[element(title,[],['Bank Statement']),element(period,[],['2018-07-02 - 2018-12-30']),element(accountDetails,[],[element(accountNo,[],[]),element(accountName,[],['CAD_Bank']),element(bankID,[],[]),element(currency,[],['CAD']),element(transactions,[],[element(transaction,[],[element(transdesc,[],['Introduce_Capital']),element(transdate,[],['2000-01-01']),element(credit,[],['200'])]),element(transaction,[],[element(transdesc,[],['Exchange']),element(transdate,[],['2000-01-02']),element(debit,[],['120'])]),element(transaction,[],[element(transdesc,[],['Exchange']),element(transdate,[],['2000-01-05']),element(credit,[],['75'])]),element(transaction,[],[element(transdesc,[],['Buy_Food']),element(transdate,[],['2000-01-07']),element(debit,[],['20'])])])]),element(accountDetails,[],[element(accountNo,[],[]),element(accountName,[],['USD_Bank']),element(bankID,[],[]),element(currency,[],['USD']),element(transactions,[],[element(transaction,[],[element(transdesc,[],['Exchange']),element(transdate,[],['2000-01-02']),element(credit,[],['100'])]),element(transaction,[],[element(transdesc,[],['Buy_Food']),element(transdate,[],['2000-01-03']),element(debit,[],['40'])]),element(transaction,[],[element(transdesc,[],['Exchange']),element(transdate,[],['2000-01-05']),element(debit,[],['60'])])])])])])])]))"
+        ],
+        "reports": [
+            {
+                "key": "alerts_html",
+                "title": "alerts",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.30.619BA71x37593/000000_alerts.html"
+                }
+            },
+            {
+                "key": "alerts_json",
+                "title": "alerts_json",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.30.619BA71x37593/000000_alerts_json.json"
+                }
+            },
+            {
+                "key": "request_xml",
+                "title": "request_xml",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.30.619BA71x37593/dummy.xml"
+                }
+            },
+            {
+                "key": "request_file",
+                "title": "request_file",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.30.619BA71x37593/dummy.xml"
+                }
+            },
+            {
+                "key": "job_tmp_url",
+                "title": "job_tmp_url",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.30.619BA71x37593/../c4b6c894-bd1d-4568-b3c0-d22a50d0cd03"
+                }
+            },
+            {
+                "key": "task_directory",
+                "title": "task_directory",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.30.619BA71x37593/"
+                }
+            }
+        ]
+    },
+    "started_datetime": "2024-02-05T19:56:31.547164+00:00",
+    "status": "Success"
+}

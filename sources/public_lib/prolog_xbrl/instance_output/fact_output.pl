@@ -3,7 +3,11 @@ format_report_entries(_, _, _, _, _, [], []).
 format_report_entries(Format, Max_Detail_Level, Indent_Level, Report_Currency, Context, Entries, [Xml0, Xml1, Xml2]) :-
 	[Entry|Entries_Tail] = Entries,
 	(?report_entry_children(Entry, Children) -> true ; Children = []),
-	!report_entry_name(Entry, Name),
+
+	!report_entry_xmlsane_name(Entry, NameString),
+	% doh, somewhere downstream from here, we use the atom as a subject in doc.
+	atom_string(Name, NameString),
+	
 	!report_entry_total_vec(Entry, Balances),
 	!report_entry_transaction_count(Entry, Transactions_Count),
 	(	/* does the account have a detail level and is it greater than Max_Detail_Level? */

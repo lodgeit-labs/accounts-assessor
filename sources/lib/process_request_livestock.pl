@@ -1,9 +1,10 @@
 process_request_livestock(File_Name, DOM) :-
 	findall(Livestock, xpath(DOM, //reports/livestockaccount/livestocks/livestock, Livestock), Livestocks),
 	Livestocks \= [],
+	resolve_specifier(loc(specifier, my_schemas('bases/Reports.xsd')), XSD),
 	catch(
 		(
-			validate_xml2(File_Name, 'bases/Reports.xsd'),
+			validate_xml2(File_Name, XSD),
 			maplist(process_request_livestock2, Livestocks, Results),
 			add_xml_result(element(response, [], [element(livestocks, [], Results)]))
 		),

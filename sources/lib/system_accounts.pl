@@ -376,38 +376,38 @@ copy_attrs2(X, Y, Graph, Pred) :-
 % probably the semantics should be such that it can be skipped for optimization.
 % in the end it turns out, we have roles that are constructed from account names, so any atom is a valid role. This hinders checking.
 
-is_valid_role(X) :- atom(X), !.
-is_valid_role('Banks'/Id) :- !,freeze(Id, atom(Id)).
-is_valid_role('Trading_Accounts'/Trading_Account_Id) :- !,
+ is_valid_role(X) :- atom(X), !.
+ is_valid_role('Banks'/Id) :- !,freeze(Id, atom(Id)).
+ is_valid_role('Trading_Accounts'/Trading_Account_Id) :- !,
 	freeze(Trading_Account_Id, atom(Trading_Account_Id)).
-is_valid_role('Trading_Accounts'/_1387496/unrealized) :- !.
-is_valid_role('Trading_Accounts'/_1387572/realized) :- !.
-is_valid_role('Trading_Accounts'/_1387080/realized/withoutCurrencyMovement) :- !.
-is_valid_role('Trading_Accounts'/_1387168/realized/onlyCurrencyMovement) :- !.
-is_valid_role('Trading_Accounts'/_1387256/unrealized/withoutCurrencyMovement) :- !.
-is_valid_role('Trading_Accounts'/_1387344/unrealized/onlyCurrencyMovement) :- !.
-is_valid_role('Trading_Accounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
+ is_valid_role('Trading_Accounts'/_1387496/unrealized) :- !.
+ is_valid_role('Trading_Accounts'/_1387572/realized) :- !.
+ is_valid_role('Trading_Accounts'/_1387080/realized/withoutCurrencyMovement) :- !.
+ is_valid_role('Trading_Accounts'/_1387168/realized/onlyCurrencyMovement) :- !.
+ is_valid_role('Trading_Accounts'/_1387256/unrealized/withoutCurrencyMovement) :- !.
+ is_valid_role('Trading_Accounts'/_1387344/unrealized/onlyCurrencyMovement) :- !.
+ is_valid_role('Trading_Accounts'/Trading_Account_Id/Realized_Or_Unrealized/Currency_Movement_Aspect/Traded_Unit) :-
 	!,
 	freeze(Id, atom(Trading_Account_Id)),
 	member(Realized_Or_Unrealized, [realized, unrealized]),
 	member(Currency_Movement_Aspect, [onlyCurrencyMovement, withoutCurrencyMovement]),
 	freeze(Id, atom(Traded_Unit)).
-is_valid_role('Currency_Movement'/Id) :- !, freeze(Id, atom(Id)).
-is_valid_role('Financial_Investments'/Id) :- !, freeze(Id, atom(Id)).
+ is_valid_role('Currency_Movement'/Id) :- !, freeze(Id, atom(Id)).
+ is_valid_role('Financial_Investments'/Id) :- !, freeze(Id, atom(Id)).
 
-is_valid_role('Distribution_Receivable'/_).
-is_valid_role('Opening_Balance_-_Preserved/Taxable'/_).
-is_valid_role('Opening_Balance_-_Preserved/Tax-Free'/_).
-is_valid_role('Income_Tax_-_Preserved/Taxable'/_).
-is_valid_role('Share_of_Profit/(Loss)_-_Preserved/Taxable'/_).
-is_valid_role('Transfers_In_-_Preserved/Taxable'/_).
-is_valid_role('Employer_Contributions_-_Concessional'/_).
-is_valid_role('Contribution_Tax_-_Preserved/Taxable'/_).
-is_valid_role('Income_Tax_-_Preserved/Taxable'/_).
-is_valid_role('Distribution_Revenue'/_).
-is_valid_role('Contribution_Received'/_).
-is_valid_role('Interest_Received_-_by_Bank'/_).
-is_valid_role('Contribution_Received'/_).
-is_valid_role(_/Member) :- atom_string(Member, Str), smsf_members_throw(Members), member(Str, Members), !.
-is_valid_role(smsf_equity).
+ is_valid_role('Distribution_Receivable'/_).
+ is_valid_role('Opening_Balance_-_Preserved/Taxable'/_).
+ is_valid_role('Opening_Balance_-_Preserved/Tax-Free'/_).
+ is_valid_role('Income_Tax_-_Preserved/Taxable'/_).
+ is_valid_role('Share_of_Profit/(Loss)_-_Preserved/Taxable'/_).
+ is_valid_role('Transfers_In_-_Preserved/Taxable'/_).
+ is_valid_role('Employer_Contributions_-_Concessional'/_).
+ is_valid_role('Contribution_Tax_-_Preserved/Taxable'/_).
+ is_valid_role('Income_Tax_-_Preserved/Taxable'/_).
+ is_valid_role('Distribution_Revenue'/_).
+ is_valid_role('Contribution_Received'/_).
+ is_valid_role('Interest_Received_-_by_Bank'/_).
+ is_valid_role('Contribution_Received'/_).
+ is_valid_role(_/Member) :- atom_string(Member, Str), smsf_members_throw(Members), member(Str, Members), !.
+ is_valid_role(smsf_equity).
 

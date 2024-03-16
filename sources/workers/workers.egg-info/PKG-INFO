@@ -1,7 +1,0 @@
-Metadata-Version: 2.1
-Name: workers
-Version: 0.1.0
-Requires-Dist: agraph-python==101.0.7
-Requires-Dist: urllib3==1.26.5
-Provides-Extra: dev
-Requires-Dist: fire; extra == "dev"

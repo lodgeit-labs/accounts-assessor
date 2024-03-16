@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
 <accountHierarchy>
-	<account parent_role="Non_Current_Assets" role="Financial_Investments!Financial_Investments" name="FinancialInvestments" />
-	<account parent_role="Gains" role="Trading_Accounts!Investment_Income" name="InvestmentIncome" />
+	<account name="FinancialInvestments" parent_role="Non_Current_Assets" role="Financial_Investments!Financial_Investments" />
+	<account name="InvestmentIncome"     parent_role="Gains"              role="Trading_Accounts!Investment_Income" />
 </accountHierarchy>

@@ -10,7 +10,6 @@ setup(
         'pyyaml',
         'libtmux',
         'docker',
-        'fire',
         'loguru',
         'fire'
 

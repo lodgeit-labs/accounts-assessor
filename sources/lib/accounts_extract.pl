@@ -25,24 +25,15 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 	load_accountHierarchy_element(Url, AccountHierarchy),
 	extract_accounts_from_accountHierarchy_element(AccountHierarchy).
 
- default_account_hierarchy(Taxonomy, Url) :-
-		rdf_equal2(Taxonomy, account_taxonomies:base)
-	->	Url = 'base.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:investments)
-	->	Url = 'investments.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:investments__legacy)
-	->	Url = 'investments__legacy.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:livestock)
-	->	Url = 'livestock.xml'
-	;	rdf_equal2(Taxonomy, account_taxonomies:smsf)
-	->	Url = 'smsf.xml'
-	.
+ default_account_hierarchy(Taxonomy, Filename) :-
+ 		rdf_current_prefix(account_taxonomies, At),
+ 		atom_concat(At, Filename, Taxonomy).
 
  absolutize_account_hierarchy_path(Url_Or_Path, Url_Or_Path2) :-
 	(	is_url(Url_Or_Path)
 	->	Url_Or_Path2 = Url_Or_Path
 	;	(	http_safe_file(Url_Or_Path, []),
-			atomics_to_string(['default_account_hierarchies/',Url_Or_Path],Url_Or_Path1),
+			atomics_to_string(['default_account_hierarchies/',Url_Or_Path, '.xml'],Url_Or_Path1),
 			catch(
 				absolute_file_name(my_static(Url_Or_Path1), Url_Or_Path2, [ access(read) ]),
 				error(existence_error(source_sink,_),_),
@@ -63,15 +54,15 @@ the accountHierarchy tag can appear multiple times, all the results will be adde
 		;	arelle(taxonomy, Url_Or_Path, AccountHierarchy_Elements))
 	.
 
- arelle(taxonomy, Taxonomy_URL, AccountHierarchy_Elements) :-
-	services_rpc('arelle_extract', j{'taxonomy_locator':Taxonomy_URL}, Result),
-	absolute_tmp_path(loc(file_name,'account_hierarchy_from_taxonomy.xml'), Fn),
-	write_file(Fn, Result),
-	call_with_string_read_stream(Result, load_extracted_account_hierarchy_xml(AccountHierarchy_Elements)).
+ arelle(taxonomy, Taxonomy_URL, Dom) :-
+	/* get xml text */
+	services_post_result('arelle_extract', _{'taxonomy_locator':Taxonomy_URL}, Result),
+	_{xml_text: Xml_text} :< Result,
 
-/* todo maybe unify with xml_from_path_or_url */
- load_extracted_account_hierarchy_xml(/*-*/AccountHierarchy_Elements, /*+*/Stream) :-
-	load_structure(Stream, AccountHierarchy_Elements, [dialect(xml),space(remove)]).
+	absolute_tmp_path(loc(file_name,'account_hierarchy_from_taxonomy.xml'), Filepath),
+	write_file(Filepath, Xml_text),
+
+	xml_from_path(Filepath, Dom).
 
 
 

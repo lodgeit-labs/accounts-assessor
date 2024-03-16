@@ -92,7 +92,8 @@ print_trading2(Static_Data, [(Sub_Account,Unit_Accounts)|Tail], In, Out, [XmlH|X
 		),
 		''
 	),
-	print_detail_accounts(Static_Data, Context_Info, Sub_Account, Unit_Accounts, In, Mid, XmlH),
+	account_name(Sub_Account, Sub_Account_Name),
+	print_detail_accounts(Static_Data, Context_Info, Sub_Account_Name, Unit_Accounts, In, Mid, XmlH),
 	print_trading2(Static_Data, Tail, Mid, Out, XmlT).
 	
 print_trading2(_,[],Results,Results,[]).

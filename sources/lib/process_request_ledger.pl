@@ -11,7 +11,7 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
  process_request_ledger :-
 	ct(
 		"is this an Investment Calculator query?",
-		get_optional_singleton_sheet(ic_ui:report_details_sheet, _)
+		report_details(_)
 	),
 	%progress(),
  	!ledger_initialization,
@@ -20,12 +20,14 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
 
 
  ledger_initialization :-
+ 	!cf(init_exchange_rates_tmp_cache),
 	!cf(extract_start_and_end_date),
 	!cf(stamp_result),
 	!cf('extract "output_dimensional_facts"'),
 	!cf('extract "cost_or_market"'),
 	!cf(extract_report_currency),
 	!cf('extract action verbs'),
+	!cf(add_builtin_action_verbs),
 	!cf('extract bank accounts'),
 	!cf('extract GL accounts'),
 	!cf(make_gl_viewer_report),
@@ -58,7 +60,7 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 
 	/* each GL input sheet can be set to be applied at a particular phase */
 	ct('phase: opening balance GL inputs',
-		(extract_gl_inputs(phases:opening_balance, Gl_input_txs),
+		(c(extract_gl_inputs(phases:opening_balance, Gl_input_txs)),
 		/* gl inputs are just GL transactions, not STs */
 	 	handle_txs(S2, Gl_input_txs, S4))),
 	doc_add(S4, rdfs:comment, "with Gl_input_txs"),
@@ -69,9 +71,9 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 	;	S4 = S6),
 
 	/* this phasing is somewhat arbitrary, just driven by our usecases */
- 	cf('phase: main 1'(S6, S7)),
+ 	cf('phase: main 1 - sts'(S6, S7)),
  	doc_add(S7, rdfs:comment, "after main 1"),
- 	cf('phase: main 2'(S7, S8)),
+ 	cf('phase: main 2 - gl'(S7, S8)),
  	doc_add(S8, rdfs:comment, "after main 2"),
 
 	(	account_by_role(rl(smsf_equity), _)
@@ -83,29 +85,34 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 	true.
 
 
- 'phase: main 1'(S0, S2) :-
+ 'phase: main 1 - sts'(S0, S2) :-
  	(	is_not_cutoff
  	->	(
-			!cf(handle_additional_files(Sts0)),
-			!cf('extract bank statement transactions'(Sts1)),
-			!cf(extract_action_inputs(_, Sts2)),
+			!c(handle_additional_files(Sts0)),
+			!c('extract bank statement transactions'(Sts1)),
+			!c(extract_action_inputs(phases:main, Sts2)),
 			%$>!cf(extract_livestock_data_from_ledger_request(Dom)),
-			flatten([Sts0, Sts1, Sts2], Sts3)
+			Sts = [Sts0, Sts1, Sts2],
+			!ground(Sts),
+			flatten(Sts, Sts3)
 		)
 	;	Sts3 = []
 	),
-	handle_sts(S0, Sts3, S2),
- 	!once(cf('ensure system accounts exist 0'(Sts3))).
+	% it's obvious that we need to create Financial_Investments accounts before we preprocess_s_transactions. So, the only way that things could have worked in reverse order, seems to be that all units were mentioned in unit_types sheet. Additionally, it's probably not necessary to call 'ensure system accounts exist 0' a second time after handle_sts.
+	!once(cf('ensure system accounts exist 0'(Sts3))),
+	handle_sts(S0, Sts3, S2).
 
 
- 'phase: main 2'(S2, S4) :-
+ 'phase: main 2 - gl'(S2, S4) :-
  	(	is_not_cutoff
  	->	(
-			!cf(extract_gl_inputs(_, Txs7)),
-			!cf(extract_reallocations(_, Txs8)),
-			!cf(extract_smsf_distribution(S2, Txs9)),
+			!c(extract_gl_inputs(phases:main, Txs7)),
+			!c(extract_reallocations(phases:main, Txs8)),
+			!c(extract_smsf_distribution(S2, Txs9)),
 			%!cf(process_livestock((Processed_S_Transactions, Transactions1), Livestock_Transactions)),
-			handle_txs(S2, [Txs7, Txs8, Txs9], S4)
+			Txs = [Txs7, Txs8, Txs9],
+			!ground(Txs),
+			handle_txs(S2, Txs, S4)
 		)
 	;	S4 = S2),
 	true.
@@ -170,8 +177,8 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 		Closed_books_static_data.report_currency,
 		Sr.bs.current.entries,
 		Sr.pl.current.entries,
-		Sr.pl.historical,
-	Sr.tb)),
+		Sr.tb
+	)),
 	!add_xml_report(xbrl_instance, xbrl_instance, [Xbrl]).
 
 
@@ -202,7 +209,7 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 	},
 
 	historical_reports(Vanilla_State, Balance_Sheet2_Historical,ProfitAndLoss2_Historical),
-	current_balance_entries(Closed_books_state, Cf,Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance).
+	current_balance_entries(Closed_books_state, Cf, Balance_Sheet, Balance_Sheet_delta, ProfitAndLoss, Trial_Balance).
 
 
  current_balance_entries(State, Cf, Balance_Sheet,Balance_Sheet_delta,ProfitAndLoss,Trial_Balance) :-
@@ -302,7 +309,7 @@ flag_default('PREPARE_UNIQUE_TAXONOMY_URL', true).
 	!shell4(Cmd, _).
 	%format(user_error, 'shell.~n',[]).
 
-	
+
 /*
 
 	extraction of input data from request xml
@@ -359,5 +366,5 @@ flag_default('PREPARE_UNIQUE_TAXONOMY_URL', true).
 
 
  report_details(Details) :-
-	get_singleton_sheet_data(ic_ui:report_details_sheet, Details).
+ 	append($>get_sheets_data(ic_ui:report_details_sheet), $>get_sheets_data(ic_ui:report_details_sheet2), [Details]).
 

@@ -1,0 +1,20 @@
+Metadata-Version: 2.1
+Name: worker
+Version: 0.1.0
+Requires-Dist: urllib3
+Requires-Dist: arelle-release==2.3.4
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: pycurl
+Requires-Dist: psutil
+Requires-Dist: sortedcontainers
+Requires-Dist: defusedxml
+Requires-Dist: xmlschema~=1.5
+Requires-Dist: requests
+Requires-Dist: memory_profiler@ git+https://github.com/koo5/memory_profiler
+Requires-Dist: pandas
+Requires-Dist: jinja2
+Provides-Extra: dev
+Requires-Dist: fire; extra == "dev"
+Requires-Dist: watchdog; extra == "dev"
+Requires-Dist: better_exceptions; extra == "dev"

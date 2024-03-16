@@ -1,13 +1,10 @@
 #!/usr/bin/env fish
+function e; or status --is-interactive; or exit 1; end
 set DIR (dirname (readlink -m (status --current-filename))); cd "$DIR"
-function _old_fish_prompt; end; # https://github.com/python/cpython/issues/93858 ?
 
-set VENV_PATH ~/.local/robust/$DIR/venv
-. $VENV_PATH/bin/activate.fish ;_
+set VENV_PATH ./venv
+python3 -m venv $VENV_PATH ;e
+. $VENV_PATH/bin/activate.fish ;e
+ython3 -m pip install wheel
+python3 setup.py develop ;e
 
-python3 setup.py develop ;_
-
-mkdir -p ~/.config/fish/completions/
-_ROBUST_COMPLETE=source_fish robust > ~/.config/fish/completions/robust-complete.fish
-
-./init_configs.sh

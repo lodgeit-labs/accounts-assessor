@@ -1,0 +1,48 @@
+# see also doc.pl RdfTemplates.trig agraph.py
+
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+
+@base <https://rdf.lodgeit.net.au/v1/> .
+
+@prefix : <excel_request#> .
+
+@prefix v1: <https://rdf.lodgeit.net.au/v1/> .
+@prefix l: <https://rdf.lodgeit.net.au/v1/request#> .
+@prefix av: <https://rdf.lodgeit.net.au/v1/action_verbs#> .
+@prefix bs: <https://rdf.lodgeit.net.au/v1/bank_statement#> .
+@prefix uv: <https://rdf.lodgeit.net.au/v1/unit_values#> .
+@prefix excel: <https://rdf.lodgeit.net.au/v1/excel#> .
+@prefix kb: <https://rdf.lodgeit.net.au/v1/kb#> .
+@prefix rb: <https://rdf.lodgeit.net.au/v1/robust#> .
+@prefix account_taxonomies: <https://rdf.lodgeit.net.au/v1/account_taxonomies#> .
+
+@prefix div7a: <https://rdf.lodgeit.net.au/v1/calcs/div7a#> .
+@prefix div7a_ui: <https://rdf.lodgeit.net.au/v1/calcs/div7a/ui#> .
+@prefix div7a_repayment: <https://rdf.lodgeit.net.au/v1/calcs/div7a/repayment#> .
+@prefix div7a: <https://rdf.lodgeit.net.au/v1/calcs/div7a#> .
+@prefix depr: <https://rdf.lodgeit.net.au/v1/calcs/depr#> .
+@prefix ic: <https://rdf.lodgeit.net.au/v1/calcs/ic#> .
+@prefix hp: <https://rdf.lodgeit.net.au/v1/calcs/hp#> .
+
+@prefix depr_ui: <https://rdf.lodgeit.net.au/v1/calcs/depr/ui#> .
+@prefix ic_ui: <https://rdf.lodgeit.net.au/v1/calcs/ic/ui#> .
+@prefix hp_ui: <https://rdf.lodgeit.net.au/v1/calcs/hp/ui#> .
+@prefix cars: <https://rdf.lodgeit.net.au/v1/cars#> .
+
+@prefix smsf: <https://rdf.lodgeit.net.au/v1/calcs/smsf#> .
+@prefix smsf_ui: <https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#> .
+@prefix smsf_distribution: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#> .
+@prefix smsf_distribution_ui: <https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#> .
+@prefix reallocation: <https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#> .
+@prefix acc: <https://rdf.lodgeit.net.au/v1/calcs/ic/accounts#> .
+@prefix phases: <https://rdf.lodgeit.net.au/v1/phases#> .
+
+
+
+
+
+l:has_part rdfs:label "has part".
+l:vec rdfs:label "vector".
+<https://rdf.lodgeit.net.au/v1/report_entries#total_vec> rdfs:label "has total vector".

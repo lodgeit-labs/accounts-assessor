@@ -25,7 +25,8 @@ see also wiki/specifying_account_hierarchies.md
 	doc_add(Uri, accounts:role, Role, accounts).
 
  make_account3(Id, Detail_Level, Uri) :-
-	doc_new_uri($>atomics_to_string(['accounts_', Id]), Uri),
+	%doc_new_uri($>atomics_to_string(['accounts_', Id]), Uri),
+	doc_new_uri("acc", Uri),
 	doc_add(Uri, rdf:type, l:account, accounts),
 	doc_add(Uri, accounts:name, Id, accounts),
 	doc_add(Uri, accounts:detail_level, Detail_Level, accounts),
@@ -49,21 +50,27 @@ see also wiki/specifying_account_hierarchies.md
  account_normal_side(Uri, X) :-
 	doc(Uri, accounts:normal_side, X, accounts).
 
+
+
  vector_of_coords_to_vector_of_values_by_account_normal_side(Account_Id, Coords, Values) :-
 	!account_normal_side(Account_Id, Side),
 	!vector_of_coords_vs_vector_of_values(Side, Coords, Values).
 
 
+
+/* "account by role, throw */
  abrlt(Role, Account) :-
-	/* "account by role, throw */
 	!(	is_valid_role(Role)
 	->	true
-	;
-		%true
-		format(user_error, '~q.~n', [is_valid_role(Role)])
-	),
-
+	;	format(user_error, '~q.~n', [is_valid_role(Role)])),
 	account_by_role_throw(rl(Role), Account).
+
+ abrl(Role, Account) :-
+	!(	is_valid_role(Role)
+	->	true
+	;	format(user_error, '~q.~n', [is_valid_role(Role)])),
+	account_by_role(rl(Role), Account).
+
 
 
 /*
@@ -93,6 +100,15 @@ find account by a user-entered name
 		(
 			doc(As, l:has_account, A),
 			account_name(A, Name)
+		)
+	).
+
+ resolve_account(Acct, Account_uri) :-
+	(	Acct = uri(Account_uri)
+	->	true
+	;	(
+			assertion(Acct = rl(_)),
+			account_by_role(Acct, Account_uri)
 		)
 	).
 
@@ -183,7 +199,7 @@ find account by a user-entered name
 	grab_and_inc_current_num(accounts_json_phase, Phase),
 	make_symlinked_json_report(
 		Dicts,
-		$>atomic_list_concat(['accounts', Phase, '.json']),
+		$>atomic_list_concat(['accounts', Phase]),
 		'accounts.json'
 	).
 

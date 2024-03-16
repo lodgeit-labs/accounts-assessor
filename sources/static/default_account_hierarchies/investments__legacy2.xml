@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<accountHierarchy>
+    <account parent_role="Net_Assets" name="NoncurrentLoans" />
+	<account parent_role="Non_Current_Assets" role="Financial_Investments!FinancialInvestments" name="FinancialInvestments" />
+	<account parent_role="Gains" role="Trading_Accounts!InvestmentIncome" name="InvestmentIncome" />
+	<account parent_role="Gains" name="InterestEarned" />
+    <account parent_role="Equity" name="ShareCapital" />
+    <account parent_role="Expenses" name="AccountingFees" />
+    <account parent_role="Expenses" name="BankCharges" />
+    <account parent_role="Comprehensive_Income" name="ClearingAccount" />
+
+</accountHierarchy>

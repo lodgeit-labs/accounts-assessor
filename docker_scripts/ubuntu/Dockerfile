@@ -45,7 +45,15 @@ ENV PATH=$PATH:/home/myuser/.local/bin
 ENV PYTHONUNBUFFERED true
 ENV PYTHONDONTWRITEBYTECODE 1
 
+ENV WATCHMEDO_INTERVAL=5
+ENV WATCHMEDO=true
 
 
+#COPY --chown=myuser:myuser common/ /app/sources/common/
+#RUN chown myuser:myuser /app/
+
+#VOLUME /app/sources/
 
 
+RUN mkdir /healthcheck
+RUN chown myuser:myuser /healthcheck

@@ -1,9 +1,14 @@
 import sys, os
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common')))
+
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common/libs/misc')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../common/libs/remoulade')))
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../workers')))
-import invoke_rpc
-#import tasking
+
+#sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../actors')))
+#import trusted_workers
+
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../manager')))
+import app.manager_actors
+
 from remoulade.api.main import app
 
 

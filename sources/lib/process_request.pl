@@ -58,16 +58,15 @@
 	;	true),
 	(	Solutions_len #> 1
 	->	json_write(current_output, err{warning:m{message:'multiple solutions'}})
-	;	true),
+	;	true).
 
 	%true.%
-	nicety((cf(make_zip)->true;true)).
+	%nicety((cf(make_zip)->true;true)).
 
 
  flag_default('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', false).
 
  process_request(Request_format, Request_data_uri_base, File_Paths) :-
- 
 	(	env_bool('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', true)
 	->	(
 			process_multifile_request(Request_format, Request_data_uri_base, File_Paths),
@@ -88,10 +87,11 @@
 
  process_request2 :-
 	!cf(collect_alerts(Alerts3, Alerts_html)),
-	!(make_json_report(Alerts3, alerts_json)),
+	!(make_json_report(Alerts3, alerts)),
 	!cf(make_alerts_report(Alerts_html)),
 
-	nicety(!cf(make_doc_dump_report)),
+	%nicety
+	(!cf(make_doc_dump_report)),
 	nicety(!cf(make_context_trace_report)),
 
 	!cf(json_report_entries(Files3)),
@@ -110,10 +110,11 @@
 	;	fail).
 
 
- enrich_exception_with_ctx_dump(E, E2) :-
-	(	context_string(Ctx_str)
-	->	E2 = with_processing_context(Ctx_str, E)
-	;	E2 = E).
+/* nobe, context is not stored in doc */
+% enrich_exception_with_ctx_dump(E, E2) :-
+%	(	context_string(Ctx_str)
+%	->	E2 = with_processing_context(E, Ctx_str)
+%	;	E2 = E).
 
  reestablish_doc :-
 	(	user:exception_doc_dump(G,Ng)
@@ -125,25 +126,30 @@
 	handle_processing_exception2(E).
 
  handle_processing_exception2(E) :-
-	enrich_exception_with_ctx_dump(E, E2),
-	format_exception_into_alert_string(E2, Msg, Str, Html),
+	%enrich_exception_with_ctx_dump(E, E2),
+	format_exception_into_alert_string(E, Msg, Str, Html),
 	add_alert('error', Str, Alert_uri),
 	(	Html \= ''
 	->	doc_add(Alert_uri, l:has_html, Html)
 	;	true),
 	doc_add(Alert_uri, l:plain_message, Msg).
 
+
+/* 
+todo: refactor into alert_to_html (which is invoked post-hoc)
+alert_to_html also has key available - 'error'
+ */ 
  format_exception_into_alert_string(E, Msg, Str, Html) :-
-	(	E = with_processing_context(C,E1)
+	(	E = with_processing_context(E1,C)
 	->	Context_str = C
 	;	(
-			Context_str = '',
+			Context_str = 'missing',
 			E1 = E
 		)
 	),
 
 	(	E1 = with_backtrace_str(E2, Bstr0)
-	->	atomics_to_string(['prolog stack:\n', Bstr0], Bstr)
+	->	atomics_to_string([Bstr0], Bstr)
 	;	(
 			E2 = E1,
 			Bstr = ""
@@ -171,12 +177,26 @@
 	;	Msg1 = Msg0),
 	(	Msg1 = with_html(Msg,Html)
 	->	true
-	;	(
-			Html = '',
-			Msg = Msg1
+	;	Msg = Msg1),
+	
+	%format(string(Str),'message:~n~w~n~n context:~n~w~n~n backtrace:~n~w~n~n stacktrace:~n~q~n~n',[$>stringize(Msg), Context_str, Bstr, Stacktrace_str]),
+	format(string(Str),'message:~n~w~n~n',[$>stringize(Msg)]),
+	
+	stringize(Msg, Msg_str),
+	
+	(	var(Html)
+	->	(
+			Html = [
+				h4(['message:']),   pre([Msg_str]),
+				h5(['context stack:']),   pre([Context_str]),
+				a([href='000000_context_trace.html'],["context trace"]),
+				h5(['prolog stack:']), pre([Bstr]),
+				h5(['stacktrace:']),pre([Stacktrace_str])
+			]
 		)
-	),
-	format(string(Str ),'context:~n~w~n~n message:~n~w~n~n backtrace:~n~w~n~n stacktrace:~n~q~n~n',[Context_str, $>stringize(Msg), Bstr, Stacktrace_str]).
+	;	true).
+	
+	
 
 
  make_context_trace_report :-

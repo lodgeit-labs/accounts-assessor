@@ -114,11 +114,12 @@ handle_op(S0,append,Field,Tail,S2) :-
 	], S2).
 
 
- check_phase(Expected_phase, Subject, Predicate) :-
- 	(?doc_value(Subject, Predicate, Actual_phase)),
- 	(	var(Expected_phase)
- 	->	var(Actual_phase)
- 	;	\+var(Actual_phase)).
+ check_phase(Current_Phase, Subject, Predicate) :-
+ 	(	?doc_value(Subject, Predicate, Item_phase)
+ 	->	true
+ 	;	Item_phase = phases:main),
+ 	e(Current_Phase, Item_phase).
+
 
 
  bs_pl_reports_from_state(Prefix, State, Sr) :-
@@ -127,9 +128,9 @@ handle_op(S0,append,Field,Tail,S2) :-
 	% and !cf(profitandloss_between(Static_Data_with_eq, ProfitAndLoss)),
 	!html_reports(Prefix, Sr).
 
- transactions_dict_from_state(State,Transactions_By_Account) :-
+ transactions_dict_from_state(State, Transactions_By_Account) :-
  	!doc(State, l:has_transactions, Transactions),
-	!transactions_dict_by_account_v2(Transactions,Transactions_By_Account).
+	!transactions_dict_by_account_v2(Transactions, Transactions_By_Account).
 
 
  static_data_from_state(State, Static_Data) :-

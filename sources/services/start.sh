@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -xv
-../wait-for-it/wait-for-it.sh $RABBITMQ_URL -t 0
 
 _term() {
   echo "Caught SIGTERM signal!"
@@ -16,5 +15,5 @@ fi
 
 child=$!
 wait "$child"
-echo "end"
+echo ".process end ======================================================================= end process ."
 

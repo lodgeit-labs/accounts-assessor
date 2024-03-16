@@ -205,7 +205,7 @@ take statement/source transaction and generate a list of plain transactios.
 	->
 		(
 			(	nonvar(Trading_Account)
-			->	(throw_string(['trading account but no exchanged unit', S_Transaction]))
+			->	(throw_string(['trading account but no exchanged unit: ', S_Transaction, ' ', Trading_Account]))
 			;	true),
 			cf(record_expense_or_earning_or_equity_or_loan(S_Transaction, Action_Verb, Vector_Ours, Exchanged_Account, Transaction_Date, Description, Ts4)),
 			Outstanding_After = Outstanding_Before
@@ -323,7 +323,7 @@ take statement/source transaction and generate a list of plain transactios.
 
 
  outstandings_str((Outstanding_In, Investments_In), Str) :-
-	format(string(Str0), 'current outstanding investments:~noutstanding(purchase_currency, goods_unit, goods_count, unit_cost, unit_cost_foreign, purchase_date):~n~w', [$>line_per_item_write_quoted($>round_term(Outstanding_In))]),
+	format(string(Str0), 'current outstanding investments (purchase_currency, goods_unit, goods_count, unit_cost, unit_cost_foreign, purchase_date):~n~w', [$>line_per_item_write_quoted($>round_term(Outstanding_In))]),
 	format(string(Str1), 'investments history:~n~w', [$>investment_str_lines($>round_term(Investments_In))]),
 	atomics_to_string([Str0, Str1],'\n',Str).
 
@@ -362,20 +362,20 @@ take statement/source transaction and generate a list of plain transactios.
 		$>format(string(<$),
 		'sell ~w of ~q for ~w',
 		[
-			Goods_Positive,
+			$>round_term(Goods_Positive),
 			Goods_Unit,
-			$>money_vector_string($>vector_of_coords_vs_vector_of_values(kb:debit,Vector_Ours))])),
+			$>round_term($>money_vector_string($>vector_of_coords_vs_vector_of_values(kb:debit,Vector_Ours)))])),
 
-	financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2),
-	bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price),
+	c(financial_investments_account(Exchanged_Account,Goods_Unit,Exchanged_Account2)),
+	c(bank_debit_to_unit_price(Vector_Ours, Goods_Positive, Sale_Unit_Price)),
 
-	(	find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values)
+	(	cf(find_items_to_sell(Pricing_Method, Goods_Unit, Goods_Positive, Transaction_Date, Sale_Unit_Price, Outstanding_In, Outstanding_Out, Goods_Cost_Values))
 	->	true
 	;	(
 			true,
-			throw($>format(
+			throw_string($>format(
 				string(<$),
-				'not enough outstanding stock to sell.~n~w', [
+				'not enough outstanding stock to sell.~n~n~w', [
 					$>outstandings_str(Outstanding_In)]))
 		)
 	),

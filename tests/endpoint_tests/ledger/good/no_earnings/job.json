@@ -1,0 +1,73 @@
+{
+    "actor_name": "call_prolog_calculator",
+    "args": [],
+    "duration": "0:01:55.440224",
+    "end_datetime": "2024-02-05T20:00:42.173859+00:00",
+    "enqueued_datetime": "2024-02-05T19:58:46.733635+00:00",
+    "kwargs": {
+        "public_url": "http://jj.internal:8877",
+        "request_directory": "1707160743.7061272.78.35.619BA71x37686",
+        "request_format": "xml",
+        "worker_options": {
+            "ROBUST_ENABLE_NICETY_REPORTS": false,
+            "prolog_debug": false,
+            "skip_dev_runner": true,
+            "user": "nobody"
+        }
+    },
+    "message_id": "2df3d333-f190-48f5-a9b0-4f8b759fe917",
+    "options": {},
+    "priority": 0,
+    "queue_name": "default",
+    "result": {
+        "alerts": [
+            "deterministic_call_failed(user:process_xml_request(loc(absolute_path,\"/app/server_root/tmp/1707160743.7061272.78.35.619BA71x37686/dummy.xml\"),[element(reports,[ns('',xmlns):xsi='http://www.w3.org/2001/XMLSchema-instance',ns('',xmlns):xsd='http://www.w3.org/2001/XMLSchema',ns(xsi,'http://www.w3.org/2001/XMLSchema-instance'):schemaLocation='http://localhost:8080/taxonomy/basic.xsd'],[element(balanceSheetRequest,[],[element(generator,[],[element(date,[],['2014-08-28T10:58:40.000165Z']),element(source,[],['LODGEIT']),element(author,[],[element(firstname,[],['David']),element(lastname,[],['Joe']),element(company,[],['XYZ Company Pvt Ltd'])])]),element(company,[],[element(abn,[],['11111111111']),element(anzsic,[],[])]),element(startDate,[],['2015-07-01']),element(endDate,[],['2018-06-30']),element(defaultCurrency,[],[element(unitType,[],['AUD'])]),element(reportCurrency,[],[element(unitType,[],['AUD'])]),element(unitValues,[],[element(unitValue,[],[element(unitType,[],['BHP']),element(unitValue,[],['2']),element(unitValueCurrency,[],['USD'])]),element(unitValue,[],[element(unitType,[],['TLS']),element(unitValue,[],['5']),element(unitValueCurrency,[],['AUD'])])]),element(accountHierarchy,[],[element('Accounts',[],[element('NetAssets',[],[element('Assets',[],[element('CurrentAssets',[],[element('CashAndCashEquivalents',[],[element('Banks',[],[])]),element('AssetsLivestock',[],[element('AssetsLivestockAtCost',[],[]),element('AssetsLivestockAtAverageCost',[],[])])]),element('NoncurrentAssets',[],[element('FinancialInvestments',[],[])])]),element('Liabilities',[],[element('NoncurrentLiabilities',[],[element('NoncurrentLoans',[],[])]),element('CurrentLiabilities',[],[element('CurrentLoans',[],[])])])]),element('Equity',[],[element('ShareCapital',[],[]),element('CapitalIntroduced',[],[]),element('Drawings',[],[])]),element('NetIncomeLoss',[],[element('Revenue',[],[element('ClearingAccount',[],[]),element('Income',[],[]),element('InvestmentIncome',[],[]),element('OtherIncome',[],[element('InterestIncome',[],[]),element('InterestEarned',[],[]),element('EarningsFinancialInvestments',[],[]),element('ExchangeGain',[],[])]),element('SalesOfLivestock',[],[]),element('RationsRevenue',[],[]),element('OtherGain',[],[]),element('CurrencyMovement',[],[])]),element('Expenses',[],[element('BankCharges',[],[]),element('AccountingFees',[],[]),element('ForexLoss',[],[]),element('InterestExpenses',[],[]),element('LivestockAdjustment',[],[]),element('Purchases',[],[]),element('CostOfGoodsLivestock',[],[]),element('OtherExpenses',[],[])])])])]),element(bankStatement,[],[element(title,[],['Bank Statement']),element(period,[],['2010-01-01 - 2010-06-30']),element(accountDetails,[],[element(accountNo,[],['1-1110']),element(accountName,[],['NationalAustraliaBank']),element(dateofBankStatement,[],['2018-09-30']),element(bankID,[],['Commonwealth Bank']),element(currency,[],['AUD']),element(transactions,[],[element(transaction,[],[element(transdesc,[],['Borrow']),element(transdate,[],['2017-08-01']),element(debit,[],['0']),element(credit,[],['100'])]),element(transaction,[],[element(transdesc,[],['Invest_In']),element(transdate,[],['2018-08-02']),element(debit,[],['50']),element(credit,[],['0']),element(unit,[],['10']),element(unitType,[],['TLS'])])])]),element(accountDetails,[],[element(accountNo,[],['1-1110']),element(accountName,[],['WellsFargo']),element(dateofBankStatement,[],['2018-09-30']),element(bankID,[],['Commonwealth Bank']),element(currency,[],['USD']),element(transactions,[],[element(transaction,[],[element(transdesc,[],['Introduce_Capital']),element(transdate,[],['2017-07-01']),element(debit,[],['0']),element(credit,[],['200'])]),element(transaction,[],[element(transdesc,[],['Invest_In']),element(transdate,[],['2017-07-10']),element(debit,[],['100.00']),element(credit,[],['0.00']),element(unit,[],['10']),element(unitType,[],['BHP'])]),element(transaction,[],[element(transdesc,[],['Pay_Bank']),element(transdate,[],['2018-06-28']),element(debit,[],['10']),element(credit,[],['0.00'])])])])])])])]))"
+        ],
+        "reports": [
+            {
+                "key": "alerts_html",
+                "title": "alerts",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.61.619BA71x37672/000000_alerts.html"
+                }
+            },
+            {
+                "key": "alerts_json",
+                "title": "alerts_json",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.61.619BA71x37672/000000_alerts_json.json"
+                }
+            },
+            {
+                "key": "request_xml",
+                "title": "request_xml",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.61.619BA71x37672/dummy.xml"
+                }
+            },
+            {
+                "key": "request_file",
+                "title": "request_file",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.61.619BA71x37672/dummy.xml"
+                }
+            },
+            {
+                "key": "job_tmp_url",
+                "title": "job_tmp_url",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.61.619BA71x37672/../2df3d333-f190-48f5-a9b0-4f8b759fe917"
+                }
+            },
+            {
+                "key": "task_directory",
+                "title": "task_directory",
+                "val": {
+                    "url": "http://jj.internal:8877/tmp/1707160743.8036892.73.61.619BA71x37672/"
+                }
+            }
+        ]
+    },
+    "started_datetime": "2024-02-05T19:58:46.792009+00:00",
+    "status": "Success"
+}

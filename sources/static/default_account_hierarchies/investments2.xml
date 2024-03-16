@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <accountHierarchy>
-	<Financial_Investments parent_role="Non_Current_Assets" role="Financial_Investments!Financial_Investments"/>
-	<account name="Investment_Income" parent_role="Gains" role="Trading_Accounts!Investment_Income"/>
-<account name="Investment Gains/-Losses" parent_role="Gains" role="Trading_Accounts!Investment Gains/-Losses"/>
+	<account name="Financial_Investments"    parent_role="Non_Current_Assets" role="Financial_Investments!Financial_Investments"/>
+	<account name="Investment_Income"        parent_role="Gains"              role="Trading_Accounts!Investment_Income"/>
+	<account name="Investment Gains/-Losses" parent_role="Gains"              role="Trading_Accounts!Investment Gains/-Losses"/>
 </accountHierarchy>

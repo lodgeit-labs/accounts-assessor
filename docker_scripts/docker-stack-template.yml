@@ -2,6 +2,14 @@ version: '3.9'
 
 services:
 
+  storage:
+    image: ubuntu
+    volumes:
+      - tmp:/app/server_root/tmp
+      - cache:/app/cache
+    entrypoint: /bin/bash -c "chown 1000:1000 /app/server_root/tmp /app/cache"
+
+
   caddy:
     image: caddy:2-alpine
     networks:
@@ -37,6 +45,7 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - tmp:/usr/local/apache2/htdocs/tmp/
       - ./../sources/static/:/usr/local/apache2/htdocs/static/
+      - ./../sources/static/favicon.ico:/usr/local/apache2/htdocs/favicon.ico
     depends_on:
       frontend:
         condition: service_healthy
@@ -52,6 +61,8 @@ services:
       REDIS_HOST:
       AGRAPH_HOST:
       AGRAPH_PORT:
+      SERVICES_URL:
+      DOWNLOAD_BASTION_URL: # thus frontend shouldn't need ALL_PROXY 
       WATCHMEDO:
     #args: # todo: make this changeable from the script. It's still a question how non-dev requirements file would be managed in practice, one should probably start by copying the dev one
     #  REQUIREMENTS_FILE: requirements.txt
@@ -63,6 +74,8 @@ services:
     hostnet_ports:
       - 7788
     depends_on:
+      storage:
+        condition: service_completed_successfully
       services:
         condition: service_healthy
       csharp-services:
@@ -79,10 +92,11 @@ services:
       - AGRAPH_SUPER_PASSWORD
 
 
-  workers: # at this point, it should be called worker
-    image: koo5/workers${PP}:latest
+
+ 
+  actors:
+    image: koo5/actors${PP}:latest
     environment:
-      DETERMINANCY_CHECKER__USE__ENFORCER: "true"
       SERVICES_URL:
       CSHARP_SERVICES_URL:
       RABBITMQ_URL:
@@ -94,15 +108,14 @@ services:
       WATCHMEDO:
     volumes:
       - tmp:/app/server_root/tmp
-      - cache:/app/cache
       - ./../tests:/app/tests
       - "/etc/localtime:/etc/localtime:ro"
-      # for gtrace:
-      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     networks:
       - backend
+      - webproxy           
     depends_on:
-      # workers don't have a good way to healthcheck. So instead of sequencing other containers after workers, we sequence workers after everything else. Theres a small risk of a deadlock if we run frontend with no parallelism (only makes sense for debugging) and somebody comes along and makes a request just before the healthcheck is about to make a request. And users running synchronous requests could experience timeouts when the stack is starting up.
+      storage:
+        condition: service_completed_successfully
       services:
         condition: service_healthy
       remoulade-api:
@@ -125,21 +138,64 @@ services:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
 
+   
+       
+    
+  worker:
+    image: koo5/worker${PP}:latest
+    environment:
+      DETERMINANCY_CHECKER__USE__ENFORCER: "true"
+      WATCHMEDO:
+      ALL_PROXY:
+      DOWNLOAD_BASTION_URL:
+      MANAGER_URL:
+      WORKER_AUTH: dummy:dummy
+      WORKER_PROCESSES:
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+      - ./../tests:/app/tests
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw" # for gtrace
+      - '../sources/swipl/xpce:/home/myuser/.config/swi-prolog/xpce'      
+    networks:
+      - untrusted
+    depends_on:
+      storage:
+        condition: service_completed_successfully
+      manager:
+        condition: service_healthy
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+   
+   
 
-  services:
-    image: koo5/services${PP}:latest
+
+
+  manager:
+    image: koo5/manager${PP}:latest
     environment:
       RABBITMQ_URL:
+      REMOULADE_PG_URI:
+      REMOULADE_API:
+      REDIS_HOST:
+      AGRAPH_HOST:
+      AGRAPH_PORT:
+      AGRAPH_URL:
       WATCHMEDO:
+      CSHARP_SERVICES_URL:
+      PYDEVD_PYCHARM_PORT: 29111
+      FLY:
     volumes:
+      - cache:/app/cache
       - tmp:/app/server_root/tmp
       - "/etc/localtime:/etc/localtime:ro"
     networks:
       - backend
-    hostnet_ports:
-      - 17788
-    depends_on:
-      - redis
+      - untrusted
     deploy:
       replicas: 1
       placement:
@@ -147,8 +203,49 @@ services:
       restart_policy:
         condition: any
     depends_on:
+      storage:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      csharp-services:
+        condition: service_healthy
+    secrets:
+      - AGRAPH_SUPER_USER
+      - AGRAPH_SUPER_PASSWORD
+      - FLYCTL_API_TOKEN
+
+
+  services:
+    image: koo5/services${PP}:latest
+    environment:
+      WATCHMEDO:
+      ALL_PROXY:
+      DOWNLOAD_BASTION_URL:
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+      - webproxy           
+    hostnet_ports:
+      - 17788
+    depends_on:
+      storage:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
       agraph:
         condition: service_healthy
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
 
 
   csharp-services:
@@ -171,7 +268,6 @@ services:
     environment:
       CSHARPSERVICES_DATADIR: "/App/data/"
         
-        
 
 
   redis:
@@ -186,6 +282,9 @@ services:
         condition: any
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      #interval: 13m
+      #start_interval: 3s
+      #interval: 3000s
     volumes:
       - "redis_data:/data"
     command: '/usr/local/bin/docker-entrypoint.sh --appendonly yes' # --save 60 1
@@ -197,23 +296,23 @@ services:
     networks:
     - backend
     - frontend
-    hostnet_ports:
-      - 10035
+#    hostnet_ports:
+#      - 10035
     deploy:
       replicas: 1
       restart_policy:
         condition: any
-        delay: "240s"
+        delay: "240s" #?
     secrets:
       - AGRAPH_SUPER_USER
       - AGRAPH_SUPER_PASSWORD
     environment:
-      AGRAPH_SUPER_PASSWORD_FILE: /run/secrets/AGRAPH_SUPER_PASSWORD
-      AGRAPH_SUPER_USER_FILE: /run/secrets/AGRAPH_SUPER_USER
+      #AGRAPH_SUPER_PASSWORD_FILE: /run/secrets/AGRAPH_SUPER_PASSWORD
+      #AGRAPH_SUPER_USER_FILE: /run/secrets/AGRAPH_SUPER_USER
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
       - "agdata:/agraph/data"
-      - "agconfig:/agraph/etc"
+      - "${PWD}/agraph/etc:/agraph/etc"
       - type: tmpfs
         target: /dev/shm
         tmpfs:
@@ -241,28 +340,34 @@ services:
 
 
   postgres:
-    image: bitnami/postgresql:15.1.0
+    image: bitnami/postgresql:16
     networks:
       - backend
     hostnet_ports:
       - 5433
     volumes:
-      - 'postgresql_data:/bitnami/postgresql'
-#    command: ["postgres", "-c", "max_connections=2000", "-c", "shared_buffers=2048MB"]
+      #- 'postgresql_data:/bitnami/postgresql'
+      - ${PWD}/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
-#     - PGDATA=/bitnami/postgresql
-      - POSTGRESQL_EXTRA_FLAGS=-c max_connections=2000 -c shared_buffers=2048MB -c port=5433
-      - ALLOW_EMPTY_PASSWORD=yes
-      - POSTGRESQL_POSTGRES_PASSWORD=""
-      - POSTGRESQL_DATABASE=remoulade
-      - POSTGRESQL_USERNAME=remoulade
+      POSTGRESQL_EXTRA_FLAGS: "-c max_connections=2000 -c shared_buffers=2048MB"
+      POSTGRESQL_PORT_NUMBER: 5433
+
+      POSTGRESQL_PASSWORD: ""
+      POSTGRESQL_DATABASE: remoulade
+      POSTGRESQL_USERNAME: remoulade
+      #POSTGRESQL_POSTGRES_PASSWORD: "p"
+      
+      ALLOW_EMPTY_PASSWORD: "yes"      
+      
+      #POSTGRESQL_PGAUDIT_LOG: "READ,WRITE"
+      POSTGRESQL_LOG_HOSTNAME: "true"
     deploy:
       replicas: 1
       restart_policy:
         condition: any
     healthcheck:
       test: ["CMD-SHELL", "pg_isready --dbname=remoulade --username=remoulade --timeout=100 --port=5433 --host=127.0.0.1"]
-      interval: 30s
+      interval: 5s
       timeout: 5s
       retries: 5
 
@@ -321,6 +426,83 @@ services:
       - AGRAPH_SUPER_PASSWORD
 
 
+  download: #bastion
+    image: koo5/download${PP}:latest
+    environment:
+      WATCHMEDO:
+      ALL_PROXY: # still useful for, say, caching, right? not sure if download bastion is useful for anything though.
+    volumes:
+      - tmp:/app/server_root/tmp
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - backend
+      - webproxy           
+    hostnet_ports:
+      - 6457
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+
+
+  webproxy:
+    image: distahl/squid 
+    environment:
+       PROXY_UID: 13
+       PROXY_GID: 13
+    volumes:
+      - "${PWD}/squid/etc/:/etc/squid"
+    hostnet_ports:
+      - 3128
+      - 3129
+    networks:
+      - webproxy           
+      - untrusted  
+    healthcheck:
+      #test: ["CMD-SHELL", "curl -x localhost:3128 --proxy-basic http://127.0.0.1:3128/healthcheck | grep healthcheck"] # no curl inside
+      test: ["CMD-SHELL", "true"]
+      interval: 5s
+      timeout: 5s
+      retries: 5  
+# ^
+# docker run \
+#       --name squid \
+#       -e TZ=Europe/London \
+#       -e PROXY_UID=13 \
+#       -e PROXY_GID=13 \
+#       -v (pwd)/squid/etc/:/etc/squid \
+#       -v (pwd)/squid/logs/:/var/log/ \
+#       -p 3128:3128 \
+#       -p 3129:3129 \
+#       -it --rm distahl/squid
+#^ distahl/squid needs soources
+
+
+
+#  webproxy2:
+#    image: ubuntu/squid 
+#    environment:
+#       TZ: UTC
+#    volumes:
+#      - "${PWD}/squid/etc/squid.conf:/etc/squid/squid.conf"
+#      - squid_cache:/var/cache/squid
+#    hostnet_ports:
+#      - 3128
+#    networks:
+#      - webproxy           
+# ^
+# docker run --rm -it --name squid -e TZ=UTC -p 3128:3128 -v (pwd)/squid/etc/:/etc/squid/  -v sss:/var/spool/squid ubuntu/squid:5.2-22.04_beta
+# this works, but how to mount cache dir without permission errors?
+# 1704298510.574    101 172.17.0.1 TCP_DENIED/403 3865 CONNECT www.root.cz:443 - HIER_NONE/- text/html
+
+# ^  # but we'll need to roll our own to eventually copy the configs in, so it can run in the cloud.
+
+# ALL_PROXY=localhost:3128 curl https://www.root.cz/
+
+
+
 networks:
   frontend:
     attachable: true
@@ -330,6 +512,8 @@ networks:
   hostnet:
     external: true
     name: host
+  webproxy:
+             
 
 volumes:
   tmp:
@@ -341,4 +525,5 @@ volumes:
   caddy_data:
   caddy_config:
   postgresql_data:
+  squid_cache:
 

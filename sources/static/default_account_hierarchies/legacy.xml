@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='utf-8'?>
+<accountHierarchy>
+
+	<!-- "Accounts" is the top-level account in the hierarchy -->
+	<!-- the top-level account in accountHierarchy has to explicitly specify what it is a child of, thus the parent_role="root" -->
+
+	<account parent_role="root" normal_side="debit" name="Accounts">
+		<account role="Net_Assets" name="Net_Assets">
+			<account name="Assets">
+				<account role="Current_Assets" name="Current_Assets">
+					<account role="Cash_and_Cash_Equivalents" name="Cash_and_Cash_Equivalents">
+						<account name="Banks" role="Banks" />
+					</account>
+				</account>
+				<account role="Non_Current_Assets" name="Non_Current_Assets">
+				</account>
+			</account>
+			<account normal_side="credit" name="Liabilities">
+				<account name="Non_Current_Liabilities">
+					<account name="Non_Current_Loans" />
+				</account>
+				<account name="Current_Liabilities">
+					<account name="Current_Loans" />
+					<account name="Gst">
+						<account name="Gst_Receivable" />
+						<account name="Gst_GstPayableReceivable" />
+					</account>
+				</account>
+			</account>
+		</account>
+
+		<account role="Equity" normal_side="credit" name="Equity">
+			<account name="Share_Capital" />
+			<account name="Retained_Earnings">
+				<account role="Historical_Earnings" name="Historical_Earnings">
+					<account name="Bank_Opening_Balances" />
+				</account>
+				<account role="Current_Earnings" name="Current_Earnings" />
+			</account>
+			<account name="Capital_Introduced" />
+			<account role="Drawings" name="Drawings" />
+		</account>
+
+		<account role="Comprehensive_Income" normal_side="credit" name="Comprehensive_Income">
+
+			<account role="Currency_Movement" name="Currency_Movement" />
+
+
+			<account role="Revenue" name="Revenue">
+				<account name="Income" />
+				<account name="Other_Income">
+					<account name="Interest_Income" />
+				</account>
+			</account>
+
+			<account role="Expenses" normal_side="debit" name="Expenses">
+				<account name="Bank_Charges" />
+				<account name="Accounting_Fees" />
+				<account name="Interest_Expenses" />
+				<account name="Purchases" />
+				<account name="Other_Expenses" />
+				<account name="FoodExpenses" />
+			</account>
+
+			<account name="Gains/-Losses" role="Gains">
+				<account name="Transfer_Clearing_Account" />
+				<account name="ExchangeGain" />
+			</account>
+
+		</account>
+	</account>
+	<account parent_role="root" role="root!Inventory" normal_side="debit" name="Inventory">
+	</account>
+</accountHierarchy>
