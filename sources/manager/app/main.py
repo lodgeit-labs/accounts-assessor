@@ -213,7 +213,7 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 			if not worker.task_given_ts:
 				worker.task_given_ts = datetime.datetime.now()
 			is_remote = (worker.info.get('host') != manager_host)
-			return outmsg | dict(task=dict(id = worker.task.id, proc=worker.task.proc, args=worker.task.args, worker_options=worker.task.worker_options, input_files=worker.task.input_files, remote=is_remote))
+			return outmsg | dict(task=dict(id = worker.task.id, proc=worker.task.proc, args=worker.task.args, worker_options=worker.task.worker_options, input_files=worker.task.input_files, output_path=worker.task.output_path, remote=is_remote))
 
 
 		loop_log.debug('sleep')
