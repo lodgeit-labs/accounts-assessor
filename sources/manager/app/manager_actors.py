@@ -65,9 +65,12 @@ def call_prolog_calculator(
 	public_url='http://localhost:8877',
 	worker_options=None,
 	request_format=None,
-	xlsx_extraction_rdf_root="ic_ui:investment_calculator_sheets"
+	xlsx_extraction_rdf_root=None
 ):
 	log.debug('manager_actors: call_prolog_calculator(%s, %s, %s, %s, %s)' % (request_directory, public_url, worker_options, request_format, xlsx_extraction_rdf_root))
+
+	if xlsx_extraction_rdf_root is None:
+		xlsx_extraction_rdf_root = "ic_ui:investment_calculator_sheets"
 
 	# create a tmp directory for results files created by this invocation of the calculator
 	result_tmp_directory_name, result_tmp_directory_path = create_tmp_for_user(worker_options['user'])
@@ -76,8 +79,10 @@ def call_prolog_calculator(
 	#ln('../'+request_directory, result_tmp_directory_path + '/inputs')
 	
 	# potentially convert request files to rdf (this invokes other actors)
-	converted_request_files = preprocess_request_files(files_in_dir(get_tmp_directory_absolute_path(request_directory)), xlsx_extraction_rdf_root)
-
+	try:
+		converted_request_files = preprocess_request_files(files_in_dir(get_tmp_directory_absolute_path(request_directory)), xlsx_extraction_rdf_root)
+	except Exception as e:
+		return dict(alerts=[str(e)])
 
 	# the params that will be passed to the prolog calculator
 	params=dict(
@@ -191,7 +196,12 @@ def convert_excel_to_rdf(uploaded, to_be_processed, root):
 	"""
 	log.info('xlsx_to_rdf: %s -> %s' % (uploaded, to_be_processed))
 	start_time = time.time()
-	requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": root, "input_fn": str(uploaded), "output_fn": str(to_be_processed)}).raise_for_status()
+	r = requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": root, "input_fn": str(uploaded), "output_fn": str(to_be_processed)})
+	r.raise_for_status()
+	r = r.json()
+	if r.get('error'):
+		raise Exception(r.get('error'))
+	
 	log.info('xlsx_to_rdf: %s -> %s done in % seconds' % (uploaded, to_be_processed, time.time() - start_time))
 
 

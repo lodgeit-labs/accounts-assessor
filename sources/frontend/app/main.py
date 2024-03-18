@@ -426,7 +426,7 @@ def create_archive(task_directory, message, archive_dir_path, final_zip_path):
 
 
 @app.post("/upload")
-def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, file3: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle'):
+def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[UploadFile]=None, file3: Optional[UploadFile]=None, request_format:str='rdf', requested_output_format:str='job_handle', xlsx_extraction_rdf_root:str=None):
 	"""
 	Trigger a calculator by uploading one or more input files.
 	"""
@@ -441,7 +441,7 @@ def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[U
 		logger.info('uploaded: %s' % repr(file.filename))
 		_uploaded = save_uploaded_file(request_tmp_directory_path, file)
 
-	return process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format)[0]
+	return process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format, requested_output_format, xlsx_extraction_rdf_root)[0]
 
 
 
@@ -458,7 +458,7 @@ def load_worker_options_from_request_json(request_tmp_directory_path):
 
 
 
-def process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format='rdf', requested_output_format = 'job_handle'):
+def process_request(request, request_tmp_directory_name, request_tmp_directory_path, request_format='rdf', requested_output_format = 'job_handle', xlsx_extraction_rdf_root:str=None):
 	
 	public_url=get_public_url(request)
 	worker_options = load_worker_options_from_request_json(request_tmp_directory_path)
@@ -467,6 +467,7 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 	job = manager_actors.call_prolog_calculator.send_with_options(kwargs=dict(
 		request_format=request_format,
 		request_directory=request_tmp_directory_name,
+		xlsx_extraction_rdf_root=xlsx_extraction_rdf_root,
 		public_url=public_url,
 		worker_options=worker_options,
 	))
