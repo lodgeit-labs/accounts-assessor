@@ -86,6 +86,7 @@
 	!process_request2.
 
  process_request2 :-
+ gtrace,
 	!cf(collect_alerts(Alerts3, Alerts_html)),
 	!(make_json_report(Alerts3, alerts)),
 	!cf(make_alerts_report(Alerts_html)),
@@ -140,7 +141,7 @@ todo: refactor into alert_to_html (which is invoked post-hoc)
 alert_to_html also has key available - 'error'
  */ 
  format_exception_into_alert_string(E, Msg, Str, Html) :-
-	(	E = with_processing_context(E1,C)
+ 	(	E = with_processing_context(E1,C)
 	->	Context_str = C
 	;	(
 			Context_str = 'missing',
@@ -152,7 +153,7 @@ alert_to_html also has key available - 'error'
 	->	atomics_to_string([Bstr0], Bstr)
 	;	(
 			E2 = E1,
-			Bstr = ""
+			Bstr = "missing"
 		)
 	),
 
@@ -162,15 +163,14 @@ alert_to_html also has key available - 'error'
 		)
 	->	message_to_string(E2, Msg0)
 	;	(	E2 = error(Msg0,Stacktrace)
-		->	(	nonvar(Stacktrace)
-			->	%stt(Stacktrace, Stacktrace_str)
-				format(string(Stacktrace_str),'~q',[Stacktrace])
-			;	Stacktrace_str = '')
-		;	(
-				Stacktrace_str = '',
-				Msg0 = E2
-			)
+		->	true
+		;	Msg0 = E2
 		)
+	),
+	(	nonvar(Stacktrace)
+	->	%stt(Stacktrace, Stacktrace_str)
+		format(string(Stacktrace_str),'~q',[Stacktrace])
+	;	Stacktrace_str = 'missing'
 	),
 	(	Msg0 = msg(Msg1)
 	->	true
