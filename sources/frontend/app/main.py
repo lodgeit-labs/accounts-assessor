@@ -287,7 +287,8 @@ async def get_job_by_id(request: Request, id: str):
 	user = get_user(request)
 	message = calculator_job_by_id(id)
 	if message is None:
-		return PlainTextResponse(f'job {id=} not found', status_code=404)
+		raise HTTPException(status_code=404, detail=f'job {id=} not found')
+		#return PlainTextResponse(f'job {id=} not found', status_code=404)
 	logger.info('job: %s' % message)
 	
 	# check auth
