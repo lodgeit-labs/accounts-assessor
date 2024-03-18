@@ -1,6 +1,8 @@
 import subprocess
 import sys, os
 
+from franz.openrdf.query.query import QueryLanguage
+from rdflib import URIRef, Literal, BNode
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../manager')))
@@ -50,12 +52,12 @@ impl = getDOMImplementation()
 templates = Jinja2Templates(directory="templates")
 
 
-#from agraph import agc
-
 from fs_utils import directory_files, find_report_by_key
 from tmp_dir import create_tmp_for_user, get_unique_id
 from tmp_dir_path import get_tmp_directory_absolute_path, ln
 from auth_fastapi import get_user
+import agraph, rdflib
+
 
 
 class UploadedFileException(Exception):
@@ -111,6 +113,156 @@ def index():
 	return "ok"
 
 
+
+
+@app.get("/view/rdftab")
+def get(request: Request, uri: str):
+	"""
+	render a page displaying all triples for a given URI.
+	add a link to gruff or other rdf visualization tools.
+	
+	format the triples such that the uri is the subject, and the triple is "reversed" if needed.
+	sort by importance (some hardcoded predicates go first)
+	
+	use rdfs:label where available
+	
+	where the node is a report_entry, add a link to the report.
+	where the value has_crosscheck, render the whole crosscheck including both values.
+	
+	maybe:
+	where the value is a string that refers to an account, add a link to the account URI.
+	where the node is a vector, display it meaningfully.	
+	"""
+
+	user = get_user(request)
+	
+	result = dict(props=[])
+	result['conn'] = agraph.agc(agraph.repo_by_user(user))
+	
+	queryString = """
+	SELECT ?s ?p ?o ?g {
+  
+			{
+              GRAPH ?g { 
+				?x ?p ?o .
+              }
+			} UNION {
+              GRAPH ?g { 
+				?s ?p ?x .
+              }
+			}
+	} LIMIT 10000
+	"""
+	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
+	tupleQuery.setBinding("x", agraph.URI(uri))
+	
+	logger.info(f"{uri=}")
+	logger.info(f"tupleQuery.evaluate() ...")
+
+	
+	result['namespaces'] = result['conn'].getNamespaces()
+	
+	results: agraph.TupleQueryResult	
+	with tupleQuery.evaluate() as results:
+	
+		for bindingSet in results:
+			s = bindingSet.getValue("s")
+			p = bindingSet.getValue("p")
+			o = bindingSet.getValue("o")
+			g = bindingSet.getValue("g")
+			
+			logger.info(f"{s} {p} {o} {g}")
+
+			s2 = dict(node=s)
+			p2 = dict(node=p)
+			o2 = dict(node=o)
+			g2 = dict(node=g)
+
+			if s is None:
+				result['props'].append(dict(p=p2, o=o2, g=g2))
+			elif o is None:
+				p2['reverse'] = True
+				result['props'].append(dict(p=p2, o=s2, g=g2))
+				
+	for prop in result['props']:
+		xnode_str(result, prop['p'])
+		xnode_str(result, prop['o'])
+		xnode_str(result, prop['g'])
+
+	
+	return result
+
+
+	
+def xnode_str(result,n):
+	xnode_str2(result, n)
+	if n.get('reverse'):
+		return f"is {s} of"
+	return s
+
+
+
+def xnode_str2(result, xn):
+	n = xn.get('node')
+	logger.info(f"{type(n)=}")
+	if isinstance(n, agraph.franz.openrdf.model.literal.Literal):
+		s = n.getLabel()
+		if len(s) > 100:
+			s = s[:100] + '...'
+		n['str'] = s
+		n['datatype'] = n.getDatatype()
+		n['language'] = n.getLanguage()
+		n['n3'] = str(n)
+		return
+		
+	if isinstance(n, agraph.franz.openrdf.model.value.URI):
+		xn['uri'] = n.stringValue()
+		add_uri_labels(result, xn)
+		add_uri_shortening(result, n)
+		return
+
+
+def add_uri_shortening(result,xnode):
+	uri = xnode['node'].stringValue()
+	
+	r = uri
+	for k,v in result['namespaces']:
+		if uri.startswith(v):
+			rr = k + ':' + uri[len(v):]
+			if len(rr) < len(r):
+				r = rr
+	
+	if r != uri:
+		xnode['shortened'] = r
+	
+
+
+def add_uri_labels(result, xn):
+	labels = []
+	
+	queryString = """
+	SELECT ?l ?g 
+	{
+  			{
+              GRAPH ?g { 
+				?s rdfs:label ?l .
+              }
+			}
+	} LIMIT 10000
+	"""
+	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
+	tupleQuery.setBinding("s", xn['node'])
+	results: agraph.TupleQueryResult
+	with tupleQuery.evaluate() as results:	
+		for bindingSet in results:
+			labels.append(dict(str=bindingSet.getValue("l"), g=bindingSet.getValue("g"))
+
+	if len(labels) > 0:
+		xn['label'] = labels[0]
+		xn['other_labels'] = labels[1:]
+		
+		
+		
 
 #@app.get("/status")
 #some status page for the whole stack here? like queue size, workers, .. 
@@ -430,6 +582,8 @@ def upload(request: Request, file1: Optional[UploadFile]=None, file2: Optional[U
 	"""
 	Trigger a calculator by uploading one or more input files.
 	"""
+	
+	logger.info('upload: xlsx_extraction_rdf_root: %s' % xlsx_extraction_rdf_root)
 	
 	request_tmp_directory_name, request_tmp_directory_path = create_tmp_for_user(get_user(request))
 

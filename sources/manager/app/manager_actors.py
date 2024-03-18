@@ -150,15 +150,9 @@ def call_prolog_calculator(
 
 
 def preprocess_request_files(files, xlsx_extraction_rdf_root):
-	got_rdf = False
 	for file in files:
 		if file.lower().endswith('.n3'):
 			got_rdf = True
-	if got_rdf:
-		for i,file in enumerate(files):
-			if file.lower().endswith('.xlsx'):
-				files[i] = None
-				break
 	return list(filter(None, map(lambda f: preprocess_request_file(xlsx_extraction_rdf_root, f), files)))
 
 def preprocess_request_file(xlsx_extraction_rdf_root, file):

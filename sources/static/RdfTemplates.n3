@@ -41,12 +41,12 @@
 
 
 [
-	a :www_url; 
+	a :www_url;
 	rdf:value <https://hub.docker.com/layers/rabbitmq/library/rabbitmq/3.8.14/images/sha256-c711f4d41163f79179a68f642ddcf15144aed2f2fa6e2d405d6a1476cf36614c?context=explore>;
 	rdfs:comment "possibly this version created a problem where task completions would not make it back to the caller.";
 	:version "3.8.14"
 ].
-	
+
 
 
 :request l:templates_version "2".
@@ -129,9 +129,9 @@ cars:car_sheet_rows
 	excel:cardinality excel:multi;
 	excel:class cars:car_sheet_row;
 	excel:fields (
-		[excel:property cars:id; 
+		[excel:property cars:id;
 			excel:type xsd:decimal]
-		[excel:property cars:make; 
+		[excel:property cars:make;
 			excel:type xsd:string]
 		[excel:property cars:year;
 			excel:type xsd:decimal]
@@ -154,14 +154,14 @@ cars:car_sheet_rows
 
 
 
-smsf_ui:sheets
-	a excel:sheet_set;
-	excel:sheets
-	(
-		smsf_ui:members_sheet
-		smsf_ui:distribution_sheet
-		smsf_ui:income_tax_sheet
-	).
+#smsf_ui:sheets
+#	a excel:sheet_set;
+#	excel:sheets
+#	(
+#		smsf_ui:members_sheet
+#		smsf_ui:distribution_sheet
+#		smsf_ui:income_tax_sheet
+#	).
 
 smsf_ui:members_sheet
 	a excel:sheet_type;
@@ -182,8 +182,8 @@ smsf_ui:income_tax_sheet
 	excel:root smsf:income_tax_info.
 
 smsf_ui:example
-	excel:is_listed_by_hardcoding true;
-	a excel:template_sheet_set;
+	rdfs:label "SMSF sheets";
+	a excel:example_sheet_set;
 	excel:has_sheet_instances (
 		[	excel:sheet_instance_has_sheet_type smsf_ui:members_sheet;
 			excel:sheet_instance_has_sheet_data smsf_ui:members_sheet_example]
@@ -200,7 +200,7 @@ smsf_ui:members_sheet_example rdf:value (
 		smsf:member_name [ a rdf:value ; rdf:value "Member 2" ]]
 ).
 
-smsf_ui:distribution_sheet_example 
+smsf_ui:distribution_sheet_example
 	a smsf_distribution:distribution;
 	smsf_distribution_ui:default_currency [ a rdf:value ; rdf:value "AUD"].
 
@@ -280,23 +280,23 @@ smsf_distribution_ui:net_trust_distribution_income rdfs:label "Net Trust distrib
 
 
 
-smsf_distribution_ui:capital_gains 
-	rdfs:label 
+smsf_distribution_ui:capital_gains
+	rdfs:label
 		"Capital Gains".
-smsf_distribution_ui:capital_losses 
-	rdfs:label 
+smsf_distribution_ui:capital_losses
+	rdfs:label
 		"Capital Losses".
-smsf_distribution_ui:discount_capital_gains_net 
-	rdfs:label 
+smsf_distribution_ui:discount_capital_gains_net
+	rdfs:label
 		"Discount Capital Gains (Net)".
 smsf_distribution_ui:other_capital_gains
-	 rdfs:label 
+	 rdfs:label
 		"Other Capital Gains".
 smsf_distribution_ui:one_third_capital_gain_discount_amount
-	 rdfs:label 
+	 rdfs:label
 		"1/3rd Capital Gain Discount Amount".
 smsf_distribution_ui:total_capital_gains_losses
-	 rdfs:label 
+	 rdfs:label
 		"Total Capital Gains/Losses".
 
 
@@ -309,12 +309,12 @@ smsf:income_tax_info
 	excel:fields (
 		[excel:property smsf:ato_supervisory_levy; excel:type xsd:decimal]
 	).
-	
+
 smsf:ato_supervisory_levy rdfs:label "ATO Supervisory Levy".
 smsf:ato_supervisory_levy rdfs:label "ATO_Supervisory_Levy".
 
 
-smsf_ui:income_tax_sheet_example 
+smsf_ui:income_tax_sheet_example
 	smsf:ato_supervisory_levy [ rdf:value "259"].
 
 
@@ -342,7 +342,7 @@ depr_ui:depreciation_calculator_sheet_assets
 	excel:root depr_ui:depreciation_assets.
 
 depr_ui:depreciation_example_simple
-	a excel:template_sheet_set;
+	a excel:example_sheet_set;
 	excel:is_listed_by_hardcoding true;
 	excel:has_sheet_instances (
 		[	excel:sheet_instance_has_sheet_type depr_ui:depreciation_calculator_sheet_queries;
@@ -661,6 +661,7 @@ ic_ui:investment_calculator_sheets
 	).
 
 ic_ui:investment_calculator_sheets2
+    rdfs:label "Investment Calculator Next";
 	a excel:sheet_set;
 	excel:sheets
 	(
@@ -712,12 +713,11 @@ ic_ui:investment_calculator_example
 
 		[	excel:sheet_instance_has_sheet_type ic_ui:action_verbs_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:action_verbs_example]
-
 		[	excel:sheet_instance_has_sheet_type ic_ui:unit_values_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:unit_values_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:bank_statement_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:bank_statement_example]
-		[	excel:sheet_instance_has_sheet_type ic_ui:report_details_sheet2;
+		[	excel:sheet_instance_has_sheet_type ic_ui:report_details_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:report_details_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:reallocation_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:reallocation_example]
@@ -733,7 +733,7 @@ ic_ui:investment_calculator_example
 			excel:sheet_instance_has_sheet_data ic_ui:additional_files_example]
 		[	excel:sheet_instance_has_sheet_type ic_ui:unit_types_sheet;
 			excel:sheet_instance_has_sheet_data ic_ui:unit_types_example]
-		
+
 ).
 
 
@@ -901,7 +901,7 @@ ic:unit_types
 	excel:fields (
 		[excel:property ic:unit_type_name; excel:type xsd:string]
 		[excel:property ic:unit_type_category; excel:type xsd:string]
-		[excel:property ic:unit_type_subcategory; excel:type xsd:string]	
+		[excel:property ic:unit_type_subcategory; excel:type xsd:string]
 	).
 
 ic_ui:report_details_sheet
@@ -1119,7 +1119,7 @@ ic_ui:report_details2
 	).
 
 ic_ui:job_notes
-	excel:position [excel:col "C"; excel:row "2"];	
+	excel:position [excel:col "C"; excel:row "2"];
 	excel:title "job notes";
 	excel:cardinality excel:multi;
 	excel:class ic_ui:job_note;
@@ -20004,14 +20004,14 @@ div7a_ui:sheets
 		).
 
 
-div7a_ui:sheet 
+div7a_ui:sheet
 	a excel:sheet_type;
 	excel:name_prefix "div7a";
 	excel:root div7a_ui:loan.
 
 
-div7a_ui:example_sheetset
-	a excel:template_sheet_set ;
+div7a_ui:div7a_example_sheet_set
+	a excel:example_sheet_set ;
 #	excel:is_listed_by_hardcoding true ;
 	excel:has_sheet_instances
 		(
@@ -20055,9 +20055,9 @@ div7a_ui:loan
 
 div7a_ui:repayments
 	excel:position [excel:col "A"; excel:row "10"];
-	excel:title "Items";
+	excel:title "Repayments";
 	excel:cardinality excel:multi;
-	excel:class div7a:repayments;
+	excel:class div7a:repayment;
 	excel:fields (
 		[excel:property div7a_repayment:date; excel:type xsd:dateTime]
 		[excel:property div7a_repayment:value; excel:type xsd:decimal]

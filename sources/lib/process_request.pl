@@ -86,8 +86,7 @@
 	!process_request2.
 
  process_request2 :-
- gtrace,
-	!cf(collect_alerts(Alerts3, Alerts_html)),
+ 	!cf(collect_alerts(Alerts3, Alerts_html)),
 	!(make_json_report(Alerts3, alerts)),
 	!cf(make_alerts_report(Alerts_html)),
 

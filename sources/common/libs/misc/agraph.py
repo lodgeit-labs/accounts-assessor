@@ -1,4 +1,5 @@
 import json, os, logging
+import franz
 from franz.openrdf.model.value import URI
 from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 from franz.openrdf.connect import ag_connect
