@@ -188,6 +188,14 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 			server_info_url = get_public_url(request) + '/static/git_info.txt'
 
 			logger.debug('limbo.')
+			
+			alerts = []
+			if job.get('result'):
+				alerts = job['result'].get('alerts', [])
+
+			status = job.get('status', 'unknown')
+			if len(alerts) > 0:
+				status = 'Alert'
 
 			# it turns out that failures are not permanent
 			return templates.TemplateResponse("job.html", {
@@ -196,9 +204,10 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 				"mem_data":mem_data, 
 				"request": request, 
 				"job_id": job_id, 
+				"alerts": '\n'.join(alerts),
 				"json": json.dumps(job, indent=4, sort_keys=True), 
 				"refresh": (job.get('status') not in [ 'Success']), 
-				'status': job.get('status', 'unknown')})
+				'status': status})
 	
 	else:
 		return PlainTextResponse(f'job {job_id=} not found', status_code=404)	
