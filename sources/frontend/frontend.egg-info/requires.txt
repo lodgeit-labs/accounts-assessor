@@ -9,6 +9,7 @@ uvicorn[standard]
 pydantic
 requests
 rdflib
+loguru
 
 [dev]
 watchdog

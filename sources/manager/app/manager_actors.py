@@ -59,7 +59,7 @@ def call_prolog_rpc(msg, worker_options=None):
 
 
 	
-@remoulade.actor(time_limit=1000*60*60*24*365*1000)
+@remoulade.actor(time_limit=1000*60*60*24*365)
 def call_prolog_calculator(
 	request_directory: str,
 	public_url='http://localhost:8877',
@@ -67,22 +67,25 @@ def call_prolog_calculator(
 	request_format=None,
 	xlsx_extraction_rdf_root=None
 ):
+
 	log.debug('manager_actors: call_prolog_calculator(%s, %s, %s, %s, %s)' % (request_directory, public_url, worker_options, request_format, xlsx_extraction_rdf_root))
 
+
 	if xlsx_extraction_rdf_root is None:
-		xlsx_extraction_rdf_root = "ic_ui:investment_calculator_sheets"
+		xlsx_extraction_rdf_root = "https://rdf.lodgeit.net.au/v1/calcs/ic/ui#investment_calculator_sheets"
+
 
 	# create a tmp directory for results files created by this invocation of the calculator
 	result_tmp_directory_name, result_tmp_directory_path = create_tmp_for_user(worker_options['user'])
 	
-	# create symlink to inputs 
-	#ln('../'+request_directory, result_tmp_directory_path + '/inputs')
 	
 	# potentially convert request files to rdf (this invokes other actors)
 	try:
 		converted_request_files = preprocess_request_files(files_in_dir(get_tmp_directory_absolute_path(request_directory)), xlsx_extraction_rdf_root)
 	except Exception as e:
+		log.error('preprocess_request_files failed: %s' % e)
 		return dict(alerts=[str(e)])
+
 
 	# the params that will be passed to the prolog calculator
 	params=dict(
@@ -143,7 +146,9 @@ def call_prolog_calculator(
 		tmp_path=result_tmp_directory_path,
 		uris=result.get('uris'),
 		user=worker_options['user']
-	), queue_name='postprocessing')
+	), queue_name='postprocessing',
+		on_failure=print_actor_error
+	)
 
 	return result
 
@@ -175,8 +180,10 @@ def preprocess_request_file(xlsx_extraction_rdf_root, file):
 			return converted_file
 			
 	if file.lower().endswith('.xlsx'):
+		log.info('make_converted_dir: %s' % file)
 		converted_dir = make_converted_dir(file)
 		converted_file = str(converted_dir.joinpath(str(PurePath(file).name) + '.n3'))
+		log.info('convert_excel_to_rdf: %s' % file)
 		convert_excel_to_rdf(file, converted_file, root=xlsx_extraction_rdf_root)
 		log.info('converted_file: %s' % converted_file)
 		return converted_file
@@ -188,7 +195,7 @@ def convert_excel_to_rdf(uploaded, to_be_processed, root):
 	"""run a POST request to csharp-services to convert the file.
 	We should really turn csharp-services into an untrusted worker at some point.	
 	"""
-	log.info('xlsx_to_rdf: %s -> %s' % (uploaded, to_be_processed))
+	log.info('xlsx_to_rdf: %s -> %s (root: %s)' % (uploaded, to_be_processed, root))
 	start_time = time.time()
 	r = requests.post(os.environ['CSHARP_SERVICES_URL'] + '/xlsx_to_rdf', json={"root": root, "input_fn": str(uploaded), "output_fn": str(to_be_processed)})
 	r.raise_for_status()
@@ -200,4 +207,14 @@ def convert_excel_to_rdf(uploaded, to_be_processed, root):
 
 
 
-remoulade.declare_actors([call_prolog_rpc, call_prolog_calculator])
+
+@remoulade.actor
+def print_actor_error(actor_name, exception_name, message_args, message_kwargs):
+  log.error(f"Actor {actor_name} failed:")
+  log.error(f"Exception type: {exception_name}")
+  log.error(f"Message args: {message_args}")
+  log.error(f"Message kwargs: {message_kwargs}")
+
+
+
+remoulade.declare_actors([print_actor_error, call_prolog_rpc, call_prolog_calculator])

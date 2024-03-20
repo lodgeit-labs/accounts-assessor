@@ -6,8 +6,11 @@ from rdflib import URIRef, Literal, BNode
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../manager')))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../actors')))
 xxx = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../common/libs/misc'))
 sys.path.append(xxx)
+
+
 
 
 import app.manager_actors as manager_actors
@@ -60,6 +63,47 @@ import agraph, rdflib
 
 
 
+
+from loguru import logger
+class InterceptHandler(logging.Handler):
+	def emit(self, record):
+		# Get corresponding Loguru level if it exists.
+		try:
+			level = logger.level(record.levelname).name
+		except ValueError:
+			level = record.levelno
+
+		# Find caller from where originated the logged message.
+		frame, depth = sys._getframe(6), 6
+		while frame and frame.f_code.co_filename == logging.__file__:
+			frame = frame.f_back
+			depth += 1
+
+		logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+#logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+logger.remove()
+logger.add(sys.stderr, format="{time} {level} {message}", level="DEBUG", backtrace=True, diagnose=True)
+
+
+
+# logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
+# 
+# # set root logger level to DEBUG and output to console
+# ch = logging.StreamHandler()
+# 
+# # create formatter
+# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# 
+# # add formatter to ch
+# ch.setFormatter(formatter)
+# 
+# # add ch to logger
+# logger.addHandler(ch)
+
+
+
+
 class UploadedFileException(Exception):
 	pass
 
@@ -71,24 +115,6 @@ class ChatRequest(BaseModel):
 class RpcCommand(BaseModel):
 	method: str
 	params: Any
-
-
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-# set root logger level to DEBUG and output to console
-ch = logging.StreamHandler()
-
-# create formatter
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# add formatter to ch
-ch.setFormatter(formatter)
-
-# add ch to logger
-logger.addHandler(ch)
 
 
 
@@ -305,7 +331,8 @@ def post(request: Request, body: ChatRequest):
 def json_prolog_rpc_call(request, msg, queue_name=None):
 	msg["client"] = request.client.host
 	logger.debug('json_prolog_rpc_call: %s ...' % msg)
-	job = manager_actors.call_prolog_rpc.send_with_options(kwargs=dict(msg=msg), queue_name=queue_name)
+	job = manager_actors.call_prolog_rpc.send_with_options(kwargs=dict(msg=msg), queue_name=queue_name,
+		on_failure=manager_actors.print_actor_error)
 	try:
 		logger.debug('waiting for result (timeout 1000 * 1000)')
 		result = job.result.get(block=True, timeout=1000 * 1000)
@@ -634,13 +661,16 @@ def process_request(request, request_tmp_directory_name, request_tmp_directory_p
 	worker_options = load_worker_options_from_request_json(request_tmp_directory_path)
 	worker_options['user'] = get_user(request)
 
-	job = manager_actors.call_prolog_calculator.send_with_options(kwargs=dict(
-		request_format=request_format,
-		request_directory=request_tmp_directory_name,
-		xlsx_extraction_rdf_root=xlsx_extraction_rdf_root,
-		public_url=public_url,
-		worker_options=worker_options,
-	))
+	job = manager_actors.call_prolog_calculator.send_with_options(
+		kwargs=dict(
+			request_format=request_format,
+			request_directory=request_tmp_directory_name,
+			xlsx_extraction_rdf_root=xlsx_extraction_rdf_root,
+			public_url=public_url,
+			worker_options=worker_options
+		),
+		on_failure=manager_actors.print_actor_error
+	)
 
 	logger.info('requested_output_format: %s' % requested_output_format)
 

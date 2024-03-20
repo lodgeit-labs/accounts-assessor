@@ -12,6 +12,7 @@ Requires-Dist: uvicorn[standard]
 Requires-Dist: pydantic
 Requires-Dist: requests
 Requires-Dist: rdflib
+Requires-Dist: loguru
 Provides-Extra: dev
 Requires-Dist: watchdog; extra == "dev"
 Requires-Dist: better_exceptions; extra == "dev"
