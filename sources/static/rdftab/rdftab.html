@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+
+	<script type="text/javascript" src="vue.js"></script>
+	<script type="text/javascript" src="jquery-3.4.0.js"></script>
+	<script src="lodash.js"></script>
+	<script src="https://unpkg.com/vue-truncate-collapsed"></script>
+
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="top">
+	<!--  style="float:left; height:100%" -->
+	<node :node="node"></node>
+</div>
+
+<script type="text/javascript">
+	'use strict';
+
+	function node(uri)
+	{
+		this.uri = uri;
+		this.props = [];
+		this.sources=[{msg: "loading..."}];
+	}
+
+	Vue.component('node', {
+		props: ['node'],
+		template: `
+			<div>
+				{{ node.uri }}
+				<div v-for="prop in node.props">
+					{{ prop }}
+				<div v-for="source in node.sources">
+					{{ source.msg }}
+			</div>
+		`,
+		methods: {}
+	});
+
+	function load_node_data_all(node)
+	{
+		Promise.all([
+			load_node_data1(node.uri).then(
+						results => assign_node_data1(node, results);
+						node.sources[0].msg = 'loaded';
+						).catch(
+							(error) => {node.sources[0].msg = "error: " + error;})
+		]);
+	};
+
+	function load_node_data1(uri) {
+		new Promise(
+			function(resolve, reject)
+			{
+				$.ajax({
+					dataType: "json",
+					mimeType: "application/json",
+					url: '/api/rdftab/'+encodeURIComponent(uri),
+					success: function(data){
+					    resolve(data);
+					},
+					error: function() {
+						reject("loading "+url+" failed");
+					}
+				});
+			}
+		);
+	}
+
+	void assign_node_data1(node, result)
+	{
+		console.log("assign_node_data1");
+		console.log(result);
+		node.props.push(result.props);
+	}
+
+	var vm = new Vue({
+		el: '#top',
+		data: {
+			node: new node("http://example.com")
+		},
+		mounted: function ()
+		{
+			console.log( "mounted!" );
+			load_node_data_all(data['node']);
+		}
+	});
+
+
+</script>
+</body>
+</html>
+
