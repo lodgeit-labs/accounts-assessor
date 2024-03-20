@@ -91,7 +91,7 @@ def call_prolog_calculator(
 		request_tmp_directory_name=request_directory,
 		result_tmp_directory_name=result_tmp_directory_name,
 		public_url=public_url,
-		rdf_explorer_bases=[os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+repo_by_user(worker_options['user'])+'/node/'] 
+		rdf_explorer_bases=['/static/rdftab/rdftab.html?uri='] 
 	)
 
 

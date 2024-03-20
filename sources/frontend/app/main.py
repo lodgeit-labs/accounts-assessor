@@ -193,6 +193,8 @@ def get(request: Request, uri: str):
 	logger.info(f"{result=}")
 
 	del result['conn']
+	result['tools'] = [os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+agraph.repo_by_user(get_user(request))+'/node/']
+	
 	return result
 
 
