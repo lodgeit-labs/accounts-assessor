@@ -23,7 +23,7 @@
 	function node(uri)
 	{
 		this.uri = uri;
-		this.props = [];
+		this.props = [{a: "b"}];
 		this.sources=[{msg: "loading..."}];
 	}
 
@@ -31,11 +31,13 @@
 		props: ['node'],
 		template: `
 			<div>
-				{{ node.uri }}
-				<div v-for="prop in node.props">
-					{{ prop }}
+				<h4>{{ node.uri }}</h4>
 				<div v-for="source in node.sources">
 					{{ source.msg }}
+				</div>
+				<div v-for="prop in node.props">
+					{{ prop }}
+				</div>
 			</div>
 		`,
 		methods: {}
@@ -45,21 +47,24 @@
 	{
 		Promise.all([
 			load_node_data1(node.uri).then(
-						results => assign_node_data1(node, results);
-						node.sources[0].msg = 'loaded';
+						results => {
+							assign_node_data1(node, results);
+							node.sources[0].msg = 'loaded';
+						}
 						).catch(
 							(error) => {node.sources[0].msg = "error: " + error;})
 		]);
 	};
 
 	function load_node_data1(uri) {
-		new Promise(
+		return new Promise(
 			function(resolve, reject)
 			{
+				var url = '/api/rdftab?uri='+encodeURIComponent(uri);
 				$.ajax({
 					dataType: "json",
 					mimeType: "application/json",
-					url: '/api/rdftab/'+encodeURIComponent(uri),
+					url: url,
 					success: function(data){
 					    resolve(data);
 					},
@@ -71,7 +76,7 @@
 		);
 	}
 
-	void assign_node_data1(node, result)
+	function assign_node_data1(node, result)
 	{
 		console.log("assign_node_data1");
 		console.log(result);
@@ -86,10 +91,9 @@
 		mounted: function ()
 		{
 			console.log( "mounted!" );
-			load_node_data_all(data['node']);
+			load_node_data_all(this.node);
 		}
 	});
-
 
 </script>
 </body>

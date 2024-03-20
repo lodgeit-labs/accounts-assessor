@@ -57,7 +57,7 @@ log.warning('warn main.py')
 #log.addHandler(logging.StreamHandler(sys.stderr))
 
 loop_log = logging.getLogger('loop')
-loop_log.setLevel(logging.INFO)
+loop_log.setLevel(logging.DEBUG)
 loop_log.debug('debug loop')
 loop_log.warning('warn loop')
 

@@ -26,7 +26,6 @@ import lib.remove_all_anonymous_volumes
 
 
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 
@@ -129,6 +128,16 @@ def cli():
 	pass
 
 
+def verbosity_to_log_level(verbose):
+	if verbose == 0:
+		return logging.WARNING
+	elif verbose == 1:
+		return logging.INFO
+	elif verbose >= 2:
+		return logging.DEBUG
+	else:
+		return logging.ERROR
+
 
 @cli.command(
 	help="""deploy the docker compose/stack""",
@@ -137,6 +146,7 @@ def cli():
 		show_default=True
     ))
 
+@click.option('-v', '--verbose', count=True)
 
 @click.option('-of', '--offline', 		type=bool, 	default=False,
 	help="don't pull base images.")
@@ -225,6 +235,11 @@ def cli():
 
 @click.pass_context
 def run(click_ctx, stay_running, offline, port_postfix, public_url, rm_stack, terminal_cmd, tmux_session_name, **choices):
+
+
+	logger.setLevel(verbosity_to_log_level(choices['verbose']))
+	del choices['verbose']
+
 
 	build_options = {}
 	

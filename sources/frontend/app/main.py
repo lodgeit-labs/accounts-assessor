@@ -115,7 +115,7 @@ def index():
 
 
 
-@app.get("/view/rdftab")
+@app.get("/api/rdftab")
 def get(request: Request, uri: str):
 	"""
 	render a page displaying all triples for a given URI.
@@ -159,10 +159,11 @@ def get(request: Request, uri: str):
 	logger.info(f"{uri=}")
 	logger.info(f"tupleQuery.evaluate() ...")
 
-	
+	# too many namespaces could be a problem, but it might also be a problem for gruff etc, and so might also be too much data in a single repository.
+	# So, there might be some need to manage repositories and active namespaces, and they might best be scoped to a single user by default, "pub" being a special case managed by us.
 	result['namespaces'] = result['conn'].getNamespaces()
 	
-	results: agraph.TupleQueryResult	
+	results: agraph.TupleQueryResult
 	with tupleQuery.evaluate() as results:
 	
 		for bindingSet in results:
@@ -189,7 +190,9 @@ def get(request: Request, uri: str):
 		xnode_str(result, prop['o'])
 		xnode_str(result, prop['g'])
 
-	
+	logger.info(f"{result=}")
+
+	del result['conn']
 	return result
 
 
@@ -220,6 +223,7 @@ def xnode_str2(result, xn):
 		add_uri_labels(result, xn)
 		add_uri_shortening(result, n)
 		return
+
 
 
 def add_uri_shortening(result,xnode):
@@ -255,17 +259,17 @@ def add_uri_labels(result, xn):
 	results: agraph.TupleQueryResult
 	with tupleQuery.evaluate() as results:	
 		for bindingSet in results:
-			labels.append(dict(str=bindingSet.getValue("l"), g=bindingSet.getValue("g"))
+			labels.append(dict(str=bindingSet.getValue("l"), g=bindingSet.getValue("g")))
 
 	if len(labels) > 0:
 		xn['label'] = labels[0]
 		xn['other_labels'] = labels[1:]
 		
 		
-		
 
 #@app.get("/status")
 #some status page for the whole stack here? like queue size, workers, .. 
+
 
 
 @app.post("/health_check")
@@ -283,6 +287,7 @@ def post(request: Request):
 		raise HTTPException(status_code=500, detail="self-test failed")
 
 
+
 @app.post("/chat")
 def post(request: Request, body: ChatRequest):
 	"""
@@ -292,6 +297,7 @@ def post(request: Request, body: ChatRequest):
 		"method": "chat",
 		"params": body.dict(),
 	})
+
 
 
 def json_prolog_rpc_call(request, msg, queue_name=None):
@@ -313,9 +319,11 @@ def tmp_file_url(public_url, tmp_dir_name, fn):
 	return public_url + '/tmp/' + tmp_dir_name + '/' + urllib.parse.quote(fn)
 
 
+
 def get_public_url(request: Request):
 	"""todo test"""
 	return request.url.scheme + '://' + request.url.netloc
+
 
 
 @app.get("/view/job/{job_id}", response_class=HTMLResponse)
@@ -397,6 +405,7 @@ def write_mem_stuff(message_id):
 		return mem_txt,mem_data
 
 
+
 def calculator_job_by_id(id: str):
 	id = re.sub(r'[^a-zA-Z0-9_\-\.]', '', id)
 	r = requests.get(os.environ['REMOULADE_API'] + '/messages/states/' + id)
@@ -409,6 +418,7 @@ def calculator_job_by_id(id: str):
 	enrich_job_json_with_duration(message)
 	enrich_job_json_with_result(message)
 	return message
+
 
 
 def enrich_job_json_with_result(message):
@@ -429,6 +439,7 @@ def enrich_job_json_with_result(message):
 			message['result'] = result['result']
 	else:
 		message['result'] = {}
+
 
 
 @app.get('/api/job/{id}')
@@ -468,6 +479,7 @@ def enrich_job_json_with_duration(message):
 		if started_datetime is not None:
 			started_datetime = dateutil.parser.parse(started_datetime)
 			message['duration'] = str(end_datetime - started_datetime)
+
 
 
 @app.post("/reference")
@@ -524,6 +536,7 @@ def upload_form(request: Request):
 	})
 
 
+
 @app.get("/view/archive/{job}/{task_directory}")
 def archive(request: Request, job: str, task_directory: str):
 	message = calculator_job_by_id(job)
@@ -575,6 +588,7 @@ def create_archive(task_directory, message, archive_dir_path, final_zip_path):
 	logger.info('cmd: %s' % cmd)
 	subprocess.check_call(**cmd)
 	os.rename(zip_primary_path, final_zip_path)
+
 
 
 @app.post("/upload")
