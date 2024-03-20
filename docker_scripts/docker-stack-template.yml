@@ -59,6 +59,7 @@ services:
       REMOULADE_PG_URI:
       REMOULADE_API:
       REDIS_HOST:
+      AGRAPH_URL:
       AGRAPH_HOST:
       AGRAPH_PORT:
       SERVICES_URL:

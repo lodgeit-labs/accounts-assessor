@@ -43,6 +43,12 @@ log.debug("debug from manager_actors.py")
 
 
 
+
+class RobustException:
+	pass
+
+
+
 @remoulade.actor(alternative_queues=["health"], priority=1)
 def call_prolog_rpc(msg, worker_options=None):
 	log.debug('manager_actors: call_prolog: ...')
@@ -82,7 +88,7 @@ def call_prolog_calculator(
 	# potentially convert request files to rdf (this invokes other actors)
 	try:
 		converted_request_files = preprocess_request_files(files_in_dir(get_tmp_directory_absolute_path(request_directory)), xlsx_extraction_rdf_root)
-	except Exception as e:
+	except RobustException as e:
 		log.error('preprocess_request_files failed: %s' % e)
 		return dict(alerts=[str(e)])
 
@@ -191,6 +197,7 @@ def preprocess_request_file(xlsx_extraction_rdf_root, file):
 	return file
 
 
+
 def convert_excel_to_rdf(uploaded, to_be_processed, root):
 	"""run a POST request to csharp-services to convert the file.
 	We should really turn csharp-services into an untrusted worker at some point.	
@@ -201,7 +208,7 @@ def convert_excel_to_rdf(uploaded, to_be_processed, root):
 	r.raise_for_status()
 	r = r.json()
 	if r.get('error'):
-		raise Exception(r.get('error'))
+		raise RobustException(r.get('error'))
 	
 	log.info('xlsx_to_rdf: %s -> %s done in % seconds' % (uploaded, to_be_processed, time.time() - start_time))
 
