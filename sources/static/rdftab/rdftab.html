@@ -45,12 +45,13 @@
                       <tr>
                         <th>property</th>
                         <th>value</th>
+                        <th>graph</th>
                       </tr>
                     </thead>
   
                 <tbody>  
                       <tr>
-                      <th class="identificational" colspan="2">
+                      <th class="identificational" colspan="3">
                       identificational properties
                       </th>
                       </tr>
@@ -61,6 +62,9 @@
                           </td>
                           <td>
                               <term :term="prop.o"/>
+                          </td>
+                          <td>
+                              <term :term="prop.g"/>
                           </td>
                       </tr>
               </tbody>
@@ -85,22 +89,40 @@
 	Vue.component('term', {
 		props: ['term'],
 		template: `
-        <span class="">
-              <span class="identifier" v-if="typeof term == 'string'">
+        <span>
+              <template v-if="typeof term == 'string'">
+                <span class="identifier">
                     {{ term }}
-              </span>
-              <span v-else-if="term === undefined">
-                    ???
-              </span>
-              <span v-else-if="term.literal_str">
-                    {{ term.literal_str }}
-              </span>
-              <span class="identifier" v-else-if="term.label">
-                    {{ term.label }}
-              </span>
-              <span class="identifier"  v-else>
-                    {{ term.short }}
-              </span>
+                </span>
+              </template>
+              <template  v-else-if="term === undefined"> 
+                    
+              </template>
+              <template  v-else-if="term.literal_str">
+                  <span>
+                        {{ term.literal_str }}
+                  </span>
+              </template>
+              <template  v-else-if="term.fake">
+                  <span>
+                        {{ term.fake }}
+                  </span>
+              </template>
+              <template v-else-if="term.label">
+                  <span class="identifier" >
+                        {{ term.label }}
+                  </span>
+              </template>
+              <template v-else-if="term.short">
+                  <span class="identifier">
+                        {{ term.short }}
+                  </span>
+              </template>
+              <template v-else>
+                  <span class="identifier">
+                        {{ term.uri }}
+                  </span>
+              </template>
           </span>
 		`,
 		methods: {}

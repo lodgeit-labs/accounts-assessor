@@ -342,10 +342,7 @@ alert_to_html also has key available - 'error'
 		->	(	!accept_request_file(File_Paths, Rdf_Tmp_File_Path, n3),
 				!debug(tmp_files, "done:accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
 
-				% load the file into a new graph G
-				!cf(load_request_rdf(Rdf_Tmp_File_Path, G)),
-				!debug(tmp_files, "RDF graph: ~w~n", [G]),
-
+				!cf(load_request_rdf(Rdf_Tmp_File_Path)),
 				!cf(doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base)),
 				!check_request_version,
 				%doc_input_to_chr_constraints
@@ -388,11 +385,9 @@ alert_to_html also has key available - 'error'
  load_request_xml(loc(absolute_path,Xml_Tmp_File_Path), Dom) :-
 	load_structure(Xml_Tmp_File_Path, Dom, [dialect(xmlns), space(remove), keep_prefix(true)]).
 
- load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path), G) :-
+ load_request_rdf(loc(absolute_path, Rdf_Tmp_File_Path)) :-
 
-	rdf_create_bnode(G),
 	rdf_load(Rdf_Tmp_File_Path, [
-		% graph(G), % i think we squash the graphs here
 		anon_prefix(bn),
 		on_error(error)
 	]),

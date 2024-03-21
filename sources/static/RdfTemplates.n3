@@ -39,6 +39,34 @@
 @prefix acc: <https://rdf.lodgeit.net.au/v1/calcs/ic/accounts#> .
 @prefix phases: <https://rdf.lodgeit.net.au/v1/phases#> .
 
+@prefix transactions: <https://rdf.lodgeit.net.au/v1/transactions#> .
+@prefix s_transactions: <https://rdf.lodgeit.net.au/v1/s_transactions#> .
+@prefix report_entries: <https://rdf.lodgeit.net.au/v1/report_entries#> .
+@prefix rdftab: <https://rdf.lodgeit.net.au/v1/rdftab#> .
+
+
+
+l:report_entry rdfs:comment "Report entry captures an account balance or other calculated value, in a hierarchically-organized accounting report.".
+
+
+report_entries:name rdftab:categorization rdftab:accounting.
+report_entries:children rdftab:categorization rdftab:accounting.
+report_entries:total_vec rdftab:categorization rdftab:accounting.
+report_entries:transaction_count  rdftab:categorization rdftab:accounting.
+report_entries:normal_side rdftab:categorization rdftab:accounting.
+report_entries:gl_account rdftab:categorization rdftab:accounting.
+report_entries:value rdftab:categorization rdftab:accounting.
+
+report_entries:total_vec rdfs:label "Total vector (the sum)"
+
+report_entries:column rdftab:categorization rdftab:technical.
+report_entries:misc_type rdftab:categorization rdftab:technical.
+report_entries:misc rdftab:categorization rdftab:technical.
+
+
+
+
+
 
 [
 	a :www_url;
@@ -20066,3 +20094,4 @@ div7a_ui:repayments
 
 v1:request#vec rdfs:label "vector";
 rdfs:comment "vector (list) of coords (debit or credit figures) or values (normal-side figures)".
+

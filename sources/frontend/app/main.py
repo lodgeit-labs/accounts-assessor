@@ -234,14 +234,47 @@ def get(request: Request, uri: str):
 			elif o is None:
 				p2['reverse'] = True
 				result['props'].append(dict(p=p2, o=s2, g=g2))
+			
+	all_props = set()
 				
 	for prop in result['props']:
 		xnode_str(result, prop['p'])
 		xnode_str(result, prop['o'])
 		xnode_str(result, prop['g'])
+		
+		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#label':
+			prop['category'] = 'identificational'
+		if prop['p']['uri'] == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type':
+			prop['category'] = 'definitional'
+		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#comment':
+			prop['category'] = 'definitional'
+		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#subClassOf':
+			prop['category'] = 'definitional'
+		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#subPropertyOf':
+			prop['category'] = 'definitional'
+		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#domain':
+			prop['category'] = 'definitional'
+		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#range':
+			prop['category'] = 'definitional'
+		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#isDefinedBy':
+			prop['category'] = 'definitional'
+		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#seeAlso':
+			prop['category'] = 'definitional'
+		
+		all_props.add(prop['p']['uri'])
+		
+		
+	# ..
+			
 
 	result['term'] = dict(node=agraph.franz.openrdf.model.value.URI(uri))
 	xnode_str(result, result['term'])
+	if result['term'].get('short') or result['term'].get('label'):
+		result['props'].insert(0, dict(
+			p=dict(fake='full identifier'), 
+			o=dict(uri=uri),
+			category='identificational',
+			))
 	
 
 	del result['conn']
@@ -311,8 +344,8 @@ def add_uri_shortening(result,xnode):
 			rr = k + ':' + uri[len(v):]
 			if len(rr) < len(r):
 				r = rr
-	
-	xnode['short'] = r
+	if r != uri:
+		xnode['short'] = r
 	
 
 
