@@ -16,6 +16,7 @@ HEALTHCHECK --interval=2s --timeout=600s CMD { test -f /healthcheck/ok && echo -
 
 #todo:
 # docker exec -it (docker ps -aqf "name=robust_agraph_1") agtool user --server localhost:10077 add anonymous
+# then go to:
 # http://robust2.ueueeu.eu:10077/classic-webview#/repositories/pub/users - grant read on pub to anonymous
 
 

@@ -8,8 +8,14 @@ from config import secret
 
 # see also doc.pl RdfTemplates.trig agraph.py
 namespaces = {
+	'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+	'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+	'owl': 'http://www.w3.org/2002/07/owl#',
+	'dc': 'http://purl.org/dc/elements/1.1/',
+
 	'kb': 'https://rdf.lodgeit.net.au/v1/kb#',
 	'v1': 'https://rdf.lodgeit.net.au/v1/',
+	'l' : 'https://rdf.lodgeit.net.au/v1/request#',
 }
 
 

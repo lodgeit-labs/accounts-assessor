@@ -1,14 +1,20 @@
 body {
     overflow-y: scroll;
     white-space:nowrap;
+    background-color: #B0D0FF;
 }
-ul{
+/*ul{
     border: 1px;
     border-color: "gray";
     border-style: none none none inset;
 }
+*/
+.identificational {
+    background-color: #B0D0AA;
+}
 
-ul {
+th {
+    background-color: #999999;
 }
 
 tr.source td {/*
@@ -24,8 +30,8 @@ td.source {
 }
 
 table {
-  border-collapse:separate;
-  border-spacing:10px 10px;
+/*  border-collapse:separate;
+  /*border-spacing:10px 10px;*/
 }
 
 label{
@@ -35,6 +41,14 @@ label{
 input {
   vertical-align:top;
   position: relative;
+}
+
+.identifier {
+   border: 1px;
+   border-radius: 2em;
+   border-color: "gray";
+   bgcolor: "red";
+   background-color: #CCCFC0;  
 }
 
 

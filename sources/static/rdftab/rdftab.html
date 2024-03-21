@@ -23,7 +23,7 @@
 	function node(uri)
 	{
 		this.uri = uri;
-		this.props = [{a: "b"}];
+		this.term={short: uri};
 		this.sources=[{msg: "loading..."}];
 	}
 
@@ -31,39 +31,52 @@
 		props: ['node'],
 		template: `
 			<div>
-				<small>identifier</small>
-				<b>
-				  <term v-if="node.term" :term="node.term"></term>
-				  <span v-else>
-            {{ node.uri }}
-            </span>
-				</b>
-				<small>and its relations:</small>
-				<span v-for="source in node.sources">
-				  <template v-if="source.msg!='loaded'">
-					  <small>({{ source.msg }})</small>
-					</template>
-				</span>
-				
-				<table>
-					<thead>
-						<tr>
-							<th>property</th>
-							<th>value</th>
-            </tr>
-          </thead>
-          <tbody>  
+          <small>resource</small>
+          <b><term :term="node.term"></term></b>
+          <small>and its properties:</small>
+          <span v-for="source in node.sources">
+              <div v-if="source.msg!='loaded'">
+                <small>({{ source.msg }})</small>
+              </div>
+          </span>
           
-
-          <tr v-for="prop in node.props">
-          <td>
-          <term :term="prop.p"/>
-          </td>
-          <td>
-          <term :term="prop.o"/>
-          </td>
-          </tr>
-				</ul>
+          <table>
+                <thead>
+                      <tr>
+                        <th>property</th>
+                        <th>value</th>
+                      </tr>
+                    </thead>
+  
+                <tbody>  
+                      <tr>
+                      <th class="identificational" colspan="2">
+                      identificational properties
+                      </th>
+                      </tr>
+            
+                      <tr v-for="prop in node.props">
+                          <td>
+                              <term :term="prop.p"/>
+                          </td>
+                          <td>
+                              <term :term="prop.o"/>
+                          </td>
+                      </tr>
+              </tbody>
+          </table>
+          
+<hr>
+          <small v-if="node.tools">
+              browse <b><term :term="node.term"></term></b> also in:
+              <ul>
+              
+                  <li  v-for="tool in node.tools">
+                      <a v-bind:href="tool.url">{{ tool.label }}</a>
+                  </li>   
+              </ul>
+          </small>
+          
 			</div>
 		`,
 		methods: {}
@@ -72,15 +85,23 @@
 	Vue.component('term', {
 		props: ['term'],
 		template: `
-			<span v-if="term.str">
-        {{ term.str }}
-      </span>
-			<span v-elif="term.label">
-			  {{ term.label }}
-      </span>
-      <span v-else>
-        {{ term.short }}
-      </span>
+        <span class="">
+              <span class="identifier" v-if="typeof term == 'string'">
+                    {{ term }}
+              </span>
+              <span v-else-if="term === undefined">
+                    ???
+              </span>
+              <span v-else-if="term.literal_str">
+                    {{ term.literal_str }}
+              </span>
+              <span class="identifier" v-else-if="term.label">
+                    {{ term.label }}
+              </span>
+              <span class="identifier"  v-else>
+                    {{ term.short }}
+              </span>
+          </span>
 		`,
 		methods: {}
 	});
@@ -104,7 +125,8 @@
 		return new Promise(
 			function(resolve, reject)
 			{
-				var url = '/api/rdftab?uri='+encodeURIComponent(uri);
+				var url = 'http://jj.internal:8877/api/rdftab?uri='+encodeURIComponent(uri);
+				//var url = '/api/rdftab?uri='+encodeURIComponent(uri);
 				$.ajax({
 					dataType: "json",
 					mimeType: "application/json",
@@ -133,7 +155,7 @@
 	}
 	
 	const searchParams = new URLSearchParams(window.location.search);
-	const uri = searchParams.get('uri').trim('<').trim('>'); //fixme
+	const uri = searchParams.get('uri')?.trim('<').trim('>') || 'https://rdf.lodgeit.net.au/v1/request#Result';
 
 	var vm = new Vue({
 		el: '#top',

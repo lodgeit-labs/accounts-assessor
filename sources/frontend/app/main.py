@@ -1,6 +1,7 @@
 import subprocess
 import sys, os
 
+import urllib3.util
 from franz.openrdf.query.query import QueryLanguage
 from rdflib import URIRef, Literal, BNode
 
@@ -30,11 +31,14 @@ class CustomJSONEncoder(json.JSONEncoder):
 
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import Response
+from fastapi.middleware.cors import CORSMiddleware
+
+
 from pathlib import PosixPath
 import dateutil.parser
 import logging
 import os, sys
-import urllib.parse
+import urllib
 import json
 import datetime
 from datetime import date
@@ -140,6 +144,16 @@ app = FastAPI(
 
 
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex='http://localhost:.*',
+    allow_credentials=True,
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
+
+
+
 @app.get("/")
 def index():
 	return "ok"
@@ -231,7 +245,29 @@ def get(request: Request, uri: str):
 	
 
 	del result['conn']
-	result['tools'] = [os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+agraph.repo_by_user(get_user(request))+'/node/']
+	result['tools'] = [
+		dict(
+			label='agraph classic-webview',
+			 url=os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+agraph.repo_by_user(get_user(request))+'/node/' + '<' + uri + '>'),
+		dict(
+			label='sparklis (as subject)',
+			url='http://www.irisa.fr/LIS/ferre/sparklis/' + urllib.parse.urlencode({
+				'title': 'Hi',
+				'endpoint': 'http://servolis.irisa.fr/dbpedia/sparql',
+				'sparklis-query': f'[VId]Return(Det(Term(URI("{uri}")),Some(Triple(S,Det(An(7,Modif(Select,Unordered),Thing),None),Det(An(8,Modif(Select,Unordered),Thing),None)))))',
+				'sparklis-path': 'DDDR'})
+		),
+		dict(
+			label='sparklis (as object)',
+			url='http://www.irisa.fr/LIS/ferre/sparklis/' + urllib.parse.urlencode({
+				'title': 'Hi',
+				'endpoint': 'http://servolis.irisa.fr/dbpedia/sparql',
+				'sparklis-query': f'[VId]Return(Det(Term(URI("{uri}")),Some(Triple(O,Det(An(7,Modif(Select,Unordered),Thing),None),Det(An(8,Modif(Select,Unordered),Thing),None)))))',
+				'sparklis-path': 'DDDR'})								 
+		),
+	]
+	
+	
 	result = json.dumps(result, cls=CustomJSONEncoder, indent=4)
 	#logger.info(f"{result=}")
 	sys.stdout.write(result)
@@ -254,7 +290,7 @@ def xnode_str2(result, xn):
 		s = n.getLabel()
 		if len(s) > 100:
 			s = s[:100] + '...'
-		xn['str'] = s
+		xn['literal_str'] = s
 		xn['datatype'] = n.getDatatype()
 		xn['language'] = n.getLanguage()
 		xn['n3'] = str(n)

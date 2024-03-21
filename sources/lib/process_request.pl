@@ -392,7 +392,7 @@ alert_to_html also has key available - 'error'
 
 	rdf_create_bnode(G),
 	rdf_load(Rdf_Tmp_File_Path, [
-		graph(G), % i think we squash the graphs here
+		% graph(G), % i think we squash the graphs here
 		anon_prefix(bn),
 		on_error(error)
 	]),
