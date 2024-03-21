@@ -82,11 +82,14 @@
 		console.log(result);
 		node.props.push(result.props);
 	}
+	
+	const searchParams = new URLSearchParams(window.location.search);
+	const uri = searchParams.get('uri').trim('<').trim('>'); //fixme
 
 	var vm = new Vue({
 		el: '#top',
 		data: {
-			node: new node("http://example.com")
+			node: new node(uri)
 		},
 		mounted: function ()
 		{

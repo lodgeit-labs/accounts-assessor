@@ -18,8 +18,18 @@ import app.manager_actors as manager_actors
 
 
 from json import JSONDecodeError
+import json
+
+class CustomJSONEncoder(json.JSONEncoder):
+	def default(self, obj):
+		try:
+			return super().default(obj)
+		except Exception:
+			return str(obj)
+
 
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import Response
 from pathlib import PosixPath
 import dateutil.parser
 import logging
@@ -216,20 +226,19 @@ def get(request: Request, uri: str):
 		xnode_str(result, prop['o'])
 		xnode_str(result, prop['g'])
 
-	logger.info(f"{result=}")
 
 	del result['conn']
 	result['tools'] = [os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+agraph.repo_by_user(get_user(request))+'/node/']
-	
-	return result
+	logger.info(f"{result=}")
+	return Response(media_type="application/json", content=json.dumps(result, cls=CustomJSONEncoder).encode('utf-8'))
 
 
 	
 def xnode_str(result,n):
 	xnode_str2(result, n)
 	if n.get('reverse'):
-		return f"is {s} of"
-	return s
+		n['short'] = f"is {n['short']} of"
+
 
 
 
@@ -240,32 +249,29 @@ def xnode_str2(result, xn):
 		s = n.getLabel()
 		if len(s) > 100:
 			s = s[:100] + '...'
-		n['str'] = s
-		n['datatype'] = n.getDatatype()
-		n['language'] = n.getLanguage()
-		n['n3'] = str(n)
-		return
+		xn['str'] = s
+		xn['datatype'] = n.getDatatype()
+		xn['language'] = n.getLanguage()
+		xn['n3'] = str(n)
 		
 	if isinstance(n, agraph.franz.openrdf.model.value.URI):
-		xn['uri'] = n.stringValue()
+		xn['uri'] = str(n)
 		add_uri_labels(result, xn)
-		add_uri_shortening(result, n)
-		return
+		add_uri_shortening(result, xn)
 
 
 
 def add_uri_shortening(result,xnode):
-	uri = xnode['node'].stringValue()
+	uri = xnode['uri']
 	
 	r = uri
-	for k,v in result['namespaces']:
+	for k,v in result['namespaces'].items():
 		if uri.startswith(v):
 			rr = k + ':' + uri[len(v):]
 			if len(rr) < len(r):
 				r = rr
 	
-	if r != uri:
-		xnode['shortened'] = r
+	xnode['short'] = r
 	
 
 
