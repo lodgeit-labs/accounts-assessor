@@ -6,7 +6,7 @@
 	<script type="text/javascript" src="vue.js"></script>
 	<script type="text/javascript" src="jquery-3.4.0.js"></script>
 	<script src="lodash.js"></script>
-	<script src="https://unpkg.com/vue-truncate-collapsed"></script>
+	<script type="text/javascript" src="vue-truncate-collapsed.js"></script>
 
 	<link rel="stylesheet" href="styles.css">
 </head>
@@ -31,17 +31,61 @@
 		props: ['node'],
 		template: `
 			<div>
-				<h4>{{ node.uri }}</h4>
-				<div v-for="source in node.sources">
-					{{ source.msg }}
-				</div>
-				<div v-for="prop in node.props">
-					{{ prop }}
-				</div>
+				<small>identifier</small>
+				<b>
+				  <term v-if="node.term" :term="node.term"></term>
+				  <span v-else>
+            {{ node.uri }}
+            </span>
+				</b>
+				<small>and its relations:</small>
+				<span v-for="source in node.sources">
+				  <template v-if="source.msg!='loaded'">
+					  <small>({{ source.msg }})</small>
+					</template>
+				</span>
+				
+				<table>
+					<thead>
+						<tr>
+							<th>property</th>
+							<th>value</th>
+            </tr>
+          </thead>
+          <tbody>  
+          
+
+          <tr v-for="prop in node.props">
+          <td>
+          <term :term="prop.p"/>
+          </td>
+          <td>
+          <term :term="prop.o"/>
+          </td>
+          </tr>
+				</ul>
 			</div>
 		`,
 		methods: {}
 	});
+
+	Vue.component('term', {
+		props: ['term'],
+		template: `
+			<span v-if="term.str">
+        {{ term.str }}
+      </span>
+			<span v-elif="term.label">
+			  {{ term.label }}
+      </span>
+      <span v-else>
+        {{ term.short }}
+      </span>
+		`,
+		methods: {}
+	});
+
+  
 
 	function load_node_data_all(node)
 	{
@@ -80,7 +124,12 @@
 	{
 		console.log("assign_node_data1");
 		console.log(result);
-		node.props.push(result.props);
+		//node.props.push(result.props);
+		for (var key in result) {
+      if (result.hasOwnProperty(key)) {
+        node[key] = result[key];
+      }
+    }
 	}
 	
 	const searchParams = new URLSearchParams(window.location.search);

@@ -226,11 +226,16 @@ def get(request: Request, uri: str):
 		xnode_str(result, prop['o'])
 		xnode_str(result, prop['g'])
 
+	result['term'] = dict(node=agraph.franz.openrdf.model.value.URI(uri))
+	xnode_str(result, result['term'])
+	
 
 	del result['conn']
 	result['tools'] = [os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+agraph.repo_by_user(get_user(request))+'/node/']
-	logger.info(f"{result=}")
-	return Response(media_type="application/json", content=json.dumps(result, cls=CustomJSONEncoder).encode('utf-8'))
+	result = json.dumps(result, cls=CustomJSONEncoder, indent=4)
+	#logger.info(f"{result=}")
+	sys.stdout.write(result)
+	return Response(media_type="application/json", content=result.encode('utf-8'))
 
 
 	
@@ -255,7 +260,7 @@ def xnode_str2(result, xn):
 		xn['n3'] = str(n)
 		
 	if isinstance(n, agraph.franz.openrdf.model.value.URI):
-		xn['uri'] = str(n)
+		xn['uri'] = n.getURI()
 		add_uri_labels(result, xn)
 		add_uri_shortening(result, xn)
 
@@ -298,8 +303,37 @@ def add_uri_labels(result, xn):
 	if len(labels) > 0:
 		xn['label'] = labels[0]
 		xn['other_labels'] = labels[1:]
+	else:
+		xn['label']=False
+
+
+def add_uri_comments(result, xn):
+	labels = []
+	
+	queryString = """
+	SELECT ?l ?g 
+	{
+  			{
+              GRAPH ?g { 
+				?s rdfs:comment ?l .
+              }
+			}
+	} LIMIT 10000
+	"""
+	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
+	tupleQuery.setBinding("s", xn['node'])
+	results: agraph.TupleQueryResult
+	with tupleQuery.evaluate() as results:	
+		for bindingSet in results:
+			labels.append(dict(str=bindingSet.getValue("l"), g=bindingSet.getValue("g")))
+
+	if len(labels) > 0:
+		xn['comment'] = labels[0]
+		xn['other_comments'] = labels[1:]
+	else:
+		xn['comment']=False
 		
-		
+				
 
 #@app.get("/status")
 #some status page for the whole stack here? like queue size, workers, .. 

@@ -93,7 +93,7 @@ hp:hp_contract a rdfs:Class.
 l:action_verb  a rdfs:Class.
 l:s_transaction   a rdfs:Class.
 l:transaction    a rdfs:Class.
-l:fact     a rdfs:Class.
+l:fact a rdfs:Class.
 l:report_entry  a rdfs:Class.
 l:livestock_data a rdfs:Class.
 l:theory a rdfs:Class.
@@ -20064,4 +20064,5 @@ div7a_ui:repayments
 	).
 
 
-
+v1:request#vec rdfs:label "vector";
+rdfs:comment "vector (list) of coords (debit or credit figures) or values (normal-side figures)".
