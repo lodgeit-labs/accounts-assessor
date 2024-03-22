@@ -30,7 +30,7 @@
 	Vue.component('node', {
 		props: ['node'],
 		template: `
-			<div>
+        <div>
           <small>resource</small>
           <b><term :term="node.term"></term></b>
           <small>and its properties:</small>
@@ -69,7 +69,8 @@
               </tbody>
           </table>
           
-<hr>
+          <hr>
+
           <small v-if="node.tools">
               browse <b><term :term="node.term"></term></b> also in:
               <ul>
@@ -80,7 +81,7 @@
               </ul>
           </small>
           
-			</div>
+        </div>
 		`,
 		methods: {}
 	});
@@ -89,25 +90,25 @@
 		props: ['term'],
 		template: `
         <span>
-              <span v-if="term.reverse">
+              <span v-if="term?.reverse">
                   is
               </span>
-              <template v-if="typeof term == 'string'">
-                <span class="identifier">
-                    {{ term }}
-                </span>
-              </template>
-              <template  v-else-if="term === undefined"> 
-                    
-              </template>
-              <template  v-else-if="term.literal_str">
-                  <span>
-                        {{ term.literal_str }}
-                  </span>
+              <template  v-if="term === undefined">
+
               </template>
               <template  v-else-if="term.fake">
                   <span>
                         {{ term.fake }}
+                  </span>
+              </template>
+              <template v-else-if="typeof term == 'string'">
+                <span class="identifier">
+                    {{ term }}
+                </span>
+              </template>
+              <template  v-else-if="term.literal_str">
+                  <span>
+                        {{ term.literal_str }}
                   </span>
               </template>
               <template v-else-if="term.label">
@@ -120,12 +121,15 @@
                         <a :href="term.href">{{ term.short }}</a>
                   </span>
               </template>
-              <template v-else>
+              <template v-else-if="term.uri">
                   <span class="identifier">
                         {{ term.uri }}
                   </span>
               </template>
-              <span v-if="term.reverse">
+              <template v-else>
+                        ???
+              </template>
+              <span v-if="term?.reverse">
                   of
               </span>
           </span>
@@ -152,8 +156,8 @@
 		return new Promise(
 			function(resolve, reject)
 			{
-				var url = 'http://jj.internal:8877/api/rdftab?uri='+encodeURIComponent(uri);
-				//var url = '/api/rdftab?uri='+encodeURIComponent(uri);
+				//var url = 'http://jj.internal:8877/api/rdftab?uri='+encodeURIComponent(uri);
+				var url = '/api/rdftab?uri='+encodeURIComponent(uri);
 				$.ajax({
 					dataType: "json",
 					mimeType: "application/json",
@@ -175,10 +179,10 @@
 		console.log(result);
 		//node.props.push(result.props);
 		for (var key in result) {
-      if (result.hasOwnProperty(key)) {
-        node[key] = result[key];
-      }
-    }
+		  if (result.hasOwnProperty(key)) {
+			node[key] = result[key];
+		  }
+		}
 	}
 	
 	const searchParams = new URLSearchParams(window.location.search);

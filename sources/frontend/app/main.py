@@ -427,7 +427,36 @@ def add_uri_comments(result, xn):
 	else:
 		xn['comment']=False
 		
-				
+
+"""
+
+notes
+
+lists are easy, they will be one of the types of resources with a custom-built view component.
+otoh, consider l:vec:
+	we want to associate l:vec objects through kb:occurs_in.
+	actually this might simply be done by the vec view component. (or rather some ifs on the backend)
+	and that's propably fair, until some 'theory of equivalence of complex rdf objects' develops.
+
+literals, otoh, could simply be made to be browseable
+ - replace uri with node, trim(<>).. with some n3_parse, fix some errors, and you're browsing ?s ?p ?lit statements (probably not ?lit ?p ?o, those wouldn't exist in the store in the first place...)
+
+but this brings a distinction/discrepancy between complex objects (l:vec) and literals -
+	literals will be browseable by virtue of the browser,
+	vec objects will be browseable by virtue of the view component.
+	other complex objects wont, for example:
+		find two equivalent report entries across different jobs
+		
+
+
+
+
+
+"""
+
+
+
+
 
 #@app.get("/status")
 #some status page for the whole stack here? like queue size, workers, .. 

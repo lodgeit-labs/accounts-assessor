@@ -95,6 +95,8 @@
 	html_tokenlist_string(Tokenlist, String),
 	write_report_file__singleton(File_Name, String, Url),
 	add_report_file(Priority, Key, Title, Url).
+
+% todo ^
  add_report_page(Priority, Title, Page_Html, File_Name, Key) :-
 	phrase(Page_Html, Tokenlist),
 	html_tokenlist_string(Tokenlist, String),
