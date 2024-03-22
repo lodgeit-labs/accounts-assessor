@@ -40,31 +40,30 @@
               </div>
           </span>
           
-          <table>
+          <table v-if="node.props">
+                    
                 <thead>
                       <tr>
+                        <th>graph</th>
+                        <th>category</th>
                         <th>property</th>
                         <th>value</th>
-                        <th>graph</th>
                       </tr>
                     </thead>
   
-                <tbody>  
-                      <tr>
-                      <th class="identificational" colspan="3">
-                      identificational properties
-                      </th>
-                      </tr>
-            
+                <tbody>             
                       <tr v-for="prop in node.props">
+                          <td>
+                              <term :term="prop.g"/>
+                          </td>
+                          <td :class="prop.category?.fake">
+                              {{ prop.category?.fake }}
+                          </td>
                           <td>
                               <term :term="prop.p"/>
                           </td>
                           <td>
                               <term :term="prop.o"/>
-                          </td>
-                          <td>
-                              <term :term="prop.g"/>
                           </td>
                       </tr>
               </tbody>
@@ -90,6 +89,9 @@
 		props: ['term'],
 		template: `
         <span>
+              <span v-if="term.reverse">
+                  is
+              </span>
               <template v-if="typeof term == 'string'">
                 <span class="identifier">
                     {{ term }}
@@ -110,12 +112,12 @@
               </template>
               <template v-else-if="term.label">
                   <span class="identifier" >
-                        {{ term.label }}
+                        <a :href="term.href">{{ term.label }}</a>
                   </span>
               </template>
               <template v-else-if="term.short">
                   <span class="identifier">
-                        {{ term.short }}
+                        <a :href="term.href">{{ term.short }}</a>
                   </span>
               </template>
               <template v-else>
@@ -123,6 +125,9 @@
                         {{ term.uri }}
                   </span>
               </template>
+              <span v-if="term.reverse">
+                  of
+              </span>
           </span>
 		`,
 		methods: {}

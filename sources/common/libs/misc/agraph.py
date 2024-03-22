@@ -18,6 +18,8 @@ namespaces = {
 	'l' : 'https://rdf.lodgeit.net.au/v1/request#',
 	'R': 'https://rdf.tmp/results/',
 	'jj' : 'http://jj.internal:8877/tmp/',
+
+	'rdftab': 'https://rdf.lodgeit.net.au/v1/rdftab#',
 }
 
 

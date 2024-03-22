@@ -10,7 +10,16 @@ body {
 }
 */
 .identificational {
-    background-color: #B0D0AA;
+    background-color: #ffee00;
+}
+.definitional {
+    background-color: #ffb177;
+}
+.general {
+    background-color: #ff5667;
+}
+.technical {
+    background-color: #760091;
 }
 
 th {
@@ -32,6 +41,10 @@ td.source {
 table {
 /*  border-collapse:separate;
   /*border-spacing:10px 10px;*/
+}
+
+td {
+    padding: 0 10px;
 }
 
 label{

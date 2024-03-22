@@ -343,7 +343,7 @@ alert_to_html also has key available - 'error'
 				!debug(tmp_files, "done:accept_request_file(~w, ~w, n3)~n", [File_Paths, Rdf_Tmp_File_Path]),
 
 				!cf(load_request_rdf(Rdf_Tmp_File_Path)),
-				!cf(doc_from_rdf(G, 'https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base)),
+				!cf(doc_from_rdf('https://rdf.lodgeit.net.au/v1/excel_request#', Request_data_uri_base)),
 				!check_request_version,
 				%doc_input_to_chr_constraints
 				*process_rdf_request

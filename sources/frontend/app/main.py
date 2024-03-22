@@ -163,6 +163,19 @@ def index():
 	return "ok"
 
 
+def prop_categories(result, all_props):
+	cats = {}
+	queryString = """
+	SELECT ?p ?c 
+	{	""" + " UNION ".join([f"{{{p} rdftab:category ?c . }}" for p in all_props]) + """} LIMIT 10000"""
+	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
+	results: agraph.TupleQueryResult
+	with tupleQuery.evaluate() as results:	
+		for bindingSet in results:
+			cats[bindingSet.getValue("p").getURI()] = bindingSet.getValue("g").getURI()
+	return cats
+		
+		
 
 
 @app.get("/api/rdftab")
@@ -190,8 +203,8 @@ def get(request: Request, uri: str):
 	result['conn'] = agraph.agc(agraph.repo_by_user(user))
 	
 	queryString = """
-	SELECT ?s ?p ?o ?g {
-  
+	SELECT ?s ?p ?o ?g ?c WHERE {
+    
 			{
               GRAPH ?g { 
 				?x ?p ?o .
@@ -201,7 +214,10 @@ def get(request: Request, uri: str):
 				?s ?p ?x .
               }
 			}
-	} LIMIT 10000
+			OPTIONAL { ?p rdftab:category ?c1 . }
+			bind(if(bound(?c1), ?c1, rdftab:general) as ?c)
+
+	}  ORDER BY ?c ?g ?p ?s ?o LIMIT 1000
 	"""
 	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
 	tupleQuery.setBinding("x", agraph.URI(uri))
@@ -217,63 +233,62 @@ def get(request: Request, uri: str):
 	with tupleQuery.evaluate() as results:
 	
 		for bindingSet in results:
+			c = bindingSet.getValue("c")
 			s = bindingSet.getValue("s")
 			p = bindingSet.getValue("p")
 			o = bindingSet.getValue("o")
 			g = bindingSet.getValue("g")
 			
-			logger.info(f"{s} {p} {o} {g}")
+			logger.info(f"{c} {s} {p} {o} {g}")
 
+			c2 = dict(node=c)
 			s2 = dict(node=s)
 			p2 = dict(node=p)
 			o2 = dict(node=o)
 			g2 = dict(node=g)
 
 			if s is None:
-				result['props'].append(dict(p=p2, o=o2, g=g2))
+				result['props'].append(dict(category=c2, p=p2, o=o2, g=g2))
 			elif o is None:
 				p2['reverse'] = True
-				result['props'].append(dict(p=p2, o=s2, g=g2))
+				result['props'].append(dict(category=c2, p=p2, o=s2, g=g2))
+			
+	# todo: browse also literals?
 			
 	all_props = set()
 				
 	for prop in result['props']:
+		xnode_str(result, prop['category'])
 		xnode_str(result, prop['p'])
 		xnode_str(result, prop['o'])
 		xnode_str(result, prop['g'])
-		
-		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#label':
-			prop['category'] = 'identificational'
-		if prop['p']['uri'] == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type':
-			prop['category'] = 'definitional'
-		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#comment':
-			prop['category'] = 'definitional'
-		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#subClassOf':
-			prop['category'] = 'definitional'
-		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#subPropertyOf':
-			prop['category'] = 'definitional'
-		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#domain':
-			prop['category'] = 'definitional'
-		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#range':
-			prop['category'] = 'definitional'
-		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#isDefinedBy':
-			prop['category'] = 'definitional'
-		if prop['p']['uri'] == 'http://www.w3.org/2000/01/rdf-schema#seeAlso':
-			prop['category'] = 'definitional'
-		
-		all_props.add(prop['p']['uri'])
+		all_props.add(prop['p']['n3'])
 		
 		
-	# ..
-			
+	for prop in result['props']:
+		logger.info(f"{prop=}")
+		if not prop['category']['uri']:
+			prop['category']['uri'] = 'https://rdf.lodgeit.net.au/v1/rdftab#general'
+		prop['category']['fake'] = prop['category']['uri'].split('#')[-1]
 
+	# for k,v in prop_categories(result, all_props).items():
+	# 	for prop in result['props']:
+	# 		if prop['p']['uri'] == k:
+	# 			prop['category'] = dict(fake=v.split('#')[-1], uri=v)
+	# 
+	# category_order = dict(identificational=0, definitional=1, general=2, technical=3)
+	# 
+	# result['props'].sort(key=lambda x: (category_order.get(x['category']['fake']), x['p']['best'], x['o']['best'], x['g']['best']))
+	# 			
+	
+	
 	result['term'] = dict(node=agraph.franz.openrdf.model.value.URI(uri))
 	xnode_str(result, result['term'])
 	if result['term'].get('short') or result['term'].get('label'):
 		result['props'].insert(0, dict(
+			category=dict(fake='identificational'),
 			p=dict(fake='full identifier'), 
 			o=dict(uri=uri),
-			category='identificational',
 			))
 	
 
@@ -310,8 +325,15 @@ def get(request: Request, uri: str):
 	
 def xnode_str(result,n):
 	xnode_str2(result, n)
-	if n.get('reverse'):
-		n['short'] = f"is {n['short']} of"
+	# if n.get('reverse'):
+	# 	n['short'] = f"is {n['short']} of"
+	
+	if n.get('label'):
+		n['best'] = n['label']
+	elif n.get('short'):
+		n['best'] = n['short']
+	elif n.get('uri'):
+		n['best'] = n['uri']
 
 
 
@@ -319,6 +341,9 @@ def xnode_str(result,n):
 def xnode_str2(result, xn):
 	n = xn.get('node')
 	logger.info(f"{type(n)=}")
+
+	xn['n3'] = str(n)
+
 	if isinstance(n, agraph.franz.openrdf.model.literal.Literal):
 		s = n.getLabel()
 		if len(s) > 100:
@@ -326,12 +351,12 @@ def xnode_str2(result, xn):
 		xn['literal_str'] = s
 		xn['datatype'] = n.getDatatype()
 		xn['language'] = n.getLanguage()
-		xn['n3'] = str(n)
 		
 	if isinstance(n, agraph.franz.openrdf.model.value.URI):
 		xn['uri'] = n.getURI()
 		add_uri_labels(result, xn)
 		add_uri_shortening(result, xn)
+		xn['href'] = '/static/rdftab/rdftab.html?uri=' + urllib.parse.quote(xn['uri'])
 
 
 

@@ -47,25 +47,38 @@
 
 
 l:report_entry rdfs:comment "Report entry captures an account balance or other calculated value, in a hierarchically-organized accounting report.".
+report_entries:total_vec rdfs:label "Total vector (the sum)" .
 
 
-report_entries:name rdftab:categorization rdftab:accounting.
-report_entries:children rdftab:categorization rdftab:accounting.
-report_entries:total_vec rdftab:categorization rdftab:accounting.
-report_entries:transaction_count  rdftab:categorization rdftab:accounting.
-report_entries:normal_side rdftab:categorization rdftab:accounting.
-report_entries:gl_account rdftab:categorization rdftab:accounting.
-report_entries:value rdftab:categorization rdftab:accounting.
-
-report_entries:total_vec rdfs:label "Total vector (the sum)"
-
-report_entries:column rdftab:categorization rdftab:technical.
-report_entries:misc_type rdftab:categorization rdftab:technical.
-report_entries:misc rdftab:categorization rdftab:technical.
+report_entries:column rdftab:category rdftab:technical .
+report_entries:misc_type rdftab:category rdftab:technical .
+report_entries:misc rdftab:category rdftab:technical .
+l:has_used_unit rdftab:category rdftab:technical .
+l:rdf_explorer_base rdftab:category rdftab:technical .
+l:has_result_data_uri_base rdftab:category rdftab:technical .
 
 
 
+<http://www.w3.org/2000/01/rdf-schema#label> rdftab:category rdftab:identificational . 
 
+<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>				rdftab:category rdftab:definitional .
+<http://www.w3.org/2000/01/rdf-schema#comment>			rdftab:category rdftab:definitional .
+<http://www.w3.org/2000/01/rdf-schema#subClassOf>			rdftab:category rdftab:definitional .
+<http://www.w3.org/2000/01/rdf-schema#subPropertyOf>	rdftab:category rdftab:definitional .
+<http://www.w3.org/2000/01/rdf-schema#domain>			rdftab:category rdftab:definitional .
+<http://www.w3.org/2000/01/rdf-schema#range>				rdftab:category rdftab:definitional .
+<http://www.w3.org/2000/01/rdf-schema#isDefinedBy>		rdftab:category rdftab:definitional .
+<http://www.w3.org/2000/01/rdf-schema#seeAlso>				rdftab:category rdftab:definitional .
+
+
+
+#report_entries:name rdftab:category rdftab:accounting .
+#report_entries:children rdftab:category rdftab:accounting .
+#report_entries:total_vec rdftab:category rdftab:accounting .
+#report_entries:transaction_count  rdftab:category rdftab:accounting .
+#report_entries:normal_side rdftab:category rdftab:accounting .
+#report_entries:gl_account rdftab:category rdftab:accounting .
+#report_entries:value rdftab:category rdftab:accounting .
 
 
 [
