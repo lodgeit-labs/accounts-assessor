@@ -95,7 +95,7 @@
 	flatten([Header, Rows0], Rows3),
 	Header = row('*JournalNo', '*JournalDate', '*Currency', 'Memo', '*AccountName', 'Debits', 'Credits',  'Description', 'Name', 'Location', 'Class'),
 	!csv_write_file(File_path, Rows3),
-	!add_report_file(-10, File_name, File_name, Url).
+	!add_report_file(_Report_Uri, -10, File_name, File_name, Url).
 
  qb_csv_gl_export(Sd, Tx, Rows) :-
 	!transaction_vector(Tx, Vector),

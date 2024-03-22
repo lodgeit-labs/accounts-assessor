@@ -50,7 +50,7 @@
 			)
 		)
 	),
-	add_report_page(0, Title_Text, Html, loc(file_name,Filename), Key).
+	add_report_page(_Report_Uri, 0, Title_Text, Html, loc(file_name,Filename), Key).
 
  investment_report_2_1(Static_Data, Semantic_Json, Html, Title_Text, Title_Text_short, Json_Filename) :-
 	(Static_Data.report_currency = [_] -> true ;throw_string('investment report: report currency expected')),

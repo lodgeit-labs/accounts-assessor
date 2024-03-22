@@ -10,7 +10,7 @@
 	% here we get Fn explicitly, because we're gonna generate alerts that link to it.
 	grab_nondet_report_fn('crosschecks.html', Fn),
 	maplist(crosscheck_output(Fn), Json.results, Html),
-	add_report_page_with_body__singleton(15, 'crosschecks', Html, loc(file_name,Fn), 'crosschecks_html').
+	add_report_page_with_body__singleton(_Report_Uri, 15, 'crosschecks', Html, loc(file_name,Fn), 'crosschecks_html').
 
  crosscheck_output(Fn, Result, Html) :-
 	round_term(Result, _{check:Check, evaluation:Evaluation, status:Status, diff:Diff}),

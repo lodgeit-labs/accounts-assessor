@@ -11,7 +11,7 @@
 		table([border="1"], $>table_html([highlight_totals - true], Tbl2))
 	], Html),
 	'statement_of_taxable_income_v2' = Key,
-	!add_report_page(
+	!add_report_page(_Report_Uri,
 		0,
 		Title_Text,
 		Html,

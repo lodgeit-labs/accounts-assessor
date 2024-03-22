@@ -399,7 +399,7 @@ also soft-check totals
 	flatten([Html1, Html2], Body),
 	Title_Text = "Distributions",
 	!page_with_body(Title_Text, Body, Html),
-	!add_report_page(0, Title_Text, Html, loc(file_name,'distributions.html'), distributions).
+	!add_report_page(_Report_Uri, 0, Title_Text, Html, loc(file_name,'distributions.html'), distributions).
 
  col_concept_to_id(X, Y) :-
 	(	get_dict(concept, X, Concept)

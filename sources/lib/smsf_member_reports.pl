@@ -17,7 +17,7 @@
 		table([border="1"], $>table_html([highlight_totals - true], Tbl2))
 	], Html),
 	atomic_list_concat('smsf_member_', Member_Name_str, Fn),
-	add_report_page(
+	add_report_page(_Report_Uri,
 		0,
 		Fn,
 		Html,

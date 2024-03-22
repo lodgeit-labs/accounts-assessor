@@ -59,7 +59,7 @@ entry(
 
 
 /*
-pesseract_style_table_rows(
+pesseract_style_table_rows(Report_Uri,
 	Accounts,					% List record:account
 	Report_Currency,			% List atom:Report Currency
 	Entries,					% List entry
@@ -67,27 +67,29 @@ pesseract_style_table_rows(
 ) 
 */	
 
- pesseract_style_table_rows(_, [], []).
- pesseract_style_table_rows(
+ pesseract_style_table_rows(_Report_Uri, _, [], []).
+ pesseract_style_table_rows(Report_Uri,
 	Report_Currency,
 	Entries,
 	[Lines|Lines_Tail]
 ) :-
 	[Entry|Entries_Tail] = Entries,
+	!doc_add(Report_Uri, report_entries:entry, Entry),
+
 	!report_entry_name(Entry, Name),
 	!report_entry_normal_side(Entry, Normal_Side),
 	!report_entry_total_vec(Entry, Balances),
 	!report_entry_children(Entry, Children),
 
 	/*render child entries*/
-	!pesseract_style_table_rows(Report_Currency, Children, Children_Rows),
+	!pesseract_style_table_rows(Report_Uri, Report_Currency, Children, Children_Rows),
 	/*render balance*/
 	!maybe_balance_lines(Name,Normal_Side,Report_Currency, Balances, Balance_Lines),
 	(	Children_Rows = []
 	->	!entry_row_childless(Name, Balance_Lines, Entry, Lines)
 	;	!entry_row_childful(Name, Entry, Children_Rows, Balance_Lines, Lines)),
 	/*recurse on Entries_Tail*/
-	!pesseract_style_table_rows(Report_Currency, Entries_Tail, Lines_Tail).
+	!pesseract_style_table_rows(Report_Uri, Report_Currency, Entries_Tail, Lines_Tail).
 
 entry_row_childless(Name, Balance_Lines, Entry, Lines) :-
 	!entry_row(cols{0:Name,1:Balance_Lines}, Entry, report_entries:single, Lines).

@@ -261,7 +261,7 @@ an ST - "Statement Transaction", originally "bank statement transaction", is now
 	!shell4(Cmd, _),
 	%format(user_error, 'shell.~n',[]),
 	!atomic_list_concat([Dir_Url, '/link.html'], Full_Url),
-	!add_report_file(0,'gl_html', 'GL viewer', loc(absolute_url, Full_Url)),
+	!add_report_file(_Report_Uri, 0,'gl_html', 'GL viewer', loc(absolute_url, Full_Url)),
 	%format(user_error, 'make_gl_viewer_report done.~n',[]),
 	true.
 

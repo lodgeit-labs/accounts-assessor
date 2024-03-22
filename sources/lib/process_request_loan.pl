@@ -73,7 +73,7 @@ is it the case that at least one payment is expected / assumed, each year? That'
 	findall(Summary1, loan_agr_summary_python0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary1), [Summary1]),
 
 	div7a_xml_loan_response(NIncomeYear, Summary1, Url),
-	add_report_file(0, 'result', 'result', Url),
+	add_report_file(_Report_Uri, 0, 'result', 'result', Url),
 
 	% prolog implementation was shown to fail for some inputs, so it is currently not used
 	/* (	loan_agr_summary_prolog0(Term, PrincipalAmount, LodgementDateStr, CreationIncomeYear, ComputationYear, OpeningBalance, LoanRepayments, Summary2)
@@ -323,4 +323,4 @@ repayment_to_json(Repayment, Json) :-
 %	open(Raw, write, XMLStream),
 %	write(XMLStream, LoanResponseXML),
 %	close(XMLStream),
-%	add_report_file(0,'result', 'result', Url).
+%	add_report_file(_Report_Uri, 0,'result', 'result', Url).

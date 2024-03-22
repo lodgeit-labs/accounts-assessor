@@ -25,11 +25,11 @@
 	!format_date(End_date, End_Date_Atom),
 	!report_currency_atom(Report_Currency, Report_Currency_Atom),
 	!atomics_to_string($>flatten([Title, ' from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom, $>report_details_text]), Title_Text),
-	!pesseract_style_table_rows(Report_Currency, Entries, Report_Table_Data),
+	!pesseract_style_table_rows(Report_Uri, Report_Currency, Entries, Report_Table_Data),
 	Header = tr([th('Account'), th(['Balance', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
 	Id = Filename,
-	!add_report_page_with_table(0, Title_Text, Tbl, loc(file_name,$>atomic_list_concat([Report_prefix, Filename])), Id).
+	!add_report_page_with_table(Report_Uri, 0, Title_Text, Tbl, loc(file_name,$>atomic_list_concat([Report_prefix, Filename])), Id).
 		
 % EFFECTS: write cashflow.html
 cf_page(
@@ -41,10 +41,10 @@ cf_page(
 	format_date(End_Date, End_Date_Atom),
 	report_currency_atom(Report_Currency, Report_Currency_Atom),
 	atomics_to_string(['cash flow from ', Start_Date_Atom, ' to ', End_Date_Atom, ' ', Report_Currency_Atom], Title_Text),
-	pesseract_style_table_rows(Report_Currency, Entries, Report_Table_Data),
+	pesseract_style_table_rows(Report_Uri, Report_Currency, Entries, Report_Table_Data),
 	Header = tr([th('Account'), th([End_Date_Atom, ' ', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
-	add_report_page_with_table(0,Title_Text, Tbl, loc(file_name,'cashflow.html'), 'cashflow_html').
+	add_report_page_with_table(Report_Uri, 0,Title_Text, Tbl, loc(file_name,'cashflow.html'), 'cashflow_html').
 /*
 write_entries_html(
 	Static_Data,
@@ -57,8 +57,8 @@ write_entries_html(
 	format_date(Start_Date, Start_Date_Atom),
 	format_date(End_Date, End_Date_Atom),
 	report_currency_atom(Report_Currency, Report_Currency_Atom),
-	pesseract_style_table_rows(Accounts, Report_Currency, Entries, Report_Table_Data),
+	pesseract_style_table_rows(Report_Uri, Accounts, Report_Currency, Entries, Report_Table_Data),
 	Header = tr([th('Account'), th([End_Date_Atom, ' ', Report_Currency_Atom])]),
 	flatten([Header, Report_Table_Data], Tbl),
-	add_report_page_with_table(Title_Text, Tbl, loc(file_name,Filename), File_ID).
+	add_report_page_with_table(_Report_Uri, Title_Text, Tbl, loc(file_name,Filename), File_ID).
 */

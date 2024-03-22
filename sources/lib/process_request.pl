@@ -202,7 +202,7 @@ alert_to_html also has key available - 'error'
 	!cf(get_context_trace(Trace0)),
 	ct("reverse context_trace", reverse(Trace0,Trace)),
 	ct("maplist(make_context_trace_report2...", maplist(make_context_trace_report2,Trace, Html)),
-	ct("add_report_page_with_body(context_trace...", add_report_page_with_body(11, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html)).
+	ct("add_report_page_with_body(_Report_Uri, context_trace...", add_report_page_with_body(_Report_Uri, 11, context_trace, [h3([context_trace, ':']), div([class=context_trace], $>flatten(Html))], loc(file_name,'context_trace.html'), context_trace_html)).
 
  make_context_trace_report2((Depth, C),div(["-",Stars,Text])) :-
 	% or is that supposed to be atom? i forgot again.
@@ -212,13 +212,13 @@ alert_to_html also has key available - 'error'
 
  'make task_directory report entry' :-
 	report_file_path__singleton(loc(file_name, ''), Tmp_Dir_Url, _),
-	add_report_file(-101,'task_directory', 'task_directory', Tmp_Dir_Url).
+	add_report_file(_Report_Uri, -101,'task_directory', 'task_directory', Tmp_Dir_Url).
 
  'make task_directory report entry 2' :-
 	result_property(l:has_job_handle, H),
 	atomic_list_concat(['../',H],H2),
 	report_file_path__singleton(loc(file_name, H2), Tmp_Dir_Url, _),
-	add_report_file(-100,'job_tmp_url', 'job_tmp_url', Tmp_Dir_Url).
+	add_report_file(_Report_Uri, -100,'job_tmp_url', 'job_tmp_url', Tmp_Dir_Url).
 
 
  make_doc_dump_report :-
@@ -320,7 +320,7 @@ alert_to_html also has key available - 'error'
 	(	Alerts_Html = []
 	->	Alerts_Html2 = ["no alerts."]
 	;	Alerts_Html2 = Alerts_Html),
-	add_report_page_with_body(20, alerts, $>flatten([h3([alerts, ':']), Alerts_Html2]), loc(file_name,'alerts.html'), alerts_html).
+	add_report_page_with_body(_Report_Uri, 20, alerts, $>flatten([h3([alerts, ':']), Alerts_Html2]), loc(file_name,'alerts.html'), alerts_html).
 
 
 %:- debug(tmp_files).
@@ -368,15 +368,15 @@ alert_to_html also has key available - 'error'
 	debug(tmp_files, "member(~w, ~w)~n", [Path, File_Paths]),
 	tmp_file_path_to_url__singleton(Path, Url),
 	debug(tmp_files, "tmp_file_path_to_url(~w, ~w)~n", [Path, Url]),
-	add_report_file(-20,'request_file', 'request_file', Url),
+	add_report_file(_, -20,'request_file', 'request_file', Url),
 	(	loc_icase_endswith(Path, ".xml")
 	->	(
-			add_report_file(-20,'request_xml', 'request_xml', Url),
+			add_report_file(_, -20,'request_xml', 'request_xml', Url),
 			Type = xml
 		)
 	;	(	(loc_icase_endswith(Path, "n3");loc_icase_endswith(Path, "trig");loc_icase_endswith(Path, "trig.gz"))
 		->	(
-				add_report_file(-20,'request_n3', 'request_n3', Url),
+				add_report_file(_, -20,'request_n3', 'request_n3', Url),
 				Type = n3
 			)
 		)

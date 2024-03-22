@@ -639,7 +639,7 @@ loan_agr_summary(Agreement, Summary) :-
 	Table_Json = _{title_short: "loan records", title: "loan records", rows: Rows, columns: Cols},
 	!table_html([], Table_Json, Table_Html),
    	!page_with_table_html('loan_records', Table_Html, Html),
-   	!add_report_page(0, 'loan_records', Html, loc(file_name,'loan_records.html'), 'loan_records.html').
+   	!add_report_page(_Report_Uri, 0, 'loan_records', Html, loc(file_name,'loan_records.html'), 'loan_records.html').
 
 			
 
@@ -687,7 +687,7 @@ make_repayments_with_sentinels_report(Repayments) :-
 	Table_Json = _{title_short: "repayment records", title: "repayment records", rows: Rows, columns: Cols},
 	!table_html([], Table_Json, Table_Html),
    	!page_with_table_html('repayment_records', Table_Html, Html),
-   	!add_report_page(0, 'repayments', Html, loc(file_name,'repayments.html'), 'repayments.html').
+   	!add_report_page(_Report_Uri, 0, 'repayments', Html, loc(file_name,'repayments.html'), 'repayments.html').
 
 			
 
