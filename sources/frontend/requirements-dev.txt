@@ -12,6 +12,8 @@ anyio==3.7.1
     #   watchfiles
 better-exceptions==0.3.3
     # via frontend (pyproject.toml)
+cachetools==5.3.3
+    # via frontend (pyproject.toml)
 certifi==2023.7.22
     # via requests
 charset-normalizer==3.1.0

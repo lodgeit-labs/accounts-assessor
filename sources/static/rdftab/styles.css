@@ -10,16 +10,18 @@ body {
 }
 */
 .identificational {
-    background-color: #c8ff00;
+    /*background-color: #c8ff00;*/
 }
 .definitional {
-    background-color: #ffb177;
+    /*background-color: #ffb177;*/
 }
 .general {
-    background-color: #ff5667;
+    background-color: #8effa5;
+    border: 3px;
+   border-radius: 2em;
 }
 .technical {
-    background-color: #760091;
+    /*background-color: #760091;*/
 }
 
 th {
@@ -27,11 +29,10 @@ th {
 }
 
 .focusedGraph {
-    background-color: #FFD700;
+    background-color: #fff300;
     border: 3px;
    border-radius: 2em;
-   border-color: "gray";
-   font-weight: bold;
+/*   font-weight: bold;*/
    
 }
 
@@ -66,11 +67,6 @@ input {
 }
 
 .identifier {
-   border: 1px;
-   border-radius: 2em;
-   border-color: "gray";
-   bgcolor: "red";
-   background-color: #CCCFC0;  
 }
 
 

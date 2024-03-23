@@ -1,6 +1,8 @@
 import logging, os
 import urllib
 
+import cachetools
+
 import agraph, rdflib
 import urllib3.util
 from franz.openrdf.query.query import QueryLanguage
@@ -110,22 +112,27 @@ def get(user, node: str):
 		xnode_str(result, prop['g'])
 		all_props.add(prop['p']['n3'])
 		
+	for prop in result['props']:
+		add_uri_labels(result, prop['p'])
+		add_uri_labels(result, prop['o'])
+		add_uri_labels(result, prop['g'])
+				
 		
 	for prop in result['props']:
 		logger.info(f"{prop=}")
 		if not prop['category']['uri']:
 			prop['category']['uri'] = 'https://rdf.lodgeit.net.au/v1/rdftab#general'
 		prop['category']['fake'] = prop['category']['uri'].split('#')[-1]
-
+		
 	
 	result['term'] = dict(node=agraph_node)
 	xnode_str(result, result['term'])
 	if result['term'].get('short') or result['term'].get('label'):
-		result['props'].insert(0, dict(
+		result['props'].append(dict(
 			g=dict(fake='(rdftab)'),
 			category=dict(fake='identificational'),
-			p=dict(fake='full identifier'), 
-			o=dict(uri=agraph_node)
+			p=dict(fake='full URI'), 
+			o=dict(fake=agraph_node.getURI())
 			))
 
 
@@ -140,43 +147,17 @@ def get(user, node: str):
 			if i != 0:
 				prop['g']['fake'] = 'same as above'
 		
+	for prop in result['props']:
+		for node in [prop['p'], prop['o'], prop['g']]:
+			if node.get('n3'):
+				node['href'] = '/static/rdftab/rdftab.html?node=' + urllib.parse.quote(node['n3'])
 
 	add_tools(result)
 	return result
 
 	
-def xnode_str(result,n):
-	xnode_str2(result, n)
-	# if n.get('reverse'):
-	# 	n['short'] = f"is {n['short']} of"
+def xnode_str(result,xn):
 
-
-# 
-# 
-# def assign_best_display(prop):
-# 	assign_best_display2(prop['g'])
-# 	assign_best_display2(prop['category'])
-# 	assign_best_display2(prop['p'])
-# 	assign_best_display2(prop['o'])
-		
-def assign_best_display2(n):
-	if n.get('fake'):
-		n['best'] = n['fake']
-	elif n.get('label'):
-		n['best'] = n['label']['l']
-	elif n.get('short'):
-		n['best'] = n['short']
-	elif n.get('uri'):
-		n['best'] = n['uri']
-	elif n.get('literal_str'):
-		n['best'] = n['literal_str']
-	else:
-		raise Exception('unexpected!: ' + str(n))
-		
-
-
-
-def xnode_str2(result, xn):
 	n = xn.get('node')
 	logger.info(f"{type(n)=}")
 
@@ -192,10 +173,7 @@ def xnode_str2(result, xn):
 		
 	if isinstance(n, agraph.franz.openrdf.model.value.URI):
 		xn['uri'] = n.getURI()
-		add_uri_labels(result, xn)
 		add_uri_shortening(result, xn)
-
-	xn['href'] = '/static/rdftab/rdftab.html?node=' + urllib.parse.quote(xn['n3'])
 
 
 
@@ -214,7 +192,17 @@ def add_uri_shortening(result,xnode):
 
 
 def add_uri_labels(result, xn):
-	labels = []
+	labels = uri_labels(result['conn'], xn['node'])	
+	
+	if len(labels) > 0:
+		xn['label'] = labels[0]
+		xn['other_labels'] = labels[1:]
+	else:
+		xn['label']=False
+
+
+@cachetools.cached({})		
+def uri_labels(conn, node):
 	
 	queryString = """
 	PREFIX franzOption_defaultDatasetBehavior: <franz:rdf>
@@ -224,19 +212,15 @@ def add_uri_labels(result, xn):
   			{GRAPH ?g {?s rdfs:label ?l . }} UNION {?s rdfs:label ?l . }
 	} LIMIT 10000
 	"""
-	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
+	tupleQuery: agraph.TupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString)
 	tupleQuery.setBinding("s", xn['node'])
 	results: agraph.TupleQueryResult
 	with tupleQuery.evaluate() as results:
 		for bindingSet in results:
-			labels.append(dict(l=bindingSet.getValue("l").getLabel(), g=bindingSet.getValue("g")))
-
-	if len(labels) > 0:
-		xn['label'] = labels[0]
-		xn['other_labels'] = labels[1:]
-	else:
-		xn['label']=False
-
+			yield dict(l=bindingSet.getValue("l").getLabel(), g=bindingSet.getValue("g"))
+	
+	
+	
 
 def add_uri_comments(result, xn):
 	labels = []
@@ -270,6 +254,31 @@ def add_uri_comments(result, xn):
 	else:
 		xn['comment']=False
 		
+
+
+# 
+# 
+# def assign_best_display(prop):
+# 	assign_best_display2(prop['g'])
+# 	assign_best_display2(prop['category'])
+# 	assign_best_display2(prop['p'])
+# 	assign_best_display2(prop['o'])
+		
+def assign_best_display2(n):
+	if n.get('fake'):
+		n['best'] = n['fake']
+	elif n.get('label'):
+		n['best'] = n['label']['l']
+	elif n.get('short'):
+		n['best'] = n['short']
+	elif n.get('uri'):
+		n['best'] = n['uri']
+	elif n.get('literal_str'):
+		n['best'] = n['literal_str']
+	else:
+		raise Exception('unexpected!: ' + str(n))
+		
+
 
 """
 

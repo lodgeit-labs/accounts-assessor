@@ -182,6 +182,12 @@ def get(request: Request, node: str):
 	
 
 
+@app.get("/rdf/{node_tail:path}")
+def get(request: Request, node_tail: str):
+	node = str(request.url) #get_public_url(request) + '/rdf/' + node_tail
+	return RedirectResponse('/static/rdftab/rdftab.html?node=' + urllib.parse.quote('<'+node+'>'))
+
+
 
 #@app.get("/status")
 #some status page for the whole stack here? like queue size, workers, .. 

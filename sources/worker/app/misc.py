@@ -2,13 +2,11 @@ import shlex, os
 
 
 
-def uri_params(tmp_directory_name):
+def uri_params(params):
 
 	# comment(RDF_EXPLORER_1_BASE, comment, 'base of uris to show to user in generated html')
-	
-	#rdf_namespace_base = 'http://dev-node.uksouth.cloudapp.azure.com/rdf/'
-	rdf_namespace_base = 'https://rdf.tmp/'
-	
+	rdf_namespace_base = params['public_url'] + '/rdf/'
+	tmp_directory_name = params['result_tmp_directory_name']
 	request_uri = rdf_namespace_base + 'requests/' + tmp_directory_name
 
 	return {
@@ -18,9 +16,12 @@ def uri_params(tmp_directory_name):
 	}
 
 
+
 def env_string(dict):
 	r = ""
 	for k,v in dict.items():
 		r += f"""{k}={shlex.quote(v)} \\\n"""
 	return r
+
+
 

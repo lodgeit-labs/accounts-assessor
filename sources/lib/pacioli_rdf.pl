@@ -9,10 +9,14 @@
 	doc_add(Sum, rdf:value, Sum_Lit),
 	maplist(doc_add(Sum, l:part), Vec).
 
+
+
  doc_new_vec_with_source(Vec, Source, Vec_Uri) :-
 	!doc_new_(l:vec, Vec_Uri),
 	!doc_add(Vec_Uri, rdf:value, Vec),
 	!doc_add(Vec_Uri, l:source, Source).
+
+
 
  link(Uri, Link) :-
 	/*

@@ -267,7 +267,7 @@ def run(click_ctx, stay_running, offline, port_postfix, public_url, rm_stack, te
 ServerName {public_host}
 			""")
 		
-		paths = 'health_check health chat upload reference api view div7a openapi.json docs ai3'.split()
+		paths = 'health_check health chat upload reference api view rdf openapi.json docs ai3'.split()
 			
 		for path in paths:
 			f.write(

@@ -10,6 +10,7 @@ pydantic
 requests
 rdflib
 loguru
+cachetools
 
 [dev]
 watchdog

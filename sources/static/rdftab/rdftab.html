@@ -56,16 +56,16 @@
                 <tbody>             
                       <tr v-for="prop in node.props">
                           <td>
-                              <term :node="node"  :term="prop.g"/>
+                              <term_expandable :node="node"  :term="prop.g"/>
                           </td>
                           <td :class="prop.category?.fake">
                               {{ prop.category?.fake }}
                           </td>
                           <td :class="{ 'focusedGraph' : prop.g.uri == node.focused_graph }">
-                              <term :node="node"  :term="prop.p"/>
+                              <term_expandable :node="node"  :term="prop.p"/>
                           </td>
-                          <td :class="{ 'focusedGraph' : prop.g.uri == node.focused_graph }">
-                              <term :node="node"  :term="prop.o"/>
+                          <td :class="{ 'focusedGraph' : prop.g.uri == node.focused_graph }">                           
+                              <term_expandable :node="node"  :term="prop.o"/>
                           </td>
                       </tr>
               </tbody>
@@ -89,7 +89,36 @@
 		methods: {}
 	});
 
-	Vue.component('term', {
+
+  
+ Vue.component('term_expandable', {
+     props: ['term', 'node'],
+     template: `
+<span>
+    <button v-if="term.literal_str || term.uri" @click="toggle_expanded" >{{ term.expanded || "expand" }}</button>  
+    <template v-if="term.expanded">
+            <node :node="term.embedded_node"></node>
+    </template>
+    <template v-else>
+            <term :term="term" :node="node"/>
+    </template>
+</span>          
+    `,
+     methods: {
+         toggle_expanded: function () {
+             this.term.expanded = !this.term.expanded;
+             console.log("toggle_expanded:" + this.term.expanded);
+             if (this.term.expanded && !this.term.embedded_node) {
+                 this.term.embedded_node = new node(this.term.n3, this.node.focused_graph);
+                 load_node_data_all(this.term.embedded_node);
+             }
+         }
+     }
+ });
+
+
+
+Vue.component('term', {
 		props: ['term', 'node'],
 		template: `
         <span>
