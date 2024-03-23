@@ -44,7 +44,7 @@
                     
                 <thead>
                       <tr>
-                        <th>graph</th>
+                        <th>provenance / graph / id</th>
                         <th>category</th>
                         <th>property</th>
                         <th>value</th>
@@ -113,7 +113,7 @@
               </template>
               <template v-else-if="term.label">
                   <span class="identifier" >
-                        <a :href="term.href">{{ term.label }}</a>
+                        <a :href="term.href">{{ term.label.l }}</a>
                   </span>
               </template>
               <template v-else-if="term.short">

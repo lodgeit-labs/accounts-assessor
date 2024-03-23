@@ -44,7 +44,7 @@ log.debug("debug from manager_actors.py")
 
 
 
-class RobustException:
+class RobustException(Exception):
 	pass
 
 

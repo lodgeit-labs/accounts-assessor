@@ -1,5 +1,8 @@
 # see also doc.pl RdfTemplates.trig agraph.py
 
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
@@ -47,7 +50,14 @@
 
 
 l:report_entry rdfs:comment "Report entry captures an account balance or other calculated value, in a hierarchically-organized accounting report.".
-report_entries:total_vec rdfs:label "Total vector (coord/value sum)" .
+
+report_entries:total_vec rdfs:label "total (sum) vector (list) of coords or values" .
+
+l:vec rdfs:label "vector (list) of coords or values";
+
+
+rdfs:comment "vector (list) of coords (debit or credit figures) or values (normal-side figures)".
+
 
 
 report_entries:column rdftab:category rdftab:technical .
@@ -20103,8 +20113,4 @@ div7a_ui:repayments
 		[excel:property div7a_repayment:date; excel:type xsd:dateTime]
 		[excel:property div7a_repayment:value; excel:type xsd:decimal]
 	).
-
-
-v1:request#vec rdfs:label "vector";
-rdfs:comment "vector (list) of coords (debit or credit figures) or values (normal-side figures)".
 

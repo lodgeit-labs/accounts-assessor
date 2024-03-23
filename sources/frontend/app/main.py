@@ -1,9 +1,6 @@
 import subprocess
 import sys, os
 
-import urllib3.util
-from franz.openrdf.query.query import QueryLanguage
-from rdflib import URIRef, Literal, BNode
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../manager')))
@@ -73,8 +70,7 @@ from fs_utils import directory_files, find_report_by_key
 from tmp_dir import create_tmp_for_user, get_unique_id
 from tmp_dir_path import get_tmp_directory_absolute_path, ln
 from auth_fastapi import get_user
-import agraph, rdflib
-
+from app import rdftab
 
 
 
@@ -163,298 +159,16 @@ def index():
 	return "ok"
 
 
-def prop_categories(result, all_props):
-	cats = {}
-	queryString = """
-	SELECT ?p ?c 
-	{	""" + " UNION ".join([f"{{{p} rdftab:category ?c . }}" for p in all_props]) + """} LIMIT 10000"""
-	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
-	results: agraph.TupleQueryResult
-	with tupleQuery.evaluate() as results:	
-		for bindingSet in results:
-			cats[bindingSet.getValue("p").getURI()] = bindingSet.getValue("g").getURI()
-	return cats
-		
-		
-
 
 @app.get("/api/rdftab")
 def get(request: Request, uri: str):
-	"""
-	render a page displaying all triples for a given URI.
-	add a link to gruff or other rdf visualization tools.
-	
-	format the triples such that the uri is the subject, and the triple is "reversed" if needed.
-	sort by importance (some hardcoded predicates go first)
-	
-	use rdfs:label where available
-	
-	where the node is a report_entry, add a link to the report.
-	where the value has_crosscheck, render the whole crosscheck including both values.
-	
-	maybe:
-	where the value is a string that refers to an account, add a link to the account URI.
-	where the node is a vector, display it meaningfully.	
-	"""
-
-	user = get_user(request)
-	
-	result = dict(props=[])
-	result['conn'] = agraph.agc(agraph.repo_by_user(user))
-	
-	queryString = """
-	SELECT ?s ?p ?o ?g ?c WHERE {
-    
-			{
-              GRAPH ?g { 
-				?x ?p ?o .
-              }
-			} UNION {
-              GRAPH ?g { 
-				?s ?p ?x .
-              }
-			}
-			OPTIONAL { ?p rdftab:category ?c1 . }
-			bind(if(bound(?c1), ?c1, rdftab:general) as ?c)
-
-	}  ORDER BY ?c ?g ?p ?s ?o LIMIT 1000
-	"""
-	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
-	tupleQuery.setBinding("x", agraph.URI(uri))
-	
-	logger.info(f"{uri=}")
-	logger.info(f"tupleQuery.evaluate() ...")
-
-	# too many namespaces could be a problem, but it might also be a problem for gruff etc, and so might also be too much data in a single repository.
-	# So, there might be some need to manage repositories and active namespaces, and they might best be scoped to a single user by default, "pub" being a special case managed by us.
-	result['namespaces'] = result['conn'].getNamespaces()
-	
-	results: agraph.TupleQueryResult
-	with tupleQuery.evaluate() as results:
-	
-		for bindingSet in results:
-			c = bindingSet.getValue("c")
-			s = bindingSet.getValue("s")
-			p = bindingSet.getValue("p")
-			o = bindingSet.getValue("o")
-			g = bindingSet.getValue("g")
-			
-			logger.info(f"{c} {s} {p} {o} {g}")
-
-			c2 = dict(node=c)
-			s2 = dict(node=s)
-			p2 = dict(node=p)
-			o2 = dict(node=o)
-			g2 = dict(node=g)
-
-			if s is None:
-				result['props'].append(dict(category=c2, p=p2, o=o2, g=g2))
-			elif o is None:
-				p2['reverse'] = True
-				result['props'].append(dict(category=c2, p=p2, o=s2, g=g2))
-			
-	# todo: browse also literals?
-			
-	all_props = set()
-				
-	for prop in result['props']:
-		xnode_str(result, prop['category'])
-		xnode_str(result, prop['p'])
-		xnode_str(result, prop['o'])
-		xnode_str(result, prop['g'])
-		all_props.add(prop['p']['n3'])
-		
-		
-	for prop in result['props']:
-		logger.info(f"{prop=}")
-		if not prop['category']['uri']:
-			prop['category']['uri'] = 'https://rdf.lodgeit.net.au/v1/rdftab#general'
-		prop['category']['fake'] = prop['category']['uri'].split('#')[-1]
-
-	# for k,v in prop_categories(result, all_props).items():
-	# 	for prop in result['props']:
-	# 		if prop['p']['uri'] == k:
-	# 			prop['category'] = dict(fake=v.split('#')[-1], uri=v)
-	# 
-	# category_order = dict(identificational=0, definitional=1, general=2, technical=3)
-	# 
-	# result['props'].sort(key=lambda x: (category_order.get(x['category']['fake']), x['p']['best'], x['o']['best'], x['g']['best']))
-	# 			
-	
-	
-	result['term'] = dict(node=agraph.franz.openrdf.model.value.URI(uri))
-	xnode_str(result, result['term'])
-	if result['term'].get('short') or result['term'].get('label'):
-		result['props'].insert(0, dict(
-			category=dict(fake='identificational'),
-			p=dict(fake='full identifier'), 
-			o=dict(uri=uri),
-			))
-	
-
+	result = rdftab.get(get_user(request), uri)
 	del result['conn']
-	result['tools'] = [
-		dict(
-			label='agraph classic-webview',
-			 url=os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+agraph.repo_by_user(get_user(request))+'/node/' + '<' + uri + '>'),
-		dict(
-			label='sparklis (as subject)',
-			url='http://www.irisa.fr/LIS/ferre/sparklis/' + urllib.parse.urlencode({
-				'title': 'Hi',
-				'endpoint': 'http://servolis.irisa.fr/dbpedia/sparql',
-				'sparklis-query': f'[VId]Return(Det(Term(URI("{uri}")),Some(Triple(S,Det(An(7,Modif(Select,Unordered),Thing),None),Det(An(8,Modif(Select,Unordered),Thing),None)))))',
-				'sparklis-path': 'DDDR'})
-		),
-		dict(
-			label='sparklis (as object)',
-			url='http://www.irisa.fr/LIS/ferre/sparklis/' + urllib.parse.urlencode({
-				'title': 'Hi',
-				'endpoint': 'http://servolis.irisa.fr/dbpedia/sparql',
-				'sparklis-query': f'[VId]Return(Det(Term(URI("{uri}")),Some(Triple(O,Det(An(7,Modif(Select,Unordered),Thing),None),Det(An(8,Modif(Select,Unordered),Thing),None)))))',
-				'sparklis-path': 'DDDR'})								 
-		),
-	]
-	
-	
 	result = json.dumps(result, cls=CustomJSONEncoder, indent=4)
 	#logger.info(f"{result=}")
 	sys.stdout.write(result)
 	return Response(media_type="application/json", content=result.encode('utf-8'))
-
-
 	
-def xnode_str(result,n):
-	xnode_str2(result, n)
-	# if n.get('reverse'):
-	# 	n['short'] = f"is {n['short']} of"
-	
-	if n.get('label'):
-		n['best'] = n['label']
-	elif n.get('short'):
-		n['best'] = n['short']
-	elif n.get('uri'):
-		n['best'] = n['uri']
-
-
-
-
-def xnode_str2(result, xn):
-	n = xn.get('node')
-	logger.info(f"{type(n)=}")
-
-	xn['n3'] = str(n)
-
-	if isinstance(n, agraph.franz.openrdf.model.literal.Literal):
-		s = n.getLabel()
-		if len(s) > 100:
-			s = s[:100] + '...'
-		xn['literal_str'] = s
-		xn['datatype'] = n.getDatatype()
-		xn['language'] = n.getLanguage()
-		
-	if isinstance(n, agraph.franz.openrdf.model.value.URI):
-		xn['uri'] = n.getURI()
-		add_uri_labels(result, xn)
-		add_uri_shortening(result, xn)
-		xn['href'] = '/static/rdftab/rdftab.html?uri=' + urllib.parse.quote(xn['uri'])
-
-
-
-def add_uri_shortening(result,xnode):
-	uri = xnode['uri']
-	
-	r = uri
-	for k,v in result['namespaces'].items():
-		if uri.startswith(v):
-			rr = k + ':' + uri[len(v):]
-			if len(rr) < len(r):
-				r = rr
-	if r != uri:
-		xnode['short'] = r
-	
-
-
-def add_uri_labels(result, xn):
-	labels = []
-	
-	queryString = """
-	SELECT ?l ?g 
-	{
-  			{
-              GRAPH ?g { 
-				?s rdfs:label ?l .
-              }
-			}
-	} LIMIT 10000
-	"""
-	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
-	tupleQuery.setBinding("s", xn['node'])
-	results: agraph.TupleQueryResult
-	with tupleQuery.evaluate() as results:	
-		for bindingSet in results:
-			labels.append(dict(str=bindingSet.getValue("l"), g=bindingSet.getValue("g")))
-
-	if len(labels) > 0:
-		xn['label'] = labels[0]
-		xn['other_labels'] = labels[1:]
-	else:
-		xn['label']=False
-
-
-def add_uri_comments(result, xn):
-	labels = []
-	
-	queryString = """
-	SELECT ?l ?g 
-	{
-  			{
-              GRAPH ?g { 
-				?s rdfs:comment ?l .
-              }
-			}
-	} LIMIT 10000
-	"""
-	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
-	tupleQuery.setBinding("s", xn['node'])
-	results: agraph.TupleQueryResult
-	with tupleQuery.evaluate() as results:	
-		for bindingSet in results:
-			labels.append(dict(str=bindingSet.getValue("l"), g=bindingSet.getValue("g")))
-
-	if len(labels) > 0:
-		xn['comment'] = labels[0]
-		xn['other_comments'] = labels[1:]
-	else:
-		xn['comment']=False
-		
-
-"""
-
-notes
-
-lists are easy, they will be one of the types of resources with a custom-built view component.
-otoh, consider l:vec:
-	we want to associate l:vec objects through kb:occurs_in.
-	actually this might simply be done by the vec view component. (or rather some ifs on the backend)
-	and that's propably fair, until some 'theory of equivalence of complex rdf objects' develops.
-
-literals, otoh, could simply be made to be browseable
- - replace uri with node, trim(<>).. with some n3_parse, fix some errors, and you're browsing ?s ?p ?lit statements (probably not ?lit ?p ?o, those wouldn't exist in the store in the first place...)
-
-but this brings a distinction/discrepancy between complex objects (l:vec) and literals -
-	literals will be browseable by virtue of the browser,
-	vec objects will be browseable by virtue of the view component.
-	other complex objects wont, for example:
-		find two equivalent report entries across different jobs
-		
-
-
-
-
-
-"""
-
-
 
 
 
@@ -542,7 +256,7 @@ async def views_limbo(request: Request, job_id: str, redirect:bool=True):
 			logger.debug('limbo.')
 			
 			alerts = []
-			if job.get('result'):
+			if job.get('result') and isinstance(job['result'], dict):
 				alerts = job['result'].get('alerts', [])
 
 			status = job.get('status', 'unknown')
