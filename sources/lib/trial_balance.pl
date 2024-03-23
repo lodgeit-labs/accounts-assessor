@@ -61,7 +61,7 @@
 	Desc = 'check_txset_at',
 	!transactions_report_currency_sum_at_(Exchange_Rates, Report_Currency, Date, Transactions, Total),
 	exclude(coord_is_almost_zero, Total, Rest),
-	doc_add(Source, l:has_tb, Rest),
+	doc_add(Source, l:has_trial_balance, Rest),
 
 	(	vec_is_almost_zero(Rest)
 	->	true

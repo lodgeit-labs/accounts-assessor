@@ -11,6 +11,11 @@ from rdflib import URIRef, Literal, BNode
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
 
 
 def get(user, uri: str):
@@ -68,7 +73,7 @@ def get(user, uri: str):
 			o = bindingSet.getValue("o")
 			g = bindingSet.getValue("g")
 			
-			logger.info(f"bindingSet = {c} {s} {p} {o} {g}")
+			logger.debug(f"bindingSet = {c} {s} {p} {o} {g}")
 
 			c2 = dict(node=c)
 			s2 = dict(node=s)

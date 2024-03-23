@@ -1,5 +1,39 @@
 import subprocess
+import logging
 import sys, os
+
+# from loguru import logger
+# class InterceptHandler(logging.Handler):
+# 	def emit(self, record):
+# 		# Get corresponding Loguru level if it exists.
+# 		try:
+# 			level = logger.level(record.levelname).name
+# 		except ValueError:
+# 			level = record.levelno
+# 
+# 		# Find caller from where originated the logged message.
+# 		frame, depth = sys._getframe(6), 6
+# 		while frame and frame.f_code.co_filename == logging.__file__:
+# 			frame = frame.f_back
+# 			depth += 1
+# 
+# 		logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+# #logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
+# logger.remove()
+# logger.add(sys.stderr, format="{time} {level} {message}", level="DEBUG", backtrace=True, diagnose=True)
+
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+
+
 
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../workers')))
@@ -33,8 +67,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from pathlib import PosixPath
 import dateutil.parser
-import logging
-import os, sys
 import urllib
 import json
 import datetime
@@ -72,27 +104,6 @@ from tmp_dir_path import get_tmp_directory_absolute_path, ln
 from auth_fastapi import get_user
 from app import rdftab
 
-
-
-from loguru import logger
-class InterceptHandler(logging.Handler):
-	def emit(self, record):
-		# Get corresponding Loguru level if it exists.
-		try:
-			level = logger.level(record.levelname).name
-		except ValueError:
-			level = record.levelno
-
-		# Find caller from where originated the logged message.
-		frame, depth = sys._getframe(6), 6
-		while frame and frame.f_code.co_filename == logging.__file__:
-			frame = frame.f_back
-			depth += 1
-
-		logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
-#logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
-logger.remove()
-logger.add(sys.stderr, format="{time} {level} {message}", level="DEBUG", backtrace=True, diagnose=True)
 
 
 

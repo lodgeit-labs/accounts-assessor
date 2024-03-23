@@ -169,9 +169,9 @@ s_transactions_up_to(End_Date, S_Transactions_All, S_Transactions_Capped) :-
 
 
  st_stuff1(T, Dict, Dict_out) :-
-	doc(T, l:has_tb, Tb0),
+	doc(T, l:has_trial_balance, Tb0),
 	term_string($>round_term(Tb0),Tb_str),
-	findall(Alert,doc(T, l:has_alert, Alert),Alerts),
+	findall(Alert, doc(T, l:has_alert, Alert),Alerts),
 	term_string($>round_term(Alerts), Alerts_str),
 	Dict_out = Dict.put(note, Alerts_str).put(tb, Tb_str).
 

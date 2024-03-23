@@ -53,10 +53,18 @@ l:report_entry rdfs:comment "Report entry captures an account balance or other c
 
 report_entries:total_vec rdfs:label "total (sum) vector (list) of coords or values" .
 
-l:vec rdfs:label "vector (list) of coords or values";
+l:vec rdfs:label "vector (list) of coords or values" .
+l:vec rdfs:comment "vector (list) of coords (debit or credit figures) or values (normal-side figures)" .
 
+l:s_transaction rdfs:label "Source transaction (from bank statement or similar)" .
 
-rdfs:comment "vector (list) of coords (debit or credit figures) or values (normal-side figures)".
+l:transaction rdfs:label "GL transaction" .
+
+s_transactions:id rdftab:category rdftab:technical .
+
+l:cf_category rdfs:label "cashflow category" .
+l:cf_plusminus  rdfs:label "cashflow direction" .
+
 
 
 
