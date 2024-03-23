@@ -4,6 +4,7 @@ import urllib
 import agraph, rdflib
 import urllib3.util
 from franz.openrdf.query.query import QueryLanguage
+from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 from rdflib import URIRef, Literal, BNode
 
 
@@ -18,7 +19,7 @@ logger.addHandler(ch)
 
 
 
-def get(user, uri: str):
+def get(user, node: str):
 	"""
 	render a page displaying all triples for a given URI.
 	add a link to gruff or other rdf visualization tools.
@@ -35,9 +36,11 @@ def get(user, uri: str):
 	where the value is a string that refers to an account, add a link to the account URI.
 	where the node is a vector, display it meaningfully.	
 	"""
+	logger.info(f"{node=}")
 	
 	result = dict(user=user, repo=agraph.repo_by_user(user), props=[])
-	result['conn'] = agraph.agc(result['repo'])
+	conn: RepositoryConnection = agraph.agc(result['repo'])
+	result['conn'] = conn
 	
 	queryString = """
 	PREFIX franzOption_defaultDatasetBehavior: <franz:rdf>
@@ -54,9 +57,13 @@ def get(user, uri: str):
 	}  ORDER BY ?c ?g ?p ?s ?o LIMIT 1000
 	"""
 	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
-	tupleQuery.setBinding("x", agraph.URI(uri))
 	
-	logger.info(f"{uri=}")
+	if node.startswith('<'):
+		agraph_node = agraph.franz.openrdf.model.value.URI(node)
+	else:
+		agraph_node = agraph.franz.openrdf.model.value.Literal(node)
+	tupleQuery.setBinding("x", agraph_node)#agraph.URI(uri))
+	
 	logger.info(f"tupleQuery.evaluate() ...")
 
 	# too many namespaces could be a problem, but it might also be a problem for gruff etc, and so might also be too much data in a single repository.
@@ -111,14 +118,14 @@ def get(user, uri: str):
 		prop['category']['fake'] = prop['category']['uri'].split('#')[-1]
 
 	
-	result['term'] = dict(node=agraph.franz.openrdf.model.value.URI(uri))
+	result['term'] = dict(node=agraph_node)
 	xnode_str(result, result['term'])
 	if result['term'].get('short') or result['term'].get('label'):
 		result['props'].insert(0, dict(
 			g=dict(fake='(rdftab)'),
 			category=dict(fake='identificational'),
 			p=dict(fake='full identifier'), 
-			o=dict(uri=uri),
+			o=dict(uri=agraph_node)
 			))
 
 
@@ -187,7 +194,8 @@ def xnode_str2(result, xn):
 		xn['uri'] = n.getURI()
 		add_uri_labels(result, xn)
 		add_uri_shortening(result, xn)
-		xn['href'] = '/static/rdftab/rdftab.html?uri=' + urllib.parse.quote(xn['uri'])
+
+	xn['href'] = '/static/rdftab/rdftab.html?node=' + urllib.parse.quote(xn['n3'])
 
 
 

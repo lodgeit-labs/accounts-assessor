@@ -28,5 +28,5 @@
 	*/
 	result(Result),
 	doc(Result, l:rdf_explorer_base, Rdf_explorer_base),
-	atomics_to_string([Rdf_explorer_base, '<', Uri, '>'], Uri2),
+	atomics_to_string([Rdf_explorer_base, '<', Uri, '>&focused-graph=', $>result_data_uri_base, 'default'], Uri2),
 	Link = a(href=Uri2, [small("⍰")]).

@@ -172,8 +172,8 @@ def index():
 
 
 @app.get("/api/rdftab")
-def get(request: Request, uri: str):
-	result = rdftab.get(get_user(request), uri)
+def get(request: Request, node: str):
+	result = rdftab.get(get_user(request), node)
 	del result['conn']
 	result = json.dumps(result, cls=CustomJSONEncoder, indent=4)
 	#logger.info(f"{result=}")

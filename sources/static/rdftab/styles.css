@@ -10,7 +10,7 @@ body {
 }
 */
 .identificational {
-    background-color: #ffee00;
+    background-color: #c8ff00;
 }
 .definitional {
     background-color: #ffb177;
@@ -24,6 +24,15 @@ body {
 
 th {
     background-color: #999999;
+}
+
+.focusedGraph {
+    background-color: #FFD700;
+    border: 3px;
+   border-radius: 2em;
+   border-color: "gray";
+   font-weight: bold;
+   
 }
 
 tr.source td {/*

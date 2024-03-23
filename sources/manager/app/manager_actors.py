@@ -100,11 +100,10 @@ def call_prolog_calculator(
 		request_tmp_directory_name=request_directory,
 		result_tmp_directory_name=result_tmp_directory_name,
 		public_url=public_url,
-		rdf_explorer_bases=['/static/rdftab/rdftab.html?uri='] 
+		rdf_explorer_bases=['/static/rdftab/rdftab.html?node='] 
 	)
 
 
-	# ensure the job directory exists. You'd expect this done by the caller, but it doesn't hurt to do it here.
 	params['final_result_tmp_directory_name'] = CurrentMessage.get_current_message().message_id
 	if params['final_result_tmp_directory_name'] is None:
 		params['final_result_tmp_directory_name'] = 'cli'

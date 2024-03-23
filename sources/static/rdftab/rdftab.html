@@ -8,7 +8,8 @@
 	<script src="lodash.js"></script>
 	<script type="text/javascript" src="vue-truncate-collapsed.js"></script>
 
-	<link rel="stylesheet" href="styles.css">
+	<link id="stylesheet" rel="stylesheet" href="styles.css">
+	
 </head>
 <body>
 
@@ -20,11 +21,12 @@
 <script type="text/javascript">
 	'use strict';
 
-	function node(uri)
+	function node(node_n3, focused_graph)
 	{
-		this.uri = uri;
-		this.term={short: uri};
+		this.node_n3 = node_n3;
+		this.term={short: node_n3};
 		this.sources=[{msg: "loading..."}];
+		this.focused_graph = focused_graph;
 	}
 
 	Vue.component('node', {
@@ -32,7 +34,7 @@
 		template: `
         <div>
           <small>resource</small>
-          <b><term :term="node.term"></term></b>
+          <b><term :node="node"  :term="node.term"></term></b>
           <small>and its properties:</small>
           <span v-for="source in node.sources">
               <div v-if="source.msg!='loaded'">
@@ -54,16 +56,16 @@
                 <tbody>             
                       <tr v-for="prop in node.props">
                           <td>
-                              <term :term="prop.g"/>
+                              <term :node="node"  :term="prop.g"/>
                           </td>
                           <td :class="prop.category?.fake">
                               {{ prop.category?.fake }}
                           </td>
-                          <td>
-                              <term :term="prop.p"/>
+                          <td :class="{ 'focusedGraph' : prop.g.uri == node.focused_graph }">
+                              <term :node="node"  :term="prop.p"/>
                           </td>
-                          <td>
-                              <term :term="prop.o"/>
+                          <td :class="{ 'focusedGraph' : prop.g.uri == node.focused_graph }">
+                              <term :node="node"  :term="prop.o"/>
                           </td>
                       </tr>
               </tbody>
@@ -72,12 +74,13 @@
           <hr>
 
           <small v-if="node.tools">
-              browse <b><term :term="node.term"></term></b> also in:
+              browse <b><term :node="node" :term="node.term"></term></b> also in:
               <ul>
               
                   <li  v-for="tool in node.tools">
                       <a v-bind:href="tool.url">{{ tool.label }}</a>
                   </li>   
+
               </ul>
           </small>
           
@@ -87,7 +90,7 @@
 	});
 
 	Vue.component('term', {
-		props: ['term'],
+		props: ['term', 'node'],
 		template: `
         <span>
               <span v-if="term?.reverse">
@@ -108,22 +111,22 @@
               </template>
               <template  v-else-if="term.literal_str">
                   <span>
-                        {{ term.literal_str }}
+                        <a :href="term.href + '&focused-graph=' + node.focused_graph">{{ term.literal_str }}</a>
                   </span>
               </template>
               <template v-else-if="term.label">
                   <span class="identifier" >
-                        <a :href="term.href">{{ term.label.l }}</a>
+                        <a :href="term.href + '&focused-graph=' + node.focused_graph">{{ term.label.l }}</a>
                   </span>
               </template>
               <template v-else-if="term.short">
                   <span class="identifier">
-                        <a :href="term.href">{{ term.short }}</a>
+                        <a :href="term.href + '&focused-graph=' + node.focused_graph">{{ term.short }}</a>
                   </span>
               </template>
               <template v-else-if="term.uri">
                   <span class="identifier">
-                        {{ term.uri }}
+                        <a :href="term.href + '&focused-graph=' + node.focused_graph">{{ term.uri }}</a>
                   </span>
               </template>
               <template v-else>
@@ -142,7 +145,7 @@
 	function load_node_data_all(node)
 	{
 		Promise.all([
-			load_node_data1(node.uri).then(
+			load_node_data1(node.node_n3).then(
 						results => {
 							assign_node_data1(node, results);
 							node.sources[0].msg = 'loaded';
@@ -152,12 +155,11 @@
 		]);
 	};
 
-	function load_node_data1(uri) {
+	function load_node_data1(node_n3) {
 		return new Promise(
 			function(resolve, reject)
 			{
-				//var url = 'http://jj.internal:8877/api/rdftab?uri='+encodeURIComponent(uri);
-				var url = '/api/rdftab?uri='+encodeURIComponent(uri);
+				var url = '/api/rdftab?node='+encodeURIComponent(node_n3);
 				$.ajax({
 					dataType: "json",
 					mimeType: "application/json",
@@ -180,18 +182,19 @@
 		//node.props.push(result.props);
 		for (var key in result) {
 		  if (result.hasOwnProperty(key)) {
-			node[key] = result[key];
+		    node[key] = result[key];
 		  }
 		}
 	}
 	
 	const searchParams = new URLSearchParams(window.location.search);
-	const uri = searchParams.get('uri')?.trim('<').trim('>') || 'https://rdf.lodgeit.net.au/v1/request#Result';
+	const node_n3 = searchParams.get('node') || '<https://rdf.lodgeit.net.au/v1/request#Result>';
+	const focused_graph = searchParams.get('focused-graph');
 
 	var vm = new Vue({
 		el: '#top',
 		data: {
-			node: new node(uri)
+			node: new node(node_n3, focused_graph)
 		},
 		mounted: function ()
 		{
@@ -199,6 +202,13 @@
 			load_node_data_all(this.node);
 		}
 	});
+  
+  
+  document.addEventListener('DOMContentLoaded', (event) => {
+    const link = document.getElementById('stylesheet');
+    link.href = link.href + '?v=' + new Date().getTime();
+  });
+
 
 </script>
 </body>

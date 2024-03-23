@@ -102,7 +102,9 @@ def put_doc_dump_into_triplestore(nq_fn, uris, user):
 			# add prefixes
 			result_prefix = uris['result_tmp_directory_name'].split('.')[-1]
 			# ^see create_tmp_directory_name
-			c.setNamespace(result_prefix, uris['result_data_uri_base'])
+			prx = result_prefix, uris['result_data_uri_base']
+			log.debug("c.setNamespace(%s)...", prx)
+			c.setNamespace(*prx)
 
 
 
