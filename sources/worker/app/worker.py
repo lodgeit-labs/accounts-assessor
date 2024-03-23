@@ -17,7 +17,7 @@ from fs_utils import file_to_json, json_to_file
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
-log.addHandler(logging.StreamHandler())
+#log.addHandler(logging.StreamHandler())
 print('----')
 log.debug('debug from worker.py')
 log.info('info from worker.py')
@@ -106,6 +106,7 @@ def work_loop():
 					try:
 						task_result = do_task(task)
 					finally:
+						log.warning('worker %s exception, stopping heartbeat', worker_id)
 						stop_heartbeat.set()
 	
 			except requests.exceptions.ReadTimeout:
@@ -192,6 +193,7 @@ def heartbeat_loop(stop_heartbeat, worker_id, task_id):
 	while True:
 		time.sleep(10)
 		if stop_heartbeat.is_set():
+			log.info('worker %s heartbeat_loop stopping', worker_id)
 			break
 		try:
 			r = session.post(os.environ['MANAGER_URL'] + f'/worker/{worker_id}/heartbeat', json=dict(

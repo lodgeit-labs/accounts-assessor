@@ -112,7 +112,7 @@ def post_heartbeat(worker_id: str, task_id: str = None, token: str = Depends(wor
 	#		raise HTTPException(status_code=400, detail="Invalid authentication credentials")
 	# ^ we use basicauth atm
 
-	log.debug('heartbeat %s %s', worker_id, task_id)
+	log.debug('post_heartbeat %s %s', worker_id, task_id)
 	worker = get_worker(worker_id, last_seen=datetime.datetime.now())
 	worker.last_reported_task = task_id
 	worker.last_reported_task_ts = datetime.datetime.now()
@@ -166,7 +166,7 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 	else:
 		if worker.task and worker.task_given_ts:
 			time_since_task_sent_to_worker = datetime.datetime.now() - worker.task_given_ts
-			#log.debug(f'{time_since_task_sent_to_worker=}')
+			loop_log.debug(f'{time_since_task_sent_to_worker=}')
 			if time_since_task_sent_to_worker > datetime.timedelta(seconds=15):
 				# grace period, because in the loop below, we may think that we sent a response with task, but the worker might have been already disconnected. But we only record task_given_ts the first time we relay the task, so, if a worker keeps disconnecting, we eventually ...do...something?
 				log.warning(f"""{worker.id} should be working on {worker.
@@ -193,7 +193,6 @@ async def post_messages(request: Request, worker_id: str, inmsg: dict):
 
 		heartbeat(worker)
 		loop_log.debug(f'begin loop3 {worker_id=}')
-		
 		
 
 		#loop_log.debug('id(workers)=%s', id(workers))

@@ -7,7 +7,7 @@
 	vec_sum(Vec_Lits, Sum_Lit),
 	doc_new_(l:vec, Sum),
 	doc_add(Sum, rdf:value, Sum_Lit),
-	maplist(doc_add(Sum, l:has_part), Vec).
+	maplist(doc_add(Sum, l:part), Vec).
 
  doc_new_vec_with_source(Vec, Source, Vec_Uri) :-
 	!doc_new_(l:vec, Vec_Uri),

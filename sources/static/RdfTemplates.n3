@@ -47,7 +47,7 @@
 
 
 l:report_entry rdfs:comment "Report entry captures an account balance or other calculated value, in a hierarchically-organized accounting report.".
-report_entries:total_vec rdfs:label "Total vector (the sum)" .
+report_entries:total_vec rdfs:label "Total vector (coord/value sum)" .
 
 
 report_entries:column rdftab:category rdftab:technical .
