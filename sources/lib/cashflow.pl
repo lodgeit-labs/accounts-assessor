@@ -239,7 +239,7 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 			Misc1 = Misc_Dict.get(desc2)
 		)
 	->	true
-	;	Misc1 = ''),
+	;	Misc1 = ""),
 
 	(
 		(
@@ -248,7 +248,7 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 			Misc2 = Misc_Dict.get(desc3)
 		)
 	->	true
-	;	Misc2 = ''),
+	;	Misc2 = ""),
 	!make_report_entry([
 		$>term_string($>transaction_day(Tx)),
 		$>term_string($>transaction_description(Tx)),
