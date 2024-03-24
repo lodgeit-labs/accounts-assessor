@@ -207,7 +207,7 @@
 	->	atom_string(Units_type, Units_type0)
 	;	Units_type = nil(nil)),
 
-	(doc_value(Item,bs:transaction_description2,Description2) -> true ; Description2='' ),
+	(doc_value(Item,bs:transaction_description2,Description2) -> true ; Description2="" ),
 
 	( doc_value(Item,bs:debit,Bank_Debit) -> true ; Bank_Debit = 0 ),
 	( doc_value(Item,bs:credit,Bank_Credit) -> true ; Bank_Credit = 0 ),

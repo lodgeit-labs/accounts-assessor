@@ -83,7 +83,7 @@
 
 	(	doc_value(Item, ic:description3, Description3)
 	->	true
-	;	Description3 = ''),
+	;	Description3 = ""),
 
 	doc_add_s_transaction(
 		$>!read_date(Item, ic:date),

@@ -249,6 +249,7 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 		)
 	->	true
 	;	Misc2 = ""),
+	
 	!make_report_entry([
 		$>term_string($>transaction_day(Tx)),
 		$>term_string($>transaction_description(Tx)),
