@@ -199,8 +199,10 @@ def add_uri_shortening(result,xnode):
 	
 	r = uri
 	for k,v in result['namespaces'].items():
-		if uri.startswith(v):
-			rr = k + ':' + uri[len(v):]
+		if uri.startswith(v) and uri != v:
+			rest = uri[len(v):]
+			#if len(rest):
+			rr = k + ':' + rest
 			if len(rr) < len(r):
 				r = rr
 	if r != uri:

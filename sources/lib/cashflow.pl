@@ -230,7 +230,7 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 			term_string(Exchanged, Exchanged_Display_String)
 		)
 	->	Exchanged_Display = div(align=right,[Exchanged_Display_String])
-	;	Exchanged_Display = ''),
+	;	Exchanged_Display = ""),
 
 	(
 		(

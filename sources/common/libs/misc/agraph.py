@@ -18,12 +18,38 @@ namespaces = {
 	'kb': 'https://rdf.lodgeit.net.au/v1/kb#',
 	'v1': 'https://rdf.lodgeit.net.au/v1/',
 	'l' : 'https://rdf.lodgeit.net.au/v1/request#',
-	'R': 'https://rdf.tmp/results/',
+	'av': 'https://rdf.lodgeit.net.au/v1/action_verbs#',
+	'bs': 'https://rdf.lodgeit.net.au/v1/bank_statement#',
+	'uv': 'https://rdf.lodgeit.net.au/v1/unit_values#',
+	'excel': 'https://rdf.lodgeit.net.au/v1/excel#',
+	'rb': 'https://rdf.lodgeit.net.au/v1/robust#',
+	'account_taxonomies': 'https://rdf.lodgeit.net.au/v1/account_taxonomies#',
+	'div7a_ui': 'https://rdf.lodgeit.net.au/v1/calcs/div7a/ui#',
+	'div7a_repayment': 'https://rdf.lodgeit.net.au/v1/calcs/div7a/repayment#',
+	'div7a': 'https://rdf.lodgeit.net.au/v1/calcs/div7a#',
+	'depr': 'https://rdf.lodgeit.net.au/v1/calcs/depr#',
+	'ic': 'https://rdf.lodgeit.net.au/v1/calcs/ic#',
+	'hp': 'https://rdf.lodgeit.net.au/v1/calcs/hp#',
+	'depr_ui': 'https://rdf.lodgeit.net.au/v1/calcs/depr/ui#',
+	'ic_ui': 'https://rdf.lodgeit.net.au/v1/calcs/ic/ui#',
+	'hp_ui': 'https://rdf.lodgeit.net.au/v1/calcs/hp/ui#',
+	'cars': 'https://rdf.lodgeit.net.au/v1/cars#',
+	'smsf': 'https://rdf.lodgeit.net.au/v1/calcs/smsf#',
+	'smsf_ui': 'https://rdf.lodgeit.net.au/v1/calcs/smsf/ui#',
+	'smsf_distribution': 'https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution#',
+	'smsf_distribution_ui': 'https://rdf.lodgeit.net.au/v1/calcs/smsf/distribution_ui#',
+	'reallocation': 'https://rdf.lodgeit.net.au/v1/calcs/ic/reallocation#',
+	'acc': 'https://rdf.lodgeit.net.au/v1/calcs/ic/accounts#',
+	'phases': 'https://rdf.lodgeit.net.au/v1/phases#',
+	'transactions': 'https://rdf.lodgeit.net.au/v1/transactions#',
+	's_transactions': 'https://rdf.lodgeit.net.au/v1/s_transactions#',
+	'report_entries': 'https://rdf.lodgeit.net.au/v1/report_entries#',
+	'rdftab': 'https://rdf.lodgeit.net.au/v1/rdftab#',
+
 	'jj' : 'http://jj.internal:8877/tmp/',
 
-	'rdftab': 'https://rdf.lodgeit.net.au/v1/rdftab#',
-}
 
+}
 
 
 registered_prefixes = {}
@@ -53,7 +79,7 @@ def agc(repo='a') -> RepositoryConnection:
 	AGRAPH_SECRET_USER = secret('AGRAPH_SUPER_USER')
 	AGRAPH_SECRET_PASSWORD = secret('AGRAPH_SUPER_PASSWORD')
 
-	a = ag_connect(
+	a: RepositoryConnection = ag_connect(
 		repo=repo,
 		user=AGRAPH_SECRET_USER,
 		password=AGRAPH_SECRET_PASSWORD,
@@ -63,6 +89,7 @@ def agc(repo='a') -> RepositoryConnection:
 
 	)
 	a.setDuplicateSuppressionPolicy('spog')
+	
 
 	for k,v in namespaces.items():
 		a.setNamespace(k,v)

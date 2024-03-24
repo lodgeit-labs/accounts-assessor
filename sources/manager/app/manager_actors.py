@@ -100,7 +100,7 @@ def call_prolog_calculator(
 		request_tmp_directory_name=request_directory,
 		result_tmp_directory_name=result_tmp_directory_name,
 		public_url=public_url,
-		rdf_explorer_bases=['/static/rdftab/rdftab.html?node='] 
+		rdf_explorer_base='/static/rdftab/rdftab.html?node=' 
 	)
 
 
@@ -150,7 +150,8 @@ def call_prolog_calculator(
 		tmp_name=result_tmp_directory_name,
 		tmp_path=result_tmp_directory_path,
 		uris=result.get('uris'),
-		user=worker_options['user']
+		user=worker_options['user'],
+		public_url=public_url
 	), queue_name='postprocessing',
 		on_failure=print_actor_error
 	)

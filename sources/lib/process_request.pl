@@ -24,10 +24,11 @@
 	'='(Request_uri, $>atom_string(<$, Params.request_uri)),
 	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),
 	'='(Request_data_uri, $>atomic_list_concat([Request_data_uri_base, 'request'])),
+	
 	'='(Result_uri, $>atomic_list_concat([Params.rdf_namespace_base, 'results/', Params.result_tmp_directory_name])),
 	'='(Result_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
 
-	maplist(doc_add(Result_uri, l:rdf_explorer_base), Params.rdf_explorer_bases),
+	doc_add(Result_uri, l:rdf_explorer_base, Params.rdf_explorer_base),
 	doc_add(Request_uri, rdf:type, l:'Request'),
 	doc_add(Request_uri, l:has_result, Result_uri),
 	doc_add(Request_uri, l:has_request_data, Request_data_uri),
