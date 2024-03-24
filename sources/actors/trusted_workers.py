@@ -54,6 +54,20 @@ def postprocess(job, request_directory, tmp_name, tmp_path, uris, user, public_u
 		
 
 
+def generate_result_xlsx(tmp_path):
+	f = tmp_path / '000000_doc_result_sheets.turtle'
+	if f.is_file():
+		g=rdflib.graph.ConjunctiveGraph()
+		log.debug(f"load {f} ...")
+		g.parse(f, format='turtle')
+		log.debug(f"load {f} done.")
+
+		# call CSharpServices to generate xlsx
+		
+
+
+
+
 @remoulade.actor
 def print_actor_error(actor_name, exception_name, message_args, message_kwargs):
   log.error(f"Actor {actor_name} failed:")

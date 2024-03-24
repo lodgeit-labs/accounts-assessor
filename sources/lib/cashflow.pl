@@ -26,7 +26,7 @@ cashflow_category(
 ).
 */
 
-cashflow_category(Category, Verb) :-
+ cashflow_category(Category, Verb) :-
 	cashflow_category_helper(Category,Verbs),
 	member(Verb, Verbs). % can cut outside if we don't want more than one
 
@@ -39,7 +39,7 @@ cashflow_category_helper(
 
 % later: derive this from input data
 
-cashflow_category_helper('Investing activities',
+ cashflow_category_helper('Investing activities',
 	[
 		'Dispose_Of','Dispose_Off',
 		'Interest_Income',
@@ -47,7 +47,7 @@ cashflow_category_helper('Investing activities',
 	]
 ).
 
-cashflow_category_helper('Financing activities',
+ cashflow_category_helper('Financing activities',
 	[
 		'Borrow',
 		'Introduce_Capital',
@@ -55,7 +55,7 @@ cashflow_category_helper('Financing activities',
 	]
 ).
 
-cashflow_category_helper('Operating activities',
+ cashflow_category_helper('Operating activities',
 	[
 		'Bank_Charges',
 		'Accountancy_Fees'
@@ -70,7 +70,7 @@ gl_tx_vs_cashflow_category(
 ).
 */
 
-gl_tx_vs_cashflow_category(T, Cat) :-
+ gl_tx_vs_cashflow_category(T, Cat) :-
 	doc(T, transactions:origin, Origin, transactions),
 	(
 		doc(Origin, rdf:type, l:s_transaction, transactions)
@@ -84,7 +84,7 @@ gl_tx_vs_cashflow_category(T, Cat) :-
 /*
 enrich relevant gl transactions with categorization
 */
-tag_gl_transaction_with_cf_data(T) :-
+ tag_gl_transaction_with_cf_data(T) :-
 	transaction_vector(T, V),
 	(	is_debit(V)
 	->	PlusMinus0 = '+'
@@ -98,7 +98,7 @@ tag_gl_transaction_with_cf_data(T) :-
 
 
 /* collect all relevant transactions, return a list of pairs (Categorization, Tx) */
-cf_categorization_uri_tx_pairs(Account, Cat, PlusMinus, Categorization_Tx_Pairs) :-
+ cf_categorization_uri_tx_pairs(Account, Cat, PlusMinus, Categorization_Tx_Pairs) :-
 	findall(
 		(cat(Account, Cat, PlusMinus), T),
 		(
@@ -112,7 +112,7 @@ cf_categorization_uri_tx_pairs(Account, Cat, PlusMinus, Categorization_Tx_Pairs)
 	maplist([(C,T),ct(Uri,T)]>>categorization_to_uri(C,Uri), Pairs, Categorization_Tx_Pairs).
 
 /* put each categorization tuple into doc, so we can use the uris as keys in dicts */
-categorization_to_uri(cat(Account, Cat, PlusMinus), U) :-
+ categorization_to_uri(cat(Account, Cat, PlusMinus), U) :-
 	(
 		/* skip existing */
 		(
@@ -144,16 +144,16 @@ cf_scheme_0_entry_for_account(
 	Entry			% record:entry0
 ).
 */
-cf_scheme_0_root_entry(Sd, Entry) :-
+ cf_scheme_0_root_entry(Sd, Entry) :-
 	!cf_scheme_0_entry_for_account0(Sd, $>account_by_role_throw(rl('Cash_and_Cash_Equivalents')), Entry).
 
-add_entry_balance_desc(_Sd, Entry, B, Column, Text, Type) :-
+ add_entry_balance_desc(_Sd, Entry, B, Column, Text, Type) :-
 	!maybe_balance_lines(xxx, kb:debit, [], B, Balance_Text),
 	flatten([Text, ':', Balance_Text], Desc0),
 	atomics_to_string(Desc0, Desc),
 	!add_report_entry_misc(Entry, Column, Desc, Type). /*todo add Tag, Value*/
 
-cf_scheme_0_entry_for_account0(Sd, Account, Entry) :-
+ cf_scheme_0_entry_for_account0(Sd, Account, Entry) :-
 	!cf_scheme_0_entry_for_account(Sd, Account, Entry),
 
 	/* todo also add a tag like opening_native, so we can crosscheck */
@@ -168,14 +168,14 @@ cf_scheme_0_entry_for_account0(Sd, Account, Entry) :-
 	!add_entry_balance_desc(Sd, Entry, B4, 2, ['closing balance, converted at ', $>term_string(Sd.end_date)], footer).
 
 
-cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
+ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	dif(Children, []),
 	account_direct_children(Account, Children),
 	/* collect entries of child accounts */
 	make_report_entry($>!account_name(Account), $>maplist(cf_scheme_0_entry_for_account0(Sd),Children), Entry).
 
 
-cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
+ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 	?account_direct_children(Account, []),
 	!cf_categorization_uri_tx_pairs(Account, _Cat, _PlusMinus, Account_Items),
 	!gu(l:category, LCategory),
@@ -194,7 +194,7 @@ cf_scheme_0_entry_for_account(Sd, Account, Entry) :-
 
 	!make_report_entry($>!account_name(Account), $>append(Category_Entries0, List_With_Currency_Movement_Entry), Entry).
 
-cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
+ cf_scheme_0_bank_account_currency_movement_entry(Sd, Account, Currency_Movement_Entry) :-
 	!bank_gl_account_currency_movement_account(Account, Currency_Movement_Account),
 	!net_activity_by_account(Sd, Currency_Movement_Account, Vec0, _),
 	!vec_inverse(Vec0, Vec),
@@ -209,18 +209,18 @@ cf_entry_by_category(
 	Category_Entry			% record:entry0
 ).
 */
-cf_entry_by_category(Sd, Category-CF_Items, Category_Entry) :-
+ cf_entry_by_category(Sd, Category-CF_Items, Category_Entry) :-
 	!sort_into_dict([ct(Cat,_),Plus_Minus]>>doc(Cat, l:plusminus, Plus_Minus, cf_stuff), CF_Items, Cf_Items_By_PlusMinus),
 	dict_pairs(Cf_Items_By_PlusMinus, _, Pairs),
 
 	maplist(!cf_scheme0_plusminus_entry(Sd), Pairs, Child_Entries),
 	!make_report_entry(Category, Child_Entries, Category_Entry).
 
-cf_scheme0_plusminus_entry(Sd, (PlusMinus-CF_Items), Entry) :-
+ cf_scheme0_plusminus_entry(Sd, (PlusMinus-CF_Items), Entry) :-
 	maplist(!cf_instant_tx_entry0(Sd), CF_Items, Tx_Entries),
 	!make_report_entry(PlusMinus, Tx_Entries, Entry).
 
-cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
+ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	!cf_instant_tx_vector_conversion(Sd, Tx, Vec),
 	(
 		(
@@ -260,7 +260,7 @@ cf_instant_tx_entry0(Sd, ct(_,Tx), Entry) :-
 	!add_report_entry_misc(Entry, 3, Misc2, single).
 
 
-cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
+ cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 	/*very crude metadata for now*/
 	doc_new_(rdf:value, Uri),
 	Source =	vec_change_bases(Sd.exchange_rates, $>transaction_day(Tx), Sd.report_currency, $>transaction_vector(Tx), Vec),
@@ -269,7 +269,7 @@ cf_instant_tx_vector_conversion(Sd, Tx, Uri) :-
 	doc_add(Uri, l:source, (vec_change_bases)).
 
 
-report_entry_fill_in_totals(Entry) :-
+ report_entry_fill_in_totals(Entry) :-
 	!report_entry_children(Entry, Children),
 	maplist(!report_entry_fill_in_totals, Children),
 	maplist(!report_entry_total_vec, Children, Child_Vecs),
@@ -282,10 +282,10 @@ report_entry_fill_in_totals(Entry) :-
 	!set_report_entry_total_vec(Entry, Total_Vec).
 
 
-tag_gl_transactions_with_cf_data(Filtered_Transactions) :-
+ tag_gl_transactions_with_cf_data(Filtered_Transactions) :-
 	maplist(!tag_gl_transaction_with_cf_data, Filtered_Transactions).
 
-cashflow(
+ cashflow(
 	Sd,				% + Static Data
 	Entries
 ) :-
