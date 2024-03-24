@@ -45,8 +45,8 @@ def postprocess(job, request_directory, tmp_name, tmp_path, uris, user, public_u
 			Archive=f'../../view/archive/{job}/{tmp_name}',
 			Rdftab='/static/rdftab/rdftab.html?'+urllib.parse.urlencode(
 					{
-						'node':						'<'+public_url + '/rdf/results/' + result_tmp_directory_name+'/>',
-						'focused-graph':		'<'+public_url + '/rdf/results/' + result_tmp_directory_name+'/>'
+						'node':						'<'+	public_url + '/rdf/results/' + result_tmp_directory_name+'/>',
+						'focused-graph':				public_url + '/rdf/results/' + result_tmp_directory_name+'/default'
 					}
 				)
 			)
