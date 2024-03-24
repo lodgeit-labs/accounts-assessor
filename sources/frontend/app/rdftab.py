@@ -60,13 +60,11 @@ def get(user, node: str):
 	"""
 	tupleQuery: agraph.TupleQuery = result['conn'].prepareTupleQuery(QueryLanguage.SPARQL, queryString)
 	
-	if node.startswith('<'):
-		agraph_node = agraph.franz.openrdf.model.value.URI(node)
-	else:
-		agraph_node = agraph.franz.openrdf.model.value.Literal(node)
+	agraph_node = agraph.parse_term(node)
+
 	tupleQuery.setBinding("x", agraph_node)#agraph.URI(uri))
 	
-	logger.info(f"tupleQuery.evaluate() ...")
+	logger.info(f"{agraph_node=} ,  tupleQuery.evaluate() ...")
 
 	# too many namespaces could be a problem, but it might also be a problem for gruff etc, and so might also be too much data in a single repository.
 	# So, there might be some need to manage repositories and active namespaces, and they might best be scoped to a single user by default, "pub" being a special case managed by us.
@@ -127,6 +125,10 @@ def get(user, node: str):
 	
 	result['term'] = dict(node=agraph_node)
 	xnode_str(result, result['term'])
+	add_uri_labels(result, result['term'])
+	add_href(result['term'])
+	
+	
 	if result['term'].get('short') or result['term'].get('label'):
 		result['props'].append(dict(
 			g=dict(fake='(rdftab)'),
@@ -141,6 +143,11 @@ def get(user, node: str):
 
 	g = None
 	for i, prop in enumerate(result['props']):
+		prop['id'] = i
+		prop['p']['id'] = 'p' + str(i)
+		prop['o']['id'] = 'o' + str(i)
+		prop['g']['id'] = 'g' + str(i)
+		
 		if prop['g'].get('best') != g:
 			g = prop['g'].get('best')
 		else:
@@ -149,19 +156,29 @@ def get(user, node: str):
 		
 	for prop in result['props']:
 		for node in [prop['p'], prop['o'], prop['g']]:
-			if node.get('n3'):
-				node['href'] = '/static/rdftab/rdftab.html?node=' + urllib.parse.quote(node['n3'])
+			add_href(node)
+
 
 	add_tools(result)
 	return result
+
+	
+def add_href(node):
+	if node.get('n3'):
+		node['href'] = '/static/rdftab/rdftab.html?node=' + urllib.parse.quote_plus(node['n3'])
+	node['wtf'] = False
+	node['embedded_node'] = {}
 
 	
 def xnode_str(result,xn):
 
 	n = xn.get('node')
 	logger.info(f"{type(n)=}")
+	
+	if n is None:
+		return
 
-	xn['n3'] = str(n)
+	xn['n3'] = n.toNTriples()
 
 	if isinstance(n, agraph.franz.openrdf.model.literal.Literal):
 		s = n.getLabel()
@@ -192,7 +209,10 @@ def add_uri_shortening(result,xnode):
 
 
 def add_uri_labels(result, xn):
-	labels = uri_labels(result['conn'], xn['node'])	
+	if xn.get('node'):
+		labels = list(uri_labels(result['conn'], xn['node']))
+	else:
+		labels = []	
 	
 	if len(labels) > 0:
 		xn['label'] = labels[0]
@@ -203,6 +223,8 @@ def add_uri_labels(result, xn):
 
 @cachetools.cached({})		
 def uri_labels(conn, node):
+
+	labels = []
 	
 	queryString = """
 	PREFIX franzOption_defaultDatasetBehavior: <franz:rdf>
@@ -213,11 +235,12 @@ def uri_labels(conn, node):
 	} LIMIT 10000
 	"""
 	tupleQuery: agraph.TupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString)
-	tupleQuery.setBinding("s", xn['node'])
+	tupleQuery.setBinding("s", node)
 	results: agraph.TupleQueryResult
 	with tupleQuery.evaluate() as results:
 		for bindingSet in results:
-			yield dict(l=bindingSet.getValue("l").getLabel(), g=bindingSet.getValue("g"))
+			labels.append(dict(l=bindingSet.getValue("l").getLabel(), g=bindingSet.getValue("g")))
+	return labels
 	
 	
 	
@@ -255,14 +278,6 @@ def add_uri_comments(result, xn):
 		xn['comment']=False
 		
 
-
-# 
-# 
-# def assign_best_display(prop):
-# 	assign_best_display2(prop['g'])
-# 	assign_best_display2(prop['category'])
-# 	assign_best_display2(prop['p'])
-# 	assign_best_display2(prop['o'])
 		
 def assign_best_display2(n):
 	if n.get('fake'):
@@ -278,6 +293,44 @@ def assign_best_display2(n):
 	else:
 		raise Exception('unexpected!: ' + str(n))
 		
+
+
+def add_tools(result):
+	
+	repo = result['repo']
+	endpoint = os.environ['AGRAPH_URL'] + '/repositories/' + repo + '/statements'
+	sp = 'http://www.irisa.fr/LIS/ferre/sparklis/osparklis.html?'
+	#uri = result['term']['uri']
+	n3 = result['term']['n3']
+	
+	result['tools'] = [
+		dict(
+			label='agraph classic-webview',
+			 #url=os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+repo+'/node/' + '<' + uri + '>'),
+			 url=os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+repo+'/node/' + n3),
+			 
+		dict(
+			label='sparklis (as subject)',
+			url=sp + urllib.parse.urlencode({
+				'title': 'Hi',
+				'endpoint': endpoint,# 'http://servolis.irisa.fr/dbpedia/sparql',
+				'sparklis-query': f'[VId]Return(Det(Term(URI("{n3}")),Some(Triple(S,Det(An(7,Modif(Select,Unordered),Thing),None),Det(An(8,Modif(Select,Unordered),Thing),None)))))',
+				'sparklis-path': 'DDDR'})
+		),
+		
+		dict(
+			label='sparklis (as object)',
+			url=sp + urllib.parse.urlencode({
+				'title': 'Hi',
+				'endpoint': endpoint,# 'http://servolis.irisa.fr/dbpedia/sparql',
+				'sparklis-query': f'[VId]Return(Det(Term(URI("{n3}")),Some(Triple(O,Det(An(7,Modif(Select,Unordered),Thing),None),Det(An(8,Modif(Select,Unordered),Thing),None)))))',
+				'sparklis-path': 'DDDR'})								 
+		),
+	]
+		
+
+
+
 
 
 """
@@ -298,59 +351,8 @@ but this brings a distinction/discrepancy between complex objects (l:vec) and li
 	vec objects will be browseable by virtue of the view component.
 	other complex objects wont, for example:
 		find two equivalent report entries across different jobs
-		
-
-
-
-
-
+	
 """
-
-
-
-
-
-
-
-
-
-
-
-
-def add_tools(result):
-	
-	repo = result['repo']
-	endpoint = os.environ['AGRAPH_URL'] + '/repositories/' + repo + '/statements'
-	sp = 'http://www.irisa.fr/LIS/ferre/sparklis/osparklis.html?'
-	uri = result['term']['uri']
-	
-	result['tools'] = [
-		dict(
-			label='agraph classic-webview',
-			 url=os.environ['AGRAPH_URL'] + '/classic-webview#/repositories/'+repo+'/node/' + '<' + uri + '>'),
-			 
-		dict(
-			label='sparklis (as subject)',
-			url=sp + urllib.parse.urlencode({
-				'title': 'Hi',
-				'endpoint': endpoint,# 'http://servolis.irisa.fr/dbpedia/sparql',
-				'sparklis-query': f'[VId]Return(Det(Term(URI("{uri}")),Some(Triple(S,Det(An(7,Modif(Select,Unordered),Thing),None),Det(An(8,Modif(Select,Unordered),Thing),None)))))',
-				'sparklis-path': 'DDDR'})
-		),
-		
-		dict(
-			label='sparklis (as object)',
-			url=sp + urllib.parse.urlencode({
-				'title': 'Hi',
-				'endpoint': endpoint,# 'http://servolis.irisa.fr/dbpedia/sparql',
-				'sparklis-query': f'[VId]Return(Det(Term(URI("{uri}")),Some(Triple(O,Det(An(7,Modif(Select,Unordered),Thing),None),Det(An(8,Modif(Select,Unordered),Thing),None)))))',
-				'sparklis-path': 'DDDR'})								 
-		),
-	]
-		
-
-
-
 
 
 # def prop_categories(result, all_props):
@@ -377,3 +379,13 @@ def add_tools(result):
 	# 
 	# result['props'].sort(key=lambda x: (category_order.get(x['category']['fake']), x['p']['best'], x['o']['best'], x['g']['best']))
 	# 			
+
+
+
+# 
+# 
+# def assign_best_display(prop):
+# 	assign_best_display2(prop['g'])
+# 	assign_best_display2(prop['category'])
+# 	assign_best_display2(prop['p'])
+# 	assign_best_display2(prop['o'])

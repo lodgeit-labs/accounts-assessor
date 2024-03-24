@@ -14,14 +14,13 @@
 <body>
 
 <div id="top">
-	<!--  style="float:left; height:100%" -->
 	<node :node="node"></node>
 </div>
 
 <script type="text/javascript">
 	'use strict';
 
-	function node(node_n3, focused_graph)
+	function Node(node_n3, focused_graph)
 	{
 		this.node_n3 = node_n3;
 		this.term={short: node_n3};
@@ -32,7 +31,7 @@
 	Vue.component('node', {
 		props: ['node'],
 		template: `
-        <div>
+        <span>
           <small>resource</small>
           <b><term :node="node"  :term="node.term"></term></b>
           <small>and its properties:</small>
@@ -42,31 +41,29 @@
               </div>
           </span>
           
-          <table v-if="node.props">
+          <table v-if="node.props" :class="{ 'focusedGraph' : false }">
                     
                 <thead>
                       <tr>
-                        <th>provenance / graph / id</th>
-                        <th>category</th>
                         <th>property</th>
                         <th>value</th>
+                        <th>id</th>
                       </tr>
                     </thead>
   
                 <tbody>             
-                      <tr v-for="prop in node.props">
-                          <td>
-                              <term_expandable :node="node"  :term="prop.g"/>
+                      <tr v-for="prop in node.props" :key="prop.id">
+
+                          <td :class="{ 'general' : prop.category?.fake == 'general' }">
+                              <term_expandable :node="node"  :term="prop.p" :key="prop.p.id" />
                           </td>
-                          <td :class="prop.category?.fake">
-                              {{ prop.category?.fake }}
+                          <td :class="{ 'focusedGraphAndGeneral' : prop.g.uri == node.focused_graph && prop.category?.fake == 'general' }">                           
+                              <term_expandable :node="node"  :term="prop.o" :key="prop.o.id" />
                           </td>
                           <td :class="{ 'focusedGraph' : prop.g.uri == node.focused_graph }">
-                              <term_expandable :node="node"  :term="prop.p"/>
+                              <term_expandable :node="node"  :term="prop.g" :key="prop.g.id"/>
                           </td>
-                          <td :class="{ 'focusedGraph' : prop.g.uri == node.focused_graph }">                           
-                              <term_expandable :node="node"  :term="prop.o"/>
-                          </td>
+
                       </tr>
               </tbody>
           </table>
@@ -84,7 +81,7 @@
               </ul>
           </small>
           
-        </div>
+        </span>
 		`,
 		methods: {}
 	});
@@ -94,24 +91,43 @@
  Vue.component('term_expandable', {
      props: ['term', 'node'],
      template: `
-<span>
-    <button v-if="term.literal_str || term.uri" @click="toggle_expanded" >{{ term.expanded || "expand" }}</button>  
-    <template v-if="term.expanded">
-            <node :node="term.embedded_node"></node>
+<div>
+    <button v-if="term.literal_str || term.uri" @click="toggle_expanded" >{{ term.wtf ? '-' : ' + ' }}</button>
+    
+    <template v-if="term.wtf">
+            <node :node="term.embedded_node" :key="term.id" />
     </template>
     <template v-else>
             <term :term="term" :node="node"/>
     </template>
-</span>          
+
+</div>          
     `,
      methods: {
          toggle_expanded: function () {
-             this.term.expanded = !this.term.expanded;
-             console.log("toggle_expanded:" + this.term.expanded);
-             if (this.term.expanded && !this.term.embedded_node) {
-                 this.term.embedded_node = new node(this.term.n3, this.node.focused_graph);
-                 load_node_data_all(this.term.embedded_node);
-             }
+             var wtf = !this.term.wtf;
+             console.log("toggle_expanded:" + wtf);
+             if (wtf && !this.term.embedded_node.node_n3 && !this.term.loading) 
+             {
+                 this.term.loading = true;
+                 let n = new Node(this.term.n3, this.node.focused_graph);
+                 n.term.href = this.term.href;
+                 //Vue.set(this.term, 'embedded_node', this.term.embedded_node);
+                 load_node_data_all(n, (e) => {this.term.loading = false;}).then(
+                     () => {
+                         console.log("loaded");
+                         Vue.set(this.term, 'embedded_node', n);
+                         this.$forceUpdate();
+                         this.term.loading = false;
+                     }
+                 ).catch(
+                     (error) => {
+                         console.log("error: " + error);
+                     }
+                 );
+    		   }
+          Vue.set(this.term, 'wtf', wtf);
+           this.$forceUpdate();
          }
      }
  });
@@ -171,16 +187,20 @@ Vue.component('term', {
 
   
 
-	function load_node_data_all(node)
+	function load_node_data_all(node, fail_callback)
 	{
-		Promise.all([
+		return Promise.all([
 			load_node_data1(node.node_n3).then(
 						results => {
 							assign_node_data1(node, results);
 							node.sources[0].msg = 'loaded';
 						}
 						).catch(
-							(error) => {node.sources[0].msg = "error: " + error;})
+							(error) => {
+							  node.sources[0].msg = "error: " + error;
+							  fail_callback(error) 
+              }
+            )
 		]);
 	};
 
@@ -223,7 +243,7 @@ Vue.component('term', {
 	var vm = new Vue({
 		el: '#top',
 		data: {
-			node: new node(node_n3, focused_graph)
+			node: new Node(node_n3, focused_graph)
 		},
 		mounted: function ()
 		{

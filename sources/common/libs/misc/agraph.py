@@ -1,6 +1,8 @@
 import json, os, logging
 import franz
 from franz.openrdf.model.value import URI
+from franz.openrdf.model.literal import Literal
+from franz.openrdf.model.utils import parse_term 
 from franz.openrdf.repository.repositoryconnection import RepositoryConnection
 from franz.openrdf.connect import ag_connect
 from config import secret

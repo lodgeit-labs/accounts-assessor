@@ -15,9 +15,11 @@ body {
 .definitional {
     /*background-color: #ffb177;*/
 }
-.general {
-    background-color: #8effa5;
-    border: 3px;
+
+
+.general  {
+    /*font-weight: bold;*/ 
+    background-color: #fffc10; !important;
    border-radius: 2em;
 }
 .technical {
@@ -28,12 +30,17 @@ th {
     background-color: #999999;
 }
 
-.focusedGraph {
-    background-color: #fff300;
+td.focusedGraph {
+    background-color: #6aa2ff;
     border: 3px;
    border-radius: 2em;
 /*   font-weight: bold;*/
-   
+}
+
+.focusedGraphAndGeneral {
+    background-color: #9bff54;
+    border: 3px;
+   border-radius: 2em;
 }
 
 tr.source td {/*
@@ -51,6 +58,8 @@ td.source {
 table {
 /*  border-collapse:separate;
   /*border-spacing:10px 10px;*/
+  background-color: #B0D0FF;
+    border: 1px;
 }
 
 td {
@@ -69,4 +78,7 @@ input {
 .identifier {
 }
 
+button {
+   font-family: monospace;
+}
 
