@@ -293,7 +293,7 @@ cashflow(
 			!cf(transactions_in_period_on_account_and_subaccounts(Sd.transactions_by_account, Root, Sd.start_date, Sd.end_date, Filtered_Transactions)),
 			cf(tag_gl_transactions_with_cf_data, Filtered_Transactions),
 			!cf(cf_scheme_0_root_entry(Sd, Entry)),
-			!doc_add($>result, l:has_cashflow, Entry),
+			!doc_add($>result, l:cashflow, Entry),
 			!cf(report_entry_fill_in_totals(Entry)),
 			Entries = [Entry]
 		)

@@ -30,11 +30,11 @@
 
 	doc_add(Result_uri, l:rdf_explorer_base, Params.rdf_explorer_base),
 	doc_add(Request_uri, rdf:type, l:'Request'),
-	doc_add(Request_uri, l:has_result, Result_uri),
+	doc_add(Request_uri, l:result, Result_uri),
 	doc_add(Request_uri, l:has_request_data, Request_data_uri),
 	doc_add(Result_uri, rdf:type, l:'Result'),
-	doc_add(Result_uri, l:has_result_data_uri_base, Result_data_uri_base),
-	doc_add(Result_uri, l:has_job_handle, Params.final_result_tmp_directory_name),
+	doc_add(Result_uri, l:result_data_uri_base, Result_data_uri_base),
+	doc_add(Result_uri, l:job_handle, Params.final_result_tmp_directory_name),
 	doc_add(Request_data_uri, l:request_tmp_directory_name, Params.request_tmp_directory_name),
 
 	set_server_public_url(Params.public_url),
@@ -213,10 +213,11 @@ alert_to_html also has key available - 'error'
 
  'make task_directory report entry' :-
 	report_file_path__singleton(loc(file_name, ''), Tmp_Dir_Url, _),
-	add_report_file(_Report_Uri, -101,'task_directory', 'task_directory', Tmp_Dir_Url).
-
+	add_report_file(_, -101,'task_directory', 'task_directory', Tmp_Dir_Url).
+	%add_report_file(_, -102,'rdftab', 'rdftab', Tmp_Dir_Url).
+	
  'make task_directory report entry 2' :-
-	result_property(l:has_job_handle, H),
+	result_property(l:job_handle, H),
 	atomic_list_concat(['../',H],H2),
 	report_file_path__singleton(loc(file_name, H2), Tmp_Dir_Url, _),
 	add_report_file(_Report_Uri, -100,'job_tmp_url', 'job_tmp_url', Tmp_Dir_Url).

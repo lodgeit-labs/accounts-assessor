@@ -354,7 +354,7 @@ flag_default('PREPARE_UNIQUE_TAXONOMY_URL', true).
 	!get_time(TimeStamp),
 	!stamp_date_time(TimeStamp, DateTime, 'UTC'),
 	!doc_add(Result, l:timestamp, DateTime),
-	doc_add($>result, l:type, l:ledger).
+	doc_add($>result, l:calculator_type, l:ledger).
 
  read_ic_n_sts_processed(N) :-
 	b_current_num_with_default(ic_n_sts_processed, 0, N).

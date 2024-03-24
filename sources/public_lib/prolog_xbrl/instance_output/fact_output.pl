@@ -258,7 +258,7 @@ format_balance(Format, Report_Currency_List, Context, Name, Normal_Side, Coord, 
 			unitRef=Sane_Unit_Id,
 			decimals="INF"],
 			[Amount]),
-		result_add_property(l:has_used_unit, Unit, xml)
+		result_add_property(l:used_unit, Unit, xml)
 	;
 		(	Format = html
 		->	(

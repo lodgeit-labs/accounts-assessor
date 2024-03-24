@@ -52,7 +52,7 @@
 	findall(
 		Element,
 		(
-			*doc(R, l:has_used_unit, Unit, xml),
+			*doc(R, l:used_unit, Unit, xml),
 			(print_used_unit(Unit, Element) -> true ; throw('internal error 3'))
 		),
 		Elements).
