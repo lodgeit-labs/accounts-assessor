@@ -21,37 +21,36 @@
 	doc_init,
 	%init_doc_dump_server,
 	context_trace_init_trail_0,
-	'='(Request_uri, $>atom_string(<$, Params.request_uri)),
-	'='(Request_data_uri_base, $>atomic_list_concat([Request_uri, '/request_data/'])),
-	'='(Request_data_uri, $>atomic_list_concat([Request_data_uri_base, 'request'])),
-	
-	'='(Result_uri, $>atomic_list_concat([Params.rdf_namespace_base, 'results/', Params.result_tmp_directory_name])),
-	'='(Result_data_uri_base, $>atomic_list_concat([Result_uri, '/'])),
 
-	doc_add(Result_uri, l:rdf_explorer_base, Params.rdf_explorer_base),
+	'='(Request_uri,
+		$>atom_string(<$, Params.request_uri)),
+	'='(Request_data_uri_base,
+		$>atomic_list_concat([Request_uri, '/request_data/'])),
+	'='(Request_data_uri,
+		$>atomic_list_concat([Request_data_uri_base, 'request'])),
+	
+	'='(Result_uri,
+		$>atomic_list_concat([Params.rdf_namespace_base, 'results/', Params.result_tmp_directory_name])),
+	'='(Result_data_uri_base,
+		$>atomic_list_concat([Result_uri, '/'])),
+
 	doc_add(Request_uri, rdf:type, l:'Request'),
 	doc_add(Request_uri, l:result, Result_uri),
 	doc_add(Request_uri, l:has_request_data, Request_data_uri),
+	doc_add(Request_data_uri, l:request_tmp_directory_name, Params.request_tmp_directory_name),
+
+	doc_add(Result_uri, l:rdf_explorer_base, Params.rdf_explorer_base),
 	doc_add(Result_uri, rdf:type, l:'Result'),
 	doc_add(Result_uri, l:result_data_uri_base, Result_data_uri_base),
 	doc_add(Result_uri, l:job_handle, Params.final_result_tmp_directory_name),
-	doc_add(Request_data_uri, l:request_tmp_directory_name, Params.request_tmp_directory_name),
 
 	set_server_public_url(Params.public_url),
-
-	findall(
-		loc(absolute_path, P),
-		member(P, Params.request_files),
-		Request_Files
-	),
-
-	(	Request_Files = [Dir]
-	->	resolve_directory(Dir, Request_Files2)
-	;	Request_Files2 = Request_Files),
-
+	resolve_request_files(Request_Files2),
 	'make task_directory report entry',
 	'make task_directory report entry 2',
 
+
+	% this is the setup for normal usage. Enabling cutoff would require a different setup.
 	findall(x, process_request(Params.request_format, Request_data_uri_base, Request_Files2), Solutions),
 	length(Solutions, Solutions_len),
 	(	Solutions_len #= 0
@@ -61,8 +60,17 @@
 	->	json_write(current_output, err{warning:m{message:'multiple solutions'}})
 	;	true).
 
-	%true.%
-	%nicety((cf(make_zip)->true;true)).
+
+ resolve_request_files(Request_Files2) :-
+	findall(
+		loc(absolute_path, P),
+		member(P, Params.request_files),
+		Request_Files
+	),
+
+	(	Request_Files = [Dir]
+	->	resolve_directory(Dir, Request_Files2)
+	;	Request_Files2 = Request_Files),
 
 
  flag_default('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', false).

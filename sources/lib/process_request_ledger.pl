@@ -16,7 +16,7 @@ state (in doc) -> Static_Data (swipl dict) -> structured reports -> crosschecks
 	%progress(),
  	!ledger_initialization,
 	*valid_ledger_model,
- 	ct('process_request_ledger is finished.').
+ 	ct('process_request_ledger is finished, valid_ledger_model found.').
 
 
  ledger_initialization :-

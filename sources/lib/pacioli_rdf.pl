@@ -3,6 +3,7 @@
 	Sum: [a rdf:value]
 */
  vec_sum_with_proof(Vec, Sum) :-
+ 	/* Vec is a prolog list of of [rdf:value, Lit]'s */
 	maplist([Uri, Lit]>>(doc(Uri, rdf:value, Lit)), Vec, Vec_Lits),
 	vec_sum(Vec_Lits, Sum_Lit),
 	doc_new_(l:vec, Sum),
