@@ -51,13 +51,13 @@ import exchange_rates
 logging.basicConfig()
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.WARNING)
 log.debug('debug main.py')
 log.warning('warn main.py')
 #log.addHandler(logging.StreamHandler(sys.stderr))
 
 loop_log = logging.getLogger('loop')
-loop_log.setLevel(logging.DEBUG)
+loop_log.setLevel(logging.WARNING)
 loop_log.debug('debug loop')
 loop_log.warning('warn loop')
 

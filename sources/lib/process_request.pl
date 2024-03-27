@@ -45,7 +45,7 @@
 	doc_add(Result_uri, l:job_handle, Params.final_result_tmp_directory_name),
 
 	set_server_public_url(Params.public_url),
-	resolve_request_files(Request_Files2),
+	resolve_request_files(Params, Request_Files2),
 	'make task_directory report entry',
 	'make task_directory report entry 2',
 
@@ -61,7 +61,7 @@
 	;	true).
 
 
- resolve_request_files(Request_Files2) :-
+ resolve_request_files(Params, Request_Files2) :-
 	findall(
 		loc(absolute_path, P),
 		member(P, Params.request_files),
@@ -70,7 +70,7 @@
 
 	(	Request_Files = [Dir]
 	->	resolve_directory(Dir, Request_Files2)
-	;	Request_Files2 = Request_Files),
+	;	Request_Files2 = Request_Files).
 
 
  flag_default('DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR', false).

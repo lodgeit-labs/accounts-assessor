@@ -9,8 +9,10 @@ from app.misc import uri_params, env_string
 
 
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-log.debug('debug call_prolog.py')
+log.setLevel(logging.WARNING)
+log.debug('debug from call_prolog.py')
+log.info('info from call_prolog.py')
+log.warning('warning from call_prolog.py')
 
 
 
@@ -56,7 +58,8 @@ def call_prolog(
 	except FileNotFoundError:
 		config = {}
 
-	default_options = dict(	
+	default_options = dict(
+		ROBUST_DOC_NO_CHECKS=False,	
 		ENABLE_CONTEXT_TRACE_TRAIL=False,
 		DISABLE_GRACEFUL_RESUME_ON_UNEXPECTED_ERROR=False,
 		GTRACE_ON_OWN_EXCEPTIONS=False,

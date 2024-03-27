@@ -5,7 +5,7 @@
 */
 
  'extract bank accounts' :-
- 	maplist('extract bank accounts 2', [ic_ui:bank_statement_sheet, ic:bank_statement]).
+ 	maplist('extract bank accounts 2', [$>gu(ic_ui:bank_statement_sheet), $>gu(ic:bank_statement)]).
 
 
  'extract bank accounts 2'(Type) :-
@@ -28,7 +28,7 @@
 	rpv(Acc, bs:items, Raw_items_list0),
 	doc_list_items(Raw_items_list0, Raw_items0),
 
-	(	Type == ic_ui:bank_statement_sheet
+	(	e(Type, ic_ui:bank_statement_sheet)
 	->	(
 			length(Raw_items0, L),
 			(	L < 1
@@ -42,7 +42,7 @@
 
 	!doc_add(Uri, l:raw_items, Raw_items1),
 
-	(	(	Type == ic_ui:bank_statement_sheet
+	(	(	e(Type, ic_ui:bank_statement_sheet)
 		->	opv(First_row, bs:bank_balance, Opening_balance_number)
 		;	opv(Acc, bs:opening_balance, Opening_balance_number))
 	->	(	is_numeric(Opening_balance_number)

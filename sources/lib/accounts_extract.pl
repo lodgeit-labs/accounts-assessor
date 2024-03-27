@@ -214,9 +214,9 @@ extract accounts from accountHierarchy xml element
  extract_normal_side_uri_from_attrs(Attrs, Side) :-
 	(	memberchk((normal_side = Side_atom), Attrs)
 	->	(	Side_atom = debit
-		->	Side = kb:debit
+		->	e(Side, kb:debit)
 		;	(	Side_atom = credit
-			->	Side = kb:credit
+			->	e(Side, kb:credit)
 			;	throw_string(['unexpected account normal side in accounts xml:', Side_atom])))).
 
  extract_normal_side_uri_from_account_detail_rdf(Detail, Side) :-
