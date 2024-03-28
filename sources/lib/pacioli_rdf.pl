@@ -15,7 +15,7 @@
  doc_new_vec_with_source(Vec, Source, Vec_Uri) :-
 	!doc_new_(l:vec, Vec_Uri),
 	!doc_add(Vec_Uri, rdf:value, Vec),
-	!doc_add(Vec_Uri, l:source, Source).
+	!doc_add(Vec_Uri, l:source, $>gu(Source)).
 
 
 
